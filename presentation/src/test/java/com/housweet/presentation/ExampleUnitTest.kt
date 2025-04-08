@@ -1,4 +1,4 @@
-package com.example.housweet
+package com.housweet.presentation
 
 import org.junit.Test
 

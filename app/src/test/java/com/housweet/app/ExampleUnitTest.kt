@@ -1,4 +1,4 @@
-package com.example.data
+package com.housweet.app
 
 import org.junit.Test
 
