@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.housweet"
+    namespace = "com.housweet.app"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.housweet"
+        applicationId = "com.housweet.app"
         minSdk = 28
         targetSdk = 34
         versionCode = 1
