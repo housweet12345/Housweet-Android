@@ -1,7 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
-    id("com.google.gms.google-services")
     id("com.google.dagger.hilt.android")
     kotlin("kapt")
 }
@@ -20,14 +19,6 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    buildFeatures {
-        compose = true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.3"
-    }
-
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -39,8 +30,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 
     kotlinOptions {
@@ -52,19 +43,8 @@ dependencies {
     implementation(project(":data"))
     implementation(project(":domain"))
     implementation(project(":presentation"))
-    implementation(libs.material)
-    implementation(libs.androidx.activity)
-    implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
-
-    //Jetpack Compose
-    implementation("androidx.compose.ui:ui:1.5.3")
-    implementation("androidx.compose.material:material:1.5.3")
-    implementation("androidx.compose.ui:ui-tooling-preview:1.5.3")
-    implementation("androidx.activity:activity-compose:1.6.0")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.0")
-    implementation("androidx.navigation:navigation-compose:2.5.3")
 
     //Hilt
     implementation("com.google.dagger:hilt-android:2.51.1")
