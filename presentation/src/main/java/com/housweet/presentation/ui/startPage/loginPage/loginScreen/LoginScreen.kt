@@ -1,5 +1,6 @@
 package com.housweet.presentation.ui.startPage.loginPage.loginScreen
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -18,7 +19,15 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,8 +37,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.housweet.presentaion.R
 import com.housweet.presentation.ui.startPage.GuideText
+import com.housweet.presentation.ui.startPage.LoadingBar
+import com.housweet.presentation.ui.startPage.navigation.Route
+import com.housweet.presentation.ui.startPage.navigation.StartPageNavigationManager
 import com.housweet.presentation.ui.theme.BackgroundColor
 import com.housweet.presentation.ui.theme.IndicatorOff
 import com.housweet.presentation.ui.theme.IndicatorOn
@@ -38,10 +52,67 @@ import com.housweet.presentation.ui.theme.TextColorBlack
 import com.housweet.presentation.ui.theme.TextColorBrown
 import com.housweet.presentation.ui.theme.TextColorPurple
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun LoginScreen() {
+fun LoginScreen(
+    modifier: Modifier,
+    navController: NavHostController,
+    loginViewModel: LoginViewModel = hiltViewModel()
+) {
+    val navigationManager = StartPageNavigationManager(navController)
+    val uiState: LoginUiState by loginViewModel.loginUiState.collectAsState()
+    val snackBarHostState = remember { SnackbarHostState() }
+    when (uiState) {
+        LoginUiState.SignUp -> {
+            navigationManager.navigateOneWay(
+                Route.LoginRoute.LoginScreen,
+                Route.LoginRoute.WelComeScreen
+            )
+        }
+
+        LoginUiState.SignIn -> {
+            navigationManager.navigateOneWay(
+                Route.LoginRoute.LoginScreen,
+                Route.LoginRoute.WelComeScreen
+            )
+        }
+
+        LoginUiState.IsLoading -> {
+            LoadingBar()
+        }
+
+        LoginUiState.LoginError -> {
+            Scaffold(
+                modifier = Modifier.fillMaxSize(),
+                snackbarHost = { SnackbarHost(hostState = snackBarHostState) }
+            ) {
+                LoginScreen(modifier = modifier) {
+                    loginViewModel.kakaoLogin()
+                }
+
+                LaunchedEffect(snackBarHostState) {
+                    snackBarHostState.showSnackbar(
+                        message = "로그인에 실패했습니다.",
+                        actionLabel = "닫기",
+                        duration = SnackbarDuration.Short
+                    )
+
+                }
+            }
+        }
+
+        LoginUiState.IDlE -> {
+            LoginScreen(modifier = modifier) {
+                loginViewModel.kakaoLogin()
+            }
+        }
+    }
+}
+
+@Composable
+private fun LoginScreen(modifier: Modifier, onKakaoLoginClick: () -> Unit) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(BackgroundColor)
     ) {
@@ -85,7 +156,7 @@ fun LoginScreen() {
 
         Spacer(modifier = Modifier.height(height = 30.dp))
 
-        KakaoLoginButton { }
+        KakaoLoginButton { onKakaoLoginClick() }
     }
 }
 
@@ -93,7 +164,7 @@ fun LoginScreen() {
 fun GuideImg() {
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { 3 })
     val guideImgList =
-        listOf(R.drawable.guideimage1, R.drawable.guideimage1, R.drawable.guideimage1)
+        listOf(R.drawable.guide_image1, R.drawable.guide_image1, R.drawable.guide_image1)
     GuideImgPagerIndicator(pagerState.pageCount, pagerState.currentPage)
 
     Spacer(modifier = Modifier.height(height = 33.dp))
@@ -175,9 +246,8 @@ fun KakaoLoginButton(
     }
 }
 
-
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
-    LoginScreen()
+    LoginScreen(Modifier) { }
 }

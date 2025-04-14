@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -5,6 +8,13 @@ plugins {
     id("com.google.dagger.hilt.android")
     kotlin("kapt")
 }
+
+val properties = Properties().apply {
+    load(FileInputStream("${rootDir}/local.properties"))
+}
+
+val kakaoApiKey = properties["kakaoLogin_api_key"] ?: ""
+val kakaoRedirectUri = properties["kakaoLogin_Redirect_Uri"] ?: ""
 
 android {
     namespace = "com.housweet.presentaion"
@@ -18,6 +28,9 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        manifestPlaceholders["Kakao_API_KEY"]  = kakaoApiKey as String
+        manifestPlaceholders["Kakao_Redirect_URI"] = kakaoRedirectUri as String
     }
 
     buildTypes {
@@ -30,15 +43,16 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
 
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "1.8"
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.15"
@@ -80,6 +94,14 @@ dependencies {
     // Hilt
     implementation("com.google.dagger:hilt-android:2.51.1")
     kapt("com.google.dagger:hilt-android-compiler:2.51.1")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+
+    // Kakao
+    implementation(libs.v2.user)
+
+    // Coil
+    implementation(libs.coil.compose)
+    implementation(libs.coil.gif)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

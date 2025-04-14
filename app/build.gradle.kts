@@ -1,9 +1,18 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     id("com.google.dagger.hilt.android")
     kotlin("kapt")
 }
+
+val properties = Properties().apply {
+    load(FileInputStream("${rootDir}/local.properties"))
+}
+
+val kakaoApiKey = properties["kakaoLogin_api_key"] ?: ""
 
 android {
     namespace = "com.housweet.app"
@@ -17,6 +26,8 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "Kakao_API_KEY", kakaoApiKey.toString())
     }
 
     buildTypes {
@@ -36,6 +47,9 @@ android {
 
     kotlinOptions {
         jvmTarget = "11"
+    }
+    buildFeatures {
+        buildConfig = true
     }
 }
 
@@ -61,6 +75,9 @@ dependencies {
 
     // Kotlin Coroutine
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0")
+
+    // Kakao
+    implementation(libs.v2.user)
 
     //Test
     testImplementation(libs.junit)
