@@ -23,19 +23,27 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.housweet.presentaion.R
 import com.housweet.presentation.ui.startPage.GuideText
+import com.housweet.presentation.ui.startPage.navigation.StartPageNavigationManager
 import com.housweet.presentation.ui.theme.BackgroundColor
 import com.housweet.presentation.ui.theme.PermitBtnColor
 import com.housweet.presentation.ui.theme.TextColorBlack
-import com.housweet.presentation.ui.theme.TextColorGray
+import com.housweet.presentation.ui.theme.TextColorGraye
 import com.housweet.presentation.ui.theme.TextColorPurple
 import com.housweet.presentation.ui.theme.TextColorWhite
 
 @Composable
-fun PermissionGuideScreen() {
+fun PermissionGuideScreen(modifier: Modifier, navController: NavHostController) {
+    val navigationManager = StartPageNavigationManager(navController)
+    PermissionGuideScreen(modifier = modifier) { }
+}
+
+@Composable
+private fun PermissionGuideScreen(modifier: Modifier, onPermitBtnClick: () -> Unit) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(BackgroundColor)
     ) {
@@ -64,25 +72,25 @@ fun PermissionGuideScreen() {
         Spacer(modifier = Modifier.height(height = 32.dp))
 
         PermissionGuideItem(
-            icon = R.drawable.cameraicon,
+            icon = R.drawable.camera_icon,
             content = "카메라 (선택)",
             description = "사진 첨부 시 촬영을 위한 사용"
         )
 
         PermissionGuideItem(
-            icon = R.drawable.galleryicon,
+            icon = R.drawable.gallery_icon,
             content = "갤러리 (선택)",
             description = "사진 첨부 시 사용"
         )
 
         PermissionGuideItem(
-            icon = R.drawable.alarmicon,
+            icon = R.drawable.alarm_icon,
             content = "알람 (선택)",
             description = "알림 기능 시 사용"
         )
 
         PermissionGuideItem(
-            icon = R.drawable.locationicon,
+            icon = R.drawable.location_icon,
             content = "위치 정보 (선택)",
             description = "메이트 찾기 시 사용"
         )
@@ -91,7 +99,7 @@ fun PermissionGuideScreen() {
 
         GuideText(
             modifier = Modifier.padding(start = 20.dp),
-            color = TextColorGray,
+            color = TextColorGraye,
             text = "・ 허용하지 않으셔도 앱 사용은 가능하나,",
             fontWeight = FontWeight.W400,
             fontSize = 12.sp,
@@ -101,7 +109,7 @@ fun PermissionGuideScreen() {
 
         GuideText(
             modifier = Modifier.padding(start = 20.dp),
-            color = TextColorGray,
+            color = TextColorGraye,
             text = "     일부 서비스 이용에 제한이 있을 수 있습니다.",
             fontWeight = FontWeight.W400,
             fontSize = 12.sp,
@@ -113,7 +121,7 @@ fun PermissionGuideScreen() {
         
         GuideText(
             modifier = Modifier.padding(start = 20.dp),
-            color = TextColorGray,
+            color = TextColorGraye,
             text = "・ 설정 > 하우스잇에서 권한을 변경할 수 있습니다.",
             fontWeight = FontWeight.W400,
             fontSize = 12.sp,
@@ -123,7 +131,7 @@ fun PermissionGuideScreen() {
 
         Spacer(modifier = Modifier.weight(weight = 1f))
 
-        PermitButton { }
+        PermitButton { onPermitBtnClick() }
     }
 }
 
@@ -176,9 +184,9 @@ fun PermissionGuideItem(
 }
 
 @Composable
-fun PermitButton(onClick: () -> Unit) {
+fun PermitButton(onPermitBtnClick: () -> Unit) {
     Button(
-        onClick = { onClick() },
+        onClick = { onPermitBtnClick() },
         modifier = Modifier
             .fillMaxWidth()
             .height(50.dp),
@@ -203,5 +211,5 @@ fun PermitButton(onClick: () -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun PermissionGuideScreenPreview() {
-    PermissionGuideScreen()
+    PermissionGuideScreen(modifier = Modifier) { }
 }

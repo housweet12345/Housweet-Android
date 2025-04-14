@@ -7,20 +7,35 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.housweet.presentation.ui.startPage.GuideText
+import com.housweet.presentation.ui.startPage.navigation.Route
+import com.housweet.presentation.ui.startPage.navigation.StartPageNavigationManager
 import com.housweet.presentation.ui.theme.BackgroundColor
 import com.housweet.presentation.ui.theme.TextColorPurple
+import kotlinx.coroutines.delay
 
 @Composable
-fun WelcomeScreen() {
+fun WelcomeScreen(modifier: Modifier, navController: NavHostController) {
+    val navigationManager = StartPageNavigationManager(navController)
+    LaunchedEffect(key1 = true) {
+        delay(3000)
+        navigationManager.navigateOneWay(Route.LoginRoute.WelComeScreen, Route.LoginRoute.PermissionGuideScreen)
+    }
+    WelcomeScreen(modifier)
+}
+
+@Composable
+private fun WelcomeScreen(modifier: Modifier) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(BackgroundColor)
             .padding(start = 20.dp)
@@ -50,5 +65,5 @@ fun WelcomeScreen() {
 @Preview(showBackground = true)
 @Composable
 fun WelcomeScreenPreview() {
-    WelcomeScreen()
+    WelcomeScreen(Modifier)
 }
