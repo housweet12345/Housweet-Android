@@ -41,7 +41,7 @@ fun ProfileScreen() {
         TagSection()
         Spacer(modifier = Modifier.height(24.dp))
         // 하단 버튼
-        EditProfileButton()
+        EditProfileButton(false)
     }
 }
 
@@ -199,26 +199,48 @@ fun TagChip(text: String) {
 }
 
 @Composable
-fun EditProfileButton() {
+fun EditProfileButton(
+    isMyProfile: Boolean
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
     ) {
-        Button(
-            onClick = { /* 프로필 편집 */ },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            shape = RoundedCornerShape(6.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = ColorGroup.Primary
-            )
-        ) {
-            Text(
-                text = "채팅하기",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium
-            )
+        if (isMyProfile){
+            Button(
+                onClick = { /* 프로필 편집 */ },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                shape = RoundedCornerShape(6.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = ColorGroup.White_F8F8F8
+                )
+            ) {
+                Text(
+                    text = "프로필 수정",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = ColorGroup.Black_1E1E1E
+                )
+            }
+        } else {
+            Button(
+                onClick = { /* 프로필 편집 */ },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                shape = RoundedCornerShape(6.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = ColorGroup.Primary
+                )
+            ) {
+                Text(
+                    text = "채팅하기",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
         }
     }
 }
@@ -229,4 +251,16 @@ fun ProfileScreenPreview() {
     MaterialTheme {
         ProfileScreen()
     }
+}
+
+@Preview
+@Composable
+private fun ChatProfileButtonPreview() {
+    EditProfileButton(true)
+}
+
+@Preview
+@Composable
+private fun EditProfileButtonPreview() {
+    EditProfileButton(false)
 }
