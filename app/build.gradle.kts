@@ -74,11 +74,6 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.9.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.0")
 
-    // Socket.IO
-    implementation("io.socket:socket.io-client:1.0.0") {
-        exclude(group = "org.json", module = "json")
-    }
-
     // Kotlin Coroutine
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0")
 
