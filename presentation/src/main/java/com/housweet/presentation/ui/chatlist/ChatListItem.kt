@@ -1,5 +1,6 @@
 package com.housweet.presentation.ui.chatlist
 
+import android.R.attr.onClick
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -26,7 +27,7 @@ fun ChatListItem(chat: ChatPreview, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable{onClick()}
+            .clickable{}
             .padding(16.dp)
     ) {
         Box(
