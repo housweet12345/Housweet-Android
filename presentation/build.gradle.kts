@@ -1,7 +1,8 @@
 plugins {
-    alias(libs.plugins.android.application)
+    alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
     id("com.google.dagger.hilt.android")
+    id("org.jetbrains.kotlin.plugin.compose") version "2.1.0"
     kotlin("kapt")
 }
 
@@ -10,9 +11,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.housweet.presentation"
         minSdk = 28
-        targetSdk = 35
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
     }
@@ -33,33 +32,41 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.3"
-    }
     kotlinOptions {
         jvmTarget = "17"
     }
 }
 
 dependencies {
+    //내부 모듈
     implementation(project(":domain"))
+
+    //Android 기본 구성
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
+    implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.runtime.android)
     implementation(libs.androidx.storage)
-    implementation(libs.androidx.compose.ui) // Compose UI 의존성
-    implementation(libs.androidx.compose.foundation) // LazyColumn 관련 의존성 추가
+
+    //Jetpack Compose
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.material)
     implementation("androidx.compose.material3:material3:1.1.0")
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(libs.androidx.test.ext.junit)
-    androidTestImplementation(libs.androidx.test.espresso.core)
+
+    //Navigation (Compose용)
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+
+    //Hilt (의존성 주입)
     implementation("com.google.dagger:hilt-android:2.51.1")
     kapt("com.google.dagger:hilt-android-compiler:2.51.1")
+
+    //테스트
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 }

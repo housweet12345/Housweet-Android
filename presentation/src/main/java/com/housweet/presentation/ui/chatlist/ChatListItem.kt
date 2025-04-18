@@ -27,7 +27,7 @@ fun ChatListItem(chat: ChatPreview, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable{}
+            .clickable{ onClick() }
             .padding(16.dp)
     ) {
         Box(

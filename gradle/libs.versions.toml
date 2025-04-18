@@ -1,6 +1,6 @@
 [versions]
-agp = "8.6.0"
-kotlin = "1.9.10"
+agp = "8.5.2"
+kotlin = "2.1.0"
 coreKtx = "1.15.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
@@ -17,6 +17,7 @@ storage = "1.5.0"
 compose = "1.5.3"
 junitJunit = "4.12"
 runner = "1.6.1"  # 최신 Compose 버전으로 수정
+composeCompiler = "1.5.10"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -46,3 +47,4 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
+kotlin-plugin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

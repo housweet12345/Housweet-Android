@@ -9,7 +9,7 @@ data class ChatPreview (
 )
 
 val dummyChatList = listOf(
-    ChatPreview("김지안", "집을 문의하고 싶어서 연락드렸어요. 지금도 메...", "오전 11:30", true),
+    ChatPreview("김지안", "집을 문의하고 싶어서 연락드렸어요. 지금...", "오전 11:30", true),
     ChatPreview("김지안", "안녕하세요", "오전 11:30", false),
     ChatPreview("김지안", "안녕하세요", "오전 11:30", false)
 )

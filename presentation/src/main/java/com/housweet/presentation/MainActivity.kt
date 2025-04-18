@@ -5,9 +5,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.Composable
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.housweet.presentation.R
+import com.housweet.presentation.ui.chat.ChatScreen
 import com.housweet.presentation.ui.chatlist.ChatListScreen
 
 //class MainActivity : AppCompatActivity() {
@@ -27,7 +32,33 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            ChatListScreen()
+            val navController = rememberNavController()
+            NavHost(
+                navController = navController,
+                startDestination = "chat_list"
+            ) {
+                composable("chat_list") {
+                    ChatListScreen(navController)
+                }
+                composable("chat/{chatName}") { backStackEntry ->
+                    val chatName = backStackEntry.arguments?.getString("chatName") ?: "Unknown"
+                    ChatScreen(chatName)
+                }
+            }
+        }
+    }
+
+    @Composable
+    fun AppNavigation() {
+        val navController = rememberNavController()
+        NavHost(navController = navController, startDestination = "chatList") {
+            composable("chatList") {
+                ChatListScreen(navController)
+            }
+            composable("chat/{chatName}") { backStackEntry ->
+                val chatName = backStackEntry.arguments?.getString("chatName") ?: "알 수 없음"
+                ChatScreen(chatName)
+            }
         }
     }
 }
