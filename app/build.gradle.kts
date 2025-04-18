@@ -1,8 +1,9 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
-    id("com.google.gms.google-services")
     id("com.google.dagger.hilt.android")
+    id("com.google.gms.google-services")
+    id("org.jetbrains.kotlin.plugin.compose") version "2.1.0"
     kotlin("kapt")
 }
 
@@ -24,9 +25,9 @@ android {
         compose = true
     }
 
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.3"  // Compose 컴파일러 버전
-    }
+//    composeOptions {
+//        kotlinCompilerExtensionVersion = "1.5.3"  // Compose 컴파일러 버전
+//    }
 
     buildTypes {
         release {
@@ -57,6 +58,11 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.storage)
+
+    //Firebase
+    implementation(platform("com.google.firebase:firebase-bom:33.12.0"))
+    implementation("com.google.firebase:firebase-analytics")
 
     //Jetpack Compose
     implementation("androidx.compose.ui:ui:1.5.3")
