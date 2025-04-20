@@ -14,6 +14,9 @@ import androidx.navigation.compose.rememberNavController
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.chat.ChatScreen
 import com.housweet.presentation.ui.chatlist.ChatListScreen
+import androidx.compose.animation.*
+
+
 
 //class MainActivity : AppCompatActivity() {
 //    override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,6 +31,7 @@ import com.housweet.presentation.ui.chatlist.ChatListScreen
 //    }
 //}
 
+@OptIn(ExperimentalAnimationApi::class)
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,7 +46,7 @@ class MainActivity : ComponentActivity() {
                 }
                 composable("chat/{chatName}") { backStackEntry ->
                     val chatName = backStackEntry.arguments?.getString("chatName") ?: "Unknown"
-                    ChatScreen(chatName)
+                    ChatScreen(chatName, navController)
                 }
             }
         }
@@ -51,13 +55,16 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun AppNavigation() {
         val navController = rememberNavController()
-        NavHost(navController = navController, startDestination = "chatList") {
-            composable("chatList") {
+        NavHost(
+            navController = navController,
+            startDestination = "chat_list"
+        ) {
+            composable("chat_list") {
                 ChatListScreen(navController)
             }
             composable("chat/{chatName}") { backStackEntry ->
-                val chatName = backStackEntry.arguments?.getString("chatName") ?: "알 수 없음"
-                ChatScreen(chatName)
+                val chatName = backStackEntry.arguments?.getString("chatName") ?: "Unknown"
+                ChatScreen(chatName, navController)
             }
         }
     }
