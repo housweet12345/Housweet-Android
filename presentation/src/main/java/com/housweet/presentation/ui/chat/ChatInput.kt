@@ -1,6 +1,8 @@
 package com.housweet.presentation.ui.chat
 
+import android.R.attr.text
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -25,8 +27,12 @@ import androidx.compose.runtime.setValue
 
 
 @Composable
-fun ChatInput() {
-    var text by remember { mutableStateOf("") }
+fun ChatInput(
+    inputText: String,
+    onTextChange: (String) -> Unit,
+    onSend: () -> Unit
+) {
+//    var text by remember { mutableStateOf("") }
 
     Row(
         modifier = Modifier
@@ -45,8 +51,8 @@ fun ChatInput() {
         )
 
         TextField(
-            value = text,
-            onValueChange = { text = it },
+            value = inputText,
+            onValueChange = onTextChange,
             placeholder = { Text("메세지 입력") },
             modifier = Modifier
                 .weight(1f)
@@ -65,7 +71,11 @@ fun ChatInput() {
             contentDescription = "보내기",
             modifier = Modifier
                 .padding(8.dp)
-                .size(24.dp),
+                .size(24.dp)
+                .clickable {
+                    onSend()
+                }
+            ,
             tint = Color.Gray
         )
     }

@@ -32,7 +32,7 @@ class MainActivity : ComponentActivity() {
                 }
                 composable("chat_detail/{chatName}") { backStackEntry ->
                     val chatName = backStackEntry.arguments?.getString("chatName") ?: "Unknown"
-                    ChatScreen(chatName)
+                    ChatScreen(chatName, navController)
                 }
             }
         }

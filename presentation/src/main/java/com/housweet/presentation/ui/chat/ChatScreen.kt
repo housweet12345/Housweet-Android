@@ -1,34 +1,62 @@
 package com.housweet.presentation.ui.chat
 
-import android.R.attr.text
-import android.R.attr.top
-import android.R.id.message
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.SnackbarDefaults.backgroundColor
+import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.foundation.lazy.items
 
 @Composable
-fun ChatScreen(chatName: String) {
+fun ChatScreen(chatName: String, navController: NavController) {
+    //채팅 목록 상태 관리 (기본 메세지 3개)
+    var messages by remember {
+        mutableStateOf(
+            listOf<Pair<String, Boolean>>(
+                "안녕하세요" to false,
+                "안녕하세요" to true,
+                "집 문의하고 싶어서 연락드렸어요. 지금도 메이트 구하시나요?" to false
+            )
+        )
+    }
+
+    //입력값 상태 관리
+    var inputText by remember {mutableStateOf("")}
+
     Column(modifier = Modifier.fillMaxSize().background(Color.White)) {
 //        Text(text = "채팅 상대: $chatName", fontSize = 24.sp, fontWeight = FontWeight.Bold)
         TopAppBar(
             title={Text(text = chatName)},
             backgroundColor = Color.White,
-            elevation = 0.dp
+            elevation = 0.dp,
+            navigationIcon = {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "뒤로가기",
+                    modifier = Modifier
+                        .padding(start = 16.dp)
+                        .clickable { navController.popBackStack() }
+                )
+            }
         )
 
         //안내 문구
@@ -67,29 +95,21 @@ fun ChatScreen(chatName: String) {
                 .padding(horizontal = 12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            item {
-                //왼쪽 말풍선
-                ChatBubble(
-                    message = "안녕하세요",
-                    isMine = false
-                )
-            }
-            item {
-                //오른쪽 말풍선
-                ChatBubble(
-                    message = "안녕하세요",
-                    isMine = true
-                )
-            }
-            item {
-                ChatBubble  (
-                    message = "집 문의하고 싶어서 연락드렸어요. 지금도 메이트 구하시나요?",
-                    isMine = false
-                )
+            items(items = messages) { (msg, isMine) ->
+                ChatBubble(message = msg, isMine = isMine)
             }
         }
 
         //입력창
-        ChatInput()
+        ChatInput(
+            inputText = inputText,
+            onTextChange = { inputText = it },
+            onSend = {
+                if(inputText.isNotBlank()) {
+                    messages = messages + Pair(inputText, true)
+                    inputText = ""
+                }
+            }
+        )
     }
 }
