@@ -14,48 +14,49 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
+import com.housweet.presentation.ui.startPage.BackOnPressed
 import com.housweet.presentation.ui.startPage.GuideText
-import com.housweet.presentation.ui.startPage.navigation.Route
-import com.housweet.presentation.ui.startPage.navigation.StartPageNavigationManager
-import com.housweet.presentation.ui.theme.BackgroundColor
-import com.housweet.presentation.ui.theme.TextColorPurple
+import com.housweet.presentation.ui.theme.Purple
+import com.housweet.presentation.ui.theme.White
+import com.housweet.presentation.ui.theme.dmsansFontFamily
 import kotlinx.coroutines.delay
 
 @Composable
-fun WelcomeScreen(modifier: Modifier, navController: NavHostController) {
-    val navigationManager = StartPageNavigationManager(navController)
+fun WelcomeScreen(modifier: Modifier, onNextScreen: () -> Unit) {
     LaunchedEffect(key1 = true) {
         delay(3000)
-        navigationManager.navigateOneWay(Route.LoginRoute.WelComeScreen, Route.LoginRoute.PermissionGuideScreen)
+        onNextScreen()
     }
-    WelcomeScreen(modifier)
+    BackOnPressed()
+    WelcomeContent(modifier)
 }
 
 @Composable
-private fun WelcomeScreen(modifier: Modifier) {
+private fun WelcomeContent(modifier: Modifier) {
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(BackgroundColor)
+            .background(White)
             .padding(start = 20.dp)
     ) {
         Spacer(modifier = Modifier.height(height = 117.dp))
 
         GuideText(
-            color = TextColorPurple,
+            color = Purple,
             text = "반가워요,",
             fontWeight = FontWeight.W700,
             fontSize = 22.sp,
+            fontFamily = dmsansFontFamily,
             lineHeight = 22.sp,
             textAlign = TextAlign.Start
         )
 
         GuideText(
-            color = TextColorPurple,
+            color = Purple,
             text = "하우스메이트님!",
             fontWeight = FontWeight.W700,
             fontSize = 22.sp,
+            fontFamily = dmsansFontFamily,
             lineHeight = 22.sp,
             textAlign = TextAlign.Start
         )
@@ -65,5 +66,5 @@ private fun WelcomeScreen(modifier: Modifier) {
 @Preview(showBackground = true)
 @Composable
 fun WelcomeScreenPreview() {
-    WelcomeScreen(Modifier)
+    WelcomeContent(Modifier)
 }

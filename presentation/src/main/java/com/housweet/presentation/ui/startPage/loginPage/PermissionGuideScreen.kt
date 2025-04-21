@@ -14,6 +14,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -23,48 +24,52 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
 import com.housweet.presentaion.R
+import com.housweet.presentation.ui.startPage.BackOnPressed
+import com.housweet.presentation.ui.startPage.BottomButton
 import com.housweet.presentation.ui.startPage.GuideText
-import com.housweet.presentation.ui.startPage.navigation.StartPageNavigationManager
-import com.housweet.presentation.ui.theme.BackgroundColor
-import com.housweet.presentation.ui.theme.PermitBtnColor
-import com.housweet.presentation.ui.theme.TextColorBlack
-import com.housweet.presentation.ui.theme.TextColorGraye
-import com.housweet.presentation.ui.theme.TextColorPurple
-import com.housweet.presentation.ui.theme.TextColorWhite
+import com.housweet.presentation.ui.theme.Black
+import com.housweet.presentation.ui.theme.Gray_7E7E7E
+import com.housweet.presentation.ui.theme.Purple
+import com.housweet.presentation.ui.theme.White
+import com.housweet.presentation.ui.theme.dmsansFontFamily
+import com.housweet.presentation.ui.theme.nanumSquareFontFamily
 
 @Composable
-fun PermissionGuideScreen(modifier: Modifier, navController: NavHostController) {
-    val navigationManager = StartPageNavigationManager(navController)
-    PermissionGuideScreen(modifier = modifier) { }
+fun PermissionGuideScreen(modifier: Modifier, onNextScreen: () -> Unit) {
+    BackOnPressed()
+    PermissionGuideContent(modifier = modifier) {
+        onNextScreen()
+    }
 }
 
 @Composable
-private fun PermissionGuideScreen(modifier: Modifier, onPermitBtnClick: () -> Unit) {
+private fun PermissionGuideContent(modifier: Modifier, onPermitBtnClick: () -> Unit) {
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(BackgroundColor)
+            .background(White)
     ) {
         Spacer(modifier = Modifier.height(height = 117.dp))
 
         GuideText(
             modifier = Modifier.padding(start = 20.dp),
-            color = TextColorPurple,
+            color = Purple,
             text = "하우스잇 사용을 위해",
             fontWeight = FontWeight.W700,
             fontSize = 22.sp,
+            fontFamily = dmsansFontFamily,
             lineHeight = 22.sp,
             textAlign = TextAlign.Start
         )
 
         GuideText(
             modifier = Modifier.padding(start = 20.dp),
-            color = TextColorPurple,
+            color = Purple,
             text = "아래의 접근 권한이 필요해요.",
             fontWeight = FontWeight.W700,
             fontSize = 22.sp,
+            fontFamily = dmsansFontFamily,
             lineHeight = 22.sp,
             textAlign = TextAlign.Start
         )
@@ -99,20 +104,22 @@ private fun PermissionGuideScreen(modifier: Modifier, onPermitBtnClick: () -> Un
 
         GuideText(
             modifier = Modifier.padding(start = 20.dp),
-            color = TextColorGraye,
+            color = Gray_7E7E7E,
             text = "・ 허용하지 않으셔도 앱 사용은 가능하나,",
             fontWeight = FontWeight.W400,
             fontSize = 12.sp,
+            fontFamily = nanumSquareFontFamily,
             lineHeight = 22.sp,
             textAlign = TextAlign.Start
         )
 
         GuideText(
             modifier = Modifier.padding(start = 20.dp),
-            color = TextColorGraye,
-            text = "     일부 서비스 이용에 제한이 있을 수 있습니다.",
+            color = Gray_7E7E7E,
+            text = "   일부 서비스 이용에 제한이 있을 수 있습니다.",
             fontWeight = FontWeight.W400,
             fontSize = 12.sp,
+            fontFamily = nanumSquareFontFamily,
             lineHeight = 22.sp,
             textAlign = TextAlign.Start
         )
@@ -121,22 +128,25 @@ private fun PermissionGuideScreen(modifier: Modifier, onPermitBtnClick: () -> Un
         
         GuideText(
             modifier = Modifier.padding(start = 20.dp),
-            color = TextColorGraye,
+            color = Gray_7E7E7E,
             text = "・ 설정 > 하우스잇에서 권한을 변경할 수 있습니다.",
             fontWeight = FontWeight.W400,
             fontSize = 12.sp,
+            fontFamily = nanumSquareFontFamily,
             lineHeight = 22.sp,
             textAlign = TextAlign.Start
         )
 
         Spacer(modifier = Modifier.weight(weight = 1f))
 
-        PermitButton { onPermitBtnClick() }
+        BottomButton(text = "허용하기") {
+            onPermitBtnClick()
+        }
     }
 }
 
 @Composable
-fun PermissionGuideItem(
+private fun PermissionGuideItem(
     icon: Int,
     content: String,
     description: String,
@@ -145,31 +155,34 @@ fun PermissionGuideItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp)
+                .padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 painter = painterResource(id = icon),
                 contentDescription = content,
-                tint = TextColorPurple
+                tint = Purple
             )
             Spacer(modifier = Modifier.width(width = 8.dp))
             Column {
                 GuideText(
                     modifier = Modifier,
-                    color = TextColorPurple,
+                    color = Purple,
                     text = content,
                     fontWeight = FontWeight.W800,
-                    fontSize = 18.sp,
+                    fontSize = 14.sp,
+                    fontFamily = nanumSquareFontFamily,
                     lineHeight = 18.sp,
                     textAlign = TextAlign.Start
                 )
 
                 GuideText(
                     modifier = Modifier,
-                    color = TextColorBlack,
+                    color = Black,
                     text = description,
                     fontWeight = FontWeight.W400,
                     fontSize = 12.sp,
+                    fontFamily = nanumSquareFontFamily,
                     lineHeight = 18.sp,
                     textAlign = TextAlign.Start
                 )
@@ -183,33 +196,8 @@ fun PermissionGuideItem(
     }
 }
 
-@Composable
-fun PermitButton(onPermitBtnClick: () -> Unit) {
-    Button(
-        onClick = { onPermitBtnClick() },
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(50.dp),
-        shape = RectangleShape,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = PermitBtnColor,
-            contentColor = TextColorWhite
-        )
-    ) {
-        GuideText(
-            modifier = Modifier.fillMaxWidth(),
-            color = TextColorWhite,
-            text = "허용하기",
-            fontWeight = FontWeight.W700,
-            fontSize = 15.sp,
-            lineHeight = 18.sp,
-            textAlign = TextAlign.Center
-        )
-    }
-}
-
 @Preview(showBackground = true)
 @Composable
-fun PermissionGuideScreenPreview() {
-    PermissionGuideScreen(modifier = Modifier) { }
+private fun PermissionGuideScreenPreview() {
+    PermissionGuideContent(modifier = Modifier) { }
 }

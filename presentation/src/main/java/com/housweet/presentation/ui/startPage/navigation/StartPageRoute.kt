@@ -12,4 +12,15 @@ sealed interface Route {
         @Serializable
         data object PermissionGuideScreen : LoginRoute
     }
+
+    sealed interface AccessRoomRoute : Route {
+        @Serializable
+        data object AccessRoomScreen : AccessRoomRoute
+
+        @Serializable
+        data object CreateRoomScreen : AccessRoomRoute
+
+        @Serializable
+        data object SearchRoomScreen : AccessRoomRoute
+    }
 }
