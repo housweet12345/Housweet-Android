@@ -1,6 +1,8 @@
 package com.housweet.presentation.ui.startPage.loginPage.loginScreen
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -31,50 +33,57 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.housweet.presentaion.R
+import com.housweet.presentation.ui.startPage.BackOnPressed
 import com.housweet.presentation.ui.startPage.GuideText
 import com.housweet.presentation.ui.startPage.LoadingBar
-import com.housweet.presentation.ui.startPage.navigation.Route
-import com.housweet.presentation.ui.startPage.navigation.StartPageNavigationManager
-import com.housweet.presentation.ui.theme.BackgroundColor
-import com.housweet.presentation.ui.theme.IndicatorOff
-import com.housweet.presentation.ui.theme.IndicatorOn
-import com.housweet.presentation.ui.theme.LoginBtnColor
-import com.housweet.presentation.ui.theme.TextColorBlack
-import com.housweet.presentation.ui.theme.TextColorBrown
-import com.housweet.presentation.ui.theme.TextColorPurple
+import com.housweet.presentation.ui.theme.Black
+import com.housweet.presentation.ui.theme.Brown
+import com.housweet.presentation.ui.theme.Gray_E7E7E7
+import com.housweet.presentation.ui.theme.Purple
+import com.housweet.presentation.ui.theme.White
+import com.housweet.presentation.ui.theme.Yellow
+import com.housweet.presentation.ui.theme.dmsansFontFamily
+import com.housweet.presentation.ui.theme.nanumSquareFontFamily
+import com.kakao.sdk.auth.model.OAuthToken
+import com.kakao.sdk.common.model.ClientError
+import com.kakao.sdk.common.model.ClientErrorCause
+import com.kakao.sdk.user.UserApiClient
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun LoginScreen(
     modifier: Modifier,
-    navController: NavHostController,
-    loginViewModel: LoginViewModel = hiltViewModel()
+    loginViewModel: LoginViewModel = hiltViewModel(),
+    onNextScreen: () -> Unit,
 ) {
-    val navigationManager = StartPageNavigationManager(navController)
     val uiState: LoginUiState by loginViewModel.loginUiState.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
+
+    BackOnPressed()
+
     when (uiState) {
         LoginUiState.SignUp -> {
-            navigationManager.navigateOneWay(
-                Route.LoginRoute.LoginScreen,
-                Route.LoginRoute.WelComeScreen
-            )
+            LaunchedEffect(key1 = true) {
+                onNextScreen()
+            }
         }
 
         LoginUiState.SignIn -> {
-            navigationManager.navigateOneWay(
-                Route.LoginRoute.LoginScreen,
-                Route.LoginRoute.WelComeScreen
-            )
+            LaunchedEffect(key1 = true) {
+                onNextScreen()
+            }
         }
 
         LoginUiState.IsLoading -> {
@@ -86,8 +95,11 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxSize(),
                 snackbarHost = { SnackbarHost(hostState = snackBarHostState) }
             ) {
-                LoginScreen(modifier = modifier) {
-                    loginViewModel.kakaoLogin()
+                LoginContent(modifier = modifier) {
+                    kakaoLogin(
+                        viewModel = loginViewModel,
+                        context = context
+                    )
                 }
 
                 LaunchedEffect(snackBarHostState) {
@@ -102,19 +114,22 @@ fun LoginScreen(
         }
 
         LoginUiState.IDlE -> {
-            LoginScreen(modifier = modifier) {
-                loginViewModel.kakaoLogin()
+            LoginContent(modifier = modifier) {
+                kakaoLogin(
+                    viewModel = loginViewModel,
+                    context = context
+                )
             }
         }
     }
 }
 
 @Composable
-private fun LoginScreen(modifier: Modifier, onKakaoLoginClick: () -> Unit) {
+private fun LoginContent(modifier: Modifier, onKakaoLoginClick: () -> Unit) {
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(BackgroundColor)
+            .background(White)
     ) {
         Spacer(modifier = Modifier.height(height = 136.dp))
 
@@ -125,9 +140,10 @@ private fun LoginScreen(modifier: Modifier, onKakaoLoginClick: () -> Unit) {
         GuideText(
             modifier = Modifier.fillMaxWidth(),
             text = "룸메이트를 위한 하우스잇",
-            color = TextColorPurple,
+            color = Purple,
             fontWeight = FontWeight.W700,
             fontSize = 18.sp,
+            fontFamily = dmsansFontFamily,
             lineHeight = 18.sp,
             textAlign = TextAlign.Center
         )
@@ -136,20 +152,22 @@ private fun LoginScreen(modifier: Modifier, onKakaoLoginClick: () -> Unit) {
 
         GuideText(
             modifier = Modifier.fillMaxWidth(),
-            color = TextColorBlack,
+            color = Black,
             text = "하우스잇을 통해 룸메이트를 구하고",
             fontWeight = FontWeight.W500,
             fontSize = 15.sp,
+            fontFamily = dmsansFontFamily,
             lineHeight = 15.sp,
             textAlign = TextAlign.Center
         )
 
         GuideText(
             modifier = Modifier.fillMaxWidth(),
-            color = TextColorBlack,
+            color = Black,
             text = "룸메이트와 함께 집을 관리해요!",
             fontWeight = FontWeight.W500,
             fontSize = 15.sp,
+            fontFamily = dmsansFontFamily,
             lineHeight = 15.sp,
             textAlign = TextAlign.Center
         )
@@ -161,7 +179,7 @@ private fun LoginScreen(modifier: Modifier, onKakaoLoginClick: () -> Unit) {
 }
 
 @Composable
-fun GuideImg() {
+private fun GuideImg() {
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { 3 })
     val guideImgList =
         listOf(R.drawable.guide_image1, R.drawable.guide_image1, R.drawable.guide_image1)
@@ -182,14 +200,14 @@ fun GuideImg() {
 }
 
 @Composable
-fun GuideImgPagerIndicator(pageCount: Int, currentPage: Int) {
+private fun GuideImgPagerIndicator(pageCount: Int, currentPage: Int) {
     Box(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
                 .align(Alignment.Center)
         ) {
             repeat(pageCount) { iteration ->
-                val color = if (currentPage == iteration) IndicatorOn else IndicatorOff
+                val color = if (currentPage == iteration) Purple else Gray_E7E7E7
                 val paddingStart = when (iteration) {
                     0 -> 0.dp
                     else -> 7.5.dp
@@ -213,7 +231,7 @@ fun GuideImgPagerIndicator(pageCount: Int, currentPage: Int) {
 }
 
 @Composable
-fun KakaoLoginButton(
+private fun KakaoLoginButton(
     onKakaoLoginClick: () -> Unit
 ) {
     Button(
@@ -224,8 +242,8 @@ fun KakaoLoginButton(
             .padding(horizontal = 20.dp),
         shape = RoundedCornerShape(10.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = LoginBtnColor,
-            contentColor = TextColorBrown
+            containerColor = Yellow,
+            contentColor = Brown
         )
     ) {
         Image(
@@ -236,18 +254,42 @@ fun KakaoLoginButton(
         Spacer(modifier = Modifier.width(width = 8.dp))
 
         GuideText(
-            color = TextColorBrown,
+            color = Brown,
             text = "카카오 계정으로 계속하기",
             fontWeight = FontWeight.W700,
             fontSize = 15.sp,
+            fontFamily = nanumSquareFontFamily,
             lineHeight = 18.sp,
             textAlign = TextAlign.Center
         )
     }
 }
 
+private fun kakaoLogin(viewModel: LoginViewModel, context: Context) {
+    viewModel.isLoading()
+    val kakaoLoginCallback: (OAuthToken?, Throwable?) -> Unit = { token, error ->
+        if (error != null) {
+            viewModel.loginFail()
+        } else if (token != null) {
+            viewModel.signIn()
+        }
+    }
+
+    UserApiClient.instance.loginWithKakaoTalk(context) { token, error ->
+        if (error != null) {
+            if (error is ClientError && error.reason == ClientErrorCause.Cancelled) {
+                viewModel.loginFail()
+                return@loginWithKakaoTalk
+            }
+            UserApiClient.instance.loginWithKakaoAccount(context, callback = kakaoLoginCallback)
+        } else if (token != null) {
+            viewModel.signIn()
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
-fun LoginScreenPreview() {
-    LoginScreen(Modifier) { }
+private fun LoginScreenPreview() {
+    LoginContent(Modifier) { }
 }
