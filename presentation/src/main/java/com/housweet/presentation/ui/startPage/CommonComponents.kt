@@ -59,7 +59,6 @@ fun GuideText(
     text: String,
     fontWeight: FontWeight,
     fontSize: TextUnit,
-    fontFamily: FontFamily = FontFamily.Default,
     lineHeight: TextUnit,
     textAlign: TextAlign
 ) {
@@ -68,7 +67,7 @@ fun GuideText(
         modifier = modifier,
         style = TextStyle(
             color = color,
-            fontFamily = fontFamily,
+            fontFamily = nanumSquareFontFamily,
             fontWeight = fontWeight,
             fontSize = fontSize,
             lineHeight = lineHeight,
@@ -104,7 +103,6 @@ fun BottomButton(
             text = text,
             fontWeight = FontWeight.W700,
             fontSize = 15.sp,
-            fontFamily = nanumSquareFontFamily,
             lineHeight = 18.sp,
             textAlign = TextAlign.Center
         )
@@ -182,7 +180,6 @@ fun WarningText(
             text = text,
             fontWeight = FontWeight.W400,
             fontSize = 10.sp,
-            fontFamily = nanumSquareFontFamily,
             lineHeight = 18.sp,
             textAlign = TextAlign.Start
         )
@@ -223,7 +220,6 @@ fun LoadingBar() {
                 color = Gray_7D7D7D,
                 text = "잠시만 기다려 주세요!",
                 fontWeight = FontWeight.W700,
-                fontFamily = nanumSquareFontFamily,
                 fontSize = 14.sp,
                 lineHeight = 18.sp,
                 textAlign = TextAlign.Center
@@ -256,6 +252,15 @@ private fun BottomButtonPreview() {
     BottomButton(
         text = "로그인",
         onBtnClick = {}
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun TextFieldPreview() {
+    WriteTextFiled(
+        text = "테스트",
+        onValueChange = {}
     )
 }
 

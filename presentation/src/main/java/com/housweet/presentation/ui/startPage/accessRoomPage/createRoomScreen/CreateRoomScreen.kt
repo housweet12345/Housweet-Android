@@ -26,7 +26,6 @@ import com.housweet.presentation.ui.startPage.WarningText
 import com.housweet.presentation.ui.startPage.WriteTextFiled
 import com.housweet.presentation.ui.theme.Black
 import com.housweet.presentation.ui.theme.White
-import com.housweet.presentation.ui.theme.nanumSquareFontFamily
 
 @Composable
 fun CreateRoomScreen(
@@ -60,7 +59,6 @@ fun CreateRoomScreen(
 @Composable
 private fun CreateRoomContent(
     modifier: Modifier,
-    isWarning: Boolean = false,
     onBtnClick: (name: String) -> Unit
 ) {
     Column(modifier = modifier
@@ -76,7 +74,6 @@ private fun CreateRoomContent(
             text = "방 이름을 작성해주세요.",
             fontWeight = FontWeight.W800,
             fontSize = 12.sp,
-            fontFamily = nanumSquareFontFamily,
             lineHeight = 18.sp,
             textAlign = TextAlign.Start
         )

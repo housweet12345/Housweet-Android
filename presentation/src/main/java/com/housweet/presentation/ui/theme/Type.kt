@@ -35,5 +35,4 @@ val Typography = Typography(
     */
 )
 
-val dmsansFontFamily = FontFamily(Font(R.font.dm_sans))
 val nanumSquareFontFamily = FontFamily(Font(R.font.nanum_square))

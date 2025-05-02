@@ -19,8 +19,10 @@ val kakaoRedirectUri = properties["kakaoLogin_Redirect_Uri"] ?: ""
 android {
     namespace = "com.housweet.presentaion"
     compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
+        manifestPlaceholders += mapOf()
         minSdk = 28
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -29,7 +31,7 @@ android {
             useSupportLibrary = true
         }
 
-        manifestPlaceholders["Kakao_API_KEY"]  = kakaoApiKey as String
+        manifestPlaceholders["Kakao_API_KEY"] = kakaoApiKey as String
         manifestPlaceholders["Kakao_Redirect_URI"] = kakaoRedirectUri as String
     }
 
@@ -68,6 +70,7 @@ dependencies {
     implementation(project(":domain"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
+
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
