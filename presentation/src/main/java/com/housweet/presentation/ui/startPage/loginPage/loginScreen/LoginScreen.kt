@@ -2,7 +2,6 @@ package com.housweet.presentation.ui.startPage.loginPage.loginScreen
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -35,8 +34,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -53,8 +50,6 @@ import com.housweet.presentation.ui.theme.Gray_E7E7E7
 import com.housweet.presentation.ui.theme.Purple
 import com.housweet.presentation.ui.theme.White
 import com.housweet.presentation.ui.theme.Yellow
-import com.housweet.presentation.ui.theme.dmsansFontFamily
-import com.housweet.presentation.ui.theme.nanumSquareFontFamily
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
@@ -143,7 +138,6 @@ private fun LoginContent(modifier: Modifier, onKakaoLoginClick: () -> Unit) {
             color = Purple,
             fontWeight = FontWeight.W700,
             fontSize = 18.sp,
-            fontFamily = dmsansFontFamily,
             lineHeight = 18.sp,
             textAlign = TextAlign.Center
         )
@@ -153,22 +147,10 @@ private fun LoginContent(modifier: Modifier, onKakaoLoginClick: () -> Unit) {
         GuideText(
             modifier = Modifier.fillMaxWidth(),
             color = Black,
-            text = "하우스잇을 통해 룸메이트를 구하고",
+            text = "하우스잇을 통해 룸메이트를 구하고\n룸메이트와 함께 집을 관리해요!",
             fontWeight = FontWeight.W500,
             fontSize = 15.sp,
-            fontFamily = dmsansFontFamily,
-            lineHeight = 15.sp,
-            textAlign = TextAlign.Center
-        )
-
-        GuideText(
-            modifier = Modifier.fillMaxWidth(),
-            color = Black,
-            text = "룸메이트와 함께 집을 관리해요!",
-            fontWeight = FontWeight.W500,
-            fontSize = 15.sp,
-            fontFamily = dmsansFontFamily,
-            lineHeight = 15.sp,
+            lineHeight = 20.sp,
             textAlign = TextAlign.Center
         )
 
@@ -258,7 +240,6 @@ private fun KakaoLoginButton(
             text = "카카오 계정으로 계속하기",
             fontWeight = FontWeight.W700,
             fontSize = 15.sp,
-            fontFamily = nanumSquareFontFamily,
             lineHeight = 18.sp,
             textAlign = TextAlign.Center
         )

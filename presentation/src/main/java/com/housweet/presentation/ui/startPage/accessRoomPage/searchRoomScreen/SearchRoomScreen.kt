@@ -27,7 +27,6 @@ import com.housweet.presentation.ui.startPage.WriteTextFiled
 import com.housweet.presentation.ui.theme.Black
 import com.housweet.presentation.ui.theme.Red
 import com.housweet.presentation.ui.theme.White
-import com.housweet.presentation.ui.theme.nanumSquareFontFamily
 
 @Composable
 fun SearchRoomScreen(
@@ -35,12 +34,14 @@ fun SearchRoomScreen(
     searchRoomViewModel: SearchRoomViewModel = hiltViewModel()
 ) {
     val uiState: SearchRoomUiState by searchRoomViewModel.uiState.collectAsState()
+    var isWarning by remember { mutableStateOf(false) }
     var code by remember { mutableStateOf("") }
     when (uiState) {
         SearchRoomUiState.IDlE -> {
             SearchRoomContent(
                 modifier = modifier,
                 code = code,
+                isWarning = isWarning,
                 onValueChange = {
                     code = it
                 },
@@ -58,8 +59,11 @@ fun SearchRoomScreen(
             SearchRoomContent(
                 modifier = modifier,
                 code = code,
-                isWarning = true,
+                isWarning = isWarning,
                 onValueChange = {
+                    if (isWarning) {
+                        isWarning = false
+                    }
                     code = it
                 },
                 onBtnClick = {
@@ -74,7 +78,7 @@ fun SearchRoomScreen(
 private fun SearchRoomContent(
     modifier: Modifier,
     code: String,
-    isWarning: Boolean = false,
+    isWarning: Boolean,
     onBtnClick: (name: String) -> Unit,
     onValueChange: (String) -> Unit
 ) {
@@ -82,7 +86,6 @@ private fun SearchRoomContent(
         .fillMaxSize()
         .background(White)
     ) {
-        var warning by remember { mutableStateOf(isWarning) }
         Spacer(modifier = Modifier.height(92.dp))
         GuideText(
             modifier = Modifier.padding(start = 20.dp),
@@ -90,7 +93,6 @@ private fun SearchRoomContent(
             text = "초대코드를 입력해주세요.",
             fontWeight = FontWeight.W800,
             fontSize = 12.sp,
-            fontFamily = nanumSquareFontFamily,
             lineHeight = 18.sp,
             textAlign = TextAlign.Start
         )
@@ -99,18 +101,15 @@ private fun SearchRoomContent(
 
         WriteTextFiled(
             text = code,
-            textColor = if (warning) Red else Black,
+            textColor = if (isWarning) Red else Black,
             onValueChange = {
-                if (warning) {
-                    warning = false
-                }
                 onValueChange(it)
             }
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        if (warning) {
+        if (isWarning) {
             WarningText(
                 text = "없는 초대코드 입니다."
             )

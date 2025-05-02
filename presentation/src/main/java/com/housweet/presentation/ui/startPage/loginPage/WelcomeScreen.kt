@@ -18,7 +18,6 @@ import com.housweet.presentation.ui.startPage.BackOnPressed
 import com.housweet.presentation.ui.startPage.GuideText
 import com.housweet.presentation.ui.theme.Purple
 import com.housweet.presentation.ui.theme.White
-import com.housweet.presentation.ui.theme.dmsansFontFamily
 import kotlinx.coroutines.delay
 
 @Composable
@@ -43,21 +42,10 @@ private fun WelcomeContent(modifier: Modifier) {
 
         GuideText(
             color = Purple,
-            text = "반가워요,",
+            text = "반가워요,\n하우스메이트님!",
             fontWeight = FontWeight.W700,
             fontSize = 22.sp,
-            fontFamily = dmsansFontFamily,
-            lineHeight = 22.sp,
-            textAlign = TextAlign.Start
-        )
-
-        GuideText(
-            color = Purple,
-            text = "하우스메이트님!",
-            fontWeight = FontWeight.W700,
-            fontSize = 22.sp,
-            fontFamily = dmsansFontFamily,
-            lineHeight = 22.sp,
+            lineHeight = 30.sp,
             textAlign = TextAlign.Start
         )
     }

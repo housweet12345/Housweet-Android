@@ -37,8 +37,6 @@ import com.housweet.presentation.ui.theme.Black_1A435671
 import com.housweet.presentation.ui.theme.Gray_CBCBCB
 import com.housweet.presentation.ui.theme.Purple
 import com.housweet.presentation.ui.theme.White
-import com.housweet.presentation.ui.theme.dmsansFontFamily
-import com.housweet.presentation.ui.theme.nanumSquareFontFamily
 
 @Composable
 fun AccessRoomScreen(
@@ -87,21 +85,9 @@ private fun AccessRoomContent(
         GuideText(
             modifier = Modifier.padding(start = 20.dp),
             color = Purple,
-            text = "하우스메이트를 찾고",
+            text = "하우스메이트를 찾고\n함께 방을 관리해요!",
             fontWeight = FontWeight.W700,
             fontSize = 22.sp,
-            fontFamily = dmsansFontFamily,
-            lineHeight = 35.sp,
-            textAlign = TextAlign.Start
-        )
-
-        GuideText(
-            modifier = Modifier.padding(start = 20.dp),
-            color = Purple,
-            text = "함께 방을 관리해요!",
-            fontWeight = FontWeight.W700,
-            fontSize = 22.sp,
-            fontFamily = dmsansFontFamily,
             lineHeight = 35.sp,
             textAlign = TextAlign.Start
         )
@@ -212,7 +198,6 @@ private fun AccessRoomCard(
                 text = text,
                 fontWeight = FontWeight.W800,
                 fontSize = 16.sp,
-                fontFamily = nanumSquareFontFamily,
                 lineHeight = 18.sp,
                 textAlign = TextAlign.Start
             )
@@ -257,7 +242,6 @@ private fun FindRoomMateBtn(
             text = "룸메 찾기",
             fontWeight = FontWeight.W700,
             fontSize = 15.sp,
-            fontFamily = nanumSquareFontFamily,
             lineHeight = 18.sp,
             textAlign = TextAlign.Center
         )
