@@ -8,6 +8,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.housweet.presentation.ui.chat.ChatScreen
 import com.housweet.presentation.ui.chatlist.ChatListScreen
+import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen1
+import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen2
 
 //class MainActivity : ComponentActivity() {
 //    override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,8 +27,25 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             NavHost(
                 navController = navController,
-                startDestination = "chat_list"
+                startDestination = "house_register_1"
             ) {
+                composable("house_register_1") {
+                    HouseRegisterScreen1( onNextClick = {
+                        navController.navigate("house_register_2")
+                    },
+                        onBackClick = {
+                            navController.popBackStack()
+                        }
+                    )
+                }
+                composable("house_register_2") {
+                    HouseRegisterScreen2(
+                        onNextClick = {
+                            navController.navigate("house_register_3")
+                        },
+                        onBackClick = {navController.navigate("house_register_1")}
+                    )
+                }
                 composable("chat_list") {
                     ChatListScreen(navController)
                 }
