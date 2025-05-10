@@ -9,6 +9,9 @@ java {
 }
 
 dependencies {
+    // Kotlin
+    implementation(libs.kotlin.stdlib)
+
     // Kotlin Coroutine
     implementation(libs.kotlinx.coroutines.core)
 }

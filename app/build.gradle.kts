@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -5,6 +8,12 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose") version "2.1.0"
     kotlin("kapt")
 }
+
+val properties = Properties().apply {
+    load(FileInputStream("${rootDir}/local.properties"))
+}
+
+val kakaoApiKey = properties["kakaoLogin_api_key"] ?: ""
 
 android {
     namespace = "com.housweet.app"
@@ -18,7 +27,6 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
 
     buildFeatures {
         compose = true
@@ -27,6 +35,8 @@ android {
 //    composeOptions {
 //        kotlinCompilerExtensionVersion = "1.5.3"  // Compose 컴파일러 버전
 //    }
+        buildConfigField("String", "Kakao_API_KEY", kakaoApiKey.toString())
+    }
 
     buildTypes {
         release {
@@ -45,6 +55,10 @@ android {
 
     kotlinOptions {
         jvmTarget = "17"
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 }
 
@@ -79,8 +93,16 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.9.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.0")
 
+    // Socket.IO
+    implementation("io.socket:socket.io-client:1.0.0") {
+        exclude(group = "org.json", module = "json")
+    }
+
     // Kotlin Coroutine
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0")
+
+    // Kakao
+    implementation(libs.v2.user)
 
     //Test
     testImplementation(libs.junit)
