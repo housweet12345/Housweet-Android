@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
+    kotlin("plugin.serialization") version "2.0.21"
     id("com.google.dagger.hilt.android")
     id("org.jetbrains.kotlin.plugin.compose") version "2.1.0"
     kotlin("kapt")
@@ -14,6 +15,10 @@ android {
         minSdk = 28
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
+        consumerProguardFiles("consumer-rules.pro")
+        vectorDrawables {
+            useSupportLibrary = true
+        }
     }
 
     buildTypes {
@@ -56,12 +61,14 @@ dependencies {
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.material)
     implementation("androidx.compose.material3:material3:1.1.0")
+    implementation(libs.coil.kt.coil.compose)
 
     //Navigation (Compose용)
     implementation("androidx.navigation:navigation-compose:2.7.7")
 
     //Hilt (의존성 주입)
     implementation("com.google.dagger:hilt-android:2.51.1")
+    implementation(libs.androidx.ui.tooling.preview.android)
     kapt("com.google.dagger:hilt-android-compiler:2.51.1")
 
     //테스트
@@ -69,4 +76,6 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    implementation("com.google.dagger:hilt-android:2.51.1")
+    kapt("com.google.dagger:hilt-android-compiler:2.51.1")
 }

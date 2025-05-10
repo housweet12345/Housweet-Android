@@ -1,4 +1,5 @@
 [versions]
+activityCompose = "1.9.1"
 agp = "8.5.2"
 kotlin = "2.1.0"
 coreKtx = "1.15.0"
@@ -6,6 +7,9 @@ junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 appcompat = "1.7.0"
+kotlinxCoroutinesAndroid = "1.8.1"
+kotlinxSerializationJson = "1.7.3"
+coilComposeVersion = "2.4.0"
 material = "1.12.0"
 material3 = "1.1.0"
 activity = "1.10.1"
@@ -18,13 +22,17 @@ compose = "1.5.3"
 junitJunit = "4.12"
 runner = "1.6.1"  # 최신 Compose 버전으로 수정
 composeCompiler = "1.5.10"
+uiToolingPreviewAndroid = "1.8.1"
 
 [libraries]
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
@@ -33,14 +41,15 @@ androidx-runtime-android = { group = "androidx.compose.runtime", name = "runtime
 androidx-storage = { group = "androidx.test.services", name = "storage", version.ref = "storage" }
 androidx-test-ext-junit = "androidx.test.ext:junit:1.1.5"
 androidx-test-espresso-core = "androidx.test.espresso:espresso-core:3.5.1"
-androidx-activity-compose = { module = "androidx.activity:activity-compose", version = "1.7.2" }
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version = "1.5.3" }  # Compose BOM 사용
 androidx-compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
 androidx-compose-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "compose" }
 androidx-compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "compose" }
 androidx-compose-material = { module = "androidx.compose.material:material", version.ref = "compose" }
+coil-kt-coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilComposeVersion" }
 junit-junit = { group = "junit", name = "junit", version.ref = "junitJunit" }
 androidx-runner = { group = "androidx.test", name = "runner", version.ref = "runner" }
+androidx-ui-tooling-preview-android = { group = "androidx.compose.ui", name = "ui-tooling-preview-android", version.ref = "uiToolingPreviewAndroid" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
