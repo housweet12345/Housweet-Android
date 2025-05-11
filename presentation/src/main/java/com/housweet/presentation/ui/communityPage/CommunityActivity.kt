@@ -1,35 +1,29 @@
-package com.housweet.presentation.ui.startPage
+package com.housweet.presentation.ui.communityPage
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.housweet.presentation.ui.theme.HousweetTheme
-import dagger.hilt.android.AndroidEntryPoint
 
-@AndroidEntryPoint
-class StartActivity : ComponentActivity() {
+class CommunityActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            HousweetTheme {
-                Start()
-            }
+           Community()
         }
     }
 }
 
 @Composable
-fun Start() {
+fun Community() {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
     ) { paddingValues ->
-        StartPageNavigation(modifier = Modifier.padding(paddingValues))
+        CommunityPageNavigation(paddingValues)
     }
 }

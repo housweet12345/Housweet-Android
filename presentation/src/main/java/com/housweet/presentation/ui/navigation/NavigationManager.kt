@@ -1,8 +1,8 @@
-package com.housweet.presentation.ui.startPage.navigation
+package com.housweet.presentation.ui.navigation
 
 import androidx.navigation.NavController
 
-class StartPageNavigationManager(private val navController: NavController) {
+class NavigationManager(private val navController: NavController) {
     fun navigateTo(route: Route) {
         navController.navigate(route)
     }
@@ -13,9 +13,5 @@ class StartPageNavigationManager(private val navController: NavController) {
                 inclusive = true
             }
         }
-    }
-
-    fun navigateBack() {
-        navController.popBackStack()
     }
 }

@@ -14,7 +14,6 @@ val properties = Properties().apply {
     load(FileInputStream("${rootDir}/local.properties"))
 }
 
-val kakaoApiKey = properties["kakaoLogin_api_key"] ?: ""
 val kakaoRedirectUri = properties["kakaoLogin_Redirect_Uri"] ?: ""
 
 android {
@@ -30,11 +29,7 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
-        vectorDrawables {
-            useSupportLibrary = true
-        }
 
-        manifestPlaceholders["Kakao_API_KEY"] = kakaoApiKey as String
         manifestPlaceholders["Kakao_Redirect_URI"] = kakaoRedirectUri as String
     }
 
@@ -47,21 +42,25 @@ android {
             )
         }
     }
+
     buildFeatures {
         compose = true
         buildConfig = true
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.15"
     }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -88,7 +87,6 @@ dependencies {
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.material)
-    implementation("androidx.compose.material3:material3:1.1.0")
 
     //Navigation (Compose용)
     implementation("androidx.navigation:navigation-compose:2.7.7")
@@ -100,6 +98,9 @@ dependencies {
 
     //테스트
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 
     //Compose
     implementation(libs.androidx.ui.graphics)
@@ -128,9 +129,8 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.gif)
 
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
+    // Naver Map
+    implementation ("io.github.fornewid:naver-map-compose:1.7.4")
 }
 
 kapt {
