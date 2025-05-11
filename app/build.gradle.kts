@@ -5,7 +5,6 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     id("com.google.dagger.hilt.android")
-    id("org.jetbrains.kotlin.plugin.compose") version "2.1.0"
     kotlin("kapt")
 }
 
@@ -14,6 +13,7 @@ val properties = Properties().apply {
 }
 
 val kakaoApiKey = properties["kakaoLogin_api_key"] ?: ""
+val naverClientId = properties["naver_client_id"] ?: ""
 
 android {
     namespace = "com.housweet.app"
@@ -28,14 +28,13 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-    buildFeatures {
-        compose = true
+        buildConfigField("String", "Kakao_API_KEY", kakaoApiKey.toString())
+        buildConfigField("String", "Naver_Client_ID", naverClientId.toString())
+        manifestPlaceholders["Kakao_API_KEY"] = kakaoApiKey as String
     }
 
-//    composeOptions {
-//        kotlinCompilerExtensionVersion = "1.5.3"  // Compose 컴파일러 버전
-//    }
-        buildConfigField("String", "Kakao_API_KEY", kakaoApiKey.toString())
+    buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {
@@ -77,14 +76,6 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.12.0"))
     implementation("com.google.firebase:firebase-analytics")
 
-    //Jetpack Compose
-    implementation("androidx.compose.ui:ui:1.5.3")
-    implementation("androidx.compose.material:material:1.5.3")
-    implementation("androidx.compose.ui:ui-tooling-preview:1.5.3")
-    implementation("androidx.activity:activity-compose:1.6.0")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.0")
-    implementation("androidx.navigation:navigation-compose:2.5.3")
-
     //Hilt
     implementation("com.google.dagger:hilt-android:2.51.1")
     kapt("com.google.dagger:hilt-android-compiler:2.51.1")
@@ -103,6 +94,9 @@ dependencies {
 
     // Kakao
     implementation(libs.v2.user)
+
+    // Naver
+    implementation("com.naver.maps:map-sdk:3.21.0")
 
     //Test
     testImplementation(libs.junit)

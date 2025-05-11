@@ -15,5 +15,9 @@
         android:theme="@style/Theme.Housweet"
         tools:targetApi="31"
         tools:replace="android:label">
+
+        <meta-data
+            android:name="com.kakao.sdk.AppKey"
+            android:value="Kakao_API_KEY" />
     </application>
 </manifest>

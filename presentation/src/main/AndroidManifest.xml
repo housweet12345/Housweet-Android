@@ -5,8 +5,8 @@
 
     <application
         android:icon="@mipmap/ic_launcher"
-        android:label="Housweet"
-        >
+        android:label="Housweet">
+
         <activity
             android:name="com.housweet.presentation.ui.startPage.StartActivity"
             android:exported="true"
@@ -17,6 +17,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name="com.housweet.presentation.ui.communityPage.CommunityActivity"
+            android:exported="false"
+            android:label="@string/title_activity_community"
+            android:theme="@style/Theme.Housweet" />
 
         <activity
             android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity"
@@ -38,8 +44,7 @@
             android:value="Kakao_API_KEY" />
 
         <activity
-            android:name="com.housweet.presentation.MainActivity"
+            android:name=".MainActivity"
             android:exported="false" />
     </application>
-
 </manifest>
