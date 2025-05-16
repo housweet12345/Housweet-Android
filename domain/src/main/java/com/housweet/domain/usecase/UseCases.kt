@@ -1,5 +1,6 @@
 package com.housweet.domain.usecase
 
 data class UseCases (
-    val loginWithKakaoUseCase: LoginWithKakaoUseCase
+    val loginWithKakaoUseCase: LoginWithKakaoUseCase,
+    val geoCodingWithNaverUseCase: GeoCodingWithNaverUseCase
 )

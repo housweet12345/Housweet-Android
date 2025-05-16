@@ -1,10 +1,12 @@
 package com.housweet.data.network.dto
 
+import androidx.compose.runtime.Immutable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class KakaoLoginRequest(
-    @SerialName("kakao_token")
-    val kakaoToken: String
+@Immutable
+data class GeoCodingRequest (
+    @SerialName("query")
+    val query: String
 )

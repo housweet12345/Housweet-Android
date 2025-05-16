@@ -23,7 +23,7 @@ class LoginViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val useCases: UseCases
 ) : ViewModel() {
-    private val _loginUiState  = MutableStateFlow<LoginUiState>(LoginUiState.IDlE)
+    private val _loginUiState  = MutableStateFlow<LoginUiState>(LoginUiState.Idle)
     val loginUiState = _loginUiState.asStateFlow()
 
     fun loginFail() {

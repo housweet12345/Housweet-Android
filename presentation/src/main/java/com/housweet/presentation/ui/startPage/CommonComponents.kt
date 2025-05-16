@@ -186,7 +186,7 @@ fun WarningText(
 }
 
 @Composable
-fun LoadingBar() {
+fun LoadingScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -265,7 +265,7 @@ private fun TextFieldPreview() {
 
 @Preview(showBackground = true)
 @Composable
-private fun LoadingBarPreview() {
-   LoadingBar()
+private fun LoadingScreenPreview() {
+   LoadingScreen()
 }
 

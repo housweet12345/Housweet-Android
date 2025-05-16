@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.housweet.presentation.ui.startPage.BottomButton
 import com.housweet.presentation.ui.startPage.GuideText
-import com.housweet.presentation.ui.startPage.LoadingBar
+import com.housweet.presentation.ui.startPage.LoadingScreen
 import com.housweet.presentation.ui.startPage.WarningText
 import com.housweet.presentation.ui.startPage.WriteTextFiled
 import com.housweet.presentation.ui.theme.Black
@@ -37,7 +37,7 @@ fun SearchRoomScreen(
     var isWarning by remember { mutableStateOf(false) }
     var code by remember { mutableStateOf("") }
     when (uiState) {
-        SearchRoomUiState.IDlE -> {
+        SearchRoomUiState.Idle -> {
             SearchRoomContent(
                 modifier = modifier,
                 code = code,
@@ -52,7 +52,7 @@ fun SearchRoomScreen(
         }
 
         SearchRoomUiState.IsLoading -> {
-            LoadingBar()
+            LoadingScreen()
         }
 
         SearchRoomUiState.Error -> {

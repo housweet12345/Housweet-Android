@@ -8,7 +8,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CreateRoomViewModel @Inject constructor(): ViewModel() {
-    private val _uiState = MutableStateFlow<CreateRoomUiState>(CreateRoomUiState.IDlE)
+    private val _uiState = MutableStateFlow<CreateRoomUiState>(CreateRoomUiState.Idle)
     val uiState = _uiState.asStateFlow()
 
     private fun error() {

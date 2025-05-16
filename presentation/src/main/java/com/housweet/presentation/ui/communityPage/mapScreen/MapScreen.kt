@@ -22,6 +22,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,23 +35,39 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.housweet.domain.model.Coordinate
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.startPage.GuideText
 import com.housweet.presentation.ui.theme.Purple
 import com.housweet.presentation.ui.theme.White
+import com.naver.maps.geometry.LatLng
+import com.naver.maps.map.CameraPosition
+import com.naver.maps.map.compose.CameraPositionState
 import com.naver.maps.map.compose.ExperimentalNaverMapApi
 import com.naver.maps.map.compose.MapUiSettings
 import com.naver.maps.map.compose.NaverMap
+import com.naver.maps.map.compose.rememberCameraPositionState
 
 @Composable
 fun MapScreen(
     modifier: Modifier,
+    searchRegion: Coordinate?,
     onViewPostBtnClick: () -> Unit,
     onSearchBtnClick: () -> Unit,
     onWritePostBtnClick: () -> Unit
 ) {
+    val cameraPositionState: CameraPositionState = rememberCameraPositionState()
+
+    if (searchRegion != null) {
+        LaunchedEffect(Unit) {
+            cameraPositionState.position =
+                CameraPosition(LatLng(searchRegion.y, searchRegion.x), 13.0)
+        }
+    }
+
     MapContent(
         modifier = modifier,
+        cameraPositionState = cameraPositionState,
         onViewPostBtnClick = onViewPostBtnClick,
         onSearchBtnClick = onSearchBtnClick,
         onWritePostBtnClick = onWritePostBtnClick
@@ -61,6 +78,7 @@ fun MapScreen(
 @Composable
 private fun MapContent(
     modifier: Modifier,
+    cameraPositionState: CameraPositionState,
     onViewPostBtnClick: () -> Unit,
     onSearchBtnClick: () -> Unit,
     onWritePostBtnClick: () -> Unit
@@ -91,6 +109,7 @@ private fun MapContent(
             NaverMap(
                 modifier = Modifier
                     .fillMaxSize(),
+                cameraPositionState = cameraPositionState,
                 uiSettings = mapUiSettings
             )
 
