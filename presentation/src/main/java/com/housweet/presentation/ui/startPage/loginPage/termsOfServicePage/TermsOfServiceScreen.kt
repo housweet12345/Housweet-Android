@@ -1,0 +1,211 @@
+package com.housweet.presentation.ui.startPage.loginPage.termsOfServicePage
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.housweet.presentation.R
+import com.housweet.presentation.ui.startPage.BottomButton
+import com.housweet.presentation.ui.startPage.GuideText
+import com.housweet.presentation.ui.theme.Black
+import com.housweet.presentation.ui.theme.Purple
+import com.housweet.presentation.ui.theme.White
+
+@Composable
+fun TermsOfServiceScreen(modifier: Modifier, onNextScreen: () -> Unit) {
+    var checkAll by remember { mutableStateOf(false) }
+    var checkTerm1 by remember { mutableStateOf(false) }
+    var checkTerm2 by remember { mutableStateOf(false) }
+    var checkTerm3 by remember { mutableStateOf(false) }
+
+    TermsOfServiceContent(
+        modifier = modifier,
+        checkAll = checkAll,
+        checkTerm1 = checkTerm1,
+        checkTerm2 = checkTerm2,
+        checkTerm3 = checkTerm3,
+        onPermitBtnClick = onNextScreen,
+        onAllCheckedChange = {
+            checkAll = !checkAll
+            checkTerm1 = checkAll
+            checkTerm2 = checkAll
+            checkTerm3 = checkAll
+        },
+        onTerm1CheckedChange = {
+            checkTerm1 = !checkTerm1
+            checkAll = checkTerm1 && checkTerm2 && checkTerm3
+        },
+        onTerm2CheckedChange = {
+            checkTerm2 = !checkTerm2
+            checkAll = checkTerm1 && checkTerm2 && checkTerm3
+        },
+        onTerm3CheckedChange = {
+            checkTerm3 = !checkTerm3
+            checkAll = checkTerm1 && checkTerm2 && checkTerm3
+        }
+    )
+}
+
+@Composable
+private fun TermsOfServiceContent(
+    modifier: Modifier,
+    checkAll: Boolean,
+    checkTerm1: Boolean,
+    checkTerm2: Boolean,
+    checkTerm3: Boolean,
+    onPermitBtnClick:() -> Unit,
+    onAllCheckedChange: () -> Unit,
+    onTerm1CheckedChange: () -> Unit,
+    onTerm2CheckedChange: () -> Unit,
+    onTerm3CheckedChange: () -> Unit
+    ) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(White)
+    ) {
+        Spacer(modifier = Modifier.height(height = 117.dp))
+
+        GuideText(
+            modifier = Modifier.padding(start = 20.dp),
+            color = Purple,
+            text = "약관 동의가 필요해요.",
+            fontWeight = FontWeight.W700,
+            fontSize = 22.sp,
+            lineHeight = 30.sp,
+            textAlign = TextAlign.Start
+        )
+
+        Spacer(modifier = Modifier.height(height = 55.dp))
+
+        TermsOfServiceAllAgree(
+            checked = checkAll,
+        ) {
+            onAllCheckedChange()
+        }
+
+        Spacer(modifier = Modifier.height(height = 5.dp))
+
+        HorizontalDivider(
+            modifier = Modifier.padding(horizontal = 20.dp),
+            thickness = 0.5.dp,
+            color = Color(0xFFCBCBCB)
+        )
+
+        Spacer(modifier = Modifier.height(height = 13.dp))
+
+        TermsOfServiceMenu(termName = "adada", checked = checkTerm1) {
+            onTerm1CheckedChange()
+        }
+
+        TermsOfServiceMenu(termName = "afsfs", checked = checkTerm2) {
+            onTerm2CheckedChange()
+        }
+
+        TermsOfServiceMenu(termName = "dadad", checked = checkTerm3) {
+            onTerm3CheckedChange()
+        }
+
+        Spacer(modifier = Modifier.weight(weight = 1f))
+
+        BottomButton(text = "시작하기") {
+            if (checkTerm1 && checkTerm2 && checkTerm3) {
+                onPermitBtnClick()
+            }
+        }
+    }
+}
+
+@Composable
+private fun TermsOfServiceAllAgree(checked: Boolean, onCheckedChange: () -> Unit) {
+    Row(
+        modifier = Modifier.padding(start = 20.dp),
+        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+    ) {
+        Image(
+            painter = painterResource(id = if (checked) R.drawable.check else R.drawable.uncheck),
+            contentDescription = "check",
+            modifier = Modifier
+                .clip(CircleShape)
+                .clickable {
+                    onCheckedChange()
+                }
+        )
+
+        GuideText(
+            modifier = Modifier.padding(start = 7.dp),
+            color = Black,
+            text = "전체 동의하기",
+            fontWeight = FontWeight.Bold,
+            fontSize = 14.sp,
+            lineHeight = 18.sp,
+            textAlign = TextAlign.Start
+        )
+    }
+}
+
+@Composable
+private fun TermsOfServiceMenu(termName: String, checked: Boolean, onCheckedChange: () -> Unit) {
+    Row(
+        modifier = Modifier.padding(start = 20.dp),
+        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+    ) {
+        Image(
+            painter = painterResource(id = if (checked) R.drawable.check else R.drawable.uncheck),
+            contentDescription = "check",
+            modifier = Modifier
+                .clip(CircleShape)
+                .clickable {
+                    onCheckedChange()
+                }
+        )
+
+        GuideText(
+            modifier = Modifier.padding(start = 7.dp),
+            color = Black,
+            text = termName,
+            fontWeight = FontWeight.Bold,
+            fontSize = 12.sp,
+            lineHeight = 18.sp,
+            textAlign = TextAlign.Start
+        )
+    }
+}
+
+@Composable
+@Preview
+private fun TermsOfServicePreviewScreen() {
+    TermsOfServiceContent(
+        modifier = Modifier,
+        checkAll = false,
+        checkTerm1 = false,
+        checkTerm2 = false,
+        checkTerm3 = false,
+        onPermitBtnClick = {},
+        onAllCheckedChange = {},
+        onTerm1CheckedChange = {},
+        onTerm2CheckedChange = {},
+        onTerm3CheckedChange = {}
+    )
+}
