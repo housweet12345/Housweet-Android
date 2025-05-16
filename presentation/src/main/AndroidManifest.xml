@@ -6,6 +6,7 @@
     <application
         android:icon="@mipmap/ic_launcher"
         android:label="Housweet"
+        android:usesCleartextTraffic="true"
         >
         <activity
             android:name="com.housweet.presentation.ui.startPage.StartActivity"

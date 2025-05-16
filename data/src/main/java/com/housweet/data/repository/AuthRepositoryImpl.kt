@@ -14,21 +14,18 @@ import javax.inject.Singleton
 class AuthRepositoryImpl @Inject constructor(
     private val authLocalDataSource: AuthLocalDataSource,
     private val authRemoteDataSource: AuthRemoteDataSource
-): AuthRepository {
-    override suspend fun loginWithKakao(kakaoToken: String): Flow<Result<AuthToken>> = flow {
+) : AuthRepository {
+    override suspend fun loginWithKakao(
+        socialId: String,
+        accessToken: String,
+        email: String
+    ): Flow<Result<AuthToken>> = flow {
         try {
-            val response = authRemoteDataSource.loginWithKakao(kakaoToken)
-            val authToken = response.toAuthToken()
-            authLocalDataSource.saveAuthToken(authToken)
-            emit(Result.success(authToken))
-        } catch (e: Exception) {
-            emit(Result.failure(e))
-        }
-    }
-
-    override suspend fun test(): Flow<Result<AuthToken>> = flow {
-        try {
-            val response = authRemoteDataSource.test()
+            val response = authRemoteDataSource.loginWithKakao(
+                socialId = socialId,
+                accessToken = accessToken,
+                email = email
+            )
             val authToken = response.toAuthToken()
             authLocalDataSource.saveAuthToken(authToken)
             emit(Result.success(authToken))
