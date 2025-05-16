@@ -8,7 +8,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SearchRoomViewModel @Inject constructor(): ViewModel() {
-    private val _uiState = MutableStateFlow<SearchRoomUiState>(SearchRoomUiState.IDlE)
+    private val _uiState = MutableStateFlow<SearchRoomUiState>(SearchRoomUiState.Idle)
     val uiState = _uiState.asStateFlow()
 
     private fun error() {

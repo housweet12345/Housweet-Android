@@ -43,7 +43,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.startPage.BackOnPressed
 import com.housweet.presentation.ui.startPage.GuideText
-import com.housweet.presentation.ui.startPage.LoadingBar
+import com.housweet.presentation.ui.startPage.LoadingScreen
 import com.housweet.presentation.ui.theme.Black
 import com.housweet.presentation.ui.theme.Brown
 import com.housweet.presentation.ui.theme.Gray_E7E7E7
@@ -82,7 +82,7 @@ fun LoginScreen(
         }
 
         LoginUiState.IsLoading -> {
-            LoadingBar()
+            LoadingScreen()
         }
 
         LoginUiState.LoginError -> {
@@ -103,12 +103,11 @@ fun LoginScreen(
                         actionLabel = "닫기",
                         duration = SnackbarDuration.Short
                     )
-
                 }
             }
         }
 
-        LoginUiState.IDlE -> {
+        LoginUiState.Idle -> {
             LoginContent(modifier = modifier) {
                 kakaoLogin(
                     viewModel = loginViewModel,

@@ -12,6 +12,8 @@ class NavigationManager(private val navController: NavController) {
             popUpTo(from) {
                 inclusive = true
             }
+
+            launchSingleTop = true
         }
     }
 }

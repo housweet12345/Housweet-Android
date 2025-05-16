@@ -3,7 +3,9 @@ package com.housweet.data.repository
 import com.housweet.data.local.AuthLocalDataSource
 import com.housweet.data.network.AuthRemoteDataSource
 import com.housweet.data.network.dto.toAuthToken
+import com.housweet.data.network.dto.toCoordinate
 import com.housweet.domain.model.AuthToken
+import com.housweet.domain.model.Coordinate
 import com.housweet.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -26,12 +28,11 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun test(): Flow<Result<AuthToken>> = flow {
+    override suspend fun geoCodingWithNaver(query: String): Flow<Result<Coordinate>> = flow {
         try {
-            val response = authRemoteDataSource.test()
-            val authToken = response.toAuthToken()
-            authLocalDataSource.saveAuthToken(authToken)
-            emit(Result.success(authToken))
+            val response = authRemoteDataSource.geoCodingWithNaver(query)
+            val coordinate = response.toCoordinate()
+            emit(Result.success(coordinate))
         } catch (e: Exception) {
             emit(Result.failure(e))
         }

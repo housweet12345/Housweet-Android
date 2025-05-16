@@ -1,9 +1,14 @@
 package com.housweet.data.network
 
+import android.content.Context
+import com.housweet.data.BuildConfig
+import com.housweet.data.network.dto.GeoCodingRequest
+import com.housweet.data.network.dto.GeoCodingResponseDto
 import com.housweet.data.network.dto.KakaoLoginRequest
 import com.housweet.data.network.dto.LoginResponseDto
 import io.ktor.client.call.body
 import io.ktor.client.request.get
+import io.ktor.client.request.headers
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
@@ -28,8 +33,12 @@ class AuthRemoteDataSourceImpl @Inject constructor(
         }.body()
     }
 
-    override suspend fun test(): LoginResponseDto {
-        return httpClient.get("$BASE_URL/v3/dd91514f-31be-4ff8-8d1c-b298811a7475") {
+    override suspend fun geoCodingWithNaver(query: String): GeoCodingResponseDto {
+        return httpClient.get("https://maps.apigw.ntruss.com/map-geocode/v2/geocode?query=${query}") {
+            headers {
+                append("X-NCP-APIGW-API-KEY-ID", BuildConfig.NAVER_CLIENT_ID)
+                append("X-NCP-APIGW-API-KEY", BuildConfig.NAVER_CLIENT_SECRET)
+            }
             contentType(ContentType.Application.Json)
         }.body()
     }

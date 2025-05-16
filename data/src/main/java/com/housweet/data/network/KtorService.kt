@@ -133,7 +133,8 @@ class KtorService @Inject constructor(
                     sendWithoutRequest { request ->
                         // 로그인, 토큰 갱신 같은 인증 관련 엔드포인트는 제외
                         val authExcluded = request.url.pathSegments.lastOrNull() == "kakao" ||
-                                request.url.pathSegments.lastOrNull() == "refresh"
+                                request.url.pathSegments.lastOrNull() == "refresh" ||
+                                request.url.toString().startsWith("https://maps.apigw.ntruss.com/map-geocode/v2/geocode")
                         !authExcluded
                     }
                 }

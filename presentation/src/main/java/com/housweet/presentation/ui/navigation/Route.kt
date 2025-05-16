@@ -1,4 +1,5 @@
 package com.housweet.presentation.ui.navigation
+import com.housweet.domain.model.Coordinate
 import kotlinx.serialization.Serializable
 
 sealed interface Route {
@@ -28,7 +29,7 @@ sealed interface Route {
 
     sealed interface CommunityPageRoute: Route {
         @Serializable
-        data object Map : CommunityPageRoute
+        data class Map(val coordinate: Coordinate? = null) : CommunityPageRoute
 
         @Serializable
         data object SearchRegion : CommunityPageRoute
