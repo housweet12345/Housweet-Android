@@ -36,7 +36,7 @@ class KtorService @Inject constructor(
     private val authLocalDataSource: AuthLocalDataSource
 ) {
     companion object {
-        private const val BASE_URL = ""
+        private const val BASE_URL = "http://43.200.10.89"
         private const val TAG = "KtorClient"
 
         private const val CONNECTION_TIMEOUT_SECONDS = 10L
@@ -132,7 +132,7 @@ class KtorService @Inject constructor(
 
                     sendWithoutRequest { request ->
                         // 로그인, 토큰 갱신 같은 인증 관련 엔드포인트는 제외
-                        val authExcluded = request.url.pathSegments.lastOrNull() == "kakao" ||
+                        val authExcluded = request.url.pathSegments.lastOrNull() == "login" ||
                                 request.url.pathSegments.lastOrNull() == "refresh"
                         !authExcluded
                     }
@@ -169,7 +169,7 @@ class KtorService @Inject constructor(
         }
 
         val refreshResponse = runBlocking {
-            client.post("$BASE_URL/auth/refresh") {
+            client.post("$BASE_URL/auth/token/refresh") {
                 contentType(ContentType.Application.Json)
                 setBody(RefreshTokenRequest(refreshToken))
             }
@@ -185,7 +185,7 @@ class KtorService @Inject constructor(
             Log.d(TAG, "Token refreshed successfully")
         }
 
-        return  BearerTokens(
+        return BearerTokens(
             accessToken = tokenResponseDto.accessToken,
             refreshToken = tokenResponseDto.refreshToken
         )

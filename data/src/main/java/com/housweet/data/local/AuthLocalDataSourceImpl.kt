@@ -1,6 +1,7 @@
 package com.housweet.data.local
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -27,7 +28,8 @@ class AuthLocalDataSourceImpl @Inject constructor(
     private val Context.authDataStore by preferencesDataStore(name = "auth_preferences")
 
     override suspend fun saveAuthToken(token: AuthToken) {
-        val expirationTime = System.currentTimeMillis() + (token.expiresIn * 1000)
+        val expirationTime = token.expiresIn * 1000
+
         context.authDataStore.edit { preferences ->
             preferences[KEY_ACCESS_TOKEN] = token.accessToken
             preferences[KEY_REFRESH_TOKEN] = token.refreshToken

@@ -1,5 +1,6 @@
 package com.housweet.data.network
 
+import com.housweet.data.BuildConfig
 import com.housweet.data.network.dto.KakaoLoginRequest
 import com.housweet.data.network.dto.LoginResponseDto
 import io.ktor.client.call.body
@@ -14,23 +15,27 @@ import javax.inject.Singleton
 @Singleton
 class AuthRemoteDataSourceImpl @Inject constructor(
     private val ktorClient: KtorService
-): AuthRemoteDataSource {
+) : AuthRemoteDataSource {
     companion object {
-        private const val BASE_URL = "https://run.mocky.io"
+        private const val BASE_URL = BuildConfig.BASE_URL
     }
 
     private val httpClient by lazy { ktorClient.createHttpClient() }
 
-    override suspend fun loginWithKakao(kakaoToken: String): LoginResponseDto {
-        return httpClient.post("$BASE_URL/auth/kakao") {
+    override suspend fun loginWithKakao(
+        socialId: String,
+        accessToken: String,
+        email: String
+    ): LoginResponseDto {
+        return httpClient.post("$BASE_URL/auth/login") {
             contentType(ContentType.Application.Json)
-            setBody(KakaoLoginRequest(kakaoToken))
-        }.body()
-    }
-
-    override suspend fun test(): LoginResponseDto {
-        return httpClient.get("$BASE_URL/v3/dd91514f-31be-4ff8-8d1c-b298811a7475") {
-            contentType(ContentType.Application.Json)
+            setBody(
+                KakaoLoginRequest(
+                    socialId = socialId,
+                    accessToken = accessToken,
+                    email = email
+                )
+            )
         }.body()
     }
 }

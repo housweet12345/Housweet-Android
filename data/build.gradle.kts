@@ -1,9 +1,18 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
     kotlin("plugin.serialization") version "2.0.21"
     kotlin("kapt")
 }
+
+val properties = Properties().apply {
+    load(FileInputStream("${rootDir}/local.properties"))
+}
+
+val baseUrl = properties["base_url"] ?: ""
 
 android {
     namespace = "com.housweet.data"
@@ -14,6 +23,12 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+
+        buildConfigField("String", "BASE_URL", baseUrl.toString())
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {
