@@ -1,6 +1,7 @@
 package com.housweet.app.di
 
 import com.housweet.domain.repository.AuthRepository
+import com.housweet.domain.usecase.CheckLoginUseCase
 import com.housweet.domain.usecase.LoginWithKakaoUseCase
 import com.housweet.domain.usecase.UseCases
 import dagger.Module
@@ -19,7 +20,8 @@ object UseCaseModule {
         authRepository: AuthRepository
     ): UseCases {
         return UseCases(
-            loginWithKakaoUseCase = LoginWithKakaoUseCase(authRepository)
+            loginWithKakaoUseCase = LoginWithKakaoUseCase(authRepository),
+            checkLoginUseCase = CheckLoginUseCase(authRepository)
         )
     }
 }

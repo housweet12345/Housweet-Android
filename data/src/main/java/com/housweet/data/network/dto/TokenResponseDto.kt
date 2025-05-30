@@ -10,15 +10,4 @@ import kotlinx.serialization.Serializable
 data class TokenResponseDto(
     @SerialName("access")
     val accessToken: String,
-
-    @SerialName("refresh")
-    val refreshToken: String
 )
-
-fun TokenResponseDto.toAuthToken(): AuthToken {
-    return AuthToken(
-        accessToken = accessToken,
-        refreshToken = refreshToken,
-        expiresIn = 0
-    )
-}

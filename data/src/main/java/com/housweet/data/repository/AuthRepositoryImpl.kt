@@ -33,4 +33,25 @@ class AuthRepositoryImpl @Inject constructor(
             emit(Result.failure(e))
         }
     }
+
+    override suspend fun refreshAccessToken(): Flow<Result<AuthToken>> = flow {
+        try {
+            val refreshToken = authLocalDataSource.getAuthToken()?.refreshToken ?: throw Exception("No refresh token available")
+            val response = authRemoteDataSource.refreshAccessToken(refreshToken)
+            val newAccessToken = response.accessToken
+            authLocalDataSource.saveAuthToken(AuthToken(newAccessToken, refreshToken))
+            emit(Result.success(AuthToken(newAccessToken, refreshToken)))
+        } catch (e: Exception) {
+            emit(Result.failure(e))
+        }
+    }
+
+    override suspend fun checkLogin(): Flow<Result<Boolean>> = flow {
+        try {
+            val isRefreshTokenExpired = authLocalDataSource.isRefreshTokenExpired()
+            emit(Result.success(!isRefreshTokenExpired))
+        } catch (e: Exception) {
+            emit(Result.failure(e))
+        }
+    }
 }
