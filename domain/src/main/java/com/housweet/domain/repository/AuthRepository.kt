@@ -9,4 +9,8 @@ interface AuthRepository {
         accessToken: String,
         email: String
     ): Flow<Result<AuthToken>>
+
+    suspend fun refreshAccessToken(): Flow<Result<AuthToken>>
+
+    suspend fun checkLogin(): Flow<Result<Boolean>>
 }

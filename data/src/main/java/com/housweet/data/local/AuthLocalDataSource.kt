@@ -6,5 +6,6 @@ interface AuthLocalDataSource {
     suspend fun saveAuthToken(token: AuthToken)
     suspend fun getAuthToken(): AuthToken?
     suspend fun clearAuthToken()
-    suspend fun isTokenExpired(): Boolean
+    suspend fun isAccessTokenExpired(): Boolean
+    suspend fun isRefreshTokenExpired(): Boolean
 }
