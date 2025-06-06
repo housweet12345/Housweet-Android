@@ -24,7 +24,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
-import com.housweet.presentation.ui.profile.state.ProfileInfo
 import com.housweet.presentation.ui.theme.ColorGroup
 
 
@@ -237,6 +236,7 @@ fun MultiSelectableTagSection(
 @Composable
 fun TagSection(
     tags: List<String>,
+    mbti: String = "",
     modifier: Modifier = Modifier,
 ) {
     FlowRow(
@@ -246,7 +246,7 @@ fun TagSection(
         maxItemsInEachRow = Int.MAX_VALUE,
         content = {
             tags.forEachIndexed { index, tag ->
-                TagChip(text = tag, isFirstTag = index == 0)
+                TagChip(text = tag, isMbti = (mbti == tags[0] && index == 0))
                 Spacer(modifier = Modifier.padding(end = 8.dp))
             }
         }
@@ -255,14 +255,14 @@ fun TagSection(
 @Composable
 fun TagChip(
     text: String,
-    isFirstTag: Boolean = false,
+    isMbti: Boolean = false,
     modifier: Modifier = Modifier,
     isSelectable: Boolean = false,
     isSelected: Boolean = false,
     onClick: (() -> Unit)? = null,
 ) {
-    val backgroundColor = if (isSelected || isFirstTag) ColorGroup.Primary else Color.White
-    val textColor = if (isSelected || isFirstTag) ColorGroup.White_F8F8F8 else ColorGroup.Black_313131
+    val backgroundColor = if (isSelected || isMbti) ColorGroup.Primary else Color.White
+    val textColor = if (isSelected || isMbti) ColorGroup.White_F8F8F8 else ColorGroup.Black_313131
 
     val clickModifier = if (isSelectable && onClick != null) {
         Modifier.clickable(onClick = onClick)
