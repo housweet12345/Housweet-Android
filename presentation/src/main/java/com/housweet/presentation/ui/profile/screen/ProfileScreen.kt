@@ -38,7 +38,7 @@ fun ProfileScreen(
         )
         Spacer(modifier = Modifier.height(16.dp))
         // 태그 섹션
-        TagSection(profileInfo.tags)
+        TagSection(mbti = profileInfo.mbti, tags = profileInfo.tags)
         Spacer(modifier = Modifier.height(24.dp))
         // 하단 버튼
         EditProfileButton(
@@ -59,7 +59,7 @@ fun ProfileScreenPreview() {
             age = "20대",
             mbti = "ISTP",
             introduce = "안녕하세요, 잘부탁드립니다",
-            tags = listOf("개발자", "안드로이드", "코틀린")
+            tags = listOf("ISTP","개발자", "안드로이드", "코틀린")
         )
     )
 }
