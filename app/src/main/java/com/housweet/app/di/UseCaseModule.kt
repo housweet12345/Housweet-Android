@@ -1,5 +1,8 @@
 package com.housweet.app.di
 
+import com.housweet.data.network.KtorService
+import com.housweet.data.repository.FakeUserRepositoryImpl
+import com.housweet.data.repository.UserRepositoryImpl
 import com.housweet.domain.repository.AuthRepository
 import com.housweet.domain.repository.UserRepository
 import com.housweet.domain.usecase.LoginWithKakaoUseCase
@@ -25,6 +28,19 @@ object UseCaseModule {
         return UseCases(
             loginWithKakaoUseCase = LoginWithKakaoUseCase(authRepository)
         )
+    }
+
+    @Provides
+    @Singleton
+    fun provideUserRepository(
+        ktorService: KtorService
+    ): UserRepository {
+        val isFake = true
+        return if (isFake) {
+            FakeUserRepositoryImpl()
+        } else {
+            UserRepositoryImpl(ktorService)
+        }
     }
 
     @Provides

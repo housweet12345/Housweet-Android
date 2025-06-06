@@ -12,12 +12,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.housweet.presentation.ui.profile.component.EditProfileButton
-import com.housweet.presentation.ui.profile.component.ProfileInfo
+import com.housweet.presentation.ui.profile.component.ProfileInfoSection
 import com.housweet.presentation.ui.profile.component.ProfileTopBar
 import com.housweet.presentation.ui.profile.component.TagSection
+import com.housweet.presentation.ui.profile.state.ProfileInfo
 
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(
+    profileInfo: ProfileInfo
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -27,13 +30,21 @@ fun ProfileScreen() {
         // 상단 앱바
         ProfileTopBar()
         // 프로필 정보
-        ProfileInfo()
+        ProfileInfoSection(
+            nickname = profileInfo.nickname,
+            age = profileInfo.age,
+            gender = profileInfo.gender,
+            introduction = profileInfo.introduce,
+        )
         Spacer(modifier = Modifier.height(16.dp))
         // 태그 섹션
-        TagSection(listOf("태그1", "태그2", "태그3"))
+        TagSection(profileInfo.tags)
         Spacer(modifier = Modifier.height(24.dp))
         // 하단 버튼
-        EditProfileButton(false)
+        EditProfileButton(
+            isMyProfile = profileInfo.myProfile,
+            onClick = {}
+        )
     }
 }
 
@@ -41,5 +52,14 @@ fun ProfileScreen() {
 @Preview(showBackground = true)
 @Composable
 fun ProfileScreenPreview() {
-    ProfileScreen()
+    ProfileScreen(
+        profileInfo = ProfileInfo().copy(
+            nickname = "김아무개",
+            gender = "남자",
+            age = "20대",
+            mbti = "ISTP",
+            introduce = "안녕하세요, 잘부탁드립니다",
+            tags = listOf("개발자", "안드로이드", "코틀린")
+        )
+    )
 }

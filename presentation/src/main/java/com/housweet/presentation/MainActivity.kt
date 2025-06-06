@@ -8,9 +8,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.housweet.presentation.ui.chat.ChatScreen
 import com.housweet.presentation.ui.chatlist.ChatListScreen
+import com.housweet.presentation.ui.profile.MyProfileRoute
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen1
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen2
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,6 +46,9 @@ class MainActivity : ComponentActivity() {
                 composable("chat_detail/{chatName}") { backStackEntry ->
                     val chatName = backStackEntry.arguments?.getString("chatName") ?: "Unknown"
                     ChatScreen(chatName, navController)
+                }
+                composable("profile/me") {
+                    MyProfileRoute()
                 }
             }
         }
