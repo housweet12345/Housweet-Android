@@ -55,11 +55,13 @@ class MainActivity : ComponentActivity() {
                 composable("profile/me") {
                     MyProfileRoute(
                         navigateEditProfile = { navController.navigate("profile/edit") },
+                        onBackClick = { navController.popBackStack() },
                         navigateChatting = {  }
                     )
                 }
                 composable("profile/edit") {
                     EditProfileRoute(
+                        onBackClick = { navController.popBackStack() },
                         navigateEditKeyword = { navController.navigate("profile/edit_keyword") }
                     )
                 }
@@ -72,6 +74,7 @@ class MainActivity : ComponentActivity() {
 
                     EditProfileKeyWordRoute(
                         viewModel = viewModel,
+                        onBackClick = { navController.popBackStack() },
                         navigateMyProfile = { navController.navigate("profile/me") }
                     )
                 }

@@ -27,6 +27,7 @@ import com.housweet.presentation.ui.profile.component.InfoMessage
 import com.housweet.presentation.ui.profile.component.ProfileEditCaseNumber
 import com.housweet.presentation.ui.profile.component.ProfileEditNameTextField
 import com.housweet.presentation.ui.profile.component.ProfileImage
+import com.housweet.presentation.ui.profile.component.ProfileTopBar
 import com.housweet.presentation.ui.profile.component.ToggleButtonGroup
 
 @Composable
@@ -35,6 +36,7 @@ fun EditProfileScreen(
     yearOfBirth: String = "",
     gender: String = "",
     introduction: String = "",
+    onBackClick: () -> Unit = {},
     onNextClick: (String, String, String, String) -> Unit = { _, _, _, _ -> }
 ) {
     // 상태 관리 추가
@@ -69,6 +71,12 @@ fun EditProfileScreen(
                 .padding(horizontal = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            ProfileTopBar(
+                title = "프로필 수정",
+                moreIconButton = false,
+                onBackClick = onBackClick
+            )
+
             // 상단 단계 표시 (1단계, 2단계)
             Row(
                 modifier = Modifier

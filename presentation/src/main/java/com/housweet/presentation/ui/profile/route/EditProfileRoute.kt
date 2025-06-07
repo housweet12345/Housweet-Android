@@ -10,6 +10,7 @@ import com.housweet.presentation.viewmodel.profile.EditProfileViewModel
 @Composable
 fun EditProfileRoute(
     viewModel: EditProfileViewModel = hiltViewModel(),
+    onBackClick: () -> Unit = {},
     navigateEditKeyword: () -> Unit = {},
 ) {
     val state = viewModel.profileState.collectAsStateWithLifecycle()
@@ -22,6 +23,7 @@ fun EditProfileRoute(
                 yearOfBirth = profile.yearOfBirth,
                 gender = profile.gender,
                 introduction = profile.introduce,
+                onBackClick = onBackClick,
                 onNextClick = { nickname, yearOfBirth, gender, introduce ->
                     viewModel.saveBasicProfileData(nickname, yearOfBirth, gender, introduce)
                     navigateEditKeyword()

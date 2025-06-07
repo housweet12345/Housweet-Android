@@ -30,14 +30,15 @@ import com.housweet.presentation.ui.theme.ColorGroup
 @Composable
 fun ProfileTopBar(
     title: String = "프로필",
-    moreIconButton: Boolean = false
+    moreIconButton: Boolean = false,
+    onBackClick: () -> Unit = {}
 ) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
     ) {
         IconButton(
-            onClick = { /* 뒤로가기 */ },
+            onClick = onBackClick,
             modifier = Modifier.align(Alignment.CenterStart)
         ) {
             Icon(
