@@ -4,6 +4,13 @@ import com.housweet.domain.model.AuthToken
 import kotlinx.coroutines.flow.Flow
 
 interface AuthRepository {
-    suspend fun loginWithKakao(kakaoToken: String): Flow<Result<AuthToken>>
-    suspend fun test(): Flow<Result<AuthToken>>
+    suspend fun loginWithKakao(
+        socialId: String,
+        accessToken: String,
+        email: String
+    ): Flow<Result<AuthToken>>
+
+    suspend fun refreshAccessToken(): Flow<Result<AuthToken>>
+
+    suspend fun checkLogin(): Flow<Result<Boolean>>
 }

@@ -12,15 +12,16 @@ import com.housweet.presentation.ui.startPage.accessRoomPage.searchRoomScreen.Se
 import com.housweet.presentation.ui.startPage.loginPage.PermissionGuideScreen
 import com.housweet.presentation.ui.startPage.loginPage.WelcomeScreen
 import com.housweet.presentation.ui.startPage.loginPage.loginScreen.LoginScreen
+import com.housweet.presentation.ui.startPage.loginPage.termsOfServicePage.TermsOfServiceScreen
 
 @Composable
-fun StartPageNavigation(modifier: Modifier) {
+fun StartPageNavigation(isAutoLogin: Boolean, modifier: Modifier) {
     val navController = rememberNavController()
 
     NavHost(
         modifier = Modifier.fillMaxSize(),
         navController = navController,
-        startDestination = Route.LoginRoute.LoginScreen
+        startDestination = if (isAutoLogin) Route.AccessRoomRoute.AccessRoomScreen else Route.LoginRoute.LoginScreen
     ) {
         val navigationManager = StartPageNavigationManager(navController)
         composable<Route.LoginRoute.LoginScreen> {
@@ -46,6 +47,15 @@ fun StartPageNavigation(modifier: Modifier) {
             PermissionGuideScreen(modifier = modifier) {
                 navigationManager.navigateOneWay(
                     Route.LoginRoute.PermissionGuideScreen,
+                    Route.LoginRoute.TermsOfServiceScreen
+                )
+            }
+        }
+
+        composable<Route.LoginRoute.TermsOfServiceScreen> {
+            TermsOfServiceScreen(modifier = modifier) {
+                navigationManager.navigateOneWay(
+                    Route.LoginRoute.TermsOfServiceScreen,
                     Route.AccessRoomRoute.AccessRoomScreen
                 )
             }
