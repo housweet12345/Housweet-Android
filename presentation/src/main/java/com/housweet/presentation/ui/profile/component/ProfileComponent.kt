@@ -28,13 +28,17 @@ import com.housweet.presentation.ui.theme.ColorGroup
 
 
 @Composable
-fun ProfileTopBar() {
+fun ProfileTopBar(
+    title: String = "프로필",
+    moreIconButton: Boolean = false,
+    onBackClick: () -> Unit = {}
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
     ) {
         IconButton(
-            onClick = { /* 뒤로가기 */ },
+            onClick = onBackClick,
             modifier = Modifier.align(Alignment.CenterStart)
         ) {
             Icon(
@@ -44,20 +48,21 @@ fun ProfileTopBar() {
         }
 
         Text(
-            text = "프로필",
+            text = title,
             fontSize = 18.sp,
             fontWeight = FontWeight.Medium,
             modifier = Modifier.align(Alignment.Center)
         )
-
-        IconButton(
-            onClick = { /* 더보기 메뉴 */ },
-            modifier = Modifier.align(Alignment.CenterEnd)
-        ) {
-            Icon(
-                imageVector = Icons.Default.MoreVert,
-                contentDescription = "더보기"
-            )
+        if (moreIconButton){
+            IconButton(
+                onClick = { /* 더보기 메뉴 */ },
+                modifier = Modifier.align(Alignment.CenterEnd)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.MoreVert,
+                    contentDescription = "더보기"
+                )
+            }
         }
     }
 }
@@ -127,7 +132,12 @@ fun ProfileImage(
 }
 
 @Composable
-fun ProfileInfo() {
+fun ProfileInfoSection(
+    nickname: String,
+    age: String,
+    gender: String,
+    introduction: String,
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -146,12 +156,14 @@ fun ProfileInfo() {
             ) {
                 Box(
                     modifier = Modifier
+                        .height(19.dp)
                         .clip(RoundedCornerShape(16.dp))
                         .background(ColorGroup.Primary)
                         .padding(horizontal = 8.dp)
                 ) {
                     Text(
-                        text = "20대",
+                        modifier = Modifier.align(Alignment.Center),
+                        text = age,
                         color = Color.White,
                         fontSize = 10.sp
                     )
@@ -161,22 +173,24 @@ fun ProfileInfo() {
 
                 Box(
                     modifier = Modifier
+                        .height(19.dp)
                         .clip(RoundedCornerShape(16.dp))
                         .background(ColorGroup.Primary)
                         .padding(horizontal = 8.dp)
                 ) {
                     Text(
-                        text = "남자",
+                        modifier = Modifier.align(Alignment.Center),
+                        text = gender,
                         color = Color.White,
                         fontSize = 10.sp
                     )
                 }
             }
         }
-
+        Spacer(Modifier.height(16.dp))
         // 이름
         Text(
-            text = "김지안",
+            text = nickname,
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             color = ColorGroup.Black_1E1E1E,
@@ -184,7 +198,7 @@ fun ProfileInfo() {
         Spacer(Modifier.height(10.dp))
         // 상태 메시지
         Text(
-            text = "잘부탁드립니다.",
+            text = introduction,
             fontSize = 14.sp,
             color = Color.Gray,
         )
@@ -224,10 +238,10 @@ fun MultiSelectableTagSection(
     )
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun TagSection(
     tags: List<String>,
+    mbti: String = "",
     modifier: Modifier = Modifier,
 ) {
     FlowRow(
@@ -236,8 +250,8 @@ fun TagSection(
         verticalArrangement = Arrangement.Center,
         maxItemsInEachRow = Int.MAX_VALUE,
         content = {
-            tags.forEach { tag ->
-                TagChip(text = tag)
+            tags.forEachIndexed { index, tag ->
+                TagChip(text = tag, isMbti = (mbti == tags[0] && index == 0))
                 Spacer(modifier = Modifier.padding(end = 8.dp))
             }
         }
@@ -246,14 +260,15 @@ fun TagSection(
 @Composable
 fun TagChip(
     text: String,
+    isMbti: Boolean = false,
     modifier: Modifier = Modifier,
     isSelectable: Boolean = false,
     isSelected: Boolean = false,
     onClick: (() -> Unit)? = null,
-    backgroundColor: Color = if (isSelected) ColorGroup.Primary.copy(alpha = 0.1f) else Color.White,
-    borderColor: Color = ColorGroup.Primary,
-    textColor: Color = if (isSelected) ColorGroup.Primary else ColorGroup.Black_313131
 ) {
+    val backgroundColor = if (isSelected || isMbti) ColorGroup.Primary else Color.White
+    val textColor = if (isSelected || isMbti) ColorGroup.White_F8F8F8 else ColorGroup.Black_313131
+
     val clickModifier = if (isSelectable && onClick != null) {
         Modifier.clickable(onClick = onClick)
     } else {
@@ -262,12 +277,13 @@ fun TagChip(
 
     Surface(
         color = backgroundColor,
+        shape = RoundedCornerShape(6.dp),
         modifier = modifier
             .padding(vertical = 3.dp)
             .height(32.dp)
             .border(
                 width = 0.5.dp,
-                color = borderColor,
+                color = ColorGroup.Primary,
                 shape = RoundedCornerShape(6.dp)
             )
             .then(clickModifier),
@@ -304,7 +320,9 @@ fun SelectableTagChip(
 
 @Composable
 fun EditProfileButton(
-    isMyProfile: Boolean
+    isMyProfile: Boolean,
+    editButtonOnClick: () -> Unit = {},
+    chatButtonOnClick: () -> Unit = {},
 ) {
     Box(
         modifier = Modifier
@@ -312,7 +330,7 @@ fun EditProfileButton(
     ) {
         if (isMyProfile){
             Button(
-                onClick = { /* 프로필 편집 */ },
+                onClick = editButtonOnClick,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
@@ -330,7 +348,7 @@ fun EditProfileButton(
             }
         } else {
             Button(
-                onClick = { /* 프로필 편집 */ },
+                onClick = chatButtonOnClick,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
@@ -361,16 +379,25 @@ private fun EditProfileButtonPreview() {
     EditProfileButton(false)
 }
 
+@Preview(showBackground = true)
+@Composable
+private fun ProfileInfoSectionPreview() {
+    ProfileInfoSection(
+        nickname = "김아무개",
+        gender = "남자",
+        age = "20대",
+        introduction = "안녕하세요, 잘부탁드립니다",
+    )
+}
+
 // 프리뷰
 @Preview(showBackground = true)
 @Composable
 fun TagSectionPreview() {
     val sampleTags = listOf(
-        "미술연자", "지적형", "초음파 활용 선호",
-        "음악, 수음 OK", "정화를 자주함", "비흡연자",
-        "음연자", "정돈 적당히", "술을 즐기는 편",
-        "요리를 자주 함", "음식은 서먹한 편",
-        "냉장고 음식 공유 가능"
+       "ISTP","음악 OK", "정화를 자주함", "비흡연자",
+        "흡연자", "정돈 적당히", "술을 즐기는 편",
+        "요리를 자주 함", "냉장고 음식 공유 가능"
     )
 
     TagSection(tags = sampleTags)
