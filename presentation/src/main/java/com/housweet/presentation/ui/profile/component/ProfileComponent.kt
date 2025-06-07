@@ -28,7 +28,10 @@ import com.housweet.presentation.ui.theme.ColorGroup
 
 
 @Composable
-fun ProfileTopBar() {
+fun ProfileTopBar(
+    title: String = "프로필",
+    moreIconButton: Boolean = false
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -44,20 +47,21 @@ fun ProfileTopBar() {
         }
 
         Text(
-            text = "프로필",
+            text = title,
             fontSize = 18.sp,
             fontWeight = FontWeight.Medium,
             modifier = Modifier.align(Alignment.Center)
         )
-
-        IconButton(
-            onClick = { /* 더보기 메뉴 */ },
-            modifier = Modifier.align(Alignment.CenterEnd)
-        ) {
-            Icon(
-                imageVector = Icons.Default.MoreVert,
-                contentDescription = "더보기"
-            )
+        if (moreIconButton){
+            IconButton(
+                onClick = { /* 더보기 메뉴 */ },
+                modifier = Modifier.align(Alignment.CenterEnd)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.MoreVert,
+                    contentDescription = "더보기"
+                )
+            }
         }
     }
 }
@@ -316,7 +320,8 @@ fun SelectableTagChip(
 @Composable
 fun EditProfileButton(
     isMyProfile: Boolean,
-    onClick: () -> Unit = {},
+    editButtonOnClick: () -> Unit = {},
+    chatButtonOnClick: () -> Unit = {},
 ) {
     Box(
         modifier = Modifier
@@ -324,7 +329,7 @@ fun EditProfileButton(
     ) {
         if (isMyProfile){
             Button(
-                onClick = onClick,
+                onClick = editButtonOnClick,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
@@ -342,7 +347,7 @@ fun EditProfileButton(
             }
         } else {
             Button(
-                onClick = onClick,
+                onClick = chatButtonOnClick,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
