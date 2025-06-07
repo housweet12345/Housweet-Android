@@ -12,7 +12,7 @@ val properties = Properties().apply {
     load(FileInputStream("${rootDir}/local.properties"))
 }
 
-val kakaoApiKey = properties["kakaoLogin_api_key"] ?: ""
+val kakaoApiKey = properties["kakaoLogin_api_key"] as? String ?: ""
 val naverClientId = properties["naver_client_id"] ?: ""
 
 android {
@@ -28,9 +28,16 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "Kakao_API_KEY", kakaoApiKey.toString())
+        buildFeatures {
+            compose = true
+        }
+
+//    composeOptions {
+//        kotlinCompilerExtensionVersion = "1.5.3"  // Compose 컴파일러 버전
+//    }
+        buildConfigField("String", "Kakao_API_KEY", kakaoApiKey)
         buildConfigField("String", "Naver_Client_ID", naverClientId.toString())
-        manifestPlaceholders["Kakao_API_KEY"] = kakaoApiKey as String
+        manifestPlaceholders["Kakao_API_KEY"] = kakaoApiKey
     }
 
     buildFeatures {

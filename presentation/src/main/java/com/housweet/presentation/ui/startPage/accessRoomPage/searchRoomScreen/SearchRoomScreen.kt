@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,29 +34,26 @@ fun SearchRoomScreen(
     modifier: Modifier,
     searchRoomViewModel: SearchRoomViewModel = hiltViewModel()
 ) {
-    val uiState: SearchRoomUiState by searchRoomViewModel.uiState.collectAsState()
+    val uiState: SearchRoomState by searchRoomViewModel.uiState.collectAsState()
     var isWarning by remember { mutableStateOf(false) }
     var code by remember { mutableStateOf("") }
-    when (uiState) {
-        SearchRoomUiState.Idle -> {
-            SearchRoomContent(
-                modifier = modifier,
-                code = code,
-                isWarning = isWarning,
-                onValueChange = {
-                    code = it
-                },
-                onBtnClick = {
+
+    LaunchedEffect(Unit) {
+        searchRoomViewModel.event.collect { event ->
+            when (event) {
+                SearchRoomEvent.Error -> {
+                    isWarning = true
+                }
+
+                SearchRoomEvent.Success -> {
 
                 }
-            )
+            }
         }
+    }
 
-        SearchRoomUiState.IsLoading -> {
-            LoadingScreen()
-        }
-
-        SearchRoomUiState.Error -> {
+    when (uiState) {
+        SearchRoomState.Idle -> {
             SearchRoomContent(
                 modifier = modifier,
                 code = code,
@@ -70,6 +68,10 @@ fun SearchRoomScreen(
 
                 }
             )
+        }
+
+        SearchRoomState.IsLoading -> {
+            LoadingScreen()
         }
     }
 }

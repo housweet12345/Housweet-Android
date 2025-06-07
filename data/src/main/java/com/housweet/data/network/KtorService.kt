@@ -1,10 +1,12 @@
 package com.housweet.data.network
 
+import android.os.Build
 import android.util.Log
+import com.housweet.data.BuildConfig
 import com.housweet.data.local.AuthLocalDataSource
 import com.housweet.data.network.dto.RefreshTokenRequest
 import com.housweet.data.network.dto.TokenResponseDto
-import com.housweet.data.network.dto.toAuthToken
+import com.housweet.domain.model.AuthToken
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.okhttp.OkHttp
@@ -36,7 +38,7 @@ class KtorService @Inject constructor(
     private val authLocalDataSource: AuthLocalDataSource
 ) {
     companion object {
-        private const val BASE_URL = ""
+        private const val BASE_URL = BuildConfig.BASE_URL
         private const val TAG = "KtorClient"
 
         private const val CONNECTION_TIMEOUT_SECONDS = 10L
@@ -132,9 +134,8 @@ class KtorService @Inject constructor(
 
                     sendWithoutRequest { request ->
                         // 로그인, 토큰 갱신 같은 인증 관련 엔드포인트는 제외
-                        val authExcluded = request.url.pathSegments.lastOrNull() == "kakao" ||
-                                request.url.pathSegments.lastOrNull() == "refresh" ||
-                                request.url.toString().startsWith("https://maps.apigw.ntruss.com/map-geocode/v2/geocode")
+                        val authExcluded = request.url.pathSegments.lastOrNull() == "login"
+                                || request.url.toString().startsWith("https://maps.apigw.ntruss.com/map-geocode/v2/geocode")
                         !authExcluded
                     }
                 }
@@ -147,11 +148,8 @@ class KtorService @Inject constructor(
         }
     }
 
-    private fun refreshTokenHandler(oldTokens: BearerTokens?): BearerTokens? {
-        val refreshToken = oldTokens?.refreshToken ?: return null
-        Log.d(TAG, "Token expired, refreshing with refresh token")
-
-        val client = HttpClient(OkHttp) {
+    fun createHttpClientForRefresh(): HttpClient {
+        return HttpClient(OkHttp) {
             engine {
                 config {
                     followRedirects(true)
@@ -168,9 +166,16 @@ class KtorService @Inject constructor(
                 level = LogLevel.BODY
             }
         }
+    }
+
+    private fun refreshTokenHandler(oldTokens: BearerTokens?): BearerTokens? {
+        val refreshToken = oldTokens?.refreshToken ?: return null
+        Log.d(TAG, "Token expired, refreshing with refresh token")
+
+        val client = createHttpClientForRefresh()
 
         val refreshResponse = runBlocking {
-            client.post("$BASE_URL/auth/refresh") {
+            client.post("$BASE_URL/auth/token/refresh") {
                 contentType(ContentType.Application.Json)
                 setBody(RefreshTokenRequest(refreshToken))
             }
@@ -181,14 +186,14 @@ class KtorService @Inject constructor(
         }
 
         runBlocking {
-            val authToken = tokenResponseDto.toAuthToken()
-            authLocalDataSource.saveAuthToken(authToken)
+            val newAccessToken = tokenResponseDto.accessToken
+            authLocalDataSource.saveAuthToken(AuthToken(newAccessToken, oldTokens.refreshToken))
             Log.d(TAG, "Token refreshed successfully")
         }
 
-        return  BearerTokens(
+        return BearerTokens(
             accessToken = tokenResponseDto.accessToken,
-            refreshToken = tokenResponseDto.refreshToken
+            refreshToken = oldTokens.refreshToken
         )
     }
 }

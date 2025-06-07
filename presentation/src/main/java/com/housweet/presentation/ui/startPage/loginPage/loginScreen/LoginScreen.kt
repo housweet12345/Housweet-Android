@@ -62,30 +62,39 @@ fun LoginScreen(
     loginViewModel: LoginViewModel = hiltViewModel(),
     onNextScreen: () -> Unit,
 ) {
-    val uiState: LoginUiState by loginViewModel.loginUiState.collectAsState()
+    val uiState: LoginUiState by loginViewModel.uiState.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
 
     BackOnPressed()
+    LaunchedEffect(Unit) {
+        loginViewModel.event.collect { event ->
+            when (event) {
+                LoginEvent.SignUp -> {
+                    onNextScreen()
+                }
+
+                LoginEvent.SignIn -> {
+                    onNextScreen()
+                }
+
+                LoginEvent.LoginError -> {
+                    snackBarHostState.showSnackbar(
+                        message = "로그인에 실패했습니다.",
+                        actionLabel = "닫기",
+                        duration = SnackbarDuration.Short
+                    )
+                }
+            }
+        }
+    }
 
     when (uiState) {
-        LoginUiState.SignUp -> {
-            LaunchedEffect(key1 = true) {
-                onNextScreen()
-            }
-        }
-
-        LoginUiState.SignIn -> {
-            LaunchedEffect(key1 = true) {
-                onNextScreen()
-            }
-        }
-
         LoginUiState.IsLoading -> {
             LoadingScreen()
         }
 
-        LoginUiState.LoginError -> {
+        LoginUiState.Idle -> {
             Scaffold(
                 modifier = Modifier.fillMaxSize(),
                 snackbarHost = { SnackbarHost(hostState = snackBarHostState) }
@@ -96,23 +105,6 @@ fun LoginScreen(
                         context = context
                     )
                 }
-
-                LaunchedEffect(snackBarHostState) {
-                    snackBarHostState.showSnackbar(
-                        message = "로그인에 실패했습니다.",
-                        actionLabel = "닫기",
-                        duration = SnackbarDuration.Short
-                    )
-                }
-            }
-        }
-
-        LoginUiState.Idle -> {
-            LoginContent(modifier = modifier) {
-                kakaoLogin(
-                    viewModel = loginViewModel,
-                    context = context
-                )
             }
         }
     }
@@ -251,7 +243,28 @@ private fun kakaoLogin(viewModel: LoginViewModel, context: Context) {
         if (error != null) {
             viewModel.loginFail()
         } else if (token != null) {
-            viewModel.signIn()
+            UserApiClient.instance.me { user, error1 ->
+                if (error1 != null) {
+                    viewModel.loginFail()
+                    return@me
+                }
+
+                if (user == null) {
+                    viewModel.loginFail()
+                    return@me
+                }
+
+                if (user.kakaoAccount?.email == null) {
+                    viewModel.loginFail()
+                    return@me
+                }
+
+                viewModel.login(
+                    socialId = user.id.toString(),
+                    accessToken = token.accessToken,
+                    email = user.kakaoAccount?.email.toString()
+                )
+            }
         }
     }
 
@@ -263,7 +276,28 @@ private fun kakaoLogin(viewModel: LoginViewModel, context: Context) {
             }
             UserApiClient.instance.loginWithKakaoAccount(context, callback = kakaoLoginCallback)
         } else if (token != null) {
-            viewModel.signIn()
+            UserApiClient.instance.me { user, error1 ->
+                if (error1 != null) {
+                    viewModel.loginFail()
+                    return@me
+                }
+
+                if (user == null) {
+                    viewModel.loginFail()
+                    return@me
+                }
+
+                if (user.kakaoAccount?.email == null) {
+                    viewModel.loginFail()
+                    return@me
+                }
+
+                viewModel.login(
+                    socialId = user.id.toString(),
+                    accessToken = token.accessToken,
+                    email = user.kakaoAccount?.email.toString()
+                )
+            }
         }
     }
 }

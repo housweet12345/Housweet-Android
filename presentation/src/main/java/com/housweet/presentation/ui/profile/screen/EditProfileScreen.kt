@@ -12,8 +12,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -25,19 +27,40 @@ import com.housweet.presentation.ui.profile.component.InfoMessage
 import com.housweet.presentation.ui.profile.component.ProfileEditCaseNumber
 import com.housweet.presentation.ui.profile.component.ProfileEditNameTextField
 import com.housweet.presentation.ui.profile.component.ProfileImage
+import com.housweet.presentation.ui.profile.component.ProfileTopBar
 import com.housweet.presentation.ui.profile.component.ToggleButtonGroup
 
 @Composable
-fun ProfileSetupScreen(
-    onNextClick: () -> Unit = {}
+fun EditProfileScreen(
+    name: String = "",
+    yearOfBirth: String = "",
+    gender: String = "",
+    introduction: String = "",
+    onBackClick: () -> Unit = {},
+    onNextClick: (String, String, String, String) -> Unit = { _, _, _, _ -> }
 ) {
-    var selectedOption by remember { mutableIntStateOf(1) }
+    // 상태 관리 추가
+    var nameState by remember { mutableStateOf(name) }
+    var yearOfBirthState by remember { mutableStateOf(yearOfBirth) }
+    var genderState by remember { mutableStateOf(gender) }
+    var introductionState by remember { mutableStateOf(introduction) }
+
+    var selectedOption by remember {
+        mutableIntStateOf(if (gender == "남자") 1 else 2)
+    }
+
+    // 성별 상태 동기화
+    LaunchedEffect(selectedOption) {
+        genderState = if (selectedOption == 1) "남자" else "여자"
+    }
 
     Scaffold(
         bottomBar = {
             BottomButton(
                 text = "다음",
-                onClick = onNextClick
+                onClick = {
+                    onNextClick(nameState, yearOfBirthState, genderState, introductionState)
+                }
             )
         }
     ) { paddingValues ->
@@ -48,6 +71,12 @@ fun ProfileSetupScreen(
                 .padding(horizontal = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            ProfileTopBar(
+                title = "프로필 수정",
+                moreIconButton = false,
+                onBackClick = onBackClick
+            )
+
             // 상단 단계 표시 (1단계, 2단계)
             Row(
                 modifier = Modifier
@@ -79,8 +108,8 @@ fun ProfileSetupScreen(
 
             ProfileEditNameTextField(
                 hint = "이름을 입력해주세요",
-                value = "",
-                onValueChange = {}
+                value = nameState,
+                onValueChange = { nameState = it } // 상태 업데이트
             )
 
             Spacer(Modifier.height(10.dp))
@@ -93,8 +122,8 @@ fun ProfileSetupScreen(
                 ProfileEditNameTextField(
                     modifier = Modifier.weight(1f),
                     hint = "태어난 년도를 선택해주세요.",
-                    value = "",
-                    onValueChange = {}
+                    value = yearOfBirthState,
+                    onValueChange = { yearOfBirthState = it } // 상태 업데이트
                 )
                 Spacer(Modifier.width(10.dp))
                 ToggleButtonGroup(
@@ -118,8 +147,8 @@ fun ProfileSetupScreen(
                 contentAlignment = Alignment.TopStart,
                 modifier = Modifier.height(90.dp),
                 hint = "자기소개를 입력해주세요.",
-                value = "",
-                onValueChange = {}
+                value = introductionState,
+                onValueChange = { introductionState = it } // 상태 업데이트
             )
         }
     }
@@ -128,5 +157,5 @@ fun ProfileSetupScreen(
 @Preview(showBackground = true)
 @Composable
 fun ProfileSetupScreenPreview() {
-    ProfileSetupScreen()
+    EditProfileScreen()
 }
