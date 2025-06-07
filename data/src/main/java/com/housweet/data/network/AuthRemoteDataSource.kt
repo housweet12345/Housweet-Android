@@ -1,8 +1,16 @@
 package com.housweet.data.network
 
 import com.housweet.data.network.dto.LoginResponseDto
+import com.housweet.data.network.dto.TokenResponseDto
 
 interface AuthRemoteDataSource {
-    suspend fun loginWithKakao(kakaoToken: String): LoginResponseDto
-    suspend fun test(): LoginResponseDto
+    suspend fun loginWithKakao(
+        socialId: String,
+        accessToken: String,
+        email: String
+    ): LoginResponseDto
+
+    suspend fun refreshAccessToken(
+        refreshToken: String
+    ): TokenResponseDto
 }

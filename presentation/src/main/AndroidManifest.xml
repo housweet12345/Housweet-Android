@@ -1,21 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.housweet.presentation">
+
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:icon="@mipmap/ic_launcher"
         android:label="Housweet"
-        >
+        android:usesCleartextTraffic="true">
         <activity
-            android:name="com.housweet.presentation.ui.startPage.StartActivity"
+            android:name=".ui.splash.SplashActivity"
             android:exported="true"
-            android:label="@string/title_activity_start"
-            android:theme="@style/Theme.Housweet" >
+            android:label="@string/title_activity_splash"
+            android:theme="@style/Theme.MySplashScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ui.startPage.StartActivity"
+            android:exported="true"
+            android:label="@string/title_activity_start"
+            android:theme="@style/Theme.Housweet">
         </activity>
 
         <activity
@@ -24,11 +32,13 @@
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <!-- Redirect URI: "kakao${NATIVE_APP_KEY}://oauth" -->
-                <data android:host="oauth"
+                <data
+                    android:host="oauth"
                     android:scheme="${Kakao_Redirect_URI}" />
             </intent-filter>
         </activity>
@@ -38,7 +48,7 @@
             android:value="Kakao_API_KEY" />
 
         <activity
-            android:name="com.housweet.presentation.MainActivity"
+            android:name=".MainActivity"
             android:exported="false" />
     </application>
 

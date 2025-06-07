@@ -10,6 +10,9 @@ sealed interface Route {
         data object WelComeScreen: LoginRoute
 
         @Serializable
+        data object TermsOfServiceScreen : LoginRoute
+
+        @Serializable
         data object PermissionGuideScreen : LoginRoute
     }
 
