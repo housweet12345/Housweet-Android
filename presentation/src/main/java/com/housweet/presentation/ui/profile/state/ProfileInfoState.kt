@@ -4,7 +4,8 @@ import com.housweet.domain.model.profile.ProfileModel
 import java.util.Calendar
 
 sealed interface ProfileInfoState {
-    object Loading : ProfileInfoState
+    data object Loading : ProfileInfoState
+    data object EditSuccess : ProfileInfoState
     data class Success(val profileInfo: ProfileInfo) : ProfileInfoState
     data class Error(val message: String) : ProfileInfoState
 }
@@ -19,7 +20,8 @@ data class ProfileInfo(
     val profileImageUrl: String = "",
     val tags: List<String> = emptyList(),
     val myProfile: Boolean = false,
-    val age: String = ""
+    val yearOfBirth: String = "",
+    val age: String = "",
 )
 
 fun ProfileModel.toProfileInfo(isMyProfile: Boolean): ProfileInfo {
@@ -33,6 +35,7 @@ fun ProfileModel.toProfileInfo(isMyProfile: Boolean): ProfileInfo {
         profileImageUrl = profileImage,
         tags = listOf(mbti) + tags,
         myProfile = isMyProfile,
+        yearOfBirth = yearOfBirth,
         age = getAgeGroupFromBirthYear(yearOfBirth)
     )
 }
