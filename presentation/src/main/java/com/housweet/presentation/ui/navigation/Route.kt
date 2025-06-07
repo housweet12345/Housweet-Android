@@ -13,6 +13,9 @@ sealed interface Route {
 
             @Serializable
             data object PermissionGuide : LoginRoute
+
+            @Serializable
+            data object TermsOfService : LoginRoute
         }
 
         sealed interface AccessRoomRoute : StartPageRoute {

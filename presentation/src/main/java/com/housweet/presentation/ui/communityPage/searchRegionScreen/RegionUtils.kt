@@ -1,4 +1,4 @@
-package com.housweet.presentation.utils
+package com.housweet.presentation.ui.communityPage.searchRegionScreen
 
 import android.content.Context
 import org.json.JSONArray

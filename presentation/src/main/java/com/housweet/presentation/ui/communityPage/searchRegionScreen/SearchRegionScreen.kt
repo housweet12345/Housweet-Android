@@ -1,5 +1,6 @@
 package com.housweet.presentation.ui.communityPage.searchRegionScreen
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
@@ -44,7 +45,6 @@ import com.housweet.presentation.ui.theme.Gray_CBCBCB
 import com.housweet.presentation.ui.theme.Purple
 import com.housweet.presentation.ui.theme.White
 import com.housweet.presentation.ui.theme.nanumSquareFontFamily
-import com.housweet.presentation.utils.RegionUtils
 
 @Composable
 fun SearchRegionScreen(
@@ -53,12 +53,16 @@ fun SearchRegionScreen(
     onMapScreen: (Coordinate) -> Unit,
     onBackBtnClick: () -> Unit
 ) {
+    val context = LocalContext.current
+    val regionUtils = remember { RegionUtils(context) }
     val uiState: SearchRegionUiState by searchRegionViewModel.uiState.collectAsState(initial = SearchRegionUiState.Idle)
     val snackBarHostState = remember { SnackbarHostState() }
     var inputText by remember { mutableStateOf("") }
     var autoCompleteTextList by remember { mutableStateOf(listOf<String>()) }
-    val context = LocalContext.current
-    val regionUtils = RegionUtils(context)
+
+    BackHandler {
+        onBackBtnClick()
+    }
 
     LaunchedEffect(Unit) {
         searchRegionViewModel.event.collect { event ->

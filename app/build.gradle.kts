@@ -27,14 +27,6 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-        buildFeatures {
-            compose = true
-        }
-
-//    composeOptions {
-//        kotlinCompilerExtensionVersion = "1.5.3"  // Compose 컴파일러 버전
-//    }
         buildConfigField("String", "Kakao_API_KEY", kakaoApiKey)
         buildConfigField("String", "Naver_Client_ID", naverClientId.toString())
         manifestPlaceholders["Kakao_API_KEY"] = kakaoApiKey
@@ -61,10 +53,6 @@ android {
 
     kotlinOptions {
         jvmTarget = "17"
-    }
-
-    buildFeatures {
-        buildConfig = true
     }
 }
 
@@ -103,7 +91,7 @@ dependencies {
     implementation(libs.v2.user)
 
     // Naver
-    implementation("com.naver.maps:map-sdk:3.21.0")
+    implementation(libs.map.sdk)
 
     //Test
     testImplementation(libs.junit)
