@@ -37,6 +37,9 @@ fun CommunityPageNavigation(paddingValue: PaddingValues) {
             MapScreen(
                 modifier = Modifier.padding(top = paddingValue.calculateTopPadding()),
                 searchRegion = coordinate,
+                onMarkerClick = {
+                    navigationManager.navigateTo(Route.CommunityPageRoute.PostRoute.Posts)
+                },
                 onViewPostBtnClick = {
                     navigationManager.navigateTo(Route.CommunityPageRoute.PostRoute.Posts)
                 },
@@ -61,7 +64,7 @@ fun CommunityPageNavigation(paddingValue: PaddingValues) {
                 onBackBtnClick = {
                     navigationManager.navigateOneWay(
                         Route.CommunityPageRoute.SearchRegion,
-                        Route.CommunityPageRoute.Map()
+                        Route.CommunityPageRoute.Map(coordinate = null)
                     )
                 }
             )

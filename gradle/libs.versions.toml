@@ -18,10 +18,12 @@ kotlinxSerializationJson = "1.7.3"
 kotlinStdlib = "1.9.0"
 kotlinxCoroutinesCore = "1.8.0"
 ktorClientCore = "2.3.7"
+mapSdk = "3.21.0"
 material = "1.12.0"
 activity = "1.10.1"
 constraintlayout = "2.2.1"
 jetbrainsKotlinJvm = "1.9.10"
+naverMapCompose = "1.7.4"
 runtimeAndroid = "1.7.0"
 storage = "1.5.0"
 compose = "1.5.3"
@@ -61,6 +63,7 @@ ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktorCli
 ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktorClientCore" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktorClientCore" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktorClientCore" }
+map-sdk = { module = "com.naver.maps:map-sdk", version.ref = "mapSdk" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
@@ -78,6 +81,7 @@ androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+naver-map-compose = { module = "io.github.fornewid:naver-map-compose", version.ref = "naverMapCompose" }
 v2-user = { module = "com.kakao.sdk:v2-user", version.ref = "v2User" }
 
 [plugins]
@@ -85,3 +89,4 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

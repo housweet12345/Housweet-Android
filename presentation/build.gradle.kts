@@ -4,9 +4,9 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.compose.compiler)
     kotlin("plugin.serialization") version "2.0.21"
     id("com.google.dagger.hilt.android")
-    id("org.jetbrains.kotlin.plugin.compose") version "2.1.0"
     kotlin("kapt")
 }
 
@@ -130,7 +130,7 @@ dependencies {
     implementation(libs.coil.gif)
 
     // Naver Map
-    implementation ("io.github.fornewid:naver-map-compose:1.7.4")
+    implementation (libs.naver.map.compose)
 }
 
 kapt {

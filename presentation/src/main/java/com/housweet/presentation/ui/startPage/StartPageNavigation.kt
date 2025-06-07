@@ -53,17 +53,17 @@ fun StartPageNavigation(isAutoLogin: Boolean, modifier: Modifier) {
             PermissionGuideScreen(modifier = modifier) {
                 navigationManager.navigateOneWay(
                     Route.StartPageRoute.LoginRoute.PermissionGuide,
-                    Route.StartPageRoute.AccessRoomRoute.AccessRoom
+                    Route.StartPageRoute.LoginRoute.TermsOfService
                 )
             }
+        }
 
-            composable<Route.LoginRoute.TermsOfServiceScreen> {
-                TermsOfServiceScreen(modifier = modifier) {
-                    navigationManager.navigateOneWay(
-                        Route.LoginRoute.TermsOfServiceScreen,
-                        Route.AccessRoomRoute.AccessRoomScreen
-                    )
-                }
+        composable<Route.StartPageRoute.LoginRoute.TermsOfService> {
+            TermsOfServiceScreen(modifier = modifier) {
+                navigationManager.navigateOneWay(
+                    Route.StartPageRoute.LoginRoute.TermsOfService,
+                    Route.StartPageRoute.AccessRoomRoute.AccessRoom
+                )
             }
         }
 
