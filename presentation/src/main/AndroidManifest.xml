@@ -37,9 +37,9 @@
             android:name="com.kakao.sdk.AppKey"
             android:value="Kakao_API_KEY" />
 
-        <activity
-            android:name="com.housweet.presentation.MainActivity"
-            android:exported="false" />
+<!--        <activity-->
+<!--            android:name="com.housweet.presentation.MainActivity"-->
+<!--            android:exported="true" />-->
     </application>
 
 </manifest>
