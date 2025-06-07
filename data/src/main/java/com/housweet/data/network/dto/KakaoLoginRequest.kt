@@ -5,6 +5,10 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class KakaoLoginRequest(
-    @SerialName("kakao_token")
-    val kakaoToken: String
+    @SerialName("social_id")
+    val socialId: String,
+    @SerialName("access_token")
+    val accessToken: String,
+    @SerialName("email")
+    val email: String
 )

@@ -17,19 +17,23 @@ class StartActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val isAutoLogin = intent.getBooleanExtra("isLogin", false)
         setContent {
             HousweetTheme {
-                Start()
+                Start(isAutoLogin)
             }
         }
     }
 }
 
 @Composable
-fun Start() {
+fun Start(isAutoLogin: Boolean) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
     ) { paddingValues ->
-        StartPageNavigation(modifier = Modifier.padding(paddingValues))
+        StartPageNavigation(
+            isAutoLogin = isAutoLogin,
+            modifier = Modifier.padding(paddingValues)
+        )
     }
 }

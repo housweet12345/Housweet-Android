@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,9 +33,23 @@ fun CreateRoomScreen(
     modifier: Modifier,
     createRoomViewModel: CreateRoomViewModel = hiltViewModel()
 ) {
-    val uiState: CreateRoomUiState by createRoomViewModel.uiState.collectAsState()
+    val uiState: CreateRoomState by createRoomViewModel.uiState.collectAsState()
+    LaunchedEffect(Unit) {
+        createRoomViewModel.event.collect { event ->
+            when (event) {
+                CreateRoomEvent.Error -> {
+
+                }
+
+                CreateRoomEvent.Success -> {
+
+                }
+            }
+        }
+    }
+
     when (uiState) {
-        CreateRoomUiState.Idle -> {
+        CreateRoomState.Idle -> {
             CreateRoomContent(
                 modifier = modifier
             ) {
@@ -42,16 +57,8 @@ fun CreateRoomScreen(
             }
         }
 
-        CreateRoomUiState.IsLoading -> {
+        CreateRoomState.IsLoading -> {
             LoadingScreen()
-        }
-
-        CreateRoomUiState.Error -> {
-            CreateRoomContent(
-                modifier = modifier
-            ) {
-
-            }
         }
     }
 }

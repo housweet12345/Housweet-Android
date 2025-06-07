@@ -3,14 +3,24 @@ package com.housweet.presentation
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.remember
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.housweet.presentation.ui.chat.ChatScreen
 import com.housweet.presentation.ui.chatlist.ChatListScreen
+import com.housweet.presentation.ui.profile.route.EditProfileKeyWordRoute
+import com.housweet.presentation.ui.profile.route.EditProfileRoute
+import com.housweet.presentation.ui.profile.route.MyProfileRoute
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen1
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen2
+import com.housweet.presentation.viewmodel.profile.EditProfileViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen3
+import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen4
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,7 +44,28 @@ class MainActivity : ComponentActivity() {
                         onNextClick = {
                             navController.navigate("house_register_3")
                         },
-                        onBackClick = {navController.navigate("house_register_1")}
+                        onBackClick = {navController.navigate("house_register_1")},
+                        onRegionSelectClick = {
+                            navController.navigate("region_select")
+                        }
+                    )
+                }
+                composable("house_register_3") {
+                    HouseRegisterScreen3(
+                        onNextClick = {
+                            navController.navigate("house_register_4")
+                        },
+                        onBackClick = { navController.navigate("house_register_2") },
+                        onImagePickClick = {},
+                        selectedImageBitmap = null
+                    )
+                }
+                composable("house_register_4") {
+                    HouseRegisterScreen4(
+                        onBackClick = {
+                            navController.navigate("house_register_3")
+                        },
+                        onCompleteClick = {}
                     )
                 }
                 composable("chat_list") {
@@ -43,6 +74,32 @@ class MainActivity : ComponentActivity() {
                 composable("chat_detail/{chatName}") { backStackEntry ->
                     val chatName = backStackEntry.arguments?.getString("chatName") ?: "Unknown"
                     ChatScreen(chatName, navController)
+                }
+                composable("profile/me") {
+                    MyProfileRoute(
+                        navigateEditProfile = { navController.navigate("profile/edit") },
+                        onBackClick = { navController.popBackStack() },
+                        navigateChatting = {  }
+                    )
+                }
+                composable("profile/edit") {
+                    EditProfileRoute(
+                        onBackClick = { navController.popBackStack() },
+                        navigateEditKeyword = { navController.navigate("profile/edit_keyword") }
+                    )
+                }
+
+                composable("profile/edit_keyword") { navBackStackEntry ->
+                    val parentEntry = remember(navBackStackEntry) {
+                        navController.getBackStackEntry("profile/edit")
+                    }
+                    val viewModel: EditProfileViewModel = hiltViewModel(parentEntry)
+
+                    EditProfileKeyWordRoute(
+                        viewModel = viewModel,
+                        onBackClick = { navController.popBackStack() },
+                        navigateMyProfile = { navController.navigate("profile/me") }
+                    )
                 }
             }
         }

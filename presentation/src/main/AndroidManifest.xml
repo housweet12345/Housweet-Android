@@ -5,17 +5,28 @@
 
     <application
         android:icon="@mipmap/ic_launcher"
-        android:label="Housweet">
+        android:label="Housweet"
+        android:usesCleartextTraffic="true">
+        <activity
+            android:name=".ui.splash.SplashActivity"
+            android:exported="true"
+            android:label="@string/title_activity_splash"
+            android:theme="@style/Theme.MySplashScreen">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
         <activity
-            android:name="com.housweet.presentation.ui.startPage.StartActivity"
+            android:name=".ui.startPage.StartActivity"
             android:exported="true"
             android:label="@string/title_activity_start"
             android:theme="@style/Theme.Housweet" >
         </activity>
 
         <activity
-            android:name="com.housweet.presentation.ui.communityPage.CommunityActivity"
+            android:name=".ui.communityPage.CommunityActivity"
             android:exported="true"
             android:label="@string/title_activity_community"
             android:theme="@style/Theme.Housweet" >
@@ -35,7 +46,8 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <!-- Redirect URI: "kakao${NATIVE_APP_KEY}://oauth" -->
-                <data android:host="oauth"
+                <data
+                    android:host="oauth"
                     android:scheme="${Kakao_Redirect_URI}" />
             </intent-filter>
         </activity>

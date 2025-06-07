@@ -7,7 +7,15 @@ import kotlinx.coroutines.flow.Flow
 class LoginWithKakaoUseCase(
     private val authRepository: AuthRepository
 ) {
-    suspend operator fun invoke(kakaoToken: String): Flow<Result<AuthToken>> {
-        return authRepository.loginWithKakao(kakaoToken)
+    suspend operator fun invoke(
+        socialId: String,
+        accessToken: String,
+        email: String
+    ): Flow<Result<AuthToken>> {
+        return authRepository.loginWithKakao(
+            socialId = socialId,
+            accessToken = accessToken,
+            email = email
+        )
     }
 }

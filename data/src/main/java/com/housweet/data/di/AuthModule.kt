@@ -6,6 +6,7 @@ import com.housweet.data.network.AuthRemoteDataSource
 import com.housweet.data.network.AuthRemoteDataSourceImpl
 import com.housweet.data.network.KtorService
 import com.housweet.data.repository.AuthRepositoryImpl
+import com.housweet.data.utils.CryptoManager
 import com.housweet.domain.repository.AuthRepository
 import dagger.Binds
 import dagger.Module
@@ -42,6 +43,12 @@ abstract class AuthModule {
             authLocalDataSource: AuthLocalDataSource
         ): KtorService {
             return KtorService(authLocalDataSource)
+        }
+
+        @Provides
+        @Singleton
+        fun provideCryptoManager(): CryptoManager {
+            return CryptoManager()
         }
     }
 }

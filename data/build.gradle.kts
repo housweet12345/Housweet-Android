@@ -14,6 +14,7 @@ val properties = Properties().apply {
 
 val naverClientId = properties["naver_client_id"] ?: ""
 val naverClientSecret = properties["naver_client_secret"] ?: ""
+val baseUrl = properties["base_url"] ?: ""
 
 android {
     namespace = "com.housweet.data"
@@ -25,6 +26,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
 
+        buildConfigField("String", "BASE_URL", baseUrl.toString())
         buildConfigField("String", "NAVER_CLIENT_ID", naverClientId.toString())
         buildConfigField("String", "NAVER_CLIENT_SECRET", naverClientSecret.toString())
     }
@@ -95,8 +97,4 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.runner)
-}
-
-kapt {
-    correctErrorTypes = true
 }
