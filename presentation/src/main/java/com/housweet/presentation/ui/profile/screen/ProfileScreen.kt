@@ -19,7 +19,9 @@ import com.housweet.presentation.ui.profile.state.ProfileInfo
 
 @Composable
 fun ProfileScreen(
-    profileInfo: ProfileInfo
+    profileInfo: ProfileInfo,
+    navigateEditProfile: () -> Unit = {},
+    navigateChatting: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -28,7 +30,10 @@ fun ProfileScreen(
             .padding(horizontal = 20.dp)
     ) {
         // 상단 앱바
-        ProfileTopBar()
+        ProfileTopBar(
+            title = if (profileInfo.myProfile) "내 프로필" else "프로필",
+            moreIconButton = !profileInfo.myProfile
+        )
         // 프로필 정보
         ProfileInfoSection(
             nickname = profileInfo.nickname,
@@ -43,7 +48,8 @@ fun ProfileScreen(
         // 하단 버튼
         EditProfileButton(
             isMyProfile = profileInfo.myProfile,
-            onClick = {}
+            editButtonOnClick = navigateEditProfile,
+            chatButtonOnClick = navigateChatting
         )
     }
 }

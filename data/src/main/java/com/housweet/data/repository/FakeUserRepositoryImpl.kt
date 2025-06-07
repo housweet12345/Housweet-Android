@@ -1,5 +1,6 @@
 package com.housweet.data.repository
 
+import android.util.Log
 import com.housweet.domain.model.profile.ProfileModel
 import com.housweet.domain.model.profile.ProfileUpdateModel
 import com.housweet.domain.repository.UserRepository
@@ -53,6 +54,7 @@ class FakeUserRepositoryImpl : UserRepository {
 
     override suspend fun updateProfile(updatedProfile: ProfileUpdateModel): Result<ProfileUpdateModel> {
         delay(800)
+        Log.i("updateProfile", "updatedProfile: $updatedProfile")
         return Result.success(fakeProfileUpdateModel)
     }
 }
