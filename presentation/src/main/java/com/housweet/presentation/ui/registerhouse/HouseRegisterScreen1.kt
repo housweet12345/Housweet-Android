@@ -1,6 +1,7 @@
 package com.housweet.presentation.ui.registerhouse
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -14,9 +15,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.housweet.presentation.ui.common.StepIndicator
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.font.FontWeight
+import com.housweet.presentation.ui.common.TopBarWithBackButton
+import com.housweet.presentation.ui.theme.Purple40
 
 @Composable
 fun HouseRegisterScreen1(
@@ -35,27 +37,14 @@ fun HouseRegisterScreen1(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(Color.White)
             .padding(horizontal = 16.dp),
     ) {
         // 상단바 + 제목
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp, bottom = 8.dp)
-        ) {
-            IconButton(onClick = { onBackClick() }) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "뒤로가기"
-                )
-            }
-            Text(
-                text = "하우스 올리기",
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(start = 4.dp)
-            )
-        }
+        TopBarWithBackButton(
+            title = "하우스 올리기",
+            onBackClick = onBackClick
+        )
 
         StepIndicator(currentStep = 1)
 
@@ -66,7 +55,7 @@ fun HouseRegisterScreen1(
             modifier = Modifier
                 .fillMaxWidth(),
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
                 text = "집에 대한 키워드를 선택해주세요.",
@@ -77,7 +66,9 @@ fun HouseRegisterScreen1(
             sections.forEach { (title, tags) ->
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.titleSmall,
+                    fontSize = 13.sp,
+                    color = Color.Black,
+                    fontWeight = FontWeight.Bold,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)
@@ -96,20 +87,25 @@ fun HouseRegisterScreen1(
                         Box(
                             modifier = Modifier
                                 .background(
-                                    color = if (isSelected) Color(0xFF6C4DFF) else Color.LightGray,
-                                    shape = RoundedCornerShape(6.dp)
+                                    color = if (isSelected) Color(0xFF665ED3) else Color.White,
+                                    shape = RoundedCornerShape(10.dp)
                                 )
                                 .clickable {
                                     if (isSelected) selectedTags.remove(tag)
                                     else selectedTags.add(tag)
                                 }
-                                .padding(horizontal = 12.dp, vertical = 8.dp)
                                 .align(Alignment.CenterHorizontally)
+                                .border(
+                                    width = 1.dp,
+                                    color = Color(0xFF665ED3),
+                                    shape = RoundedCornerShape(10.dp)
+                                )
                         ) {
                             Text(
                                 text = tag,
                                 color = if (isSelected) Color.White else Color.Black,
-                                fontSize = 12.sp
+                                fontSize = 12.sp,
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
                             )
                         }
                     }
@@ -124,7 +120,11 @@ fun HouseRegisterScreen1(
             shape = RoundedCornerShape(6.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(48.dp)
+                .height(48.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFF665ED3),
+                contentColor = Color.White
+            )
         ) {
             Text(text = "다음")
         }

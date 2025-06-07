@@ -13,7 +13,7 @@ val properties = Properties().apply {
     load(FileInputStream("${rootDir}/local.properties"))
 }
 
-val kakaoApiKey = properties["kakaoLogin_api_key"] ?: ""
+val kakaoApiKey = properties["KAKAO_API_KEY"] as? String ?: ""
 
 android {
     namespace = "com.housweet.app"
@@ -28,14 +28,14 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-    buildFeatures {
-        compose = true
-    }
+        buildFeatures {
+            compose = true
+        }
 
 //    composeOptions {
 //        kotlinCompilerExtensionVersion = "1.5.3"  // Compose 컴파일러 버전
 //    }
-        buildConfigField("String", "Kakao_API_KEY", kakaoApiKey.toString())
+        buildConfigField("String", "Kakao_API_KEY", "\"$kakaoApiKey\"")
     }
 
     buildTypes {
