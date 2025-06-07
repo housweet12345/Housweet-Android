@@ -10,6 +10,8 @@ import com.housweet.presentation.ui.chat.ChatScreen
 import com.housweet.presentation.ui.chatlist.ChatListScreen
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen1
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen2
+import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen3
+import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen4
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,7 +36,28 @@ class MainActivity : ComponentActivity() {
                         onNextClick = {
                             navController.navigate("house_register_3")
                         },
-                        onBackClick = {navController.navigate("house_register_1")}
+                        onBackClick = {navController.navigate("house_register_1")},
+                        onRegionSelectClick = {
+                            navController.navigate("region_select")
+                        }
+                    )
+                }
+                composable("house_register_3") {
+                    HouseRegisterScreen3(
+                        onNextClick = {
+                            navController.navigate("house_register_4")
+                        },
+                        onBackClick = { navController.navigate("house_register_2") },
+                        onImagePickClick = {},
+                        selectedImageBitmap = null
+                    )
+                }
+                composable("house_register_4") {
+                    HouseRegisterScreen4(
+                        onBackClick = {
+                            navController.navigate("house_register_3")
+                        },
+                        onCompleteClick = {}
                     )
                 }
                 composable("chat_list") {
