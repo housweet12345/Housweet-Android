@@ -11,6 +11,7 @@ import com.housweet.presentation.viewmodel.profile.EditProfileViewModel
 @Composable
 fun EditProfileKeyWordRoute(
     viewModel: EditProfileViewModel = hiltViewModel(),
+    onBackClick: () -> Unit = {},
     navigateMyProfile: () -> Unit = {},
 ) {
     val state = viewModel.profileState.collectAsStateWithLifecycle()
@@ -26,6 +27,7 @@ fun EditProfileKeyWordRoute(
             val profile = currentState.profileInfo
             EditProfileSelectKeyWordScreen(
                 currentProfile = profile, // 현재 프로필 정보 전달
+                onBackClick = onBackClick,
                 onNextClick = viewModel::updateProfile,
             )
         }

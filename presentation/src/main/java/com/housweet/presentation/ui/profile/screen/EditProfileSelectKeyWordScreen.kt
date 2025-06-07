@@ -30,6 +30,7 @@ import com.housweet.domain.model.profile.ProfileUpdateModel
 import com.housweet.presentation.ui.profile.component.BottomButton
 import com.housweet.presentation.ui.profile.component.MultiSelectableTagSection
 import com.housweet.presentation.ui.profile.component.ProfileEditCaseNumber
+import com.housweet.presentation.ui.profile.component.ProfileTopBar
 import com.housweet.presentation.ui.profile.component.SimpleSegmentedControl
 import com.housweet.presentation.ui.profile.state.ProfileInfo
 import com.housweet.presentation.ui.theme.ColorGroup
@@ -37,6 +38,7 @@ import com.housweet.presentation.ui.theme.ColorGroup
 @Composable
 fun EditProfileSelectKeyWordScreen(
     currentProfile: ProfileInfo, // 현재 프로필 정보 추가
+    onBackClick: () -> Unit = {},
     onNextClick: (ProfileUpdateModel) -> Unit = {}
 ) {
     // 각 섹션별 선택된 태그를 관리하는 상태
@@ -87,6 +89,12 @@ fun EditProfileSelectKeyWordScreen(
                 .padding(horizontal = 20.dp)
                 .verticalScroll(rememberScrollState()), // 스크롤 가능하도록 설정
         ) {
+            ProfileTopBar(
+                title = "프로필 수정",
+                moreIconButton = false,
+                onBackClick = onBackClick
+            )
+
             // 상단 단계 표시
             Row(
                 modifier = Modifier

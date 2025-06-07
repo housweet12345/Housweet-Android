@@ -17,6 +17,7 @@ import com.housweet.presentation.viewmodel.profile.ProfileInfoViewModel
 fun MyProfileRoute(
     viewModel: ProfileInfoViewModel = hiltViewModel(),
     navigateEditProfile: () -> Unit = {},
+    onBackClick: () -> Unit = {},
     navigateChatting: () -> Unit = {}
 ) {
     val state = viewModel.profileState.collectAsStateWithLifecycle()
@@ -31,6 +32,7 @@ fun MyProfileRoute(
             val profile = (state.value as ProfileInfoState.Success).profileInfo
             ProfileScreen(
                 profileInfo = profile,
+                onBackClick = onBackClick,
                 navigateEditProfile = navigateEditProfile,
                 navigateChatting = navigateChatting,
             )

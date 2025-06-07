@@ -20,6 +20,7 @@ import com.housweet.presentation.ui.profile.state.ProfileInfo
 @Composable
 fun ProfileScreen(
     profileInfo: ProfileInfo,
+    onBackClick: () -> Unit = {},
     navigateEditProfile: () -> Unit = {},
     navigateChatting: () -> Unit = {}
 ) {
@@ -32,7 +33,8 @@ fun ProfileScreen(
         // 상단 앱바
         ProfileTopBar(
             title = if (profileInfo.myProfile) "내 프로필" else "프로필",
-            moreIconButton = !profileInfo.myProfile
+            moreIconButton = !profileInfo.myProfile,
+            onBackClick = onBackClick
         )
         // 프로필 정보
         ProfileInfoSection(
