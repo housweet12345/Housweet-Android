@@ -1,13 +1,14 @@
 package com.housweet.presentation.ui.communityPage.searchRegionScreen
 
-import com.housweet.domain.model.Coordinate
+import com.naver.maps.geometry.LatLng
 
 sealed interface SearchRegionUiState {
     data object Idle : SearchRegionUiState
-    data object IsLoading : SearchRegionUiState
 }
 
 sealed interface SearchRegionEvent {
-    data class Success(val coordinate: Coordinate) : SearchRegionEvent
+    data class AutoCompleteSuccess(val addressList: List<String>) : SearchRegionEvent
+    data class GeoCodingSuccess(val latLng: LatLng) : SearchRegionEvent
+    data class IsValidAddress(val isValid: Boolean) : SearchRegionEvent
     data object Error : SearchRegionEvent
 }
