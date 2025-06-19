@@ -1,47 +1,53 @@
 package com.housweet.presentation.ui.communityPage.searchRegionScreen
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.housweet.domain.model.Coordinate
 import com.housweet.domain.usecase.UseCases
+import com.naver.maps.geometry.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class SearchRegionViewModel @Inject constructor(
-    private val useCases: UseCases
+    @ApplicationContext private val context: Context
 ): ViewModel() {
+    private val regionUtils = RegionUtils(context = context)
     private val _uiState = MutableStateFlow<SearchRegionUiState>(SearchRegionUiState.Idle)
     val uiState: StateFlow<SearchRegionUiState> = _uiState.asStateFlow()
 
     private val _event = MutableSharedFlow<SearchRegionEvent>()
     val event: SharedFlow<SearchRegionEvent> = _event.asSharedFlow()
 
-    fun geoCodingWithNaver(query: String) {
-        isLoading()
-        viewModelScope.launch(Dispatchers.IO) {
-            useCases.geoCodingWithNaverUseCase(query).collectLatest {
-                it.onSuccess { coordinate ->
-                    success(coordinate)
-                }.onFailure {
-                    isIdle()
-                    error()
-                }
-            }
+    fun geoCoding(address: String) {
+        viewModelScope.launch {
+            val coordinate = regionUtils.getCoordinateByAddress(address)
+            if (coordinate.latitude == 0.0 && coordinate.longitude == 0.0) error()
+            successGeoCoding(coordinate)
         }
     }
 
-    private fun isIdle() {
-        _uiState.value = SearchRegionUiState.Idle
+    fun getFullAddress(address: String) {
+        viewModelScope.launch {
+            val autoCompleteAddressList = regionUtils.getFullAddress(address)
+            successAutoComplete(autoCompleteAddressList)
+        }
+    }
+
+    fun isValidFullAddress(address: String) {
+        viewModelScope.launch {
+            val isValid = regionUtils.isValidFullAddress(address)
+            addressIsValid(isValid)
+        }
     }
 
     fun error() {
@@ -51,11 +57,15 @@ class SearchRegionViewModel @Inject constructor(
         }
     }
 
-    private suspend fun success(coordinate: Coordinate) {
-        _event.emit(SearchRegionEvent.Success(coordinate))
+    private suspend fun successGeoCoding(latLng: LatLng) {
+        _event.emit(SearchRegionEvent.GeoCodingSuccess(latLng))
     }
 
-    private fun isLoading() {
-        _uiState.value = SearchRegionUiState.IsLoading
+    private suspend fun successAutoComplete(autoCompleteAddressList: List<String>) {
+        _event.emit(SearchRegionEvent.AutoCompleteSuccess(autoCompleteAddressList))
+    }
+
+    private suspend fun addressIsValid(isValid: Boolean) {
+        _event.emit(SearchRegionEvent.IsValidAddress(isValid))
     }
 }

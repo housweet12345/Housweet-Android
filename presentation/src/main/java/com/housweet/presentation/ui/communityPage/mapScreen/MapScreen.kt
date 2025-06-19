@@ -1,5 +1,6 @@
 package com.housweet.presentation.ui.communityPage.mapScreen
 
+import android.util.Log
 import android.view.Gravity
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -49,8 +50,6 @@ import com.housweet.presentation.ui.startPage.GuideText
 import com.housweet.presentation.ui.theme.Purple
 import com.housweet.presentation.ui.theme.White
 import com.housweet.presentation.ui.theme.White_F8F8F8
-import com.kakao.sdk.common.KakaoSdk
-import com.kakao.sdk.common.util.Utility
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.geometry.LatLngBounds
 import com.naver.maps.map.CameraPosition
@@ -87,7 +86,7 @@ fun MapScreen(
                 CameraPosition(LatLng(it.y, it.x), MapConstants.DEFAULT_ZOOM_LEVEL)
         }
     }
-
+    
     LaunchedEffect(Unit) {
         mapViewModel.event.collect { event ->
             when (event) {

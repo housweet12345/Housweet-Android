@@ -1,5 +1,6 @@
 package com.housweet.presentation.ui.communityPage.searchRegionScreen
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -27,10 +28,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -39,7 +41,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.housweet.domain.model.Coordinate
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.startPage.GuideText
-import com.housweet.presentation.ui.startPage.LoadingScreen
 import com.housweet.presentation.ui.theme.Black
 import com.housweet.presentation.ui.theme.Gray_CBCBCB
 import com.housweet.presentation.ui.theme.Purple
@@ -53,11 +54,9 @@ fun SearchRegionScreen(
     onMapScreen: (Coordinate) -> Unit,
     onBackBtnClick: () -> Unit
 ) {
-    val context = LocalContext.current
-    val regionUtils = remember { RegionUtils(context) }
     val uiState: SearchRegionUiState by searchRegionViewModel.uiState.collectAsState(initial = SearchRegionUiState.Idle)
     val snackBarHostState = remember { SnackbarHostState() }
-    var inputText by remember { mutableStateOf("") }
+    var inputTextValue by remember { mutableStateOf(TextFieldValue(text = "", selection = TextRange.Zero)) }
     var autoCompleteTextList by remember { mutableStateOf(listOf<String>()) }
 
     BackHandler {
@@ -75,8 +74,20 @@ fun SearchRegionScreen(
                     )
                 }
 
-                is SearchRegionEvent.Success -> {
-                    onMapScreen(event.coordinate)
+                is SearchRegionEvent.AutoCompleteSuccess -> {
+                    autoCompleteTextList = event.addressList
+                }
+
+                is SearchRegionEvent.GeoCodingSuccess -> {
+                    onMapScreen(Coordinate(event.latLng.longitude, event.latLng.latitude))
+                }
+
+                is SearchRegionEvent.IsValidAddress -> {
+                    if (event.isValid) {
+                        searchRegionViewModel.geoCoding(inputTextValue.text.trim())
+                    } else {
+                        searchRegionViewModel.error()
+                    }
                 }
             }
         }
@@ -87,30 +98,24 @@ fun SearchRegionScreen(
             SearchRegionContent(
                 modifier = modifier,
                 snackBarHostState = snackBarHostState,
-                inputText = inputText,
+                inputTextValue = inputTextValue,
                 autoCompleteTextList = autoCompleteTextList,
                 onInputTextChanged = {
-                    inputText = it
-                    autoCompleteTextList = regionUtils.getFullAddress(it.replace(Regex(" $"), ""))
+                    snackBarHostState.currentSnackbarData?.dismiss()
+                    inputTextValue = it
+                    searchRegionViewModel.getFullAddress(it.text.replace(Regex(" $"), ""))
                 },
                 onAutoCompleteTextClicked = {
-                    inputText = it
-                    autoCompleteTextList = regionUtils.getFullAddress(it.replace(Regex(" $"), ""))
+                    snackBarHostState.currentSnackbarData?.dismiss()
+                    inputTextValue = it
+                    searchRegionViewModel.getFullAddress(it.text.replace(Regex(" $"), ""))
                 },
                 onSearchResultClicked = {
-                    val isValidAddress = regionUtils.isValidFullAddress(inputText.trim())
-                    if (isValidAddress) {
-                        searchRegionViewModel.geoCodingWithNaver(inputText.trim())
-                    } else {
-                        searchRegionViewModel.error()
-                    }
+                    snackBarHostState.currentSnackbarData?.dismiss()
+                    searchRegionViewModel.isValidFullAddress(inputTextValue.text.trim())
                 },
                 onBackBtnClick = onBackBtnClick
             )
-        }
-
-        SearchRegionUiState.IsLoading -> {
-            LoadingScreen()
         }
     }
 }
@@ -119,10 +124,10 @@ fun SearchRegionScreen(
 private fun SearchRegionContent(
     modifier: Modifier,
     snackBarHostState: SnackbarHostState,
-    inputText: String,
+    inputTextValue: TextFieldValue,
     autoCompleteTextList: List<String>,
-    onInputTextChanged: (String) -> Unit,
-    onAutoCompleteTextClicked: (String) -> Unit,
+    onInputTextChanged: (TextFieldValue) -> Unit,
+    onAutoCompleteTextClicked: (TextFieldValue) -> Unit,
     onSearchResultClicked: () -> Unit,
     onBackBtnClick: () -> Unit
 ) {
@@ -130,7 +135,7 @@ private fun SearchRegionContent(
         modifier = modifier,
         topBar = {
             SearchRegionTopBar(
-                inputText = inputText,
+                inputTextValue = inputTextValue,
                 onInputTextChanged = onInputTextChanged,
                 onSearchResultClicked = onSearchResultClicked,
                 onBackBtnClick = onBackBtnClick
@@ -141,7 +146,7 @@ private fun SearchRegionContent(
     ) { innerPadding ->
         SearchRegionResultListView(
             modifier = Modifier.padding(innerPadding),
-            inputText = inputText,
+            inputText = inputTextValue.text,
             autoCompleteTextList = autoCompleteTextList
         ) { completeText ->
             onAutoCompleteTextClicked(completeText)
@@ -151,8 +156,8 @@ private fun SearchRegionContent(
 
 @Composable
 private fun SearchRegionTopBar(
-    inputText: String,
-    onInputTextChanged: (String) -> Unit,
+    inputTextValue: TextFieldValue,
+    onInputTextChanged: (TextFieldValue) -> Unit,
     onSearchResultClicked: () -> Unit,
     onBackBtnClick: () -> Unit
 ) {
@@ -176,7 +181,7 @@ private fun SearchRegionTopBar(
         )
 
         BasicTextField(
-            value = inputText,
+            value = inputTextValue,
             onValueChange = {
                 onInputTextChanged(it)
             },
@@ -190,7 +195,7 @@ private fun SearchRegionTopBar(
             ),
             singleLine = true,
             decorationBox = { innerTextField ->
-                if (inputText.isEmpty()) {
+                if (inputTextValue.text.isEmpty()) {
                     Text(
                         text = "지역명을 입력해주세요.", style = TextStyle(
                             fontSize = 14.sp,
@@ -226,7 +231,7 @@ private fun SearchRegionResultListView(
     modifier: Modifier,
     inputText: String,
     autoCompleteTextList: List<String>,
-    onAutoCompleteTextClicked: (String) -> Unit
+    onAutoCompleteTextClicked: (TextFieldValue) -> Unit
 ) {
     LazyColumn(modifier = modifier
         .fillMaxWidth()
@@ -240,7 +245,6 @@ private fun SearchRegionResultListView(
             val autoCompleteText = autoCompleteTextList[it]
             val startIndex = autoCompleteText.indexOf(inputTextTrimEnd, ignoreCase = true)
             val endIndex = startIndex + inputTextTrimEnd.length
-
             SearchRegionResultItem(
                 autoCompleteText = autoCompleteText,
                 startIndex = startIndex,
@@ -257,12 +261,12 @@ private fun SearchRegionResultItem(
     autoCompleteText: String,
     startIndex: Int,
     endIndex: Int,
-    onAutoCompleteTextClicked: (String) -> Unit
+    onAutoCompleteTextClicked: (TextFieldValue) -> Unit
 ) {
     Row(
         modifier = Modifier
             .clickable {
-                onAutoCompleteTextClicked(autoCompleteText)
+                onAutoCompleteTextClicked(TextFieldValue(text = autoCompleteText, selection = TextRange(autoCompleteText.length)))
             }
     ) {
         if (startIndex > 0) {
@@ -306,7 +310,7 @@ private fun SearchRegionScreenPreview() {
     SearchRegionContent(
         modifier = Modifier,
         snackBarHostState = SnackbarHostState(),
-        inputText = "송파구",
+        inputTextValue = TextFieldValue(text = "송파구"),
         autoCompleteTextList = listOf("서울특별시 송파구 문정동", "서울특별시 송파구 가락동"),
         onInputTextChanged = {},
         onAutoCompleteTextClicked = {},
