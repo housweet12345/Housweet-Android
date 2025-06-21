@@ -26,12 +26,18 @@ fun StartPageNavigation(isAutoLogin: Boolean, modifier: Modifier) {
         val navigationManager = StartPageNavigationManager(navController)
         composable<Route.LoginRoute.LoginScreen> {
             LoginScreen(modifier = modifier) {
-                navigationManager.navigateOneWay(
-                    Route.LoginRoute.LoginScreen,
-                    Route.LoginRoute.WelComeScreen
-                )
+                if (it == "sign_in") {
+                    navigationManager.navigateOneWay(
+                        Route.LoginRoute.LoginScreen,
+                        Route.AccessRoomRoute.AccessRoomScreen
+                    )
+                } else if (it == "sign_up") {
+                    navigationManager.navigateOneWay(
+                        Route.LoginRoute.LoginScreen,
+                        Route.LoginRoute.WelComeScreen
+                    )
+                }
             }
-
         }
 
         composable<Route.LoginRoute.WelComeScreen> {

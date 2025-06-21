@@ -60,7 +60,7 @@ import com.kakao.sdk.user.UserApiClient
 fun LoginScreen(
     modifier: Modifier,
     loginViewModel: LoginViewModel = hiltViewModel(),
-    onNextScreen: () -> Unit,
+    onNextScreen: (String) -> Unit,
 ) {
     val uiState: LoginUiState by loginViewModel.uiState.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
@@ -71,11 +71,11 @@ fun LoginScreen(
         loginViewModel.event.collect { event ->
             when (event) {
                 LoginEvent.SignUp -> {
-                    onNextScreen()
+                    onNextScreen("sign_up")
                 }
 
                 LoginEvent.SignIn -> {
-                    onNextScreen()
+                    onNextScreen("sign_in")
                 }
 
                 LoginEvent.LoginError -> {
