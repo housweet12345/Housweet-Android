@@ -1,6 +1,5 @@
 package com.housweet.domain.usecase
 
-import com.housweet.domain.model.AuthToken
 import com.housweet.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.Flow
 
@@ -11,7 +10,7 @@ class LoginWithKakaoUseCase(
         socialId: String,
         accessToken: String,
         email: String
-    ): Flow<Result<AuthToken>> {
+    ): Flow<Result<Int>> {
         return authRepository.loginWithKakao(
             socialId = socialId,
             accessToken = accessToken,

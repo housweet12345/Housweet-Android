@@ -2,11 +2,13 @@ package com.housweet.data.repository
 
 import com.housweet.data.local.AuthLocalDataSource
 import com.housweet.data.network.AuthRemoteDataSource
+import com.housweet.data.network.dto.LoginResponseDto
 import com.housweet.data.network.dto.toAuthToken
 import com.housweet.data.network.dto.toCoordinate
 import com.housweet.domain.model.AuthToken
 import com.housweet.domain.model.Coordinate
 import com.housweet.domain.repository.AuthRepository
+import io.ktor.client.call.body
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
@@ -21,16 +23,17 @@ class AuthRepositoryImpl @Inject constructor(
         socialId: String,
         accessToken: String,
         email: String
-    ): Flow<Result<AuthToken>> = flow {
+    ): Flow<Result<Int>> = flow {
         try {
             val response = authRemoteDataSource.loginWithKakao(
                 socialId = socialId,
                 accessToken = accessToken,
                 email = email
             )
-            val authToken = response.toAuthToken()
+
+            val authToken = response.body<LoginResponseDto>().toAuthToken()
             authLocalDataSource.saveAuthToken(authToken)
-            emit(Result.success(authToken))
+            emit(Result.success(response.status.value))
         } catch (e: Exception) {
             emit(Result.failure(e))
         }
