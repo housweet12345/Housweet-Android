@@ -10,15 +10,16 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.housweet.presentation.ui.chat.ChatScreen
 import com.housweet.presentation.ui.chatlist.ChatListScreen
+import com.housweet.presentation.ui.navigation.BottomNavItem
 import com.housweet.presentation.ui.profile.route.EditProfileKeyWordRoute
 import com.housweet.presentation.ui.profile.route.EditProfileRoute
 import com.housweet.presentation.ui.profile.route.MyProfileRoute
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen1
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen2
-import com.housweet.presentation.viewmodel.profile.EditProfileViewModel
-import dagger.hilt.android.AndroidEntryPoint
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen3
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen4
+import com.housweet.presentation.viewmodel.profile.EditProfileViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -30,6 +31,18 @@ class MainActivity : ComponentActivity() {
                 navController = navController,
                 startDestination = "house_register_1"
             ) {
+                composable(BottomNavItem.Home.route) {
+                    //홈화면
+                }
+                composable(BottomNavItem.Calendar.route) {
+                    //캘린더 화면
+                }
+                composable(BottomNavItem.FinanceLedger.route) {
+                    //가계부 화면
+                }
+                composable(BottomNavItem.Notice.route) {
+                    //공지사항 화면
+                }
                 composable("house_register_1") {
                     HouseRegisterScreen1( onNextClick = {
                         navController.navigate("house_register_2")
