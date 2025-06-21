@@ -1,86 +1,85 @@
 package com.housweet.presentation.ui.navigation
 
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.material3.Text
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.housweet.presentation.R
+import com.housweet.presentation.ui.theme.ColorGroup
 
 @Composable
-fun BottomNavigationBar(navController: NavController) {
+fun BottomNavigation(navController: NavController) {
     val items = listOf(
         BottomNavItem.Home,
         BottomNavItem.Calendar,
         BottomNavItem.FinanceLedger,
         BottomNavItem.Notice
     )
-    
+
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    
-    NavigationBar(
-        containerColor = Color.White,
-        tonalElevation = 8.dp
+
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(
+            topStart = 20.dp,
+            topEnd = 20.dp,
+            bottomStart = 0.dp,
+            bottomEnd = 0.dp
+        ),
+        color = Color.White,
+        shadowElevation = 12.dp, // 그림자 높이
+        tonalElevation = 5.dp
     ) {
-        items.forEach { item ->
-            NavigationBarItem(
-                icon = {
-                    // Material Icons 사용
-                    val iconVector = when (item) {
-                        is BottomNavItem.Home -> Icons.Default.Home
-                        is BottomNavItem.Calendar -> Icons.Default.DateRange
-                        is BottomNavItem.FinanceLedger -> Icons.Default.Person
-                        is BottomNavItem.Notice -> Icons.Default.Settings
-                    }
-                    
-                    Icon(
-                        imageVector = iconVector,
-                        contentDescription = item.title,
-                        modifier = Modifier.size(24.dp)
-                    )
-                },
-                label = {
-                    Text(
-                        text = item.title,
-                        fontSize = 12.sp
-                    )
-                },
-                selected = currentRoute == item.route,
-                onClick = {
-                    if (currentRoute != item.route) {
+        NavigationBar(
+            containerColor = Color.Transparent, // Surface가 배경을 처리하므로 투명
+            contentColor = ColorGroup.Primary,
+        ) {
+            items.forEach { item ->
+                NavigationBarItem(
+                    icon = {
+                        val painterResource = when (item) {
+                            is BottomNavItem.Home -> painterResource(R.drawable.ic_navigation_home)
+                            is BottomNavItem.Calendar -> painterResource(R.drawable.ic_navigation_calendar)
+                            is BottomNavItem.FinanceLedger -> painterResource(R.drawable.ic_navigation_finance_ledgar)
+                            is BottomNavItem.Notice -> painterResource(R.drawable.ic_navigation_notice)
+                        }
+                        Icon(
+                            painter = painterResource,
+                            contentDescription = item.title,
+                            modifier = Modifier.size(32.dp)
+                        )
+                    },
+                    selected = currentRoute == item.route,
+                    onClick = {
                         navController.navigate(item.route) {
-                            // 스택에서 홈까지 팝하고 상태 저장
-                            popUpTo(navController.graph.findStartDestination().id) {
+                            // 백스택 정리
+                            popUpTo(navController.graph.startDestinationId) {
                                 saveState = true
                             }
                             launchSingleTop = true
                             restoreState = true
                         }
-                    }
-                },
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = Color(0xFF6C5CE7),
-                    selectedTextColor = Color(0xFF6C5CE7),
-                    unselectedIconColor = Color.Gray,
-                    unselectedTextColor = Color.Gray,
-                    indicatorColor = Color(0xFFEDE7F6) // 선택된 항목 배경색
+                    },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = ColorGroup.Primary,
+                        unselectedIconColor = Color.Gray,
+                        indicatorColor = Color.Transparent
+                    )
                 )
-            )
+            }
         }
     }
 }
