@@ -8,8 +8,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.housweet.presentation.ui.navigation.NavigationManager
 import com.housweet.presentation.ui.communityPage.CommunityActivity
+import com.housweet.presentation.ui.navigation.NavigationManager
 import com.housweet.presentation.ui.navigation.Route
 import com.housweet.presentation.ui.startPage.accessRoomPage.AccessRoomScreen
 import com.housweet.presentation.ui.startPage.accessRoomPage.createRoomScreen.CreateRoomScreen
@@ -32,12 +32,18 @@ fun StartPageNavigation(isAutoLogin: Boolean, modifier: Modifier) {
         val navigationManager = NavigationManager(navController)
         composable<Route.StartPageRoute.LoginRoute.Login> {
             LoginScreen(modifier = modifier) {
-                navigationManager.navigateOneWay(
-                    Route.StartPageRoute.LoginRoute.Login,
-                    Route.StartPageRoute.LoginRoute.WelCome
-                )
+                if (it == "sign_in") {
+                    navigationManager.navigateOneWay(
+                        Route.StartPageRoute.LoginRoute.Login,
+                        Route.StartPageRoute.AccessRoomRoute.AccessRoom
+                    )
+                } else if (it == "sign_up") {
+                    navigationManager.navigateOneWay(
+                        Route.StartPageRoute.LoginRoute.Login,
+                        Route.StartPageRoute.LoginRoute.WelCome
+                    )
+                }
             }
-
         }
 
         composable<Route.StartPageRoute.LoginRoute.WelCome> {

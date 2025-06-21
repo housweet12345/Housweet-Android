@@ -30,11 +30,14 @@ class LoginViewModel @Inject constructor(
                 email = email
             ).collect { result ->
                 result.fold(
-                    onSuccess = {
-                        signUp()
+                    onSuccess = { status ->
+                        if (status == 200) {
+                            signIn()
+                        } else {
+                            signUp()
+                        }
                     },
                     onFailure = {
-                        isIdle()
                         loginFail()
                     }
                 )
@@ -48,6 +51,7 @@ class LoginViewModel @Inject constructor(
 
     fun loginFail() {
         viewModelScope.launch {
+            isIdle()
             _event.emit(LoginEvent.LoginError)
         }
     }
