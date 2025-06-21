@@ -3,9 +3,11 @@ package com.housweet.app.di
 import com.housweet.data.network.KtorService
 import com.housweet.data.repository.FakeUserRepositoryImpl
 import com.housweet.data.repository.UserRepositoryImpl
+import com.housweet.domain.repository.AccessRoomRepository
 import com.housweet.domain.repository.AuthRepository
 import com.housweet.domain.repository.UserRepository
 import com.housweet.domain.usecase.CheckLoginUseCase
+import com.housweet.domain.usecase.CreateRoomUseCase
 import com.housweet.domain.usecase.LoginWithKakaoUseCase
 import com.housweet.domain.usecase.UseCases
 import com.housweet.domain.usecase.profile.GetMyProfileUseCase
@@ -24,11 +26,13 @@ object UseCaseModule {
     @Provides
     @Singleton
     fun provideUseCase(
-        authRepository: AuthRepository
+        authRepository: AuthRepository,
+        accessRoomRepository: AccessRoomRepository
     ): UseCases {
         return UseCases(
             loginWithKakaoUseCase = LoginWithKakaoUseCase(authRepository),
-            checkLoginUseCase = CheckLoginUseCase(authRepository)
+            checkLoginUseCase = CheckLoginUseCase(authRepository),
+            createRoomUseCase = CreateRoomUseCase(accessRoomRepository)
         )
     }
 

@@ -8,7 +8,7 @@ interface AuthRepository {
         socialId: String,
         accessToken: String,
         email: String
-    ): Flow<Result<AuthToken>>
+    ): Flow<Result<Int>>
 
     suspend fun refreshAccessToken(): Flow<Result<AuthToken>>
 

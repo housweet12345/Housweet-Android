@@ -2,13 +2,12 @@ package com.housweet.data.network
 
 import com.housweet.data.BuildConfig
 import com.housweet.data.network.dto.KakaoLoginRequest
-import com.housweet.data.network.dto.LoginResponseDto
 import com.housweet.data.network.dto.RefreshTokenRequest
 import com.housweet.data.network.dto.TokenResponseDto
 import io.ktor.client.call.body
-import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import javax.inject.Inject
@@ -29,7 +28,7 @@ class AuthRemoteDataSourceImpl @Inject constructor(
         socialId: String,
         accessToken: String,
         email: String
-    ): LoginResponseDto {
+    ): HttpResponse {
         return httpClient.post("$BASE_URL/auth/login") {
             contentType(ContentType.Application.Json)
             setBody(
@@ -39,7 +38,7 @@ class AuthRemoteDataSourceImpl @Inject constructor(
                     email = email
                 )
             )
-        }.body()
+        }
     }
 
     override suspend fun refreshAccessToken(refreshToken: String): TokenResponseDto {
