@@ -12,7 +12,8 @@ val properties = Properties().apply {
     load(FileInputStream("${rootDir}/local.properties"))
 }
 
-val baseUrl = properties["base_url"] ?: ""
+//val baseUrl = properties["base_url"] ?: ""
+val baseUrl = properties["base_url"]?.let { "\"$it\"" } ?: "\"https://example.com\""
 
 android {
     namespace = "com.housweet.data"
