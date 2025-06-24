@@ -1,4 +1,3 @@
 package com.housweet.presentation.navigation
 
-class HouseRegisterNav {
-}
+const val ROUTE_BOOKMARK = "bookmark"

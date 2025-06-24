@@ -17,7 +17,9 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun ChatBubble(message: String, isMine: Boolean) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 4.dp),
         horizontalArrangement = if (isMine) Arrangement.End else Arrangement.Start
     ) {
         Box(
