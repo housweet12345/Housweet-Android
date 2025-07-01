@@ -13,7 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.housweet.presentation.ui.chat.ChatScreen
 import com.housweet.presentation.ui.chatlist.ChatListScreen
-import com.housweet.presentation.ui.home.HomeScreen
+import com.housweet.presentation.ui.home.route.HomeRoute
 import com.housweet.presentation.ui.navigation.BottomNavItem
 import com.housweet.presentation.ui.navigation.BottomNavigation
 import com.housweet.presentation.ui.profile.route.EditProfileKeyWordRoute
@@ -41,7 +41,13 @@ class MainActivity : ComponentActivity() {
                     startDestination = BottomNavItem.Home.route
                 ) {
                     composable(BottomNavItem.Home.route) {
-                        HomeScreen()
+                        HomeRoute(
+                            navigateToChat = { navController.navigate("chat_list") },
+                            navigateToNotification = { /* TODO: 알림 화면 */ },
+                            navigateToProfile = { navController.navigate("profile/me") },
+                            navigateToNoticeDetail = { noticeId -> /* TODO: 공지사항 상세 */ },
+                            navigateToTodoDetail = { /* TODO: 할일 상세 */ }
+                        )
                     }
                     composable(BottomNavItem.Calendar.route) {
                         //캘린더 화면
