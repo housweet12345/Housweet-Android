@@ -55,7 +55,16 @@ import com.housweet.presentation.ui.theme.ColorGroup
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    homeInfo: com.housweet.presentation.ui.home.state.HomeInfo = com.housweet.presentation.ui.home.state.HomeInfo(),
+    onChatClick: () -> Unit = {},
+    onNotificationClick: () -> Unit = {},
+    onProfileClick: () -> Unit = {},
+    onNoticeClick: (Int) -> Unit = {},
+    onTodoClick: () -> Unit = {},
+    onTodoToggle: (Int) -> Unit = {},
+    onMoodSelect: (com.housweet.presentation.ui.home.state.MoodType) -> Unit = {}
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -66,19 +75,19 @@ fun HomeScreen() {
             title = { },
             actions = {
                 Row {
-                    IconButton(onClick = { /* 채틷 */ }) {
+                    IconButton(onClick = onChatClick) {
                         Icon(
                             painter = painterResource(R.drawable.ic_navigate_chat),
                             contentDescription = "채팅"
                         )
                     }
-                    IconButton(onClick = { /* 알림 */ }) {
+                    IconButton(onClick = onNotificationClick) {
                         Icon(
                             painter = painterResource(R.drawable.ic_navigate_notification),
                             contentDescription = "알림"
                         )
                     }
-                    IconButton(onClick = { /* 프로필 */ }) {
+                    IconButton(onClick = onProfileClick) {
                         Icon(
                             painter = painterResource(R.drawable.ic_navigate_profile),
                             contentDescription = "프로필"
@@ -99,35 +108,38 @@ fun HomeScreen() {
         ) {
             // 방 제목 섹션
             item {
-                RoomTitleSection()
+                RoomTitleSection(homeInfo.roomName, homeInfo.daysLiving)
             }
 
             // 공지사항 섹션
             item {
-                NoticeSection()
+                NoticeSection(homeInfo.notices, onNoticeClick)
             }
 
             // 룸메이트 기분 섹션
             item {
-                RoommatesMoodSection()
+                RoommatesMoodSection(homeInfo.roommates, onMoodSelect)
             }
 
             // 내가 할 일 섹션
             item {
-                MyTodoSection()
+                MyTodoSection(homeInfo.todos, onTodoClick, onTodoToggle)
             }
         }
     }
 }
 
 @Composable
-fun RoomTitleSection() {
+fun RoomTitleSection(
+    roomName: String,
+    daysLiving: Int
+) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "곰돌이방",
+            text = roomName,
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
             color = Color.Black
@@ -136,7 +148,7 @@ fun RoomTitleSection() {
         Spacer(modifier = Modifier.height(8.dp))
         
         Text(
-            text = "+01일째 함께 하는 중!",
+            text = "+${daysLiving}일째 함께 하는 중!",
             fontSize = 16.sp,
             color = ColorGroup.Primary
         )
@@ -144,53 +156,62 @@ fun RoomTitleSection() {
 }
 
 @Composable
-fun NoticeSection() {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(
-                width = 1.dp,
-                color = ColorGroup.Primary, // Primary 색상 테두리
-                shape = RoundedCornerShape(8.dp)
-            )
-            .clickable { /* 공지사항 상세보기 */ },
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F9FA)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Row(
+fun NoticeSection(
+    notices: List<com.housweet.presentation.ui.home.state.NoticeItem>,
+    onNoticeClick: (Int) -> Unit
+) {
+    if (notices.isNotEmpty()) {
+        val latestNotice = notices.first()
+        Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .border(
+                    width = 1.dp,
+                    color = ColorGroup.Primary,
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .clickable { onNoticeClick(latestNotice.id) },
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F9FA)),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
-            Icon(
-                painter = painterResource(R.drawable.ic_notice),
-                contentDescription = "공지",
-                tint = ColorGroup.Primary,
-                modifier = Modifier.size(20.dp)
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_notice),
+                    contentDescription = "공지",
+                    tint = ColorGroup.Primary,
+                    modifier = Modifier.size(20.dp)
+                )
 
-            Spacer(modifier = Modifier.width(12.dp))
+                Spacer(modifier = Modifier.width(12.dp))
 
-            Text(
-                text = "23일 집에 일찍 돌아오기",
-                fontSize = 14.sp,
-                color = ColorGroup.Primary,
-                modifier = Modifier.weight(1f)
-            )
+                Text(
+                    text = latestNotice.title,
+                    fontSize = 14.sp,
+                    color = ColorGroup.Primary,
+                    modifier = Modifier.weight(1f)
+                )
 
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                contentDescription = "더보기",
-                tint = ColorGroup.Primary,
-                modifier = Modifier.size(20.dp)
-            )
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                    contentDescription = "더보기",
+                    tint = ColorGroup.Primary,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
         }
     }
 }
 
 @Composable
-fun RoommatesMoodSection() {
+fun RoommatesMoodSection(
+    roommates: List<com.housweet.presentation.ui.home.state.RoommateInfo>,
+    onMoodSelect: (com.housweet.presentation.ui.home.state.MoodType) -> Unit
+) {
     Column {
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -225,8 +246,9 @@ fun RoommatesMoodSection() {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
-                    RoommateProfile(name = "김지안", moodIconRes = R.drawable.ic_normal)
-                    RoommateProfile(name = "김지안", moodIconRes = R.drawable.ic_normal)
+                    roommates.forEach { roommate ->
+                        RoommateProfile(roommate = roommate)
+                    }
                 }
             }
         }
@@ -254,7 +276,7 @@ fun RoommatesMoodSection() {
                 )
 
                 moods.fastForEach {
-                    MoodItem(mood = it)
+                    MoodItem(mood = it, onMoodSelect = onMoodSelect)
                 }
             }
         }
@@ -262,16 +284,11 @@ fun RoommatesMoodSection() {
 }
 
 @Composable
-fun MyTodoSection() {
-    // 할 일 상태 관리
-    var todoItems by remember {
-        mutableStateOf(
-            listOf<TodoItem>(
-//                TodoItem("청소기 돌리기", false),
-//                TodoItem("빨래하기", true)
-            )
-        )
-    }
+fun MyTodoSection(
+    todos: List<com.housweet.presentation.ui.home.state.TodoInfo>,
+    onTodoClick: () -> Unit,
+    onTodoToggle: (Int) -> Unit
+) {
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -313,26 +330,22 @@ fun MyTodoSection() {
                     contentDescription = "더보기",
                     tint = Color.Gray,
                     modifier = Modifier.size(20.dp)
+                        .clickable { onTodoClick() }
                 )
             }
 
             // 할 일이 있을 때만 구분선과 할 일 목록 표시
-            if (todoItems.isNotEmpty()) {
+            if (todos.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // 할 일 목록
-                todoItems.forEach { item ->
-                    TodoItemRow(
-                        item = item,
-                        onCheckedChange = { isChecked ->
-                            todoItems = todoItems.map {
-                                if (it.text == item.text) it.copy(isCompleted = isChecked)
-                                else it
-                            }
-                        }
+                todos.forEach { item ->
+                    TodoInfoRow(
+                        todo = item,
+                        onToggle = onTodoToggle
                     )
 
-                    if (item != todoItems.last()) {
+                    if (item != todos.last()) {
                         Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
@@ -365,7 +378,7 @@ fun MyTodoSection() {
 }
 
 @Composable
-fun RoommateProfile(name: String, moodIconRes: Int) {
+fun RoommateProfile(roommate: com.housweet.presentation.ui.home.state.RoommateInfo) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -393,7 +406,7 @@ fun RoommateProfile(name: String, moodIconRes: Int) {
                 contentAlignment = Alignment.Center
             ) {
                 Image(
-                    painter = painterResource(id = moodIconRes),
+                    painter = painterResource(id = getMoodIconRes(roommate.mood)),
                     contentDescription = "기분",
                     modifier = Modifier.size(30.dp),
                     contentScale = ContentScale.Fit
@@ -404,7 +417,7 @@ fun RoommateProfile(name: String, moodIconRes: Int) {
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = name,
+            text = roommate.nickname,
             fontSize = 14.sp,
             color = Color.Black
         )
@@ -412,7 +425,10 @@ fun RoommateProfile(name: String, moodIconRes: Int) {
 }
 
 @Composable
-fun MoodItem(mood: MoodData) {
+fun MoodItem(
+    mood: MoodData,
+    onMoodSelect: (com.housweet.presentation.ui.home.state.MoodType) -> Unit
+) {
     Column(
         modifier = Modifier.padding(vertical = 15.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -423,7 +439,10 @@ fun MoodItem(mood: MoodData) {
                     color = Color.Transparent,
                     shape = CircleShape
                 )
-                .clickable { /* 기분 선택 */ },
+                .clickable { 
+                    val moodType = getMoodTypeFromName(mood.name)
+                    moodType?.let { onMoodSelect(it) }
+                },
             contentAlignment = Alignment.Center
         ) {
             Image(
@@ -500,6 +519,37 @@ fun TodoItemRow(
     }
 }
 
+@Composable
+fun TodoInfoRow(
+    todo: com.housweet.presentation.ui.home.state.TodoInfo,
+    onToggle: (Int) -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = todo.title,
+            fontSize = 16.sp,
+            color = if (todo.isCompleted) Color.Gray else Color.Black,
+            textDecoration = if (todo.isCompleted) TextDecoration.LineThrough else null,
+            modifier = Modifier.weight(1f)
+        )
+
+        IconButton(
+            onClick = { onToggle(todo.id) }
+        ) {
+            Icon(
+                imageVector = if (todo.isCompleted) Icons.Default.CheckCircle else Icons.Default.Close,
+                contentDescription = if (todo.isCompleted) "완료됨" else "미완료",
+                tint = if (todo.isCompleted) Color(0xFF6C5CE7) else Color.Gray,
+                modifier = Modifier.size(24.dp)
+            )
+        }
+    }
+}
+
 
 data class TodoItem(
     val text: String,
@@ -510,6 +560,31 @@ data class MoodData(
     val iconRes: Int, // 이미지 리소스 ID
     val name: String
 )
+
+fun getMoodIconRes(moodType: com.housweet.presentation.ui.home.state.MoodType): Int {
+    return when (moodType) {
+        com.housweet.presentation.ui.home.state.MoodType.HAPPY -> R.drawable.ic_happy
+        com.housweet.presentation.ui.home.state.MoodType.NORMAL -> R.drawable.ic_normal
+        com.housweet.presentation.ui.home.state.MoodType.SAD -> R.drawable.ic_sad
+        com.housweet.presentation.ui.home.state.MoodType.ANGRY -> R.drawable.ic_angry
+        com.housweet.presentation.ui.home.state.MoodType.LOVE -> R.drawable.ic_love
+        com.housweet.presentation.ui.home.state.MoodType.CONGRAT -> R.drawable.ic_congrat
+        com.housweet.presentation.ui.home.state.MoodType.OUTSIDE -> R.drawable.ic_outside
+    }
+}
+
+fun getMoodTypeFromName(name: String): com.housweet.presentation.ui.home.state.MoodType? {
+    return when (name) {
+        "행복" -> com.housweet.presentation.ui.home.state.MoodType.HAPPY
+        "무난" -> com.housweet.presentation.ui.home.state.MoodType.NORMAL
+        "슬픔" -> com.housweet.presentation.ui.home.state.MoodType.SAD
+        "화남" -> com.housweet.presentation.ui.home.state.MoodType.ANGRY
+        "애정" -> com.housweet.presentation.ui.home.state.MoodType.LOVE
+        "축하" -> com.housweet.presentation.ui.home.state.MoodType.CONGRAT
+        "외출" -> com.housweet.presentation.ui.home.state.MoodType.OUTSIDE
+        else -> null
+    }
+}
 
 @Preview
 @Composable
