@@ -15,12 +15,11 @@ val Gray_7D7D7D= Color(0Xff7D7D7D)
 val Gray_A5A5A5= Color(0XffA5A5A5)
 val Gray_E7E7E7 = Color(0xFFE7E7E7)
 val Gray_CBCBCB = Color(0xFFCBCBCB)
+val Gray_D9D9D9 = Color(0xFFD9D9D9)
 
 val Red = Color(0xFFED6868)
 
 val Yellow = Color(0xfffee500)
-
-val Black_1A435671 = Color(0x1A435671)
 
 val Purple80 = Color(0xFFD0BCFF)
 val PurpleGrey80 = Color(0xFFCCC2DC)
