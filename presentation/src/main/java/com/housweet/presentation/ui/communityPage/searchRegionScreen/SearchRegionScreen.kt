@@ -1,6 +1,5 @@
 package com.housweet.presentation.ui.communityPage.searchRegionScreen
 
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -33,6 +32,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -164,8 +164,8 @@ private fun SearchRegionTopBar(
     Row(
         modifier = Modifier
             .background(Purple)
-            .fillMaxWidth()
-            .height(48.dp),
+            .padding(vertical = 7.dp)
+            .fillMaxWidth(),
         verticalAlignment =Alignment.CenterVertically
     ) {
         Icon(
@@ -187,23 +187,27 @@ private fun SearchRegionTopBar(
             },
             modifier = Modifier.padding(start = 10.dp),
             textStyle = TextStyle(
+                color = White,
+                fontFamily = nanumSquareFontFamily,
+                fontWeight = FontWeight.Bold,
                 fontSize = 14.sp,
                 lineHeight = 14.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = nanumSquareFontFamily,
-                color = White
+                lineHeightStyle = LineHeightStyle(
+                    alignment = LineHeightStyle.Alignment.Center,
+                    trim = LineHeightStyle.Trim.None
+                ),
+                letterSpacing = 0.sp,
             ),
             singleLine = true,
             decorationBox = { innerTextField ->
                 if (inputTextValue.text.isEmpty()) {
-                    Text(
-                        text = "지역명을 입력해주세요.", style = TextStyle(
-                            fontSize = 14.sp,
-                            lineHeight = 14.sp,
-                            fontWeight = FontWeight.Normal,
-                            fontFamily = nanumSquareFontFamily,
-                            color = Gray_CBCBCB
-                        )
+                    GuideText(
+                        color = Gray_CBCBCB,
+                        text = "지역명을 입력해주세요.",
+                        fontWeight = FontWeight.Normal,
+                        fontSize = 14.sp,
+                        lineHeight = 14.sp,
+                        textAlign = TextAlign.Start
                     )
                 }
                 innerTextField()
@@ -307,12 +311,15 @@ private fun SearchRegionResultItem(
 @Preview
 @Composable
 private fun SearchRegionScreenPreview() {
+    var textValue = TextFieldValue(text = "서울특별시 송파구")
     SearchRegionContent(
         modifier = Modifier,
         snackBarHostState = SnackbarHostState(),
-        inputTextValue = TextFieldValue(text = "송파구"),
+        inputTextValue = textValue,
         autoCompleteTextList = listOf("서울특별시 송파구 문정동", "서울특별시 송파구 가락동"),
-        onInputTextChanged = {},
+        onInputTextChanged = {
+            textValue = it
+        },
         onAutoCompleteTextClicked = {},
         onSearchResultClicked = {},
         onBackBtnClick = {}

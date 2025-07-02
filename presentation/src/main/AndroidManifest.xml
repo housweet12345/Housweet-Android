@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.housweet.presentation">
+
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -22,19 +23,13 @@
             android:name=".ui.startPage.StartActivity"
             android:exported="true"
             android:label="@string/title_activity_start"
-            android:theme="@style/Theme.Housweet" >
-        </activity>
+            android:theme="@style/Theme.Housweet"/>
 
         <activity
             android:name=".ui.communityPage.CommunityActivity"
             android:exported="true"
             android:label="@string/title_activity_community"
-            android:theme="@style/Theme.Housweet" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:theme="@style/Theme.Housweet"/>
 
         <activity
             android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity"
