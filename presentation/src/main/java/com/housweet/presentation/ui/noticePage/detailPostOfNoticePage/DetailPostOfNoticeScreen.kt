@@ -1,5 +1,6 @@
 package com.housweet.presentation.ui.noticePage.detailPostOfNoticePage
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -24,9 +25,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -56,27 +60,48 @@ import com.housweet.presentation.ui.theme.White
 import com.housweet.presentation.ui.theme.White_F8F8F8
 import com.housweet.presentation.ui.theme.nanumSquareFontFamily
 
+data class TempComment(
+    val comment: String,
+    val replies: SnapshotStateList<String>
+)
+
 @Composable
 private fun DetailPostOfNoticeScreen() {
     var commentTextValue by remember { mutableStateOf(TextFieldValue("")) }
-    var commentList by remember { mutableStateOf(listOf<String>()) }
+    var commentList by remember { mutableStateOf(listOf(TempComment("확인", mutableStateListOf("ㅁㅁㅁ")))) }
     var isMenuExpanded by remember { mutableStateOf(false) }
+    var selectedCommentIndex by remember { mutableIntStateOf(-1) }
     DetailPostOfNoticeContent(
         commentTextValue = commentTextValue,
         commentList = commentList,
         isMenuExpanded = isMenuExpanded,
+        selectedCommentIndex = selectedCommentIndex,
         onCommentTextChanged = {
             commentTextValue = it
         },
         onAddNewComment = {
             if (commentTextValue.text.isEmpty()) return@DetailPostOfNoticeContent
-            commentList = commentList + commentTextValue.text
+            if (selectedCommentIndex == -1) {
+                commentList = commentList + TempComment(commentTextValue.text, mutableStateListOf())
+            } else {
+                commentList[selectedCommentIndex].replies.add(commentTextValue.text)
+            }
+
+            commentTextValue = TextFieldValue("")
         },
         onMenuClick = {
             isMenuExpanded = !isMenuExpanded
         },
         onScreenClick = {
             isMenuExpanded = false
+        },
+        onReplyBtnClick = {
+            if (selectedCommentIndex == -1) {
+                selectedCommentIndex = it
+                return@DetailPostOfNoticeContent
+            }
+
+            selectedCommentIndex = if (selectedCommentIndex != it) it else -1
         }
     )
 }
@@ -84,12 +109,14 @@ private fun DetailPostOfNoticeScreen() {
 @Composable
 private fun DetailPostOfNoticeContent(
     commentTextValue: TextFieldValue,
-    commentList: List<String>,
+    commentList: List<TempComment>,
     isMenuExpanded: Boolean,
+    selectedCommentIndex: Int,
     onCommentTextChanged: (TextFieldValue) -> Unit,
     onAddNewComment: () -> Unit,
     onMenuClick: () -> Unit,
-    onScreenClick: () -> Unit
+    onScreenClick: () -> Unit,
+    onReplyBtnClick: (index: Int) -> Unit
 ) {
     Scaffold(
         modifier = Modifier
@@ -119,7 +146,11 @@ private fun DetailPostOfNoticeContent(
     ) { innerPadding ->
         PostOfNoticeContent(
             modifier = Modifier.padding(innerPadding),
-            commentList = commentList
+            commentList = commentList,
+            selectedCommentIndex = selectedCommentIndex,
+            onReplyBtnClick = {
+                onReplyBtnClick(it)
+            }
         )
     }
 
@@ -321,7 +352,9 @@ private fun CommentTextField(
 @Composable
 private fun PostOfNoticeContent(
     modifier: Modifier,
-    commentList: List<String>
+    commentList: List<TempComment>,
+    selectedCommentIndex: Int,
+    onReplyBtnClick: (index: Int) -> Unit
 ) {
     val context = LocalContext.current
     LazyColumn(
@@ -404,11 +437,14 @@ private fun PostOfNoticeContent(
         }
 
         // 댓글 목록
-        itemsIndexed(items = commentList) { index, item ->
+        itemsIndexed(items = commentList) { index, comment ->
             CommentItemWithReplies(
                 index = index,
-                item = item
-            )
+                comment = comment,
+                selectedCommentIndex = selectedCommentIndex,
+            ) {
+                onReplyBtnClick(it)
+            }
         }
     }
 }
@@ -416,17 +452,19 @@ private fun PostOfNoticeContent(
 @Composable
 private fun CommentItemWithReplies(
     index: Int,
-    item: String
+    comment: TempComment,
+    selectedCommentIndex: Int,
+    onReplyBtnClick: (index: Int) -> Unit
 ) {
-    var isShownReplies by remember { mutableStateOf(false) }
-    CommentItem(item = item) {
-        isShownReplies = !isShownReplies
+    CommentItem(
+        comment = comment,
+        isSelectedForReply = selectedCommentIndex == index
+    ) {
+        onReplyBtnClick(index)
     }
 
-    if (isShownReplies) {
-        for (i in 1..2) {
-            ReplyItem()
-        }
+    comment.replies.forEach {
+        ReplyItem(it)
     }
 
     if (index != 2) {
@@ -442,8 +480,9 @@ private fun CommentItemWithReplies(
 
 @Composable
 private fun CommentItem(
-    item: String,
-    onShowReplyClick: () -> Unit
+    comment: TempComment,
+    isSelectedForReply: Boolean,
+    onReplyBtnClick: () -> Unit
 ) {
     val context = LocalContext.current
     Row(
@@ -478,7 +517,7 @@ private fun CommentItem(
             GuideText(
                 modifier = Modifier.padding(top = 4.dp),
                 color = Black,
-                text = item,
+                text = comment.comment,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Normal,
                 lineHeight = 12.sp,
@@ -504,14 +543,14 @@ private fun CommentItem(
                     modifier = Modifier
                         .padding(start = 8.dp)
                         .clickable {
-                            onShowReplyClick()
+                            onReplyBtnClick()
                         },
-                    tint = Gray_D9D9D9
+                    tint = if (isSelectedForReply) Purple else Gray_D9D9D9
                 )
 
                 GuideText(
                     modifier = Modifier.padding(start = 4.dp, top = 1.5.dp, bottom = 1.5.dp),
-                    color = Gray_7E7E7E,
+                    color = if (isSelectedForReply) Purple else Gray_7E7E7E,
                     text = "대댓글",
                     fontSize = 8.sp,
                     fontWeight = FontWeight.Normal,
@@ -524,7 +563,9 @@ private fun CommentItem(
 }
 
 @Composable
-private fun ReplyItem() {
+private fun ReplyItem(
+    reply: String
+) {
     val context = LocalContext.current
     Row(
         modifier = Modifier
@@ -558,7 +599,7 @@ private fun ReplyItem() {
             GuideText(
                 modifier = Modifier.padding(top = 4.dp),
                 color = Black,
-                text = "확인했습니다.",
+                text = reply,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Normal,
                 lineHeight = 12.sp,
@@ -592,14 +633,17 @@ private fun MenuDropdownMenuPreview() {
     )
 }
 
+@SuppressLint("UnrememberedMutableState")
 @Preview
 @Composable
 private fun CommentItemPreview() {
-    CommentItem(item = "") {}
+    CommentItem(comment = TempComment("", mutableStateListOf("asdasdasd")), isSelectedForReply = true) {}
 }
 
 @Preview
 @Composable
 private fun ReplyItemPreview() {
-    ReplyItem()
+    ReplyItem(
+        reply = "asdasdasd"
+    )
 }
