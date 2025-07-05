@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -31,6 +32,8 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -43,6 +46,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
@@ -51,35 +55,50 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEach
 import com.housweet.presentation.R
+import com.housweet.presentation.ui.home.state.HomeInfo
+import com.housweet.presentation.ui.home.state.MoodType
+import com.housweet.presentation.ui.navigation.BottomNavigation
+import com.housweet.presentation.ui.profile.component.ProfileTopBar
 import com.housweet.presentation.ui.theme.ColorGroup
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    homeInfo: com.housweet.presentation.ui.home.state.HomeInfo = com.housweet.presentation.ui.home.state.HomeInfo(),
+    homeInfo: HomeInfo = HomeInfo(),
     onChatClick: () -> Unit = {},
     onNotificationClick: () -> Unit = {},
     onProfileClick: () -> Unit = {},
     onNoticeClick: (Int) -> Unit = {},
     onTodoClick: () -> Unit = {},
     onTodoToggle: (Int) -> Unit = {},
-    onMoodSelect: (com.housweet.presentation.ui.home.state.MoodType) -> Unit = {}
+    onMoodSelect: (MoodType) -> Unit = {},
+    navController: NavController = rememberNavController()
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-    ) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        // 스크롤 가능한 콘텐츠
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White),
+            contentPadding = PaddingValues(start = 4.dp, end = 4.dp, bottom = 150.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
         // 상단 바 (오른쪽 3개 아이콘)
-        TopAppBar(
-            title = { },
-            actions = {
-                Row {
-                    IconButton(onClick = onChatClick) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_navigate_chat),
-                            contentDescription = "채팅"
-                        )
+        item {
+            TopAppBar(
+                windowInsets = WindowInsets(
+                    top = 0.dp,
+                    bottom = 0.dp
+                ),
+                title = { },
+                actions = {
+                    Row {
+                        IconButton(onClick = onChatClick) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_navigate_chat),
+                                contentDescription = "채팅"
+                            )
+                        }
                     }
                     IconButton(onClick = onNotificationClick) {
                         Icon(
@@ -93,38 +112,50 @@ fun HomeScreen(
                             contentDescription = "프로필"
                         )
                     }
-                }
-            },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = Color.White
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.White
+                )
             )
-        )
+        }
 
-        // 스크롤 가능한 콘텐츠
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
-            // 방 제목 섹션
-            item {
+        // 방 제목 섹션
+        item {
+            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                Spacer(modifier = Modifier.height(28.dp))
                 RoomTitleSection(homeInfo.roomName, homeInfo.daysLiving)
             }
+        }
 
-            // 공지사항 섹션
-            item {
+        // 공지사항 섹션
+        item {
+            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                 NoticeSection(homeInfo.notices, onNoticeClick)
             }
+        }
 
-            // 룸메이트 기분 섹션
-            item {
+        // 룸메이트 기분 섹션
+        item {
+            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                 RoommatesMoodSection(homeInfo.roommates, onMoodSelect)
             }
+        }
 
             // 내가 할 일 섹션
             item {
-                MyTodoSection(homeInfo.todos, onTodoClick, onTodoToggle)
+                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                    MyTodoSection(homeInfo.todos, onTodoClick, onTodoToggle)
+                }
             }
+        }
+        
+        // 바텀 네비게이션 (고정)
+        Box(
+            modifier = Modifier.align(Alignment.BottomCenter)
+        ) {
+            BottomNavigation(
+                navController = navController
+            )
         }
     }
 }

@@ -8,6 +8,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import com.housweet.presentation.ui.home.HomeScreen
 import com.housweet.presentation.ui.home.state.HomeState
 import com.housweet.presentation.viewmodel.home.HomeViewModel
@@ -15,6 +16,7 @@ import com.housweet.presentation.viewmodel.home.HomeViewModel
 @Composable
 fun HomeRoute(
     viewModel: HomeViewModel = hiltViewModel(),
+    navController: NavController,
     navigateToChat: () -> Unit = {},
     navigateToNotification: () -> Unit = {},
     navigateToProfile: () -> Unit = {},
@@ -34,7 +36,8 @@ fun HomeRoute(
                 onNoticeClick = navigateToNoticeDetail,
                 onTodoClick = navigateToTodoDetail,
                 onTodoToggle = viewModel::toggleTodoComplete,
-                onMoodSelect = viewModel::updateMood
+                onMoodSelect = viewModel::updateMood,
+                navController = navController
             )
         }
         is HomeState.Loading -> {
