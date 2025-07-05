@@ -74,5 +74,5 @@ fun SplashScreen(splashViewModel: SplashViewModel = hiltViewModel()) {
 @Preview(showBackground = true)
 @Composable
 fun SplashScreenPreview() {
-    SplashScreen()
+        SplashScreen()
 }
