@@ -48,6 +48,7 @@ class LoginViewModel @Inject constructor(
 
     fun loginFail() {
         viewModelScope.launch {
+            isIdle()
             _event.emit(LoginEvent.LoginError)
         }
     }
