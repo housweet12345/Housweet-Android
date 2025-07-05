@@ -18,7 +18,7 @@ fun ChatListScreen(navController: NavController) {
         LazyColumn {
             itemsIndexed(dummyChatList) { _, chat ->
                 ChatListItem(chat = chat, onClick = {
-                    navController.navigate("chat/${chat.name}")
+                    navController.navigate("chat_detail/${chat.name}")
                 })
             }
         }

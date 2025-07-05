@@ -1,3 +1,4 @@
+import org.gradle.kotlin.dsl.implementation
 import java.io.FileInputStream
 import java.util.Properties
 
@@ -104,6 +105,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
 
     //Compose
+    implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview.android)
     implementation(libs.androidx.material3)
