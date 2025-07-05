@@ -30,7 +30,8 @@ import androidx.compose.runtime.setValue
 fun ChatInput(
     inputText: String,
     onTextChange: (String) -> Unit,
-    onSend: () -> Unit
+    onSend: () -> Unit,
+    onAddImageClick: () -> Unit
 ) {
 //    var text by remember { mutableStateOf("") }
 
@@ -46,7 +47,10 @@ fun ChatInput(
             contentDescription = "추가",
             modifier = Modifier
                 .padding(8.dp)
-                .size(24.dp),
+                .size(24.dp)
+                .clickable {
+                    onAddImageClick()
+                },
             tint = Color.Gray
         )
 

@@ -5,20 +5,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,7 +24,7 @@ import com.housweet.presentation.ui.common.StepIndicator
 import com.housweet.presentation.ui.common.TopBarWithBackButton
 
 @Composable
-fun HouseRegisterScreen3 (
+fun HouseRegisterScreen3(
     onNextClick: () -> Unit,
     onBackClick: () -> Unit,
     onImagePickClick: () -> Unit,
@@ -64,6 +53,7 @@ fun HouseRegisterScreen3 (
                 modifier = Modifier.padding(vertical = 8.dp)
             )
         }
+
         Spacer(modifier = Modifier.height(12.dp))
 
         Text(
@@ -97,7 +87,9 @@ fun HouseRegisterScreen3 (
                     bitmap = selectedImageBitmap.asImageBitmap(),
                     contentDescription = "첨부된 이미지",
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(10.dp))
                 )
             }
         }

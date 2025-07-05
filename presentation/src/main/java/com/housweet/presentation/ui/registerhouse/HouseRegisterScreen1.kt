@@ -7,7 +7,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -28,15 +30,19 @@ fun HouseRegisterScreen1(
     val selectedTags = remember { mutableStateListOf<String>() }
 
     val sections = listOf(
-        "교통" to listOf("저녁형", "조용한 환경 선호", "음악, 소음 OK", "전화 통화 자유", "비흡연자",
-            "흡연자", "알쓰", "애주가", "요리한 음식 선호", "배달 음식 선호", "음식 공유 가능"),
-        "집의 크기" to listOf("깔끔한 스타일", "청소 자주 함", "정리는 적당히", "거실 정리 필수", "빨래 자주 함", "설거지 자주 함"),
-        "인프라" to listOf("외향적", "내향적")
+        "교통" to listOf("버스정류장 인근", "역세권", "버스, 지하철 더블 역세권", "자차 추천", "교통 좋음",
+            "교통 나쁘지 않음"),
+        "집 상태" to listOf("쾌적함", "채광 좋음", "뷰가 좋음", "환기 잘 됨", "리모델링함", "관리 잘 됨", "방음 잘 됨", "층간 소음 없음", "풀옵션", "냉난방 잘 됨", "저층", "고층", "엘레베이터", "벌레 없음"),
+        "인프라" to listOf("마트", "편의점", "카페", "식당", "병원", "공원", "산책로", "숲세권", "약국", "전통시장", "헬스장", "대학가", "상권 많음"),
+        "기타" to listOf("치안 좋음", "밤길 안전함", "전입신고 가능", "전입신고 불가능", "단기 거주 가능", "장기 거주 가능", "장기 거주 희망", "즉시 입주 가능", "입주일 상의 필요", "월세 및 보증금 협의 가능", "월세 및 보증금 협의 불가")
     )
+
+    val scrollState = rememberScrollState()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(scrollState)
             .background(Color.White)
             .padding(horizontal = 16.dp),
     ) {
@@ -74,15 +80,14 @@ fun HouseRegisterScreen1(
                         .padding(vertical = 8.dp)
                 )
 
-                LazyVerticalGrid(
-                    columns = GridCells.Adaptive(100.dp),
+                FlowRow(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 16.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(tags) { tag ->
+                    tags.forEach { tag ->
                         val isSelected = tag in selectedTags
                         Box(
                             modifier = Modifier
@@ -94,7 +99,6 @@ fun HouseRegisterScreen1(
                                     if (isSelected) selectedTags.remove(tag)
                                     else selectedTags.add(tag)
                                 }
-                                .align(Alignment.CenterHorizontally)
                                 .border(
                                     width = 1.dp,
                                     color = Color(0xFF665ED3),
@@ -126,9 +130,13 @@ fun HouseRegisterScreen1(
                 contentColor = Color.White
             )
         ) {
-            Text(text = "다음")
+            Text(
+                text = "다음",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
 
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.height(32.dp))
     }
 }

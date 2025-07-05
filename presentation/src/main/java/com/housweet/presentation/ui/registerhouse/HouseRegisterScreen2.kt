@@ -1,5 +1,6 @@
 package com.housweet.presentation.ui.registerhouse
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -9,23 +10,27 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
-import androidx.compose.material3.OutlinedTextFieldDefaults.colors
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import com.housweet.presentation.model.Region
+import com.housweet.presentation.ui.common.RegionBottomSheet
 import com.housweet.presentation.ui.common.StepIndicator
 import com.housweet.presentation.ui.common.TopBarWithBackButton
+import java.io.InputStreamReader
 
 @Composable
 fun HouseRegisterScreen2(
     onNextClick: () -> Unit,
     onBackClick: () -> Unit,
-    onRegionSelectClick: () -> Unit // ← 지역 선택 페이지로 이동하는 콜백
 ) {
     var region by remember { mutableStateOf("") }
     var title by remember { mutableStateOf("") }
@@ -36,6 +41,12 @@ fun HouseRegisterScreen2(
     var moveInDate by remember { mutableStateOf("") }
 
     val scrollState = rememberScrollState()
+    val context = LocalContext.current
+
+    val regionData = remember { loadRegionData(context) }
+
+    var showBottomSheet by remember { mutableStateOf(false) }
+    var selectedRegion by remember { mutableStateOf<Region?>(null) }
 
     Column(
         modifier = Modifier
@@ -44,7 +55,6 @@ fun HouseRegisterScreen2(
             .background(Color.White)
             .padding(horizontal = 16.dp)
     ) {
-        // 🔙 상단 헤더
         TopBarWithBackButton(
             title = "하우스 올리기",
             onBackClick = onBackClick
@@ -53,8 +63,7 @@ fun HouseRegisterScreen2(
         StepIndicator(currentStep = 2)
 
         Column(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -65,51 +74,44 @@ fun HouseRegisterScreen2(
                 modifier = Modifier.padding(vertical = 8.dp)
             )
         }
+
         Spacer(modifier = Modifier.height(12.dp))
 
-
-        // 🟪 지역 선택 (버튼 형식)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp)
                 .padding(vertical = 6.dp)
-                .border(
-                    width = 1.dp,
-                    color = Color.Gray,
-                    shape = RoundedCornerShape(6.dp)
-                )
-                .clickable { onRegionSelectClick() }
-                .background(color = Color.White, shape = RoundedCornerShape(6.dp))
+                .border(1.dp, Color.Gray, RoundedCornerShape(6.dp))
+                .clickable { showBottomSheet = true }
+                .background(Color.White, shape = RoundedCornerShape(6.dp))
                 .padding(horizontal = 16.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = if (region.isBlank()) "지역을 선택해주세요." else region,
-                color = if (region.isBlank()) Color.Gray else Color.Black,
-                fontSize = 14.sp,
+                text = selectedRegion?.let { "${it.sido} ${it.sigungu} ${it.dong}" } ?: "지역을 선택해주세요.",
+                color = if (selectedRegion == null) Color.Gray else Color.Black,
+                fontSize = 14.sp
             )
         }
 
-        // 🟪 제목 입력
         Spacer(modifier = Modifier.height(12.dp))
-        Text(text = "제목", fontSize = 13.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+        Text("제목", fontSize = 13.sp, color = Color.Black, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(6.dp))
         OutlinedTextField(
             value = title,
             onValueChange = { title = it },
-            placeholder = { Text("제목을 입력해주세요.", color = Color(0xFF7E7E7E))},
+            placeholder = { Text("제목을 입력해주세요.", color = Color(0xFF7E7E7E)) },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(6.dp),
-            colors = colors(
+            colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color.Gray,
                 unfocusedBorderColor = Color.Gray
             )
         )
 
-        // 🟪 설명 입력
         Spacer(modifier = Modifier.height(12.dp))
-        Text(text = "자세한 설명", fontSize = 13.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+        Text("자세한 설명", fontSize = 13.sp, color = Color.Black, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(6.dp))
         OutlinedTextField(
             value = description,
@@ -119,20 +121,16 @@ fun HouseRegisterScreen2(
                 .fillMaxWidth()
                 .height(120.dp),
             shape = RoundedCornerShape(6.dp),
-            colors = colors(
+            colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color.Gray,
                 unfocusedBorderColor = Color.Gray
             )
         )
 
-        // 🟪 보증금 + 월세
         Spacer(modifier = Modifier.height(12.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = "보증금", fontSize = 13.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+                Text("보증금", fontSize = 13.sp, color = Color.Black, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(6.dp))
                 OutlinedTextField(
                     value = deposit,
@@ -143,7 +141,7 @@ fun HouseRegisterScreen2(
                         .fillMaxWidth()
                         .height(56.dp),
                     shape = RoundedCornerShape(6.dp),
-                    colors = colors(
+                    colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color.Gray,
                         unfocusedBorderColor = Color.Gray
                     )
@@ -151,7 +149,7 @@ fun HouseRegisterScreen2(
             }
 
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = "월세", fontSize = 13.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+                Text("월세", fontSize = 13.sp, color = Color.Black, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(6.dp))
                 OutlinedTextField(
                     value = monthlyRent,
@@ -162,7 +160,7 @@ fun HouseRegisterScreen2(
                         .fillMaxWidth()
                         .height(56.dp),
                     shape = RoundedCornerShape(6.dp),
-                    colors = colors(
+                    colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color.Gray,
                         unfocusedBorderColor = Color.Gray
                     )
@@ -170,10 +168,8 @@ fun HouseRegisterScreen2(
             }
         }
 
-
-        // 🟪 관리비
         Spacer(modifier = Modifier.height(12.dp))
-        Text(text = "관리비", fontSize = 13.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+        Text("관리비", fontSize = 13.sp, color = Color.Black, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(6.dp))
         OutlinedTextField(
             value = managementFee,
@@ -182,15 +178,14 @@ fun HouseRegisterScreen2(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(6.dp),
-            colors = colors(
+            colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color.Gray,
                 unfocusedBorderColor = Color.Gray
             )
         )
 
-        // 🟪 입주 가능일
         Spacer(modifier = Modifier.height(12.dp))
-        Text(text = "입주 가능일", fontSize = 13.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+        Text("입주 가능일", fontSize = 13.sp, color = Color.Black, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(6.dp))
         OutlinedTextField(
             value = moveInDate,
@@ -198,13 +193,12 @@ fun HouseRegisterScreen2(
             placeholder = { Text("가능한 날짜 또는 시기를 작성해주세요.", color = Color(0xFF7E7E7E)) },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(6.dp),
-            colors = colors(
+            colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color.Gray,
                 unfocusedBorderColor = Color.Gray
             )
         )
 
-        // ⚠ 경고 문구
         Spacer(modifier = Modifier.height(12.dp))
         Text(
             text = "ⓘ 경고문 블라블라",
@@ -214,7 +208,6 @@ fun HouseRegisterScreen2(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // ▶ 다음 버튼
         Button(
             onClick = onNextClick,
             shape = RoundedCornerShape(6.dp),
@@ -225,11 +218,38 @@ fun HouseRegisterScreen2(
                 containerColor = Color(0xFF665ED3),
                 contentColor = Color.White
             )
-
         ) {
-            Text(text = "다음")
+            Text("다음")
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+    }
+
+    if (showBottomSheet) {
+        RegionBottomSheet(
+            regions= regionData, // ✅ 여기 이름을 맞춰줘야 해!
+            onRegionSelected = {
+                selectedRegion = it
+                showBottomSheet = false
+            },
+            onDismissRequest = {
+                showBottomSheet = false
+            }
+        )
+    }
+}
+
+fun loadRegionData(context: Context): List<Region> {
+    val inputStream = context.assets.open("korea_regions.json")
+    val reader = InputStreamReader(inputStream, Charsets.UTF_8)
+    val type = object : TypeToken<Map<String, Map<String, List<String>>>>() {}.type
+    val map: Map<String, Map<String, List<String>>> = Gson().fromJson(reader, type)
+
+    return map.flatMap { (sido, sigunguMap) ->
+        sigunguMap.flatMap { (sigungu, dongs) ->
+            dongs.map { dong ->
+                Region(sido = sido, sigungu = sigungu, dong = dong)
+            }
+        }
     }
 }

@@ -12,9 +12,10 @@ val properties = Properties().apply {
     load(FileInputStream("${rootDir}/local.properties"))
 }
 
+//val baseUrl = properties["base_url"] ?: ""
+val baseUrl = properties["base_url"]?.let { "\"$it\"" } ?: "\"https://example.com\""
 val naverClientId = properties["naver_client_id"] ?: ""
 val naverClientSecret = properties["naver_client_secret"] ?: ""
-val baseUrl = properties["base_url"] ?: ""
 
 android {
     namespace = "com.housweet.data"
