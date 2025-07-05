@@ -1,12 +1,13 @@
 package com.housweet.presentation
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -15,7 +16,6 @@ import com.housweet.presentation.ui.chat.ChatScreen
 import com.housweet.presentation.ui.chatlist.ChatListScreen
 import com.housweet.presentation.ui.home.route.HomeRoute
 import com.housweet.presentation.ui.navigation.BottomNavItem
-import com.housweet.presentation.ui.navigation.BottomNavigation
 import com.housweet.presentation.ui.profile.route.EditProfileKeyWordRoute
 import com.housweet.presentation.ui.profile.route.EditProfileRoute
 import com.housweet.presentation.ui.profile.route.MyProfileRoute
@@ -28,17 +28,15 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             val navController = rememberNavController()
-            Scaffold(
-                bottomBar = { BottomNavigation(navController) },
-            ) {
+            Scaffold { padingValues ->
                 NavHost(
                     navController = navController,
-                    startDestination = BottomNavItem.Home.route
+                    startDestination = BottomNavItem.Home.route,
+                    modifier = Modifier.padding(top = padingValues.calculateTopPadding())
                 ) {
                     composable(BottomNavItem.Home.route) {
                         HomeRoute(
@@ -46,7 +44,8 @@ class MainActivity : ComponentActivity() {
                             navigateToNotification = { /* TODO: 알림 화면 */ },
                             navigateToProfile = { navController.navigate("profile/me") },
                             navigateToNoticeDetail = { noticeId -> /* TODO: 공지사항 상세 */ },
-                            navigateToTodoDetail = { /* TODO: 할일 상세 */ }
+                            navigateToTodoDetail = { /* TODO: 할일 상세 */ },
+                            navController = navController
                         )
                     }
                     composable(BottomNavItem.Calendar.route) {
