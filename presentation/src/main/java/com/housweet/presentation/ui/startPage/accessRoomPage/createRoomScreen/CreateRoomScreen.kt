@@ -1,16 +1,11 @@
 package com.housweet.presentation.ui.startPage.accessRoomPage.createRoomScreen
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -33,32 +28,21 @@ import com.housweet.presentation.ui.startPage.WriteTextFiled
 import com.housweet.presentation.ui.theme.Black
 import com.housweet.presentation.ui.theme.White
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun CreateRoomScreen(
     modifier: Modifier,
     createRoomViewModel: CreateRoomViewModel = hiltViewModel()
 ) {
     val uiState: CreateRoomState by createRoomViewModel.uiState.collectAsState()
-    val snackBarHostState = remember { SnackbarHostState() }
-
     LaunchedEffect(Unit) {
         createRoomViewModel.event.collect { event ->
             when (event) {
                 CreateRoomEvent.Error -> {
-                    snackBarHostState.showSnackbar(
-                        message = "방을 만드는 데 실패했습니다.",
-                        actionLabel = "닫기",
-                        duration = SnackbarDuration.Short
-                    )
+
                 }
 
                 CreateRoomEvent.Success -> {
-                    snackBarHostState.showSnackbar(
-                        message = "방을 만들었습니다.",
-                        actionLabel = "닫기",
-                        duration = SnackbarDuration.Short
-                    )
+
                 }
             }
         }
@@ -66,15 +50,10 @@ fun CreateRoomScreen(
 
     when (uiState) {
         CreateRoomState.Idle -> {
-            Scaffold(
-                modifier = Modifier.fillMaxSize(),
-                snackbarHost = { SnackbarHost(hostState = snackBarHostState) }
+            CreateRoomContent(
+                modifier = modifier
             ) {
-                CreateRoomContent(
-                    modifier = modifier
-                ) {
-                    createRoomViewModel.createRoom(it)
-                }
+
             }
         }
 
