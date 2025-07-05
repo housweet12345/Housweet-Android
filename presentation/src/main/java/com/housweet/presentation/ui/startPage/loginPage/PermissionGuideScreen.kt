@@ -60,7 +60,7 @@ private fun PermissionGuideContent(modifier: Modifier, onPermitBtnClick: () -> U
         Spacer(modifier = Modifier.height(height = 32.dp))
 
         PermissionGuideItem(
-            icon = R.drawable.camera_icon_gray,
+            icon = R.drawable.camera_icon,
             content = "카메라 (선택)",
             description = "사진 첨부 시 촬영을 위한 사용"
         )
