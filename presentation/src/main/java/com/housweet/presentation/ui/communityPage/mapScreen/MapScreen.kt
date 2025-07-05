@@ -28,6 +28,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -37,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -47,6 +49,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.housweet.domain.model.Coordinate
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.startPage.GuideText
+import com.housweet.presentation.ui.theme.Gray_A5A5A5
+import com.housweet.presentation.ui.theme.Gray_CBCBCB
 import com.housweet.presentation.ui.theme.Purple
 import com.housweet.presentation.ui.theme.White
 import com.housweet.presentation.ui.theme.White_F8F8F8
@@ -312,32 +316,33 @@ private fun MapOptionButton(
     text: String,
     onClick: () -> Unit,
 ) {
-    Button(
-        onClick = {
-            onClick()
-        },
-        modifier = modifier,
+    Surface(
+        modifier = modifier
+            .shadow(
+                elevation = 4.dp,
+                shape = RoundedCornerShape(20.dp),
+                spotColor = Gray_A5A5A5,
+                ambientColor = Gray_CBCBCB
+            )
+            .clip(shape = RoundedCornerShape(20.dp))
+            .clickable {
+                onClick()
+            },
         shape = RoundedCornerShape(20.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = White
-        ),
-        elevation = ButtonDefaults.buttonElevation(2.dp),
+        color = White,
         border = BorderStroke(0.5.dp, Purple),
-        contentPadding = PaddingValues(0.dp)
     ) {
         Row(
+            modifier = Modifier.padding(start = 8.dp, end = 12.dp, top = 6.dp, bottom = 6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 painter = painterResource(id = icon),
                 contentDescription = "icon",
-                modifier = Modifier
-                    .padding(start = 8.dp)
-                    .size(24.dp),
+                modifier = Modifier.size(24.dp),
                 tint = Purple,
             )
             GuideText(
-                modifier = Modifier.padding(end = 12.dp),
                 color = Purple,
                 text = text,
                 fontWeight = FontWeight.ExtraBold,
