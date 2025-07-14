@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class TokenResponseDto(
-    @SerialName("access")
-    val accessToken: String,
+data class AgreeTermsOfServiceRequest(
+    @SerialName("terms_of_service_agreed")
+    val termsOfServiceAgreed: Boolean
 )

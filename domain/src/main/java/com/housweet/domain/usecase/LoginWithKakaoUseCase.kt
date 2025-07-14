@@ -10,7 +10,7 @@ class LoginWithKakaoUseCase(
         socialId: String,
         accessToken: String,
         email: String
-    ): Flow<Result<Int>> {
+    ): Flow<Result<Boolean>> {
         return authRepository.loginWithKakao(
             socialId = socialId,
             accessToken = accessToken,

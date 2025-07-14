@@ -1,6 +1,7 @@
 package com.housweet.data.network
 
 import com.housweet.data.BuildConfig
+import com.housweet.data.network.dto.AccessRoomRequest
 import com.housweet.data.network.dto.CreateRoomRequest
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -23,6 +24,15 @@ class AccessRoomRemoteDateSourceImpl @Inject constructor(
         val response = httpClient.post("$BASE_URL/room/rooms/") {
             contentType(ContentType.Application.Json)
             setBody(CreateRoomRequest(name))
+        }
+
+        return response.status.value == 201
+    }
+
+    override suspend fun accessRoomWithInviteCode(inviteCode: String): Boolean {
+        val response = httpClient.post("$BASE_URL/room/rooms/invite/") {
+            contentType(ContentType.Application.Json)
+            setBody(AccessRoomRequest(inviteCode))
         }
 
         return response.status.value == 200

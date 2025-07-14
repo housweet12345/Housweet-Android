@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,9 +24,9 @@ class CreateRoomViewModel @Inject constructor(
     fun createRoom(name: String) {
         isLoading()
         viewModelScope.launch {
-            useCases.createRoomUseCase(name).collectLatest {
-                it.onSuccess {
-                    success()
+            useCases.createRoomUseCase(name).collect {
+                it.onSuccess { success ->
+                    if (success) success() else error()
                 }.onFailure {
                     error()
                 }
@@ -37,7 +36,6 @@ class CreateRoomViewModel @Inject constructor(
 
     private fun success() {
         viewModelScope.launch {
-            isIdle()
             _event.emit(CreateRoomEvent.Success)
         }
     }

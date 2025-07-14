@@ -1,6 +1,5 @@
 package com.housweet.data.repository
 
-import android.util.Log
 import com.housweet.data.network.AccessRoomRemoteDateSource
 import com.housweet.domain.repository.AccessRoomRepository
 import kotlinx.coroutines.flow.Flow
@@ -15,11 +14,18 @@ class AccessRoomRepositoryImpl @Inject constructor(
     override suspend fun createRoom(name: String): Flow<Result<Boolean>> = flow {
         try {
             val response = accessRoomRemoteDateSource.createRoom(name)
-            Log.d("response", response.toString())
             emit(Result.success(response))
         } catch (ex: Exception) {
-            Log.d("response", ex.toString())
             emit(Result.failure(ex))
         }
     }
+
+    override suspend fun accessRoomWithInviteCode(inviteCode: String): Flow<Result<Boolean>> = flow {
+            try {
+                val response = accessRoomRemoteDateSource.accessRoomWithInviteCode(inviteCode)
+                emit(Result.success(response))
+            } catch (ex: Exception) {
+                emit(Result.failure(ex))
+            }
+        }
 }

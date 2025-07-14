@@ -9,10 +9,9 @@ interface AuthRepository {
         socialId: String,
         accessToken: String,
         email: String
-    ): Flow<Result<Int>>
-
+    ): Flow<Result<Boolean>>
     suspend fun refreshAccessToken(): Flow<Result<AuthToken>>
-
     suspend fun checkLogin(): Flow<Result<Boolean>>
-    suspend fun geoCodingWithNaver(query: String): Flow<Result<Coordinate>>
+    suspend fun agreeTermsOfService(): Flow<Result<Boolean>>
+    suspend fun isTermsOfServiceAgreed(): Flow<Result<Boolean>>
 }
