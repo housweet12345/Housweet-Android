@@ -1,15 +1,13 @@
 package com.housweet.data.network
 
-import android.content.Context
 import com.housweet.data.BuildConfig
-import com.housweet.data.network.dto.GeoCodingRequest
-import com.housweet.data.network.dto.GeoCodingResponseDto
+import com.housweet.data.network.dto.AgreeTermsOfServiceRequest
+import com.housweet.data.network.dto.IsTermsOfServiceAgreedResponseDto
 import com.housweet.data.network.dto.KakaoLoginRequest
 import com.housweet.data.network.dto.RefreshTokenRequest
 import com.housweet.data.network.dto.TokenResponseDto
 import io.ktor.client.call.body
-import io.ktor.client.request.get
-import io.ktor.client.request.headers
+import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
@@ -57,12 +55,21 @@ class AuthRemoteDataSourceImpl @Inject constructor(
         }.body()
     }
 
-    override suspend fun geoCodingWithNaver(query: String): GeoCodingResponseDto {
-        return httpClient.get("https://maps.apigw.ntruss.com/map-geocode/v2/geocode?query=${query}") {
-            headers {
-                append("X-NCP-APIGW-API-KEY-ID", BuildConfig.NAVER_CLIENT_ID)
-                append("X-NCP-APIGW-API-KEY", BuildConfig.NAVER_CLIENT_SECRET)
-            }
+    override suspend fun agreeTermsOfService(): Boolean {
+        val response = httpClient.patch("$BASE_URL/user/settings/me/") {
+            contentType(ContentType.Application.Json)
+            setBody(
+                AgreeTermsOfServiceRequest(
+                    termsOfServiceAgreed = true
+                )
+            )
+        }
+
+        return response.status.value == 200
+    }
+
+    override suspend fun isTermsOfServiceAgreed(): IsTermsOfServiceAgreedResponseDto {
+        return httpClient.patch("$BASE_URL/user/settings/me/") {
             contentType(ContentType.Application.Json)
         }.body()
     }

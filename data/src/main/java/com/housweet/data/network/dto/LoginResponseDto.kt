@@ -11,6 +11,9 @@ data class LoginResponseDto(
 
     @SerialName("refresh")
     val refreshToken: String,
+
+    @SerialName("is_terms_of_service_agreed")
+    val isTermsOfServiceAgreed: Boolean
 )
 
 fun LoginResponseDto.toAuthToken(): AuthToken {

@@ -4,9 +4,7 @@ import com.housweet.data.local.AuthLocalDataSource
 import com.housweet.data.network.AuthRemoteDataSource
 import com.housweet.data.network.dto.LoginResponseDto
 import com.housweet.data.network.dto.toAuthToken
-import com.housweet.data.network.dto.toCoordinate
 import com.housweet.domain.model.AuthToken
-import com.housweet.domain.model.Coordinate
 import com.housweet.domain.repository.AuthRepository
 import io.ktor.client.call.body
 import kotlinx.coroutines.flow.Flow
@@ -23,17 +21,18 @@ class AuthRepositoryImpl @Inject constructor(
         socialId: String,
         accessToken: String,
         email: String
-    ): Flow<Result<Int>> = flow {
+    ): Flow<Result<Boolean>> = flow {
         try {
             val response = authRemoteDataSource.loginWithKakao(
                 socialId = socialId,
                 accessToken = accessToken,
                 email = email
             )
+            val responseBody = response.body<LoginResponseDto>()
 
-            val authToken = response.body<LoginResponseDto>().toAuthToken()
+            val authToken = responseBody.toAuthToken()
             authLocalDataSource.saveAuthToken(authToken)
-            emit(Result.success(response.status.value))
+            emit(Result.success(responseBody.isTermsOfServiceAgreed))
         } catch (e: Exception) {
             emit(Result.failure(e))
         }
@@ -60,11 +59,19 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun geoCodingWithNaver(query: String): Flow<Result<Coordinate>> = flow {
+    override suspend fun agreeTermsOfService(): Flow<Result<Boolean>> = flow {
         try {
-            val response = authRemoteDataSource.geoCodingWithNaver(query)
-            val coordinate = response.toCoordinate()
-            emit(Result.success(coordinate))
+            val response = authRemoteDataSource.agreeTermsOfService()
+            emit(Result.success(response))
+        } catch (e: Exception) {
+            emit(Result.failure(e))
+        }
+    }
+
+    override suspend fun isTermsOfServiceAgreed(): Flow<Result<Boolean>> = flow {
+        try {
+            val isTermsOfServiceAgreed = authRemoteDataSource.isTermsOfServiceAgreed().termsOfServiceAgreed
+            emit(Result.success(isTermsOfServiceAgreed))
         } catch (e: Exception) {
             emit(Result.failure(e))
         }

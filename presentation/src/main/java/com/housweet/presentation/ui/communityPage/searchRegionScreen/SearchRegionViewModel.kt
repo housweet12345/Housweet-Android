@@ -52,7 +52,6 @@ class SearchRegionViewModel @Inject constructor(
 
     fun error() {
         viewModelScope.launch {
-            _uiState.value = SearchRegionUiState.Idle
             _event.emit(SearchRegionEvent.Error)
         }
     }

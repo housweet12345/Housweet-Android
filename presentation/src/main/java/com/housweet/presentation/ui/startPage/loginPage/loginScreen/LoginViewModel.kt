@@ -28,19 +28,17 @@ class LoginViewModel @Inject constructor(
                 socialId = socialId,
                 accessToken = accessToken,
                 email = email
-            ).collect { result ->
-                result.fold(
-                    onSuccess = { status ->
-                        if (status == 200) {
-                            signIn()
-                        } else {
-                            signUp()
-                        }
-                    },
-                    onFailure = {
-                        loginFail()
+            ).collect {
+                it.onSuccess { isTermsOfServiceAgreed ->
+                    if (isTermsOfServiceAgreed) {
+                        signIn()
+                    } else {
+                        signUp()
                     }
-                )
+                }
+                it.onFailure {
+                    loginFail()
+                }
             }
         }
     }

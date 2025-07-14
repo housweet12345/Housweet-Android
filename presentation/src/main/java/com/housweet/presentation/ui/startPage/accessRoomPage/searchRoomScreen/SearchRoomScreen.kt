@@ -65,7 +65,7 @@ fun SearchRoomScreen(
                     code = it
                 },
                 onBtnClick = {
-
+                    searchRoomViewModel.accessRoomWithInviteCode(it)
                 }
             )
         }

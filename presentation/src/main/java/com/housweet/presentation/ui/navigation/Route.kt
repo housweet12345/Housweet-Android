@@ -4,6 +4,9 @@ import kotlinx.serialization.Serializable
 
 sealed interface Route {
     sealed interface StartPageRoute: Route {
+        @Serializable
+        data object Splash : StartPageRoute
+
         sealed interface LoginRoute : StartPageRoute {
             @Serializable
             data object Login : LoginRoute

@@ -1,5 +1,6 @@
 package com.housweet.presentation.ui.startPage.loginPage.termsOfServicePage
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -11,7 +12,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,46 +32,88 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.startPage.BottomButton
 import com.housweet.presentation.ui.startPage.GuideText
+import com.housweet.presentation.ui.startPage.LoadingScreen
 import com.housweet.presentation.ui.theme.Black
 import com.housweet.presentation.ui.theme.Purple
 import com.housweet.presentation.ui.theme.White
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun TermsOfServiceScreen(modifier: Modifier, onNextScreen: () -> Unit) {
+fun TermsOfServiceScreen(
+    modifier: Modifier,
+    termsOfServiceViewModel: TermsOfServiceViewModel = hiltViewModel(),
+    onNextScreen: () -> Unit
+) {
+    val uiState: TermsOfServiceState by termsOfServiceViewModel.uiState.collectAsState()
+    val snackBarHostState = remember { SnackbarHostState() }
     var checkAll by remember { mutableStateOf(false) }
     var checkTerm1 by remember { mutableStateOf(false) }
     var checkTerm2 by remember { mutableStateOf(false) }
     var checkTerm3 by remember { mutableStateOf(false) }
 
-    TermsOfServiceContent(
-        modifier = modifier,
-        checkAll = checkAll,
-        checkTerm1 = checkTerm1,
-        checkTerm2 = checkTerm2,
-        checkTerm3 = checkTerm3,
-        onPermitBtnClick = onNextScreen,
-        onAllCheckedChange = {
-            checkAll = !checkAll
-            checkTerm1 = checkAll
-            checkTerm2 = checkAll
-            checkTerm3 = checkAll
-        },
-        onTerm1CheckedChange = {
-            checkTerm1 = !checkTerm1
-            checkAll = checkTerm1 && checkTerm2 && checkTerm3
-        },
-        onTerm2CheckedChange = {
-            checkTerm2 = !checkTerm2
-            checkAll = checkTerm1 && checkTerm2 && checkTerm3
-        },
-        onTerm3CheckedChange = {
-            checkTerm3 = !checkTerm3
-            checkAll = checkTerm1 && checkTerm2 && checkTerm3
+    LaunchedEffect(Unit) {
+        termsOfServiceViewModel.event.collect { event ->
+            when (event) {
+                TermsOfServiceEvent.Success -> {
+                    onNextScreen()
+                }
+
+                TermsOfServiceEvent.Error -> {
+                    snackBarHostState.showSnackbar(
+                        message = "오류가 발생했습니다.",
+                        actionLabel = "닫기",
+                        duration = SnackbarDuration.Short
+                    )
+                }
+            }
         }
-    )
+    }
+
+    when(uiState) {
+        TermsOfServiceState.Idle -> {
+            Scaffold(
+                modifier = Modifier.fillMaxSize(),
+                snackbarHost = { SnackbarHost(hostState = snackBarHostState) }
+            ) {
+                TermsOfServiceContent(
+                    modifier = modifier,
+                    checkAll = checkAll,
+                    checkTerm1 = checkTerm1,
+                    checkTerm2 = checkTerm2,
+                    checkTerm3 = checkTerm3,
+                    onPermitBtnClick = {
+                        termsOfServiceViewModel.agreeTerms()
+                    },
+                    onAllCheckedChange = {
+                        checkAll = !checkAll
+                        checkTerm1 = checkAll
+                        checkTerm2 = checkAll
+                        checkTerm3 = checkAll
+                    },
+                    onTerm1CheckedChange = {
+                        checkTerm1 = !checkTerm1
+                        checkAll = checkTerm1 && checkTerm2 && checkTerm3
+                    },
+                    onTerm2CheckedChange = {
+                        checkTerm2 = !checkTerm2
+                        checkAll = checkTerm1 && checkTerm2 && checkTerm3
+                    },
+                    onTerm3CheckedChange = {
+                        checkTerm3 = !checkTerm3
+                        checkAll = checkTerm1 && checkTerm2 && checkTerm3
+                    }
+                )
+            }
+        }
+
+        TermsOfServiceState.IsLoading -> {
+            LoadingScreen()
+        }
+    }
 }
 
 @Composable
