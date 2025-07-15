@@ -1,11 +1,22 @@
 package com.housweet.presentation.ui.communityPage
 
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.os.Build
+import android.provider.MediaStore
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -18,11 +29,33 @@ import com.housweet.presentation.ui.communityPage.searchRegionScreen.SearchRegio
 import com.housweet.presentation.ui.navigation.CoordinateType
 import com.housweet.presentation.ui.navigation.NavigationManager
 import com.housweet.presentation.ui.navigation.Route
+import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen1
+import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen2
+import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen3
+import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen4
 import kotlin.reflect.typeOf
 
 @Composable
 fun CommunityPageNavigation(paddingValue: PaddingValues) {
     val navController = rememberNavController()
+
+    val context = LocalContext.current
+
+    val selectedImageBitmap = remember { mutableStateOf<Bitmap?>(null) }
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            val bitmap = if (Build.VERSION.SDK_INT < 28) {
+                MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
+            } else {
+                val source = ImageDecoder.createSource(context.contentResolver, uri)
+                ImageDecoder.decodeBitmap(source)
+            }
+            selectedImageBitmap.value = bitmap
+        }
+    }
 
     NavHost(
         modifier = Modifier.fillMaxSize(),
@@ -47,7 +80,7 @@ fun CommunityPageNavigation(paddingValue: PaddingValues) {
                     navigationManager.navigateTo(Route.CommunityPageRoute.SearchRegion)
                 },
                 onWritePostBtnClick = {
-
+                    navigationManager.navigateTo(Route.HouseRegisterRoute.Step1)
                 }
             )
         }
@@ -82,6 +115,34 @@ fun CommunityPageNavigation(paddingValue: PaddingValues) {
         composable<Route.CommunityPageRoute.PostRoute.DetailPost> {
             DetailPostScreen(
                 modifier = Modifier.padding(bottom = paddingValue.calculateBottomPadding())
+            )
+        }
+
+        composable<Route.HouseRegisterRoute.Step1> {
+            HouseRegisterScreen1(
+                onNextClick = { navController.navigate(Route.HouseRegisterRoute.Step2) },
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+        composable<Route.HouseRegisterRoute.Step2> {
+            HouseRegisterScreen2(
+                onNextClick = { navController.navigate(Route.HouseRegisterRoute.Step3) },
+                onBackClick = { navController.navigate(Route.HouseRegisterRoute.Step1) }
+            )
+        }
+        composable<Route.HouseRegisterRoute.Step3> {
+            HouseRegisterScreen3(
+                onNextClick = { navController.navigate(Route.HouseRegisterRoute.Step4) },
+                onBackClick = { navController.navigate(Route.HouseRegisterRoute.Step2) },
+                onImagePickClick = { launcher.launch("image/*") },
+                selectedImageBitmap = selectedImageBitmap.value
+            )
+        }
+
+        composable<Route.HouseRegisterRoute.Step4> {
+            HouseRegisterScreen4(
+                onBackClick = { navController.navigate(Route.HouseRegisterRoute.Step2) },
+                onCompleteClick = { }
             )
         }
     }

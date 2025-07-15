@@ -39,7 +39,7 @@ class LoginViewModel @Inject constructor(
                         }
                     },
                     onFailure = {
-                        Log.d("LoginViewModel", "login: ${it.message}")
+                        Log.d("LoginViewModel", "서버 로그인 실패 : ${it.message}")
                         loginFail()
                     }
                 )
