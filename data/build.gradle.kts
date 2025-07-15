@@ -14,6 +14,8 @@ val properties = Properties().apply {
 
 //val baseUrl = properties["base_url"] ?: ""
 val baseUrl = properties["base_url"]?.let { "\"$it\"" } ?: "\"https://example.com\""
+val naverClientId = properties["naver_client_id"] ?: ""
+val naverClientSecret = properties["naver_client_secret"] ?: ""
 
 android {
     namespace = "com.housweet.data"
@@ -26,6 +28,8 @@ android {
         consumerProguardFiles("consumer-rules.pro")
 
         buildConfigField("String", "BASE_URL", baseUrl.toString())
+        buildConfigField("String", "NAVER_CLIENT_ID", naverClientId.toString())
+        buildConfigField("String", "NAVER_CLIENT_SECRET", naverClientSecret.toString())
     }
 
     buildFeatures {
@@ -57,7 +61,6 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
-
 
     //okhttp
     implementation("com.squareup.okhttp3:okhttp:4.9.0")

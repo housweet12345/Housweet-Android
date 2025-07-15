@@ -5,9 +5,9 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.compose.compiler)
     kotlin("plugin.serialization") version "2.0.21"
     id("com.google.dagger.hilt.android")
-    id("org.jetbrains.kotlin.plugin.compose") version "2.1.0"
     kotlin("kapt")
 }
 
@@ -15,7 +15,6 @@ val properties = Properties().apply {
     load(FileInputStream("${rootDir}/local.properties"))
 }
 
-val kakaoApiKey = properties["kakaoLogin_api_key"] ?: ""
 val kakaoRedirectUri = properties["kakaoLogin_Redirect_Uri"] ?: ""
 
 android {
@@ -31,11 +30,7 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
-        vectorDrawables {
-            useSupportLibrary = true
-        }
 
-        manifestPlaceholders["Kakao_API_KEY"] = kakaoApiKey as String
         manifestPlaceholders["Kakao_Redirect_URI"] = kakaoRedirectUri as String
     }
 
@@ -48,21 +43,25 @@ android {
             )
         }
     }
+
     buildFeatures {
         compose = true
         buildConfig = true
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.15"
     }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -89,7 +88,6 @@ dependencies {
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.material)
-    implementation("androidx.compose.material3:material3:1.1.0")
 
     //Navigation (Compose용)
     implementation("androidx.navigation:navigation-compose:2.7.7")
@@ -101,6 +99,10 @@ dependencies {
 
     //테스트
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    testImplementation(libs.junit)
+    testImplementation("io.mockk:mockk:1.13.17")
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 
     //Compose
     implementation(libs.androidx.material.icons.extended)
@@ -130,9 +132,8 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.gif)
 
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
+    // Naver Map
+    implementation (libs.naver.map.compose)
 }
 
 kapt {

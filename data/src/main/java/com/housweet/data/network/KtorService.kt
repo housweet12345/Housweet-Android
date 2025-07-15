@@ -1,6 +1,5 @@
 package com.housweet.data.network
 
-import android.os.Build
 import android.util.Log
 import com.housweet.data.BuildConfig
 import com.housweet.data.local.AuthLocalDataSource
@@ -135,6 +134,7 @@ class KtorService @Inject constructor(
                     sendWithoutRequest { request ->
                         // 로그인, 토큰 갱신 같은 인증 관련 엔드포인트는 제외
                         val authExcluded = request.url.pathSegments.lastOrNull() == "login"
+                                || request.url.toString().startsWith("https://maps.apigw.ntruss.com/map-geocode/v2/geocode")
                         !authExcluded
                     }
                 }

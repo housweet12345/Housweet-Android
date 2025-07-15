@@ -30,10 +30,10 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -45,8 +45,8 @@ import coil.request.ImageRequest
 import coil.size.Size
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.theme.Black
-import com.housweet.presentation.ui.theme.Black_1A435671
 import com.housweet.presentation.ui.theme.Gray_7D7D7D
+import com.housweet.presentation.ui.theme.Gray_A5A5A5
 import com.housweet.presentation.ui.theme.Gray_CBCBCB
 import com.housweet.presentation.ui.theme.Purple
 import com.housweet.presentation.ui.theme.White
@@ -139,8 +139,8 @@ fun WriteTextFiled(
                     .height(40.dp)
                     .shadow(
                         elevation = 4.dp,
-                        spotColor = Black_1A435671,
-                        ambientColor = Black_1A435671
+                        spotColor = Gray_A5A5A5,
+                        ambientColor = Gray_CBCBCB
                     ),
                 shape = RoundedCornerShape(6.dp),
                 color = White,
@@ -187,7 +187,7 @@ fun WarningText(
 }
 
 @Composable
-fun LoadingBar() {
+fun LoadingScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -266,7 +266,7 @@ private fun TextFieldPreview() {
 
 @Preview(showBackground = true)
 @Composable
-private fun LoadingBarPreview() {
-   LoadingBar()
+private fun LoadingScreenPreview() {
+   LoadingScreen()
 }
 

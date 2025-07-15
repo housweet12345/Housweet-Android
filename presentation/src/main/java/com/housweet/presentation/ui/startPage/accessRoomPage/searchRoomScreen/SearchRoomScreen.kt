@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.housweet.presentation.ui.startPage.BottomButton
 import com.housweet.presentation.ui.startPage.GuideText
-import com.housweet.presentation.ui.startPage.LoadingBar
+import com.housweet.presentation.ui.startPage.LoadingScreen
 import com.housweet.presentation.ui.startPage.WarningText
 import com.housweet.presentation.ui.startPage.WriteTextFiled
 import com.housweet.presentation.ui.theme.Black
@@ -71,7 +71,7 @@ fun SearchRoomScreen(
         }
 
         SearchRoomState.IsLoading -> {
-            LoadingBar()
+            LoadingScreen()
         }
     }
 }

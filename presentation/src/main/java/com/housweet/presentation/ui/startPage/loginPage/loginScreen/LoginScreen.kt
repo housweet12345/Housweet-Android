@@ -43,7 +43,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.startPage.BackOnPressed
 import com.housweet.presentation.ui.startPage.GuideText
-import com.housweet.presentation.ui.startPage.LoadingBar
+import com.housweet.presentation.ui.startPage.LoadingScreen
 import com.housweet.presentation.ui.theme.Black
 import com.housweet.presentation.ui.theme.Brown
 import com.housweet.presentation.ui.theme.Gray_E7E7E7
@@ -60,7 +60,7 @@ import com.kakao.sdk.user.UserApiClient
 fun LoginScreen(
     modifier: Modifier,
     loginViewModel: LoginViewModel = hiltViewModel(),
-    onNextScreen: () -> Unit,
+    onNextScreen: (String) -> Unit,
 ) {
     val uiState: LoginUiState by loginViewModel.uiState.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
@@ -71,11 +71,11 @@ fun LoginScreen(
         loginViewModel.event.collect { event ->
             when (event) {
                 LoginEvent.SignUp -> {
-                    onNextScreen()
+                    onNextScreen("sign_up")
                 }
 
                 LoginEvent.SignIn -> {
-                    onNextScreen()
+                    onNextScreen("sign_in")
                 }
 
                 LoginEvent.LoginError -> {
@@ -91,7 +91,7 @@ fun LoginScreen(
 
     when (uiState) {
         LoginUiState.IsLoading -> {
-            LoadingBar()
+            LoadingScreen()
         }
 
         LoginUiState.Idle -> {
