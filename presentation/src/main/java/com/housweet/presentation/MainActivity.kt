@@ -12,6 +12,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
@@ -22,6 +23,7 @@ import com.housweet.presentation.ui.chatlist.ChatListScreen
 import com.housweet.presentation.ui.mypage.MyHouseDetailScreen
 import com.housweet.presentation.ui.mypage.MyPageScreen
 import com.housweet.presentation.ui.mypage.BookmarkScreen
+import com.housweet.presentation.ui.mypage.HelpScreen
 import com.housweet.presentation.ui.mypage.MyHouseEditScreen
 import com.housweet.presentation.ui.mypage.MyPostedRoomScreen
 import com.housweet.presentation.ui.mypage.NoticeScreen
@@ -30,6 +32,8 @@ import com.housweet.presentation.ui.profile.route.EditProfileKeyWordRoute
 import com.housweet.presentation.ui.profile.route.EditProfileRoute
 import com.housweet.presentation.ui.profile.route.MyProfileRoute
 import com.housweet.presentation.ui.registerhouse.*
+import com.housweet.presentation.ui.startPage.loginPage.loginScreen.LoginScreen
+import com.housweet.presentation.ui.startPage.loginPage.loginScreen.LoginViewModel
 import com.housweet.presentation.viewmodel.profile.EditProfileViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -59,7 +63,7 @@ class MainActivity : ComponentActivity() {
 
             NavHost(
                 navController = navController,
-                startDestination = "mypage"
+                startDestination = "house_register_1"
             ) {
                 composable("house_register_1") {
                     HouseRegisterScreen1(
@@ -69,11 +73,13 @@ class MainActivity : ComponentActivity() {
                 }
 
                 composable("house_register_2") {
+                    val context = LocalContext.current
                     HouseRegisterScreen2(
                         onNextClick = { navController.navigate("house_register_3") },
                         onBackClick = { navController.navigate("house_register_1") }
                     )
                 }
+
 
                 composable("house_register_3") {
                     HouseRegisterScreen3(
@@ -176,6 +182,11 @@ class MainActivity : ComponentActivity() {
                 }
                 composable("posted_my_room") {
                     MyPostedRoomScreen(
+
+                    )
+                }
+                composable("help_screen") {
+                    HelpScreen(
 
                     )
                 }

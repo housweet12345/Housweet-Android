@@ -19,12 +19,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.housweet.presentation.model.Region
 import com.housweet.presentation.ui.common.RegionBottomSheet
 import com.housweet.presentation.ui.common.StepIndicator
 import com.housweet.presentation.ui.common.TopBarWithBackButton
+import java.io.BufferedReader
 import java.io.InputStreamReader
 
 @Composable
@@ -42,8 +41,7 @@ fun HouseRegisterScreen2(
 
     val scrollState = rememberScrollState()
     val context = LocalContext.current
-
-    val regionData = remember { loadRegionData(context) }
+    val regionBundle = remember { loadRegionDataBundle(context) }
 
     var showBottomSheet by remember { mutableStateOf(false) }
     var selectedRegion by remember { mutableStateOf<Region?>(null) }
@@ -227,7 +225,9 @@ fun HouseRegisterScreen2(
 
     if (showBottomSheet) {
         RegionBottomSheet(
-            regions= regionData, // ✅ 여기 이름을 맞춰줘야 해!
+            cities = regionBundle.cities,
+            districtMap = regionBundle.districtMap,
+            neighborhoodMap = regionBundle.neighborhoodMap,
             onRegionSelected = {
                 selectedRegion = it
                 showBottomSheet = false
@@ -239,17 +239,40 @@ fun HouseRegisterScreen2(
     }
 }
 
-fun loadRegionData(context: Context): List<Region> {
-    val inputStream = context.assets.open("korea_regions.json")
-    val reader = InputStreamReader(inputStream, Charsets.UTF_8)
-    val type = object : TypeToken<Map<String, Map<String, List<String>>>>() {}.type
-    val map: Map<String, Map<String, List<String>>> = Gson().fromJson(reader, type)
+fun readCsv(context: Context, fileName: String): List<Map<String, String>> {
+    val inputStream = context.assets.open(fileName)
+    val reader = BufferedReader(InputStreamReader(inputStream))
+    val headers = reader.readLine()?.split(",") ?: return emptyList()
+    return reader.lineSequence().mapNotNull { line ->
+        val values = line.split(",")
+        if (values.size == headers.size) {
+            headers.zip(values).toMap()
+        } else null
+    }.toList()
+}
 
-    return map.flatMap { (sido, sigunguMap) ->
-        sigunguMap.flatMap { (sigungu, dongs) ->
-            dongs.map { dong ->
-                Region(sido = sido, sigungu = sigungu, dong = dong)
-            }
-        }
-    }
+data class RegionDataBundle(
+    val cities: List<String>,
+    val districtMap: Map<String, List<String>>,
+    val neighborhoodMap: Map<Pair<String, String>, List<String>>
+)
+
+fun loadRegionDataBundle(context: Context): RegionDataBundle {
+    val siList = readCsv(context, "시_정보.csv")
+    val guList = readCsv(context, "구_정보.csv")
+    val dongList = readCsv(context, "동_정보.csv")
+
+    val cities = siList.mapNotNull { it["name"] }.distinct()
+
+    val districtMap = guList.groupBy(
+        keySelector = { it["si__name"] ?: "" },
+        valueTransform = { it["name"] ?: "" }
+    ).mapValues { it.value.filter { it.isNotEmpty() } }
+
+    val neighborhoodMap = dongList.groupBy(
+        keySelector = { Pair(it["si__name"] ?: "", it["gu__name"] ?: "") },
+        valueTransform = { it["name"] ?: "" }
+    ).mapValues { it.value.filter { it.isNotEmpty() } }
+
+    return RegionDataBundle(cities, districtMap, neighborhoodMap)
 }
