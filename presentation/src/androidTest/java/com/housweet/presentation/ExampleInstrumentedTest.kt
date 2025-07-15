@@ -2,6 +2,7 @@ package com.housweet.presentation
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.housweet.presentation.ui.communityPage.searchRegionScreen.RegionUtils
 
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -14,11 +15,24 @@ import org.junit.Assert.*
  * See [testing documentation](http://d.android.com/tools/testing).
  */
 @RunWith(AndroidJUnit4::class)
-class ExampleInstrumentedTest {
+class RegionUtilsInstrumentedTest {
     @Test
-    fun useAppContext() {
-        // Context of the app under test.
-        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.example.presentation.test", appContext.packageName)
+    fun testRegionUtilsWithRealContext() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val regionUtils = RegionUtils(context)
+
+        val dtgList = regionUtils.getDtgList()
+
+        dtgList.forEach {
+            println(it)
+            val ssgList = regionUtils.getSggList(it)
+            println("$it: $ssgList")
+            ssgList.forEach { ssg ->
+                val dymList = regionUtils.getDymList(it, ssg)
+                println("$it $ssg: $dymList")
+            }
+
+            println("\n\n")
+        }
     }
 }

@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.sp
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.startPage.BackOnPressed
 import com.housweet.presentation.ui.startPage.GuideText
-import com.housweet.presentation.ui.theme.Black_1A435671
+import com.housweet.presentation.ui.theme.Gray_A5A5A5
 import com.housweet.presentation.ui.theme.Gray_CBCBCB
 import com.housweet.presentation.ui.theme.Purple
 import com.housweet.presentation.ui.theme.White
@@ -180,8 +180,8 @@ private fun AccessRoomCard(
             .padding(horizontal = 20.dp)
             .shadow(
                 elevation = 4.dp,
-                spotColor = Black_1A435671,
-                ambientColor = Black_1A435671
+                spotColor = Gray_A5A5A5,
+                ambientColor = Gray_CBCBCB
             ),
         shape = RoundedCornerShape(6.dp),
         color = White,

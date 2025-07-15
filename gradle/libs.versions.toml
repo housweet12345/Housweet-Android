@@ -15,24 +15,21 @@ espressoCore = "3.6.1"
 appcompat = "1.7.0"
 kotlinxCoroutinesAndroid = "1.8.1"
 kotlinxSerializationJson = "1.7.3"
-coilComposeVersion = "2.4.0"
 kotlinStdlib = "1.9.0"
 kotlinxCoroutinesCore = "1.8.0"
 ktorClientCore = "2.3.7"
+mapSdk = "3.21.0"
 material = "1.12.0"
-material3 = "1.1.0"
 activity = "1.10.1"
 constraintlayout = "2.2.1"
 jetbrainsKotlinJvm = "1.9.10"
-kotlinx-coroutines = "1.7.3"
+naverMapCompose = "1.7.4"
 runtimeAndroid = "1.7.0"
 storage = "1.5.0"
 compose = "1.5.3"
-junitJunit = "4.12"
 runner = "1.6.1"  # 최신 Compose 버전으로 수정
 runtime = "1.8.0"
 navigationCompose = "2.8.9"
-composeCompiler = "1.5.10"
 uiToolingPreviewAndroid = "1.8.1"
 lifecycleRuntimeKtx = "2.8.7"
 uiToolingPreview = "1.7.8"
@@ -67,6 +64,7 @@ ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktorCli
 ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktorClientCore" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktorClientCore" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktorClientCore" }
+map-sdk = { module = "com.naver.maps:map-sdk", version.ref = "mapSdk" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
@@ -75,7 +73,6 @@ androidx-storage = { group = "androidx.test.services", name = "storage", version
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version = "2025.05.00" }  # Compose BOM 사용
 androidx-compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
 androidx-compose-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "compose" }
-androidx-compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "compose" }
 androidx-compose-material = { module = "androidx.compose.material:material", version.ref = "compose" }
 androidx-runner = { group = "androidx.test", name = "runner", version.ref = "runner" }
 androidx-ui-tooling-preview-android = { group = "androidx.compose.ui", name = "ui-tooling-preview-android", version.ref = "uiToolingPreviewAndroid" }
@@ -85,6 +82,7 @@ androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+naver-map-compose = { module = "io.github.fornewid:naver-map-compose", version.ref = "naverMapCompose" }
 v2-user = { module = "com.kakao.sdk:v2-user", version.ref = "v2User" }
 
 [plugins]
@@ -92,4 +90,4 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
-kotlin-plugin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

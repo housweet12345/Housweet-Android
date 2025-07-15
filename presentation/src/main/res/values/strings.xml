@@ -1,4 +1,5 @@
 <resources>
     <string name="title_activity_start">StartActivity</string>
     <string name="title_activity_splash">SplashActivity</string>
+    <string name="title_activity_community">CommunityActivity</string>
 </resources>
