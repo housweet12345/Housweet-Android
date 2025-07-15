@@ -1,5 +1,6 @@
 package com.housweet.presentation.ui.communityPage
 
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
@@ -121,7 +122,10 @@ fun CommunityPageNavigation(paddingValue: PaddingValues) {
         composable<Route.HouseRegisterRoute.Step1> {
             HouseRegisterScreen1(
                 onNextClick = { navController.navigate(Route.HouseRegisterRoute.Step2) },
-                onBackClick = { navController.popBackStack() }
+                onBackClick = {
+                    val intent = Intent(context, CommunityActivity::class.java)
+                    context.startActivity(intent)
+                }
             )
         }
         composable<Route.HouseRegisterRoute.Step2> {
@@ -138,7 +142,6 @@ fun CommunityPageNavigation(paddingValue: PaddingValues) {
                 selectedImageBitmap = selectedImageBitmap.value
             )
         }
-
         composable<Route.HouseRegisterRoute.Step4> {
             HouseRegisterScreen4(
                 onBackClick = { navController.navigate(Route.HouseRegisterRoute.Step2) },
