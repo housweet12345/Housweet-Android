@@ -1,5 +1,6 @@
 package com.housweet.presentation.ui.startPage.loginPage.loginScreen
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.housweet.domain.usecase.UseCases
@@ -34,6 +35,7 @@ class LoginViewModel @Inject constructor(
                         signUp()
                     },
                     onFailure = {
+                        Log.d("LoginViewModel", "login: ${it.message}")
                         isIdle()
                         loginFail()
                     }

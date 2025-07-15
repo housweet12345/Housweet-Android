@@ -16,5 +16,17 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31"
         tools:replace="android:label">
+
+        <activity
+            android:name="com.housweet.presentation.MainActivity"
+            android:exported="true">
+<!--        <activity-->
+<!--            android:name="com.housweet.presentation.ui.splash.SplashActivity"-->
+<!--            android:exported="true">-->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>

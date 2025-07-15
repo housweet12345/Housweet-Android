@@ -16,12 +16,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
@@ -152,10 +154,6 @@ fun RoomItem(onMenuClick: () -> Unit) {
                 Text("보증금 400 월세 20", fontWeight = FontWeight.Bold)
                 Text("송파구 문정동 · 20대 남자", fontSize = 12.sp, color = Color.Gray)
             }
-
-            IconButton(onClick = onMenuClick) {
-                Icon(Icons.Default.MoreVert, contentDescription = "More")
-            }
         }
 
         Spacer(Modifier.height(8.dp))
@@ -163,9 +161,20 @@ fun RoomItem(onMenuClick: () -> Unit) {
         Row {
             Button(
                 onClick = { /* TODO: 글 수정하기 */ },
+                modifier = Modifier.width(280.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF7F7F7))
             ) {
                 Text("글 수정하기", color = Color.Black)
+            }
+            Spacer(modifier = Modifier.width(18.dp))
+            IconButton(
+                onClick = onMenuClick,
+                modifier = Modifier.width(70.dp),
+                colors = IconButtonDefaults.iconButtonColors(
+                    containerColor = Color(0xFFF7F7F7)
+                )
+            ) {
+                Icon(Icons.Default.MoreHoriz, contentDescription = "More")
             }
         }
     }

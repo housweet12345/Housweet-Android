@@ -1,13 +1,18 @@
 package com.housweet.app
 
 import android.app.Application
+import android.util.Log
 import com.kakao.sdk.common.KakaoSdk
+import com.kakao.sdk.common.util.Utility
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
 class GlobalApplication: Application() {
     override fun onCreate() {
         super.onCreate()
+        Log.d("APP", "GlobalApplication started")
         KakaoSdk.init(this, BuildConfig.Kakao_API_KEY)
+        val keyHash = Utility.getKeyHash(this)
+        Log.d("KAKAO_HASH", "keyHash: $keyHash")
     }
 }

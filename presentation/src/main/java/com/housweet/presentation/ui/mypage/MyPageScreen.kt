@@ -91,7 +91,9 @@ fun MyPageScreen(navController: NavController, onBackClick: () -> Unit = {}) {
                 launchSingleTop = true
             }
         }
-        MyPageMenuItem("도움말")
+        MyPageMenuItem("도움말") {
+            navController.navigate("help_screen")
+        }
         MyPageMenuItem("약관 및 정책")
 
         // Feedback CTA
