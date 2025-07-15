@@ -18,7 +18,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -35,6 +34,7 @@ import com.housweet.presentation.ui.mypage.MyHouseEditScreen
 import com.housweet.presentation.ui.mypage.MyPostedRoomScreen
 import com.housweet.presentation.ui.mypage.NoticeScreen
 import com.housweet.presentation.ui.mypage.sampleBookmarks
+import com.housweet.presentation.ui.navigation.Route
 import com.housweet.presentation.ui.profile.route.EditProfileKeyWordRoute
 import com.housweet.presentation.ui.profile.route.EditProfileRoute
 import com.housweet.presentation.ui.profile.route.MyProfileRoute

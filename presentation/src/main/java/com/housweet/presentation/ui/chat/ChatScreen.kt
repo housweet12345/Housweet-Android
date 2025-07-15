@@ -34,8 +34,14 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.ui.res.painterResource
+import com.housweet.presentation.R
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(chatName: String, navController: NavController) {
     val context = LocalContext.current
@@ -71,13 +77,11 @@ fun ChatScreen(chatName: String, navController: NavController) {
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 title = { Text(text = chatName) },
-                backgroundColor = Color.White,
-                elevation = 0.dp,
                 navigationIcon = {
                     Icon(
-                        imageVector = Icons.Default.ArrowBack,
+                        painter = painterResource(id = R.drawable.back_black),
                         contentDescription = "뒤로가기",
                         modifier = Modifier
                             .padding(start = 16.dp)
@@ -111,7 +115,10 @@ fun ChatScreen(chatName: String, navController: NavController) {
                             Text("신고하기")
                         }
                     }
-                }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color.White // ✅ 배경색 흰색 지정
+                )
             )
         },
         bottomBar = {

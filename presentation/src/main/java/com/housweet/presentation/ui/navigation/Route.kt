@@ -45,4 +45,18 @@ sealed interface Route {
             data object Posts: PostRoute
         }
     }
+
+    sealed interface HouseRegisterRoute : Route {
+        @Serializable
+        data object Step1 : HouseRegisterRoute
+
+        @Serializable
+        data object Step2 : HouseRegisterRoute
+
+        @Serializable
+        data object Step3 : HouseRegisterRoute
+
+        @Serializable
+        data object Step4 : HouseRegisterRoute
+    }
 }
