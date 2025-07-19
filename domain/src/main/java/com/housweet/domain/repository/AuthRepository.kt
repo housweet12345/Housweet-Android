@@ -10,6 +10,7 @@ interface AuthRepository {
         accessToken: String,
         email: String
     ): Flow<Result<Boolean>>
+    suspend fun logout()
     suspend fun refreshAccessToken(): Flow<Result<AuthToken>>
     suspend fun checkLogin(): Flow<Result<Boolean>>
     suspend fun agreeTermsOfService(): Flow<Result<Boolean>>

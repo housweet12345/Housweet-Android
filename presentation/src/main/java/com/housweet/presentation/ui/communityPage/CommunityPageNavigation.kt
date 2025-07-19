@@ -1,6 +1,5 @@
 package com.housweet.presentation.ui.communityPage
 
-import android.util.Log
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding

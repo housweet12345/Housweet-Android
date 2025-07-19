@@ -4,6 +4,8 @@ import com.housweet.data.local.AuthLocalDataSource
 import com.housweet.data.network.AuthRemoteDataSource
 import com.housweet.data.network.dto.LoginResponseDto
 import com.housweet.data.network.dto.toAuthToken
+import com.housweet.data.utils.NetworkConnectionManager
+import com.housweet.data.utils.NoInternetException
 import com.housweet.domain.model.AuthToken
 import com.housweet.domain.repository.AuthRepository
 import io.ktor.client.call.body
@@ -15,7 +17,8 @@ import javax.inject.Singleton
 @Singleton
 class AuthRepositoryImpl @Inject constructor(
     private val authLocalDataSource: AuthLocalDataSource,
-    private val authRemoteDataSource: AuthRemoteDataSource
+    private val authRemoteDataSource: AuthRemoteDataSource,
+    private val networkConnectionManager: NetworkConnectionManager
 ) : AuthRepository {
     override suspend fun loginWithKakao(
         socialId: String,
@@ -38,6 +41,17 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun logout() {
+        try {
+            if (!networkConnectionManager.isInternetAvailable()) {
+                throw NoInternetException()
+            }
+            authLocalDataSource.clearAuthToken()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
     override suspend fun refreshAccessToken(): Flow<Result<AuthToken>> = flow {
         try {
             val refreshToken = authLocalDataSource.getAuthToken()?.refreshToken ?: throw Exception("No refresh token available")
@@ -52,6 +66,10 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun checkLogin(): Flow<Result<Boolean>> = flow {
         try {
+            if (!networkConnectionManager.isInternetAvailable()) {
+                throw NoInternetException()
+            }
+
             val isRefreshTokenExpired = authLocalDataSource.isRefreshTokenExpired()
             emit(Result.success(!isRefreshTokenExpired))
         } catch (e: Exception) {

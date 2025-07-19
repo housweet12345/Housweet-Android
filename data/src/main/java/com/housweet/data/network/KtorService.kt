@@ -4,7 +4,9 @@ import android.util.Log
 import com.housweet.data.BuildConfig
 import com.housweet.data.local.AuthLocalDataSource
 import com.housweet.data.network.dto.RefreshTokenRequest
-import com.housweet.data.network.dto.TokenResponseDto
+import com.housweet.data.network.dto.RefreshResponseDto
+import com.housweet.domain.event.AuthEvent
+import com.housweet.domain.event.AuthEventBus
 import com.housweet.domain.model.AuthToken
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -34,7 +36,8 @@ import javax.inject.Singleton
 
 @Singleton
 class KtorService @Inject constructor(
-    private val authLocalDataSource: AuthLocalDataSource
+    private val authLocalDataSource: AuthLocalDataSource,
+    private val authEventBus: AuthEventBus
 ) {
     companion object {
         private const val BASE_URL = BuildConfig.BASE_URL
@@ -118,12 +121,13 @@ class KtorService @Inject constructor(
 
                     refreshTokens {
                         try {
+                            Log.d(TAG, "Refreshing auth token")
                             refreshTokenHandler(oldTokens)
                         } catch (e: Exception) {
                             Log.e(TAG, "Token refresh failed", e)
                             // 토큰 갱신 실패 시 로그아웃 처리
                             runBlocking {
-                                authLocalDataSource.clearAuthToken()
+                                authEventBus.emit(AuthEvent.TokenRefreshFailed)
                             }
                             null
                         } finally {
@@ -134,7 +138,6 @@ class KtorService @Inject constructor(
                     sendWithoutRequest { request ->
                         // 로그인, 토큰 갱신 같은 인증 관련 엔드포인트는 제외
                         val authExcluded = request.url.pathSegments.lastOrNull() == "login"
-                                || request.url.toString().startsWith("https://maps.apigw.ntruss.com/map-geocode/v2/geocode")
                         !authExcluded
                     }
                 }
@@ -176,12 +179,12 @@ class KtorService @Inject constructor(
         val refreshResponse = runBlocking {
             client.post("$BASE_URL/auth/token/refresh") {
                 contentType(ContentType.Application.Json)
-                setBody(RefreshTokenRequest(refreshToken))
+                setBody(RefreshTokenRequest(refreshToken = refreshToken))
             }
         }
 
         val tokenResponseDto = runBlocking {
-            refreshResponse.body<TokenResponseDto>()
+            refreshResponse.body<RefreshResponseDto>()
         }
 
         runBlocking {

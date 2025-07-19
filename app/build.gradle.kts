@@ -72,8 +72,8 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
 
     //Hilt
-    implementation("com.google.dagger:hilt-android:2.51.1")
-    kapt("com.google.dagger:hilt-android-compiler:2.51.1")
+    implementation("com.google.dagger:hilt-android:2.55")
+    kapt("com.google.dagger:hilt-android-compiler:2.55")
 
     // OkHttp
     implementation("com.squareup.okhttp3:okhttp:4.9.0")
