@@ -12,6 +12,7 @@ import com.housweet.domain.usecase.CheckLoginUseCase
 import com.housweet.domain.usecase.CreateRoomUseCase
 import com.housweet.domain.usecase.IsTermsOfServiceAgreedUseCase
 import com.housweet.domain.usecase.LoginWithKakaoUseCase
+import com.housweet.domain.usecase.LogoutUseCase
 import com.housweet.domain.usecase.UseCases
 import com.housweet.domain.usecase.profile.GetMyProfileUseCase
 import com.housweet.domain.usecase.profile.GetOtherUserProfileUseCase
@@ -34,6 +35,7 @@ object UseCaseModule {
     ): UseCases {
         return UseCases(
             loginWithKakaoUseCase = LoginWithKakaoUseCase(authRepository),
+            logoutUseCase = LogoutUseCase(authRepository),
             checkLoginUseCase = CheckLoginUseCase(authRepository),
             createRoomUseCase = CreateRoomUseCase(accessRoomRepository),
             accessRoomWithInviteCodeUseCase = AccessRoomWithInviteCodeUseCase(accessRoomRepository),

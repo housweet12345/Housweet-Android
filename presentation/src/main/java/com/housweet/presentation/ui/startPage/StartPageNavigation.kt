@@ -11,6 +11,7 @@ import androidx.navigation.compose.rememberNavController
 import com.housweet.presentation.ui.communityPage.CommunityActivity
 import com.housweet.presentation.ui.navigation.NavigationManager
 import com.housweet.presentation.ui.navigation.Route
+import com.housweet.presentation.ui.startPage.splashPage.SplashScreen
 import com.housweet.presentation.ui.startPage.accessRoomPage.AccessRoomScreen
 import com.housweet.presentation.ui.startPage.accessRoomPage.createRoomScreen.CreateRoomScreen
 import com.housweet.presentation.ui.startPage.accessRoomPage.searchRoomScreen.SearchRoomScreen
@@ -20,16 +21,44 @@ import com.housweet.presentation.ui.startPage.loginPage.loginScreen.LoginScreen
 import com.housweet.presentation.ui.startPage.loginPage.termsOfServicePage.TermsOfServiceScreen
 
 @Composable
-fun StartPageNavigation(isAutoLogin: Boolean, modifier: Modifier) {
+fun StartPageNavigation(
+    modifier: Modifier,
+    isFailedRefreshToken: Boolean
+) {
     val navController = rememberNavController()
     val context = LocalContext.current
 
     NavHost(
         modifier = Modifier.fillMaxSize(),
         navController = navController,
-        startDestination = if (isAutoLogin) Route.StartPageRoute.AccessRoomRoute.AccessRoom else Route.StartPageRoute.LoginRoute.Login
+        startDestination = if (!isFailedRefreshToken) Route.StartPageRoute.Splash else Route.StartPageRoute.LoginRoute.Login
     ) {
         val navigationManager = NavigationManager(navController)
+        composable<Route.StartPageRoute.Splash> {
+            SplashScreen { isAutoLogin, isAgreeTermsOfService ->
+                when {
+                    !isAutoLogin -> {
+                        navigationManager.navigateOneWay(
+                            Route.StartPageRoute.Splash,
+                            Route.StartPageRoute.LoginRoute.Login
+                        )
+                    }
+                    isAgreeTermsOfService -> {
+                        navigationManager.navigateOneWay(
+                            Route.StartPageRoute.Splash,
+                            Route.StartPageRoute.AccessRoomRoute.AccessRoom
+                        )
+                    }
+                    else -> {
+                        navigationManager.navigateOneWay(
+                            Route.StartPageRoute.Splash,
+                            Route.StartPageRoute.LoginRoute.WelCome
+                        )
+                    }
+                }
+            }
+        }
+
         composable<Route.StartPageRoute.LoginRoute.Login> {
             LoginScreen(modifier = modifier) {
                 if (it == "sign_in") {

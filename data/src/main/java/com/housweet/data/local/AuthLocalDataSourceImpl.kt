@@ -81,7 +81,6 @@ class AuthLocalDataSourceImpl @Inject constructor(
         val expirationTime = context.authDataStore.data.map { preferences ->
             preferences[KEY_ACCESS_EXPIRATION_TIME] ?: 0L
         }.firstOrNull() ?: 0L
-        Log.d("saveAuthToken", "time: ${System.currentTimeMillis()} $expirationTime")
 
         return System.currentTimeMillis() >= expirationTime
     }
@@ -90,7 +89,6 @@ class AuthLocalDataSourceImpl @Inject constructor(
         val expirationTime = context.authDataStore.data.map { preferences ->
             preferences[KEY_REFRESH_EXPIRATION_TIME] ?: 0L
         }.firstOrNull() ?: 0L
-        Log.d("saveAuthToken", "time: ${System.currentTimeMillis()} $expirationTime")
 
         return System.currentTimeMillis() >= expirationTime
     }

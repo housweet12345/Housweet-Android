@@ -5,7 +5,7 @@ import com.housweet.data.network.dto.AgreeTermsOfServiceRequest
 import com.housweet.data.network.dto.IsTermsOfServiceAgreedResponseDto
 import com.housweet.data.network.dto.KakaoLoginRequest
 import com.housweet.data.network.dto.RefreshTokenRequest
-import com.housweet.data.network.dto.TokenResponseDto
+import com.housweet.data.network.dto.RefreshResponseDto
 import io.ktor.client.call.body
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
@@ -44,14 +44,10 @@ class AuthRemoteDataSourceImpl @Inject constructor(
         }
     }
 
-    override suspend fun refreshAccessToken(refreshToken: String): TokenResponseDto {
+    override suspend fun refreshAccessToken(refreshToken: String): RefreshResponseDto {
         return httpClientForRefresh.post("$BASE_URL/auth/token/refresh") {
             contentType(ContentType.Application.Json)
-            setBody(
-                RefreshTokenRequest(
-                    refreshToken = refreshToken
-                )
-            )
+            setBody(RefreshTokenRequest(refreshToken = refreshToken))
         }.body()
     }
 
