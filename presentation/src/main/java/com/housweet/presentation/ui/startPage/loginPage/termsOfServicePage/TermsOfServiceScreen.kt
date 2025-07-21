@@ -44,7 +44,6 @@ import com.housweet.presentation.ui.theme.White
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun TermsOfServiceScreen(
-    modifier: Modifier,
     termsOfServiceViewModel: TermsOfServiceViewModel = hiltViewModel(),
     onNextScreen: () -> Unit
 ) {
@@ -80,7 +79,6 @@ fun TermsOfServiceScreen(
                 snackbarHost = { SnackbarHost(hostState = snackBarHostState) }
             ) {
                 TermsOfServiceContent(
-                    modifier = modifier,
                     checkAll = checkAll,
                     checkTerm1 = checkTerm1,
                     checkTerm2 = checkTerm2,
@@ -118,7 +116,6 @@ fun TermsOfServiceScreen(
 
 @Composable
 private fun TermsOfServiceContent(
-    modifier: Modifier,
     checkAll: Boolean,
     checkTerm1: Boolean,
     checkTerm2: Boolean,
@@ -130,7 +127,7 @@ private fun TermsOfServiceContent(
     onTerm3CheckedChange: () -> Unit
     ) {
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .background(White)
     ) {
@@ -246,7 +243,6 @@ private fun TermsOfServiceMenu(termName: String, checked: Boolean, onCheckedChan
 @Preview
 private fun TermsOfServicePreviewScreen() {
     TermsOfServiceContent(
-        modifier = Modifier,
         checkAll = false,
         checkTerm1 = false,
         checkTerm2 = false,

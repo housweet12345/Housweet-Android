@@ -72,6 +72,9 @@ fun MapScreen(
     modifier: Modifier,
     searchRegion: Coordinate?,
     mapViewModel: MapViewModel = hiltViewModel(),
+    onChatScreen: () -> Unit,
+    onAlarmScreen: () -> Unit,
+    onMyPageScreen: () -> Unit,
     onMarkerClick: () -> Unit,
     onViewPostBtnClick: () -> Unit,
     onSearchBtnClick: () -> Unit,
@@ -139,6 +142,9 @@ fun MapScreen(
                 snackBarHostState = snackBarHostState,
                 renderMarkers = mapState.renderMarkers,
                 markerStates =  mapState.markerStates,
+                onChatScreen = onChatScreen,
+                onAlarmScreen = onAlarmScreen,
+                onMyPageScreen = onMyPageScreen,
                 onMarkerClick = {
                     if (!mapState.isMarkerAnimating) {
                         onMarkerClick()
@@ -163,6 +169,9 @@ private fun MapContent(
     snackBarHostState: SnackbarHostState,
     renderMarkers: Map<String, List<LatLng>>,
     markerStates: MutableMap<String, MarkerState>,
+    onChatScreen: () -> Unit,
+    onAlarmScreen: () -> Unit,
+    onMyPageScreen: () -> Unit,
     onMarkerClick: (String) -> Unit,
     onViewPostBtnClick: (LatLngBounds?) -> Unit,
     onSearchBtnClick: () -> Unit,
@@ -186,7 +195,11 @@ private fun MapContent(
     Scaffold(
         modifier = modifier,
         topBar = {
-            MapTopBar()
+            MapTopBar(
+                onChatScreen = onChatScreen,
+                onAlarmScreen = onAlarmScreen,
+                onMyPageScreen = onMyPageScreen
+            )
         },
         snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
         containerColor = White
@@ -248,7 +261,11 @@ private fun MapContent(
 }
 
 @Composable
-private fun MapTopBar() {
+private fun MapTopBar(
+    onChatScreen: () -> Unit,
+    onAlarmScreen: () -> Unit,
+    onMyPageScreen: () -> Unit
+) {
     Row(
         modifier = Modifier
             .background(Purple)
@@ -280,7 +297,7 @@ private fun MapTopBar() {
                     .size(24.dp)
                     .padding(1.dp)
                     .clip(CircleShape)
-                    .clickable { },
+                    .clickable { onChatScreen() },
                 tint = White
             )
 
@@ -291,7 +308,7 @@ private fun MapTopBar() {
                     .size(24.dp)
                     .padding(1.dp)
                     .clip(CircleShape)
-                    .clickable { },
+                    .clickable { onAlarmScreen() },
                 tint = White
             )
 
@@ -302,7 +319,7 @@ private fun MapTopBar() {
                     .size(24.dp)
                     .padding(1.dp)
                     .clip(CircleShape)
-                    .clickable { },
+                    .clickable { onMyPageScreen() },
                 tint = White
             )
         }
@@ -396,7 +413,11 @@ private fun TestMapContent(
     Scaffold(
         modifier = modifier,
         topBar = {
-            MapTopBar()
+            MapTopBar(
+                onChatScreen = {},
+                onAlarmScreen = {},
+                onMyPageScreen = {}
+            )
         },
         containerColor = White
     ) { innerPadding ->

@@ -36,8 +36,8 @@ import com.housweet.presentation.ui.theme.White
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun CreateRoomScreen(
-    modifier: Modifier,
-    createRoomViewModel: CreateRoomViewModel = hiltViewModel()
+    createRoomViewModel: CreateRoomViewModel = hiltViewModel(),
+    onSuccessCreateRoom: () -> Unit
 ) {
     val uiState: CreateRoomState by createRoomViewModel.uiState.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
@@ -54,11 +54,7 @@ fun CreateRoomScreen(
                 }
 
                 CreateRoomEvent.Success -> {
-                    snackBarHostState.showSnackbar(
-                        message = "방을 만들었습니다.",
-                        actionLabel = "닫기",
-                        duration = SnackbarDuration.Short
-                    )
+                    onSuccessCreateRoom()
                 }
             }
         }
@@ -70,9 +66,7 @@ fun CreateRoomScreen(
                 modifier = Modifier.fillMaxSize(),
                 snackbarHost = { SnackbarHost(hostState = snackBarHostState) }
             ) {
-                CreateRoomContent(
-                    modifier = modifier
-                ) {
+                CreateRoomContent {
                     createRoomViewModel.createRoom(it)
                 }
             }
@@ -86,10 +80,9 @@ fun CreateRoomScreen(
 
 @Composable
 private fun CreateRoomContent(
-    modifier: Modifier,
     onBtnClick: (name: String) -> Unit
 ) {
-    Column(modifier = modifier
+    Column(modifier = Modifier
         .fillMaxSize()
         .background(White)
     ) {
@@ -133,9 +126,5 @@ private fun CreateRoomContent(
 @Preview
 @Composable
 private fun CreateRoomScreenPreview() {
-    CreateRoomContent(
-        modifier = Modifier
-    ) {
-
-    }
+    CreateRoomContent {}
 }

@@ -13,10 +13,6 @@
             android:exported="true"
             android:label="@string/title_activity_start"
             android:theme="@style/Theme.MySplashScreen">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
 
         <activity
@@ -47,7 +43,12 @@
 
         <activity
             android:name=".MainActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Housweet"/>
+            android:exported="true"
+            android:theme="@style/Theme.Housweet">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>
