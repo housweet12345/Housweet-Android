@@ -7,9 +7,23 @@ class NavigationManager(private val navController: NavController) {
         navController.navigate(route)
     }
 
-    fun navigateOneWay(from: Route, to: Route) {
+    fun navigateTo(route: String) {
+        navController.navigate(route)
+    }
+
+    fun navigateOneWay(popUpToRoute: Route, to: Route) {
         navController.navigate(to) {
-            popUpTo(from) {
+            popUpTo(popUpToRoute) {
+                inclusive = true
+            }
+
+            launchSingleTop = true
+        }
+    }
+
+    fun navigateOneWay(popUpToRoute: Route, to: String) {
+        navController.navigate(to) {
+            popUpTo(popUpToRoute) {
                 inclusive = true
             }
 

@@ -49,7 +49,6 @@ import com.housweet.presentation.ui.theme.nanumSquareFontFamily
 
 @Composable
 fun SearchRegionScreen(
-    modifier: Modifier,
     searchRegionViewModel: SearchRegionViewModel = hiltViewModel(),
     onMapScreen: (Coordinate) -> Unit,
     onBackBtnClick: () -> Unit
@@ -96,7 +95,6 @@ fun SearchRegionScreen(
     when (uiState) {
         SearchRegionUiState.Idle -> {
             SearchRegionContent(
-                modifier = modifier,
                 snackBarHostState = snackBarHostState,
                 inputTextValue = inputTextValue,
                 autoCompleteTextList = autoCompleteTextList,
@@ -122,7 +120,6 @@ fun SearchRegionScreen(
 
 @Composable
 private fun SearchRegionContent(
-    modifier: Modifier,
     snackBarHostState: SnackbarHostState,
     inputTextValue: TextFieldValue,
     autoCompleteTextList: List<String>,
@@ -132,7 +129,6 @@ private fun SearchRegionContent(
     onBackBtnClick: () -> Unit
 ) {
     Scaffold(
-        modifier = modifier,
         topBar = {
             SearchRegionTopBar(
                 inputTextValue = inputTextValue,
@@ -313,7 +309,6 @@ private fun SearchRegionResultItem(
 private fun SearchRegionScreenPreview() {
     var textValue = TextFieldValue(text = "서울특별시 송파구")
     SearchRegionContent(
-        modifier = Modifier,
         snackBarHostState = SnackbarHostState(),
         inputTextValue = textValue,
         autoCompleteTextList = listOf("서울특별시 송파구 문정동", "서울특별시 송파구 가락동"),

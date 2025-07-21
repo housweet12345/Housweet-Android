@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -37,24 +38,28 @@ import com.housweet.presentation.ui.theme.White
 
 @Composable
 fun PostsScreen(
-    modifier: Modifier,
-    onPostClick: () -> Unit
+    onPostClick: () -> Unit,
+    onBackBtnClick: () -> Unit
 ) {
-    PostsContent(modifier = modifier, dong = "문정동") {
-        onPostClick()
-    }
+    PostsContent(
+        dong = "문정동",
+        onPostClick = onPostClick,
+        onBackBtnClick = onBackBtnClick
+    )
 }
 
 @Composable
 private fun PostsContent(
-    modifier: Modifier,
     dong: String,
-    onPostClick: () -> Unit
+    onPostClick: () -> Unit,
+    onBackBtnClick: () -> Unit
 ) {
     Scaffold(
-        modifier = modifier,
         topBar = {
-            PostsTopBar(dong = dong)
+            PostsTopBar(
+                dong = dong,
+                onBackBtnClick = onBackBtnClick
+            )
         },
         containerColor = White
     ) { innerPadding ->
@@ -72,7 +77,8 @@ private fun PostsContent(
 
 @Composable
 private fun PostsTopBar(
-    dong: String
+    dong: String,
+    onBackBtnClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -85,7 +91,10 @@ private fun PostsTopBar(
         Icon(
             painter = painterResource(id = R.drawable.back),
             contentDescription = "back",
-            modifier = Modifier.padding(start = 20.dp),
+            modifier = Modifier
+                .padding(start = 20.dp)
+                .clip(CircleShape)
+                .clickable { onBackBtnClick() },
             tint = Black
         )
 
@@ -219,6 +228,7 @@ private fun PostItem(
 private fun PostsScreenPreview() {
     PostsContent(
         dong = "문정동",
-        modifier = Modifier
-    ) { }
+        onPostClick = {},
+        onBackBtnClick = {}
+    )
 }

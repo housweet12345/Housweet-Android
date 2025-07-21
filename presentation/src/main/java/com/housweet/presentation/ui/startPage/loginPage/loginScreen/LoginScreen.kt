@@ -58,7 +58,6 @@ import com.kakao.sdk.user.UserApiClient
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun LoginScreen(
-    modifier: Modifier,
     loginViewModel: LoginViewModel = hiltViewModel(),
     onNextScreen: (String) -> Unit,
 ) {
@@ -99,7 +98,7 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxSize(),
                 snackbarHost = { SnackbarHost(hostState = snackBarHostState) }
             ) {
-                LoginContent(modifier = modifier) {
+                LoginContent {
                     kakaoLogin(
                         viewModel = loginViewModel,
                         context = context
@@ -111,9 +110,9 @@ fun LoginScreen(
 }
 
 @Composable
-private fun LoginContent(modifier: Modifier, onKakaoLoginClick: () -> Unit) {
+private fun LoginContent(onKakaoLoginClick: () -> Unit) {
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .background(White)
     ) {
@@ -305,5 +304,5 @@ private fun kakaoLogin(viewModel: LoginViewModel, context: Context) {
 @Preview(showBackground = true)
 @Composable
 private fun LoginScreenPreview() {
-    LoginContent(Modifier) { }
+    LoginContent { }
 }

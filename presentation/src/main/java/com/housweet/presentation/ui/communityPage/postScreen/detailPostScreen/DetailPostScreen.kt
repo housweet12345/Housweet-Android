@@ -48,26 +48,18 @@ import com.housweet.presentation.ui.theme.White_F8F8F8
 
 
 @Composable
-fun DetailPostScreen(
-    modifier: Modifier
-) {
-    DetailPostContent(
-        modifier = modifier
-    )
+fun DetailPostScreen() {
+    DetailPostContent()
 }
 
 @Composable
-private fun DetailPostContent(
-    modifier: Modifier
-) {
+private fun DetailPostContent() {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
-            BottomBar(
-                modifier = modifier
-            )
+            BottomBar()
         },
         containerColor = White
     ) { innerPadding ->
@@ -299,11 +291,9 @@ private fun FeatureBox(
 }
 
 @Composable
-private fun BottomBar(
-    modifier: Modifier
-) {
+private fun BottomBar() {
     Box(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
             .height(65.dp)
     ) {
@@ -372,9 +362,7 @@ private fun BottomBar(
 @Preview
 @Composable
 private fun DetailPostScreenPreview() {
-    DetailPostContent(
-        modifier = Modifier
-    )
+    DetailPostContent()
 }
 
 @Preview

@@ -31,8 +31,8 @@ import com.housweet.presentation.ui.theme.White
 
 @Composable
 fun SearchRoomScreen(
-    modifier: Modifier,
-    searchRoomViewModel: SearchRoomViewModel = hiltViewModel()
+    searchRoomViewModel: SearchRoomViewModel = hiltViewModel(),
+    onSuccessSearchRoom: () -> Unit
 ) {
     val uiState: SearchRoomState by searchRoomViewModel.uiState.collectAsState()
     var isWarning by remember { mutableStateOf(false) }
@@ -46,7 +46,7 @@ fun SearchRoomScreen(
                 }
 
                 SearchRoomEvent.Success -> {
-
+                    onSuccessSearchRoom()
                 }
             }
         }
@@ -55,7 +55,6 @@ fun SearchRoomScreen(
     when (uiState) {
         SearchRoomState.Idle -> {
             SearchRoomContent(
-                modifier = modifier,
                 code = code,
                 isWarning = isWarning,
                 onValueChange = {
@@ -78,13 +77,12 @@ fun SearchRoomScreen(
 
 @Composable
 private fun SearchRoomContent(
-    modifier: Modifier,
     code: String,
     isWarning: Boolean,
     onBtnClick: (name: String) -> Unit,
     onValueChange: (String) -> Unit
 ) {
-    Column(modifier = modifier
+    Column(modifier = Modifier
         .fillMaxSize()
         .background(White)
     ) {
@@ -129,7 +127,6 @@ private fun SearchRoomContent(
 @Composable
 private fun SearchRoomScreenPreview() {
     SearchRoomContent(
-        modifier = Modifier,
         code = "asdasas",
         isWarning = true,
         onValueChange = {},

@@ -21,19 +21,19 @@ import com.housweet.presentation.ui.theme.White
 import kotlinx.coroutines.delay
 
 @Composable
-fun WelcomeScreen(modifier: Modifier, onNextScreen: () -> Unit) {
+fun WelcomeScreen(onNextScreen: () -> Unit) {
     LaunchedEffect(key1 = true) {
         delay(3000)
         onNextScreen()
     }
     BackOnPressed()
-    WelcomeContent(modifier)
+    WelcomeContent()
 }
 
 @Composable
-private fun WelcomeContent(modifier: Modifier) {
+private fun WelcomeContent() {
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .background(White)
             .padding(start = 20.dp)
@@ -54,5 +54,5 @@ private fun WelcomeContent(modifier: Modifier) {
 @Preview(showBackground = true)
 @Composable
 fun WelcomeScreenPreview() {
-    WelcomeContent(Modifier)
+    WelcomeContent()
 }

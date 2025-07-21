@@ -40,7 +40,6 @@ import com.housweet.presentation.ui.theme.White
 
 @Composable
 fun AccessRoomScreen(
-    modifier: Modifier,
     onChatScreen: () -> Unit,
     onAlarmScreen: () -> Unit,
     onMyPageScreen: () -> Unit,
@@ -50,7 +49,6 @@ fun AccessRoomScreen(
 ) {
     BackOnPressed()
     AccessRoomContent(
-        modifier = modifier,
         onChatBtnClick = onChatScreen,
         onAlarmBtnClick = onAlarmScreen,
         onMyPageBtnClick = onMyPageScreen,
@@ -62,7 +60,6 @@ fun AccessRoomScreen(
 
 @Composable
 private fun AccessRoomContent(
-    modifier: Modifier,
     onChatBtnClick: () -> Unit,
     onAlarmBtnClick: () -> Unit,
     onMyPageBtnClick: () -> Unit,
@@ -70,7 +67,7 @@ private fun AccessRoomContent(
     onSearchBtnClick: () -> Unit,
     onFindRoomMateBtnClick: () -> Unit
 ) {
-    Column(modifier = modifier
+    Column(modifier = Modifier
         .fillMaxSize()
         .background(White)
     ) {
@@ -252,7 +249,6 @@ private fun FindRoomMateBtn(
 @Composable
 private fun AccessRoomPagePreview() {
     AccessRoomContent(
-        modifier = Modifier,
         onChatBtnClick = {},
         onAlarmBtnClick = {},
         onMyPageBtnClick = {},
