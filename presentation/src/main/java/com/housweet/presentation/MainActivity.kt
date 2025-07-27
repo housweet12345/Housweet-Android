@@ -39,7 +39,6 @@ import com.housweet.presentation.ui.mypage.MyPostedRoomScreen
 import com.housweet.presentation.ui.mypage.NoticeDetailScreen
 import com.housweet.presentation.ui.mypage.NoticeScreen
 import com.housweet.presentation.ui.mypage.TermsConditionsPolicies
-import com.housweet.presentation.ui.mypage.sampleBookmarks
 import com.housweet.presentation.ui.profile.route.EditProfileKeyWordRoute
 import com.housweet.presentation.ui.profile.route.EditProfileRoute
 import com.housweet.presentation.ui.profile.route.MyProfileRoute
@@ -179,8 +178,7 @@ class MainActivity : ComponentActivity() {
 
                     composable("notification") {
                         NotificationScreen(
-                            navController,
-                            onBackClick = {}
+                            navController
                         )
                     }
 
@@ -191,9 +189,7 @@ class MainActivity : ComponentActivity() {
                     }
                     composable("bookmark") {
                         BookmarkScreen(
-                            bookmarks = sampleBookmarks, // 실제 데이터로 교체 가능
                             onItemClick = { /* TODO: 상세 페이지로 이동 등 처리 */ },
-                            onBackClick = { navController.popBackStack() },
                             navController = navController
                         )
                     }

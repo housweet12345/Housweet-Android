@@ -131,6 +131,7 @@ fun ChatScreen(chatName: String, navController: NavController) {
             ) {
                 // 안내 문구 (Composable 함수이므로 item 블록 안에 넣어야 함)
                 item {
+
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -138,6 +139,13 @@ fun ChatScreen(chatName: String, navController: NavController) {
                             .padding(top = 12.dp, bottom = 8.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+                        androidx.compose.material.Icon(
+                            painter = painterResource(id = R.drawable.notification),
+                            contentDescription = "notification",
+                            modifier = Modifier
+                                .size(16.dp),
+//                            tint = Color(0xFF665ED3)
+                        )
                         Text(
                             "연락처, 주소 등 민감한 개정보는 채팅을 통해 공유하지 마세요.",
                             fontSize = 10.sp,

@@ -17,8 +17,10 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.housweet.presentation.R
 
 @Composable
 fun ChatInput(
@@ -67,13 +69,13 @@ fun ChatInput(
         )
 
         Icon(
-            imageVector = Icons.Default.Send,
+            painter = painterResource(id = R.drawable.send_icon),
             contentDescription = "보내기",
             modifier = Modifier
                 .padding(8.dp)
-                .size(24.dp)
+                .size(16.dp)
                 .clickable { onSend() },
-            tint = Color.Gray
+            tint = Color(0xFF665ED3)
         )
     }
 }
