@@ -13,8 +13,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -53,6 +57,9 @@ fun HouseRegisterScreen2(
             .background(Color.White)
             .padding(horizontal = 16.dp)
     ) {
+        val focusRequester = remember { FocusRequester() }
+        val keyboardController = LocalSoftwareKeyboardController.current
+
         TopBarWithBackButton(
             title = "하우스 올리기",
             onBackClick = onBackClick
@@ -68,7 +75,7 @@ fun HouseRegisterScreen2(
             Text(
                 text = "자세한 정보를 입력해주세요.",
                 color = Color(0xFF6C4DFF),
-                fontSize = 14.sp,
+                fontSize = 12.sp,
                 modifier = Modifier.padding(vertical = 8.dp)
             )
         }
@@ -89,18 +96,25 @@ fun HouseRegisterScreen2(
             Text(
                 text = selectedRegion?.let { "${it.sido} ${it.sigungu} ${it.dong}" } ?: "지역을 선택해주세요.",
                 color = if (selectedRegion == null) Color.Gray else Color.Black,
-                fontSize = 14.sp
+                fontSize = 12.sp
             )
         }
 
         Spacer(modifier = Modifier.height(12.dp))
-        Text("제목", fontSize = 13.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+        Text("제목", fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(6.dp))
         OutlinedTextField(
             value = title,
             onValueChange = { title = it },
-            placeholder = { Text("제목을 입력해주세요.", color = Color(0xFF7E7E7E)) },
-            modifier = Modifier.fillMaxWidth(),
+            placeholder = { Text("제목을 입력해주세요.", color = Color(0xFFA5A5A5), fontSize = 12.sp) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(focusRequester)
+                .onFocusChanged {
+                    if (it.isFocused) {
+                        keyboardController?.show()
+                    }
+                },
             shape = RoundedCornerShape(6.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color.Gray,
@@ -109,15 +123,22 @@ fun HouseRegisterScreen2(
         )
 
         Spacer(modifier = Modifier.height(12.dp))
-        Text("자세한 설명", fontSize = 13.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+        Text("자세한 설명", fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(6.dp))
         OutlinedTextField(
             value = description,
             onValueChange = { description = it },
-            placeholder = { Text("자세한 설명을 입력해주세요.", color = Color(0xFF7E7E7E)) },
+            placeholder = { Text("자세한 설명을 입력해주세요.", color = Color(0xFFA5A5A5), fontSize = 12.sp) },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(120.dp),
+                .height(120.dp)
+                .focusRequester(focusRequester)
+                .onFocusChanged {
+                    if (it.isFocused) {
+                        keyboardController?.show()
+                    }
+                }
+            ,
             shape = RoundedCornerShape(6.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color.Gray,
@@ -128,68 +149,147 @@ fun HouseRegisterScreen2(
         Spacer(modifier = Modifier.height(12.dp))
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Column(modifier = Modifier.weight(1f)) {
-                Text("보증금", fontSize = 13.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+                Text("보증금", fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(6.dp))
-                OutlinedTextField(
-                    value = deposit,
-                    onValueChange = { deposit = it },
-                    placeholder = { Text("만원", color = Color(0xFF7E7E7E)) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp),
-                    shape = RoundedCornerShape(6.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color.Gray,
-                        unfocusedBorderColor = Color.Gray
-                    )
-                )
+                        .height(56.dp)
+                        .border(1.dp, Color.Gray, RoundedCornerShape(6.dp))
+                        .padding(horizontal = 12.dp, vertical = 4.dp),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        TextField(
+                            value = deposit,
+                            onValueChange = { deposit = it },
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(end = 8.dp),
+                            placeholder = { Text("") }, // placeholder 제거
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent,
+                                disabledContainerColor = Color.Transparent,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                disabledIndicatorColor = Color.Transparent
+                            ),
+                            singleLine = true
+                        )
+                        Text(
+                            text = "만원",
+                            fontSize = 12.sp,
+                            color = Color(0xFFA5A5A5)
+                        )
+                    }
+                }
             }
 
             Column(modifier = Modifier.weight(1f)) {
-                Text("월세", fontSize = 13.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+                Text("월세", fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(6.dp))
-                OutlinedTextField(
-                    value = monthlyRent,
-                    onValueChange = { monthlyRent = it },
-                    placeholder = { Text("만원", color = Color(0xFF7E7E7E)) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp),
-                    shape = RoundedCornerShape(6.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color.Gray,
-                        unfocusedBorderColor = Color.Gray
-                    )
+                        .height(56.dp)
+                        .border(1.dp, Color.Gray, RoundedCornerShape(6.dp))
+                        .padding(horizontal = 12.dp, vertical = 4.dp),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        TextField(
+                            value = deposit,
+                            onValueChange = { deposit = it },
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(end = 8.dp),
+                            placeholder = { Text("") }, // placeholder 제거
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent,
+                                disabledContainerColor = Color.Transparent,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                disabledIndicatorColor = Color.Transparent
+                            ),
+                            singleLine = true
+                        )
+                        Text(
+                            text = "만원",
+                            fontSize = 12.sp,
+                            color = Color(0xFFA5A5A5)
+                        )
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+        Text("관리비", fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.height(6.dp))
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp)
+                .border(1.dp, Color.Gray, RoundedCornerShape(6.dp))
+                .padding(horizontal = 12.dp, vertical = 4.dp),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextField(
+                    value = deposit,
+                    onValueChange = { deposit = it },
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 8.dp),
+                    placeholder = { Text("") }, // placeholder 제거
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        disabledContainerColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent
+                    ),
+                    singleLine = true
+                )
+                Text(
+                    text = "만원",
+                    fontSize = 12.sp,
+                    color = Color(0xFFA5A5A5)
                 )
             }
         }
 
         Spacer(modifier = Modifier.height(12.dp))
-        Text("관리비", fontSize = 13.sp, color = Color.Black, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(6.dp))
-        OutlinedTextField(
-            value = managementFee,
-            onValueChange = { managementFee = it },
-            placeholder = { Text("관리비 (만원)", color = Color(0xFF7E7E7E)) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(6.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.Gray,
-                unfocusedBorderColor = Color.Gray
-            )
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-        Text("입주 가능일", fontSize = 13.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+        Text("입주 가능일", fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(6.dp))
         OutlinedTextField(
             value = moveInDate,
             onValueChange = { moveInDate = it },
-            placeholder = { Text("가능한 날짜 또는 시기를 작성해주세요.", color = Color(0xFF7E7E7E)) },
-            modifier = Modifier.fillMaxWidth(),
+            placeholder = { Text("가능한 날짜 또는 시기를 작성해주세요.", color = Color(0xFFA5A5A5), fontSize = 12.sp) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(focusRequester)
+                .onFocusChanged {
+                    if (it.isFocused) {
+                        keyboardController?.show()
+                    }
+                }
+            ,
             shape = RoundedCornerShape(6.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color.Gray,
@@ -217,7 +317,11 @@ fun HouseRegisterScreen2(
                 contentColor = Color.White
             )
         ) {
-            Text("다음")
+            Text(
+                text = "다음",
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
 
         Spacer(modifier = Modifier.height(16.dp))

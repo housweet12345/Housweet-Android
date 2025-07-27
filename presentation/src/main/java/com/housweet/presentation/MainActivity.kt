@@ -1,5 +1,6 @@
 package com.housweet.presentation
 
+import ChatScreen
 import NotificationScreen
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
@@ -7,6 +8,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Base64
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -19,12 +21,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.housweet.presentation.ui.chat.ChatScreen
+import androidx.navigation.navArgument
 import com.housweet.presentation.ui.chatlist.ChatListScreen
 import com.housweet.presentation.ui.home.route.HomeRoute
+import com.housweet.presentation.ui.mypage.AppNotificationSettingsScreen
 import com.housweet.presentation.ui.navigation.BottomNavItem
 import com.housweet.presentation.ui.mypage.MyHouseDetailScreen
 import com.housweet.presentation.ui.mypage.MyPageScreen
@@ -32,19 +36,18 @@ import com.housweet.presentation.ui.mypage.BookmarkScreen
 import com.housweet.presentation.ui.mypage.HelpScreen
 import com.housweet.presentation.ui.mypage.MyHouseEditScreen
 import com.housweet.presentation.ui.mypage.MyPostedRoomScreen
+import com.housweet.presentation.ui.mypage.NoticeDetailScreen
 import com.housweet.presentation.ui.mypage.NoticeScreen
+import com.housweet.presentation.ui.mypage.TermsConditionsPolicies
 import com.housweet.presentation.ui.mypage.sampleBookmarks
-import com.housweet.presentation.ui.navigation.Route
 import com.housweet.presentation.ui.profile.route.EditProfileKeyWordRoute
 import com.housweet.presentation.ui.profile.route.EditProfileRoute
 import com.housweet.presentation.ui.profile.route.MyProfileRoute
-import com.housweet.presentation.ui.registerhouse.*
-import com.housweet.presentation.ui.startPage.loginPage.loginScreen.LoginScreen
-import com.housweet.presentation.ui.startPage.loginPage.loginScreen.LoginViewModel
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen1
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen2
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen3
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen4
+import com.housweet.presentation.ui.startPage.accessRoomPage.AccessRoomScreen
 import com.housweet.presentation.viewmodel.profile.EditProfileViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -131,11 +134,18 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable("chat_list") {
-                        ChatListScreen(navController)
+                        ChatListScreen(
+                            navController
+                        )
                     }
 
-                    composable("chat_detail/{chatName}") { backStackEntry ->
-                        val chatName = backStackEntry.arguments?.getString("chatName") ?: "Unknown"
+                    composable(
+                        route = "chat_detail/{chatName}",
+                        arguments = listOf(navArgument("chatName") { defaultValue = "Unknown"})
+                    )
+                    { backStackEntry ->
+                        val encodedName = backStackEntry.arguments?.getString("chatName") ?: "Unknown"
+                        val chatName = String(Base64.decode(encodedName, Base64.URL_SAFE or Base64.NO_WRAP)) // ✅ 여기서 디코딩
                         ChatScreen(chatName, navController)
                     }
 
@@ -176,15 +186,15 @@ class MainActivity : ComponentActivity() {
 
                     composable("mypage") {
                         MyPageScreen(
-                            navController,
-                            onBackClick = {}
+                            navController
                         )
                     }
                     composable("bookmark") {
                         BookmarkScreen(
                             bookmarks = sampleBookmarks, // 실제 데이터로 교체 가능
                             onItemClick = { /* TODO: 상세 페이지로 이동 등 처리 */ },
-                            onBackClick = { navController.popBackStack() }
+                            onBackClick = { navController.popBackStack() },
+                            navController = navController
                         )
                     }
                     composable("myhousedetail") {
@@ -198,7 +208,8 @@ class MainActivity : ComponentActivity() {
                     }
                     composable("notice") {
                         NoticeScreen(
-                            onBackClick = { navController.popBackStack() }
+                            onBackClick = { navController.popBackStack() },
+                            navController
                         )
                     }
                     composable("edit_my_house") {
@@ -215,9 +226,38 @@ class MainActivity : ComponentActivity() {
                     }
                     composable("posted_my_room") {
                         MyPostedRoomScreen(
-
+                            navController
                         )
                     }
+                    composable("app_setting") {
+                        AppNotificationSettingsScreen(navController)
+                    }
+                    composable("help") {
+                        HelpScreen(navController)
+                    }
+                    composable("terms_conditions_policies") {
+                        TermsConditionsPolicies(navController)
+                    }
+                    composable(
+                        "noticeDetail/{date}/{title}/{content}",
+                        arguments = listOf(
+                            navArgument("date") { type = NavType.StringType },
+                            navArgument("title") { type = NavType.StringType },
+                            navArgument("content") { type = NavType.StringType }
+                        )
+                    ) { backStackEntry ->
+                        val date = backStackEntry.arguments?.getString("date") ?: ""
+                        val title = backStackEntry.arguments?.getString("title") ?: ""
+                        val content = backStackEntry.arguments?.getString("content") ?: ""
+
+                        NoticeDetailScreen(
+                            date = date,
+                            title = title,
+                            content = content,
+                            onBackClick = { navController.popBackStack() }
+                        )
+                    }
+
                 }
             }
         }

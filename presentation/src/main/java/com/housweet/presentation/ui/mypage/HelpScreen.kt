@@ -27,17 +27,29 @@ import androidx.compose.material3.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Divider
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.housweet.presentation.R
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HelpScreen() {
+fun HelpScreen(navController: NavController) {
     val faqList = listOf(
         "마이하우스는 무엇인가요?",
         "마이하우스는 무엇인가요?",
@@ -45,17 +57,32 @@ fun HelpScreen() {
         "마이하우스는 무엇인가요?"
     )
 
+    var selectedIndex by remember { mutableStateOf(0) }
+
     val expandedStates = remember { mutableStateListOf(*Array(faqList.size) { false }) }
 
     Scaffold(
+        containerColor = Color.White,
         topBar = {
-            TopAppBar(
-                title = { Text("도움말") },
+            CenterAlignedTopAppBar(
+                title={
+                    androidx.compose.material.Text(
+                        text = "도움말",
+                        fontSize = 14.sp
+                    )
+                },
                 navigationIcon = {
-                    IconButton(onClick = { /* 뒤로가기 */ }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "뒤로가기")
-                    }
-                }
+                    androidx.compose.material.Icon(
+                        painter = painterResource(id = R.drawable.back_black),
+                        contentDescription = "뒤로가기",
+                        modifier = Modifier
+                            .padding(start = 16.dp)
+                            .clickable { navController.popBackStack() }
+                    )
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color.White // ✅ 배경색 흰색 지정
+                )
             )
         }
     ) { paddingValues ->
@@ -64,6 +91,7 @@ fun HelpScreen() {
                 .padding(paddingValues)
                 .padding(horizontal = 16.dp)
                 .fillMaxSize()
+                .background(Color.White)
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -72,16 +100,19 @@ fun HelpScreen() {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                listOf("카테고리", "카테고리", "카테고리").forEachIndexed { index, text ->
+                listOf("카테고리1", "카테고리2", "카테고리3").forEachIndexed { index, text ->
+                    val isSelected = selectedIndex == index
+                    val textColor = if (isSelected) Color(0xFF665ED3) else Color.Gray
+
                     OutlinedButton(
-                        onClick = { /* TODO */ },
+                        onClick = { selectedIndex = index },
                         modifier = Modifier.weight(1f),
-                        border = BorderStroke(1.dp, if (index == 0) Color(0xFF5B51FE) else Color.Gray),
+                        border = BorderStroke(1.dp, textColor),
                         colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = if (index == 0) Color(0xFF5B51FE) else Color.Gray
+                            contentColor = textColor
                         )
                     ) {
-                        Text(text)
+                        Text(text, fontSize = 14.sp, color = textColor)
                     }
                 }
             }
@@ -105,7 +136,7 @@ fun HelpScreen() {
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = question, style = MaterialTheme.typography.bodyLarge)
+                        Text(text = question, style = MaterialTheme.typography.bodyLarge, fontSize = 14.sp)
                         Icon(
                             imageVector = if (expandedStates[index]) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                             contentDescription = "Expand"
@@ -117,7 +148,8 @@ fun HelpScreen() {
                         Text(
                             text = "마이하우스는 현재 방을 같이 살고 있는 사람과 함께 배려하며 살기 좋도록 기획한 서비스입니다.",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Color.Gray
+                            color = Color.Gray,
+                            fontSize = 12.sp
                         )
                     }
                 }
@@ -141,14 +173,17 @@ fun HelpScreen() {
                 Column {
                     Text(
                         text = "그 외 궁금한 점이 있으신가요?",
-                        color = Color(0xFF5B51FE),
-                        style = MaterialTheme.typography.bodyMedium
+                        color = Color(0xFF665ED3),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = "1:1 문의로 해결하세요!",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Gray
+                        color = Color(0xFF665ED3),
+                        fontSize = 12.sp
                     )
                 }
             }

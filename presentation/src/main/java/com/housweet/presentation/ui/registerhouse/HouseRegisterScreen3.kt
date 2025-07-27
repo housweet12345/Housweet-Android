@@ -49,7 +49,7 @@ fun HouseRegisterScreen3(
             Text(
                 text = "실제 사진을 첨부해주세요.",
                 color = Color(0xFF6C4DFF),
-                fontSize = 14.sp,
+                fontSize = 12.sp,
                 modifier = Modifier.padding(vertical = 8.dp)
             )
         }
@@ -58,7 +58,7 @@ fun HouseRegisterScreen3(
 
         Text(
             text = "사진 첨부",
-            fontSize = 13.sp,
+            fontSize = 12.sp,
             fontWeight = FontWeight.Bold,
             color = Color.Black
         )
@@ -107,7 +107,11 @@ fun HouseRegisterScreen3(
                 contentColor = Color.White
             )
         ) {
-            Text("다음")
+            Text(
+                text = "다음",
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
 
         Spacer(modifier = Modifier.height(16.dp))

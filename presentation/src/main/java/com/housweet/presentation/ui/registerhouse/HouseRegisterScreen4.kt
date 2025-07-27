@@ -70,7 +70,7 @@ fun HouseRegisterScreen4(
             Text(
                 text = "선호하는 사람에 대한 키워드를 선택해주세요.",
                 color = Color(0xFF6C4DFF),
-                fontSize = 14.sp,
+                fontSize = 12.sp,
                 modifier = Modifier.padding(vertical = 8.dp)
             )
         }
@@ -85,7 +85,7 @@ fun HouseRegisterScreen4(
                     Text(
                         text = title,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 13.sp,
+                        fontSize = 12.sp,
                         modifier = Modifier.padding(vertical = 4.dp)
                     )
                 }
@@ -118,7 +118,7 @@ fun HouseRegisterScreen4(
                             ) {
                                 Text(
                                     text = tag,
-                                    fontSize = 13.sp,
+                                    fontSize = 12.sp,
                                     color = if (isSelected) Color.White else Color.Black
                                 )
                             }
@@ -141,7 +141,11 @@ fun HouseRegisterScreen4(
                 contentColor = Color.White
             )
         ) {
-            Text("완료")
+            Text(
+                text = "완료",
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
