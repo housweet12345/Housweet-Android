@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.housweet.presentation.R
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -29,7 +30,8 @@ fun TopBarWithBackButton(
         title = {
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleLarge,
+                fontSize = 14.sp
             )
         },
         navigationIcon = {

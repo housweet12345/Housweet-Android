@@ -39,9 +39,9 @@ fun ChatListItem(chat: ChatPreview, onClick: () -> Unit) {
         Spacer(modifier = Modifier.width(12.dp))
 
         Column(modifier = Modifier.weight(1f)){
-            Text(chat.name, fontWeight = FontWeight.Bold)
-            Text(chat.lastMessage, color=Color.Gray)
+            Text(chat.name, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+            Text(chat.lastMessage, color=Color.Gray, fontSize = 14.sp)
         }
-        Text(chat.time, fontSize=12.sp, color=Color.Gray)
+        Text(chat.time, fontSize=11.sp, color=Color.Gray)
     }
 }

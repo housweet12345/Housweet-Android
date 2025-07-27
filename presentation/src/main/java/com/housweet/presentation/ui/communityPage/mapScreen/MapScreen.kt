@@ -76,6 +76,8 @@ fun MapScreen(
     onViewPostBtnClick: () -> Unit,
     onSearchBtnClick: () -> Unit,
     onWritePostBtnClick: () -> Unit,
+    onChatClick: () -> Unit,
+    onMyPageClick: () -> Unit,
 ) {
     val uiState by mapViewModel.uiState.collectAsState()
     val mapState by mapViewModel.mapState.collectAsState()
@@ -149,7 +151,9 @@ fun MapScreen(
                     onViewPostBtnClick()
                 },
                 onSearchBtnClick = onSearchBtnClick,
-                onWritePostBtnClick = onWritePostBtnClick
+                onWritePostBtnClick = onWritePostBtnClick,
+                onChatClick = onChatClick,
+                onMyPageClick = onMyPageClick,
             )
         }
     }
@@ -167,6 +171,8 @@ private fun MapContent(
     onViewPostBtnClick: (LatLngBounds?) -> Unit,
     onSearchBtnClick: () -> Unit,
     onWritePostBtnClick: () -> Unit,
+    onChatClick: () -> Unit,
+    onMyPageClick: () -> Unit,
 ) {
     val mapUiSettings = remember {
         MapUiSettings(
@@ -186,7 +192,7 @@ private fun MapContent(
     Scaffold(
         modifier = modifier,
         topBar = {
-            MapTopBar()
+            MapTopBar( onChatClick = onChatClick, onMyPageClick = onMyPageClick )
         },
         snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
         containerColor = White
@@ -248,7 +254,10 @@ private fun MapContent(
 }
 
 @Composable
-private fun MapTopBar() {
+private fun MapTopBar(
+    onChatClick: () -> Unit,
+    onMyPageClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .background(Purple)
@@ -280,7 +289,9 @@ private fun MapTopBar() {
                     .size(24.dp)
                     .padding(1.dp)
                     .clip(CircleShape)
-                    .clickable { },
+                    .clickable {
+                        onChatClick()
+                    },
                 tint = White
             )
 
@@ -302,7 +313,9 @@ private fun MapTopBar() {
                     .size(24.dp)
                     .padding(1.dp)
                     .clip(CircleShape)
-                    .clickable { },
+                    .clickable {
+                        onMyPageClick()
+                    },
                 tint = White
             )
         }
@@ -391,12 +404,14 @@ private fun RoomMarker(
 
 @Composable
 private fun TestMapContent(
-    modifier: Modifier
+    modifier: Modifier,
+    onChatClick: () -> Unit,
+    onMyPageClick: () -> Unit,
 ) {
     Scaffold(
         modifier = modifier,
         topBar = {
-            MapTopBar()
+            MapTopBar(onChatClick = onChatClick, onMyPageClick = onMyPageClick)
         },
         containerColor = White
     ) { innerPadding ->
@@ -435,6 +450,12 @@ private fun TestMapContent(
 @Composable
 private fun MapScreenPreview() {
     TestMapContent(
-        modifier = Modifier
+        modifier = Modifier,
+        onChatClick = {
+            println("채팅 버튼 클릭됨 (Preview용)")
+        },
+        onMyPageClick = {
+            println("마이페이지 버튼 클릭됨 (Preview용)")
+        }
     )
 }

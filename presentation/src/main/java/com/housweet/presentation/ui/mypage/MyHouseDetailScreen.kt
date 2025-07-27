@@ -1,6 +1,8 @@
 package com.housweet.presentation.ui.mypage
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -22,9 +24,11 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,17 +42,27 @@ fun MyHouseDetailScreen(
 ) {
     var expanded by remember { mutableStateOf(false) }
     Scaffold(
+        containerColor = Color.White,
         topBar = {
-            TopAppBar(
-                title = { Text("마이하우스", fontSize = 18.sp, fontWeight = FontWeight.SemiBold) },
-                navigationIcon = {
-                    IconButton(onClick = { onBackClick() }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_back),
-                            contentDescription = "뒤로가기"
-                        )
-                    }
+            CenterAlignedTopAppBar(
+                title={
+                    androidx.compose.material.Text(
+                        text = "마이하우스",
+                        fontSize = 14.sp
+                    )
                 },
+                navigationIcon = {
+                    androidx.compose.material.Icon(
+                        painter = painterResource(id = R.drawable.back_black),
+                        contentDescription = "뒤로가기",
+                        modifier = Modifier
+                            .padding(start = 16.dp)
+                            .clickable { navController.popBackStack() }
+                    )
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color.White // ✅ 배경색 흰색 지정
+                ),
                 actions = {
                     IconButton(onClick = { expanded = true }) {
                         Icon(
@@ -66,7 +80,7 @@ fun MyHouseDetailScreen(
                                 navController.navigate("edit_my_house")
                                 expanded = false
                             }) {
-                                Text("하우스 수정")
+                                Text("하우스 수정", fontSize = 12.sp)
                             }
                         } else {
                             DropdownMenuItem(onClick = {
@@ -85,7 +99,8 @@ fun MyHouseDetailScreen(
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
-                .padding(horizontal = 24.dp),
+                .padding(horizontal = 24.dp)
+                .background(Color.White),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(60.dp))
@@ -100,7 +115,7 @@ fun MyHouseDetailScreen(
 
             Text(
                 text = "곰돌이방",
-                fontSize = 20.sp,
+                fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
             )
 
@@ -109,7 +124,7 @@ fun MyHouseDetailScreen(
             Text(
                 text = "+01일째 함께 하는 중!",
                 color = Color(0xFF6C5CE7),
-                fontSize = 14.sp,
+                fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold
             )
 
@@ -118,8 +133,9 @@ fun MyHouseDetailScreen(
 
                 Surface(
                     shape = RoundedCornerShape(12.dp),
-                    tonalElevation = 2.dp,
-                    shadowElevation = 4.dp
+                    tonalElevation = 0.dp,
+                    shadowElevation = 0.dp,
+                    color = Color.White
                 ) {
                     Row(
                         modifier = Modifier
@@ -128,14 +144,14 @@ fun MyHouseDetailScreen(
                     ) {
                         Text(
                             text = "초대 코드",
-                            fontSize = 14.sp,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.Medium,
                             color = Color.Black
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = inviteCode, // ✅ 실제 코드로 바인딩
-                            fontSize = 14.sp,
+                            fontSize = 12.sp,
                             color = Color.Gray
                         )
                     }

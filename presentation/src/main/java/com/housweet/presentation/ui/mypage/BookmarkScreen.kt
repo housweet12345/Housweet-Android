@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
@@ -18,6 +19,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.housweet.presentation.R
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -25,7 +27,8 @@ import com.housweet.presentation.R
 fun BookmarkScreen(
     bookmarks: List<BookmarkItem>,
     onBackClick: () -> Unit,
-    onItemClick: (BookmarkItem) -> Unit
+    onItemClick: (BookmarkItem) -> Unit,
+    navController: NavController
 ) {
     Column(
         modifier = Modifier
@@ -33,26 +36,24 @@ fun BookmarkScreen(
             .background(Color.White)
     ) {
         // TopAppBar
-        TopAppBar(
-            title = {
-                Text(
+        CenterAlignedTopAppBar(
+            title={
+                androidx.compose.material.Text(
                     text = "북마크",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp,
-                    modifier = Modifier.fillMaxWidth()
+                    fontSize = 14.sp
                 )
             },
             navigationIcon = {
-                IconButton(onClick = onBackClick) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "뒤로가기",
-                        tint = Color.Black
-                    )
-                }
+                Icon(
+                    painter = painterResource(id = R.drawable.back_black),
+                    contentDescription = "뒤로가기",
+                    modifier = Modifier
+                        .padding(start = 16.dp)
+                        .clickable { navController.popBackStack() }
+                )
             },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = Color.White
+            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                containerColor = Color.White // ✅ 배경색 흰색 지정
             )
         )
 
@@ -89,21 +90,21 @@ fun BookmarkCard(item: BookmarkItem, onClick: () -> Unit) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = item.title,
-                fontSize = 14.sp,
+                fontSize = 12.sp,
                 color = Color.Black,
                 maxLines = 2
             )
             Text(
                 text = item.price,
-                fontSize = 16.sp,
+                fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
                 modifier = Modifier.padding(top = 4.dp)
             )
             Row(modifier = Modifier.padding(top = 2.dp)) {
-                Text(text = item.location, fontSize = 12.sp, color = Color.Gray)
+                Text(text = item.location, fontSize = 10.sp, color = Color.Black)
                 Spacer(modifier = Modifier.width(6.dp))
-                Text(text = item.ageGender, fontSize = 12.sp, color = Color.Gray)
+                Text(text = item.ageGender, fontSize = 10.sp, color = Color.Gray)
             }
         }
 

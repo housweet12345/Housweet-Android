@@ -42,14 +42,10 @@ fun StepIndicator(currentStep: Int) {
                     contentDescription = "Step ${index + 1}",
                     modifier = Modifier.size(24.dp)
                 )
-//                Text(
-//                    text = "${index + 1}",
-//                    color = if (currentStep == index + 1) Color(0xFF6C4DFF) else Color.Gray,
-//                    fontWeight = FontWeight.Bold
-//                )
+
                 Text(
                     text = title,
-                    fontSize = 12.sp,
+                    fontSize = 10.sp,
                     color = if (isActive) Color(0xFF6C4DFF) else Color.Gray,
                     fontWeight = if (isActive) FontWeight.Bold else FontWeight.Normal,
                     modifier = Modifier.padding(top=4.dp)

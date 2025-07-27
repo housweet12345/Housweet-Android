@@ -59,4 +59,14 @@ sealed interface Route {
         @Serializable
         data object Step4 : HouseRegisterRoute
     }
+
+    sealed interface ChatRoute : Route {
+        @Serializable
+        data object ChatList : ChatRoute
+    }
+
+    sealed interface MyPageRoute : Route {
+        @Serializable
+        data object MyPage : MyPageRoute
+    }
 }
