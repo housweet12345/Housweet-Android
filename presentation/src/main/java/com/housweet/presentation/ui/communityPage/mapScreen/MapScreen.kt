@@ -1,6 +1,5 @@
 package com.housweet.presentation.ui.communityPage.mapScreen
 
-import android.util.Log
 import android.view.Gravity
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -11,7 +10,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,8 +19,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -77,6 +73,7 @@ fun MapScreen(
     onSearchBtnClick: () -> Unit,
     onWritePostBtnClick: () -> Unit,
     onChatClick: () -> Unit,
+    onNotificationClick: () -> Unit,
     onMyPageClick: () -> Unit,
 ) {
     val uiState by mapViewModel.uiState.collectAsState()
@@ -153,6 +150,7 @@ fun MapScreen(
                 onSearchBtnClick = onSearchBtnClick,
                 onWritePostBtnClick = onWritePostBtnClick,
                 onChatClick = onChatClick,
+                onNotificationClick = onNotificationClick,
                 onMyPageClick = onMyPageClick,
             )
         }
@@ -172,6 +170,7 @@ private fun MapContent(
     onSearchBtnClick: () -> Unit,
     onWritePostBtnClick: () -> Unit,
     onChatClick: () -> Unit,
+    onNotificationClick: () -> Unit,
     onMyPageClick: () -> Unit,
 ) {
     val mapUiSettings = remember {
@@ -192,7 +191,7 @@ private fun MapContent(
     Scaffold(
         modifier = modifier,
         topBar = {
-            MapTopBar( onChatClick = onChatClick, onMyPageClick = onMyPageClick )
+            MapTopBar( onChatClick = onChatClick, onNotificationClick = onNotificationClick, onMyPageClick = onMyPageClick )
         },
         snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
         containerColor = White
@@ -256,6 +255,7 @@ private fun MapContent(
 @Composable
 private fun MapTopBar(
     onChatClick: () -> Unit,
+    onNotificationClick: () -> Unit,
     onMyPageClick: () -> Unit
 ) {
     Row(
@@ -302,7 +302,9 @@ private fun MapTopBar(
                     .size(24.dp)
                     .padding(1.dp)
                     .clip(CircleShape)
-                    .clickable { },
+                    .clickable {
+                        onNotificationClick()
+                    },
                 tint = White
             )
 
@@ -406,12 +408,13 @@ private fun RoomMarker(
 private fun TestMapContent(
     modifier: Modifier,
     onChatClick: () -> Unit,
+    onNotificationClick: () -> Unit,
     onMyPageClick: () -> Unit,
 ) {
     Scaffold(
         modifier = modifier,
         topBar = {
-            MapTopBar(onChatClick = onChatClick, onMyPageClick = onMyPageClick)
+            MapTopBar(onChatClick = onChatClick, onNotificationClick = onNotificationClick, onMyPageClick = onMyPageClick)
         },
         containerColor = White
     ) { innerPadding ->
@@ -453,6 +456,9 @@ private fun MapScreenPreview() {
         modifier = Modifier,
         onChatClick = {
             println("채팅 버튼 클릭됨 (Preview용)")
+        },
+        onNotificationClick = {
+            println("알림창 버튼 클릭됨 (Preview용)")
         },
         onMyPageClick = {
             println("마이페이지 버튼 클릭됨 (Preview용)")

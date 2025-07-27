@@ -1,6 +1,7 @@
 package com.housweet.presentation.ui.communityPage
 
 import ChatScreen
+import NotificationScreen
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
@@ -43,7 +44,6 @@ import com.housweet.presentation.ui.mypage.MyPostedRoomScreen
 import com.housweet.presentation.ui.mypage.NoticeDetailScreen
 import com.housweet.presentation.ui.mypage.NoticeScreen
 import com.housweet.presentation.ui.mypage.TermsConditionsPolicies
-import com.housweet.presentation.ui.mypage.sampleBookmarks
 import com.housweet.presentation.ui.navigation.CoordinateType
 import com.housweet.presentation.ui.navigation.NavigationManager
 import com.housweet.presentation.ui.navigation.Route
@@ -102,6 +102,9 @@ fun CommunityPageNavigation(paddingValue: PaddingValues) {
                 },
                 onChatClick = {
                     navigationManager.navigateTo(Route.ChatRoute.ChatList)
+                },
+                onNotificationClick = {
+                    navigationManager.navigateTo(Route.NotificationRoute.Notification)
                 },
                 onMyPageClick = {
                     navigationManager.navigateTo(Route.MyPageRoute.MyPage)
@@ -194,9 +197,7 @@ fun CommunityPageNavigation(paddingValue: PaddingValues) {
 
         composable("bookmark") {
             BookmarkScreen(
-                bookmarks = sampleBookmarks, // 실제 데이터로 교체 가능
                 onItemClick = { /* TODO: 상세 페이지로 이동 등 처리 */ },
-                onBackClick = { navController.popBackStack() },
                 navController = navController
             )
         }
@@ -259,6 +260,10 @@ fun CommunityPageNavigation(paddingValue: PaddingValues) {
                 content = content,
                 onBackClick = { navController.popBackStack() }
             )
+        }
+
+        composable<Route.NotificationRoute.Notification> {
+            NotificationScreen(navController = navController)
         }
     }
 }

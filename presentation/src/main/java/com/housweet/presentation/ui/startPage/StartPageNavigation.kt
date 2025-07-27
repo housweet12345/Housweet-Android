@@ -1,6 +1,7 @@
 package com.housweet.presentation.ui.startPage
 
 import ChatScreen
+import NotificationScreen
 import android.content.Intent
 import android.util.Base64
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,7 +25,6 @@ import com.housweet.presentation.ui.mypage.MyPostedRoomScreen
 import com.housweet.presentation.ui.mypage.NoticeDetailScreen
 import com.housweet.presentation.ui.mypage.NoticeScreen
 import com.housweet.presentation.ui.mypage.TermsConditionsPolicies
-import com.housweet.presentation.ui.mypage.sampleBookmarks
 import com.housweet.presentation.ui.navigation.NavigationManager
 import com.housweet.presentation.ui.navigation.Route
 import com.housweet.presentation.ui.startPage.accessRoomPage.AccessRoomScreen
@@ -98,7 +98,9 @@ fun StartPageNavigation(isAutoLogin: Boolean, modifier: Modifier) {
                     )
                 },
                 onAlarmScreen = {
-
+                    navigationManager.navigateTo(
+                        Route.NotificationRoute.Notification
+                    )
                 },
                 onMyPageScreen = {
                     navigationManager.navigateTo(
@@ -154,9 +156,7 @@ fun StartPageNavigation(isAutoLogin: Boolean, modifier: Modifier) {
 
         composable("bookmark") {
             BookmarkScreen(
-                bookmarks = sampleBookmarks, // 실제 데이터로 교체 가능
                 onItemClick = { /* TODO: 상세 페이지로 이동 등 처리 */ },
-                onBackClick = { navController.popBackStack() },
                 navController = navController
             )
         }
@@ -219,6 +219,10 @@ fun StartPageNavigation(isAutoLogin: Boolean, modifier: Modifier) {
                 content = content,
                 onBackClick = { navController.popBackStack() }
             )
+        }
+
+        composable<Route.NotificationRoute.Notification> {
+            NotificationScreen(navController = navController)
         }
     }
 }

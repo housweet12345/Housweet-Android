@@ -1,5 +1,6 @@
 package com.housweet.presentation.ui.mypage
 
+import BookmarkViewModel
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -11,6 +12,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,17 +24,19 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.housweet.presentation.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookmarkScreen(
-    bookmarks: List<BookmarkItem>,
-    onBackClick: () -> Unit,
+    viewModel: BookmarkViewModel = viewModel(),
     onItemClick: (BookmarkItem) -> Unit,
     navController: NavController
 ) {
+    val bookmarks by remember { mutableStateOf(viewModel.bookmarks) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -63,7 +70,11 @@ fun BookmarkScreen(
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
             bookmarks.forEach { item ->
-                BookmarkCard(item = item, onClick = { onItemClick(item) })
+                BookmarkCard(
+                    item = item,
+                    onClick = { onItemClick(item) },
+                    onBookmarkToggle = {viewModel.toggleBookmark(item)}
+                )
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
             }
         }
@@ -71,7 +82,11 @@ fun BookmarkScreen(
 }
 
 @Composable
-fun BookmarkCard(item: BookmarkItem, onClick: () -> Unit) {
+fun BookmarkCard(
+    item: BookmarkItem,
+    onClick: () -> Unit,
+    onBookmarkToggle: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -112,9 +127,14 @@ fun BookmarkCard(item: BookmarkItem, onClick: () -> Unit) {
 
         // 북마크 아이콘
         Image(
-            painter = painterResource(id = R.drawable.bookmark_active),
+            painter = painterResource(
+                id = if (item.bookmarked) R.drawable.bookmark_active else R.drawable.bookmark_inactive
+            ),
             contentDescription = "북마크",
-            modifier = Modifier.size(20.dp),
+            modifier = Modifier
+                .size(20.dp)
+                .clickable { onBookmarkToggle() },
+            //삭제?
             contentScale = ContentScale.Fit
         )
     }

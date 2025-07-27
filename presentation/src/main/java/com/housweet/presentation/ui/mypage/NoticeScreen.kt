@@ -34,21 +34,18 @@ fun NoticeScreen(onBackClick: () -> Unit = {}, navController: NavController) {
             Notice(
                 date = "2025.06.05",
                 title = "새롭게 업데이트 되었어요!",
-                checked = true,
                 id = "3",
                 content = "이번에 새로 추가된 가계부 기능으로 편하게 방세 및 관리비를 기록하세요!"
             ),
             Notice(
                 date = "2025.06.05",
                 title = "새롭게 업데이트 되었어요!",
-                checked = false,
                 id = "2",
                 content = "이번에 새로 추가된 가계부 기능으로 편하게 방세 및 관리비를 기록하세요!"
             ),
             Notice(
                 date = "2025.06.05",
                 title = "새롭게 업데이트 되었어요!",
-                checked = false,
                 id = "1",
                 content = "이번에 새로 추가된 가계부 기능으로 편하게 방세 및 관리비를 기록하세요!"
             )
@@ -56,9 +53,9 @@ fun NoticeScreen(onBackClick: () -> Unit = {}, navController: NavController) {
 
     }
 
-    val scope = rememberCoroutineScope()
-
-    val dismissState = rememberDismissState()
+    val latestId = remember(notices) {
+        notices.maxOfOrNull { it.id.toIntOrNull() ?: 0 }
+    }
 
     Scaffold(
         topBar = {
@@ -104,29 +101,25 @@ fun NoticeScreen(onBackClick: () -> Unit = {}, navController: NavController) {
                     }
                 }
 
-                SwipeToDismiss(
-                    state = dismissState,
-                    background = {},
-                    dismissContent = {
-                        NoticeItem(notice = notice) {
-                            navController.navigate(
-                                "noticeDetail/${notice.date}/${notice.title}/${notice.content}"
-                            )
-                        }
-                    },
-                    directions = setOf(
-                        DismissDirection.EndToStart,
-                        DismissDirection.StartToEnd
+                NoticeItem(
+                    notice = notice,
+                    isLatest = notice.id.toIntOrNull() == latestId
+                ) {
+                    navController.navigate(
+                        "noticeDetail/${notice.date}/${notice.title}/${notice.content}"
                     )
-                )
+                }
             }
-
         }
     }
 }
 
 @Composable
-fun NoticeItem(notice: Notice, onClick: () -> Unit) {
+fun NoticeItem(
+    notice: Notice,
+    isLatest: Boolean,
+    onClick: () -> Unit,
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -138,7 +131,7 @@ fun NoticeItem(notice: Notice, onClick: () -> Unit) {
         Icon(
             imageVector = Icons.Default.VolumeUp,
             contentDescription = "Notice",
-            tint = if (notice.checked) Color(0xFF684FFF) else Color.Gray,
+            tint = if (isLatest) Color(0xFF684FFF) else Color.Gray,
             modifier = Modifier
                 .size(20.dp)
                 .padding(end = 8.dp)
@@ -165,6 +158,5 @@ data class Notice(
     val id: String = UUID.randomUUID().toString(),
     val date: String,
     val title: String,
-    val content: String,
-    val checked: Boolean
+    val content: String
 )

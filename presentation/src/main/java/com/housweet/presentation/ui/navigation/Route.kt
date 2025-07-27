@@ -69,4 +69,9 @@ sealed interface Route {
         @Serializable
         data object MyPage : MyPageRoute
     }
+
+    sealed interface NotificationRoute : Route {
+        @Serializable
+        data object Notification : NotificationRoute
+    }
 }
