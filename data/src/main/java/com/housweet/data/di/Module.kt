@@ -2,11 +2,15 @@ package com.housweet.data.di
 
 import com.housweet.data.local.AuthLocalDataSource
 import com.housweet.data.local.AuthLocalDataSourceImpl
+import com.housweet.domain.local.RoomLocalDataSource
+import com.housweet.data.local.RoomLocalDataSourceImpl
 import com.housweet.data.network.AccessRoomRemoteDateSource
 import com.housweet.data.network.AccessRoomRemoteDateSourceImpl
 import com.housweet.data.network.AuthRemoteDataSource
 import com.housweet.data.network.AuthRemoteDataSourceImpl
 import com.housweet.data.network.KtorService
+import com.housweet.data.network.RoomRemoteDataSource
+import com.housweet.data.network.RoomRemoteDataSourceImpl
 import com.housweet.data.repository.AccessRoomRepositoryImpl
 import com.housweet.data.repository.AuthRepositoryImpl
 import com.housweet.data.utils.CryptoManager
@@ -52,6 +56,17 @@ abstract class Module {
         accessRoomRepositoryImpl: AccessRoomRepositoryImpl
     ): AccessRoomRepository
 
+    @Binds
+    @Singleton
+    abstract fun bindRoomRemoteDataSource(
+        impl: RoomRemoteDataSourceImpl
+    ): RoomRemoteDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindRoomLocalDataSource(
+        impl: RoomLocalDataSourceImpl
+    ): RoomLocalDataSource
 
     companion object {
         @Provides

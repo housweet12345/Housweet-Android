@@ -18,4 +18,7 @@ dependencies {
 
     // Serialization
     implementation(libs.kotlinx.serialization.json)
+
+    // JSON Library
+    implementation("org.json:json:20231013")
 }

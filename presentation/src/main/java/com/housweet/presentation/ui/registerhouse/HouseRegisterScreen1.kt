@@ -16,13 +16,20 @@ import androidx.compose.ui.unit.sp
 import com.housweet.presentation.ui.common.StepIndicator
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontWeight
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.housweet.presentation.ui.common.TopBarWithBackButton
+import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModel
 
 @Composable
 fun HouseRegisterScreen1(
     onNextClick: () -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    viewModel: HouseRegisterViewModel = hiltViewModel()
 ) {
+    LaunchedEffect(Unit) {
+        viewModel.logRoomId()
+    }
+    
     val selectedTags = remember { mutableStateListOf<String>() }
 
     val sections = listOf(
