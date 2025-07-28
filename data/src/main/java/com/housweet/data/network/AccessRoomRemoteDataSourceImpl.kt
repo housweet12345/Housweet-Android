@@ -1,6 +1,5 @@
 package com.housweet.data.network
 
-import android.util.Log
 import com.housweet.data.BuildConfig
 import com.housweet.data.network.dto.AccessRoomRequest
 import com.housweet.data.network.dto.CreateRoomRequest
@@ -12,9 +11,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class AccessRoomRemoteDateSourceImpl @Inject constructor(
+class AccessRoomRemoteDataSourceImpl @Inject constructor(
     private val ktorClient: KtorService
-) : AccessRoomRemoteDateSource {
+) : AccessRoomRemoteDataSource {
     companion object {
         private const val BASE_URL = BuildConfig.BASE_URL
     }

@@ -1,6 +1,6 @@
 package com.housweet.data.repository
 
-import com.housweet.data.network.AccessRoomRemoteDateSource
+import com.housweet.data.network.AccessRoomRemoteDataSource
 import com.housweet.domain.repository.AccessRoomRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -9,7 +9,7 @@ import javax.inject.Singleton
 
 @Singleton
 class AccessRoomRepositoryImpl @Inject constructor(
-    private val accessRoomRemoteDateSource: AccessRoomRemoteDateSource
+    private val accessRoomRemoteDateSource: AccessRoomRemoteDataSource
 ) : AccessRoomRepository {
     override suspend fun createRoom(name: String): Flow<Result<Boolean>> = flow {
         try {
