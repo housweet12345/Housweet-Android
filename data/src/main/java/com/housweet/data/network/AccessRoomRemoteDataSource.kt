@@ -1,6 +1,6 @@
 package com.housweet.data.network
 
-interface AccessRoomRemoteDateSource {
+interface AccessRoomRemoteDataSource {
     suspend fun createRoom(name: String): Boolean
     suspend fun accessRoomWithInviteCode(inviteCode: String): Boolean
 }

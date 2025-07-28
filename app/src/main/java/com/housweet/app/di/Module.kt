@@ -3,8 +3,8 @@ package com.housweet.app.di
 import android.content.Context
 import com.housweet.data.local.AuthLocalDataSource
 import com.housweet.data.local.AuthLocalDataSourceImpl
-import com.housweet.data.network.AccessRoomRemoteDateSource
-import com.housweet.data.network.AccessRoomRemoteDateSourceImpl
+import com.housweet.data.network.AccessRoomRemoteDataSource
+import com.housweet.data.network.AccessRoomRemoteDataSourceImpl
 import com.housweet.data.network.AuthRemoteDataSource
 import com.housweet.data.network.AuthRemoteDataSourceImpl
 import com.housweet.data.network.KtorService
@@ -47,8 +47,8 @@ abstract class Module {
     @Binds
     @Singleton
     abstract fun bindAccessRoomRemoteDateSource(
-        accessRoomRemoteDateSourceImpl: AccessRoomRemoteDateSourceImpl
-    ): AccessRoomRemoteDateSource
+        accessRoomRemoteDateSourceImpl: AccessRoomRemoteDataSourceImpl
+    ): AccessRoomRemoteDataSource
 
     @Binds
     @Singleton
