@@ -42,16 +42,18 @@ class SplashViewModel @Inject constructor(
         }
     }
 
-    private suspend fun isTermsOfServiceAgreedUseCase() {
-        useCases.isTermsOfServiceAgreedUseCase().collect {
-            delay(1000)
-            it.onSuccess { isAgreeTermsOfService ->
-                _event.emit(SplashEvent.IsAutoLogin(isAgreeTermsOfService))
-            }
+    private fun isTermsOfServiceAgreedUseCase() {
+        viewModelScope.launch {
+            useCases.isTermsOfServiceAgreedUseCase().collect {
+                delay(1000)
+                it.onSuccess { isAgreeTermsOfService ->
+                    _event.emit(SplashEvent.IsAutoLogin(isAgreeTermsOfService))
+                }
 
-            it.onFailure { e ->
-                e.printStackTrace()
-                _event.emit(SplashEvent.Error)
+                it.onFailure { e ->
+                    e.printStackTrace()
+                    _event.emit(SplashEvent.Error)
+                }
             }
         }
     }
