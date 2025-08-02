@@ -17,7 +17,10 @@ fun RegionBottomSheet(
     districtMap: Map<String, List<String>>,
     neighborhoodMap: Map<Pair<String, String>, List<String>>,
     onRegionSelected: (Region) -> Unit,
-    onDismissRequest: () -> Unit
+    onDismissRequest: () -> Unit,
+    citiesWithCodes: List<Map<String, String>>,  // 시 정보
+    districtsWithCodes: List<Map<String, String>>, // 구 정보
+    neighborhoodsWithCodes: List<Map<String, String>>, // 동 정보
 ) {
     var currentStep by remember { mutableStateOf(1) }
     var selectedCity by remember { mutableStateOf<String?>(null) }
@@ -107,9 +110,17 @@ fun RegionBottomSheet(
                                                     Region(
                                                         sido = city,
                                                         sigungu = district,
-                                                        dong = neighborhood
+                                                        dong = neighborhood,
+                                                        sidoCode = citiesWithCodes.find { it["name"] == city }?.get("code") ?: "",
+                                                        sigunguCode = districtsWithCodes.find {
+                                                            it["si__name"] == city && it["name"] == district
+                                                        }?.get("code") ?: "",
+                                                        dongCode = neighborhoodsWithCodes.find {
+                                                            it["si__name"] == city && it["gu__name"] == district && it["name"] == neighborhood
+                                                        }?.get("code") ?: ""
                                                     )
                                                 )
+
                                             }
                                         }
                                     }

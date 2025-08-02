@@ -1,5 +1,6 @@
 package com.housweet.data.di
 
+import com.housweet.data.datasource.ImageUploadRemoteDataSourceImpl
 import com.housweet.data.local.AuthLocalDataSource
 import com.housweet.data.local.AuthLocalDataSourceImpl
 import com.housweet.domain.local.RoomLocalDataSource
@@ -8,19 +9,27 @@ import com.housweet.data.network.AccessRoomRemoteDateSource
 import com.housweet.data.network.AccessRoomRemoteDateSourceImpl
 import com.housweet.data.network.AuthRemoteDataSource
 import com.housweet.data.network.AuthRemoteDataSourceImpl
+import com.housweet.data.network.HouseRegisterRemoteDataSource
+import com.housweet.data.network.HouseRegisterRemoteDataSourceImpl
+import com.housweet.data.network.ImageUploadRemoteDataSource
 import com.housweet.data.network.KtorService
 import com.housweet.data.network.RoomRemoteDataSource
 import com.housweet.data.network.RoomRemoteDataSourceImpl
 import com.housweet.data.repository.AccessRoomRepositoryImpl
 import com.housweet.data.repository.AuthRepositoryImpl
+import com.housweet.data.repository.HouseRegisterRepositoryImpl
+import com.housweet.data.repository.ImageUploadRepositoryImpl
 import com.housweet.data.utils.CryptoManager
 import com.housweet.domain.repository.AccessRoomRepository
 import com.housweet.domain.repository.AuthRepository
+import com.housweet.domain.repository.HouseRegisterRepository
+import com.housweet.domain.repository.ImageUploadRepository
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import io.ktor.client.HttpClient
 import javax.inject.Singleton
 
 @Module
@@ -68,6 +77,30 @@ abstract class Module {
         impl: RoomLocalDataSourceImpl
     ): RoomLocalDataSource
 
+    @Binds
+    @Singleton
+    abstract fun bindHouseRegisterRemoteDataSource(
+        impl: HouseRegisterRemoteDataSourceImpl
+    ): HouseRegisterRemoteDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindHouseRegisterRepository(
+        impl: HouseRegisterRepositoryImpl
+    ): HouseRegisterRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindImageUploadRemoteDataSource(
+        impl: ImageUploadRemoteDataSourceImpl
+    ): ImageUploadRemoteDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindImageUploadRepository(
+        impl: ImageUploadRepositoryImpl
+    ): ImageUploadRepository
+
     companion object {
         @Provides
         @Singleton
@@ -75,6 +108,14 @@ abstract class Module {
             authLocalDataSource: AuthLocalDataSource
         ): KtorService {
             return KtorService(authLocalDataSource)
+        }
+
+        @Provides
+        @Singleton
+        fun provideHttpClient(
+            ktorService: KtorService
+        ): HttpClient {
+            return ktorService.createHttpClient()
         }
 
         @Provides
