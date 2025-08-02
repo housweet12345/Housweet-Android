@@ -1,5 +1,6 @@
 package com.housweet.presentation.ui.navigation
 import com.housweet.domain.model.Coordinate
+import com.housweet.presentation.model.RegisterModel
 import kotlinx.serialization.Serializable
 
 sealed interface Route {
@@ -48,16 +49,16 @@ sealed interface Route {
 
     sealed interface HouseRegisterRoute : Route {
         @Serializable
-        data object Step1 : HouseRegisterRoute
+        data class Step1(val mode: RegisterModel = RegisterModel.CREATE) : HouseRegisterRoute
 
         @Serializable
-        data object Step2 : HouseRegisterRoute
+        data class Step2(val mode: RegisterModel = RegisterModel.CREATE) : HouseRegisterRoute
 
         @Serializable
-        data object Step3 : HouseRegisterRoute
+        data class Step3(val mode: RegisterModel = RegisterModel.CREATE) : HouseRegisterRoute
 
         @Serializable
-        data object Step4 : HouseRegisterRoute
+        data class Step4(val mode: RegisterModel = RegisterModel.CREATE) : HouseRegisterRoute
     }
 
     sealed interface ChatRoute : Route {

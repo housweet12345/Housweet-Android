@@ -17,11 +17,13 @@ import com.housweet.presentation.ui.common.StepIndicator
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontWeight
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.housweet.presentation.model.RegisterModel
 import com.housweet.presentation.ui.common.TopBarWithBackButton
 import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModel
 
 @Composable
 fun HouseRegisterScreen1(
+    mode: RegisterModel,
     onNextClick: () -> Unit,
     onBackClick: () -> Unit,
     viewModel: HouseRegisterViewModel = hiltViewModel()
@@ -51,7 +53,7 @@ fun HouseRegisterScreen1(
     ) {
         // 상단바 + 제목
         TopBarWithBackButton(
-            title = "하우스 올리기",
+            title = if (mode == RegisterModel.EDIT) "글 수정하기" else "하우스 올리기",
             onBackClick = onBackClick,
         )
 
@@ -124,7 +126,9 @@ fun HouseRegisterScreen1(
         Spacer(modifier = Modifier.weight(1f))
 
         Button(
-            onClick = onNextClick,
+            onClick = {
+                viewModel.updateHouseTags(selectedTags)
+                onNextClick()},
             shape = RoundedCornerShape(6.dp),
             modifier = Modifier
                 .fillMaxWidth()

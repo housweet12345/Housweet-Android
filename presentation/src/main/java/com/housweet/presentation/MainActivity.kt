@@ -1,44 +1,35 @@
 package com.housweet.presentation
 
 import ChatScreen
-import NotificationScreen
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavType
+import com.housweet.presentation.ui.home.route.HomeRoute
+import com.housweet.presentation.ui.navigation.BottomNavItem
 import android.provider.MediaStore
 import android.util.Base64
+import android.util.Log
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.remember
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.housweet.presentation.model.RegisterModel
 import com.housweet.presentation.ui.chatlist.ChatListScreen
-import com.housweet.presentation.ui.home.route.HomeRoute
-import com.housweet.presentation.ui.mypage.AppNotificationSettingsScreen
-import com.housweet.presentation.ui.navigation.BottomNavItem
-import com.housweet.presentation.ui.mypage.MyHouseDetailScreen
-import com.housweet.presentation.ui.mypage.MyPageScreen
-import com.housweet.presentation.ui.mypage.BookmarkScreen
-import com.housweet.presentation.ui.mypage.HelpScreen
-import com.housweet.presentation.ui.mypage.MyHouseEditScreen
-import com.housweet.presentation.ui.mypage.MyPostedRoomScreen
-import com.housweet.presentation.ui.mypage.NoticeDetailScreen
-import com.housweet.presentation.ui.mypage.NoticeScreen
-import com.housweet.presentation.ui.mypage.TermsConditionsPolicies
 import com.housweet.presentation.ui.profile.route.EditProfileKeyWordRoute
 import com.housweet.presentation.ui.profile.route.EditProfileRoute
 import com.housweet.presentation.ui.profile.route.MyProfileRoute
@@ -46,8 +37,7 @@ import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen1
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen2
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen3
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen4
-import com.housweet.presentation.ui.startPage.accessRoomPage.AccessRoomScreen
-import com.housweet.presentation.viewmodel.profile.EditProfileViewModel
+import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -56,6 +46,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val navController = rememberNavController()
+            // ✅ 전역으로 ViewModel 생성
+            val houseRegisterViewModel: HouseRegisterViewModel = hiltViewModel()
             val context = LocalContext.current
             val selectedImageBitmap = remember { mutableStateOf<Bitmap?>(null) }
 
@@ -70,6 +62,11 @@ class MainActivity : ComponentActivity() {
                         ImageDecoder.decodeBitmap(source)
                     }
                     selectedImageBitmap.value = bitmap
+
+                    // ✅ ViewModel에 Bitmap 전달
+                    houseRegisterViewModel.updateImageBitmap(bitmap)
+                    Log.d("ImagePicker", "선택된 이미지: $bitmap")
+                    Log.d("HouseRegister", "비트맵 감지됨, ViewModel에 업데이트")
                 }
             }
             Scaffold { padingValues ->
@@ -102,33 +99,73 @@ class MainActivity : ComponentActivity() {
                         Text("공지사항")
                     }
 
-                    composable("house_register_1") {
+                    composable(
+                        route = "house_register_1/{mode}",
+                        arguments = listOf(navArgument("mode") { type = NavType.StringType })
+                    ) { backStackEntry ->
+                        val modeStr =
+                            backStackEntry.arguments?.getString("mode") ?: RegisterModel.CREATE.name
+                        val mode = RegisterModel.valueOf(modeStr)
+
                         HouseRegisterScreen1(
-                            onNextClick = { navController.navigate("house_register_2") },
+                            mode = mode,
+                            onNextClick = { navController.navigate("house_register_2/${mode.name}") },
                             onBackClick = { navController.popBackStack() }
                         )
                     }
 
-                    composable("house_register_2") {
+                    composable(
+                        route = "house_register_2/{mode}",
+                        arguments = listOf(navArgument("mode") { type = NavType.StringType })
+                    ) { backStackEntry ->
+                        val modeStr =
+                            backStackEntry.arguments?.getString("mode") ?: RegisterModel.CREATE.name
+                        val mode = RegisterModel.valueOf(modeStr)
                         HouseRegisterScreen2(
-                            onNextClick = { navController.navigate("house_register_3") },
-                            onBackClick = { navController.navigate("house_register_1") }
+                            mode = mode,
+                            onNextClick = { navController.navigate("house_register_3/${mode.name}") },
+                            onBackClick = { navController.navigate("house_register_1/${mode.name}") }
                         )
                     }
 
-                    composable("house_register_3") {
+                    composable(
+                        route = "house_register_3/{mode}",
+                        arguments = listOf(navArgument("mode") { type = NavType.StringType })
+                    ) { backStackEntry ->
+                        val modeStr =
+                            backStackEntry.arguments?.getString("mode") ?: RegisterModel.CREATE.name
+                        val mode = RegisterModel.valueOf(modeStr)
+
                         HouseRegisterScreen3(
-                            onNextClick = { navController.navigate("house_register_4") },
-                            onBackClick = { navController.navigate("house_register_2") },
+                            mode = mode,
+                            onNextClick = { navController.navigate("house_register_4/${mode.name}") },
+                            onBackClick = { navController.navigate("house_register_2/${mode.name}") },
                             onImagePickClick = { launcher.launch("image/*") },
-                            selectedImageBitmap = selectedImageBitmap.value
+                            selectedImageBitmap = selectedImageBitmap.value,
+                            viewModel = houseRegisterViewModel
                         )
                     }
 
-                    composable("house_register_4") {
+                    composable(
+                        route = "house_register_4/{mode}",
+                        arguments = listOf(navArgument("mode") { type = NavType.StringType })
+                    ) { backStackEntry ->
+                        val modeStr =
+                            backStackEntry.arguments?.getString("mode") ?: RegisterModel.CREATE.name
+                        val mode = RegisterModel.valueOf(modeStr)
+
                         HouseRegisterScreen4(
-                            onBackClick = { navController.navigate("house_register_3") },
-                            onCompleteClick = { /* TODO */ }
+                            mode = mode,
+                            onBackClick = { navController.navigate("house_register_3/${mode.name}") },
+                            onCompleteClick = {
+                                if (mode == RegisterModel.CREATE) {
+                                    Log.d("HouseRegisterScreen4", "✅ 등록 성공")
+                                    navController.popBackStack()
+                                } else {
+                                    //글 수정 API 호출
+                                }
+                            },
+                            viewModel = houseRegisterViewModel
                         )
                     }
 
@@ -140,11 +177,17 @@ class MainActivity : ComponentActivity() {
 
                     composable(
                         route = "chat_detail/{chatName}",
-                        arguments = listOf(navArgument("chatName") { defaultValue = "Unknown"})
+                        arguments = listOf(navArgument("chatName") { defaultValue = "Unknown" })
                     )
                     { backStackEntry ->
-                        val encodedName = backStackEntry.arguments?.getString("chatName") ?: "Unknown"
-                        val chatName = String(Base64.decode(encodedName, Base64.URL_SAFE or Base64.NO_WRAP)) // ✅ 여기서 디코딩
+                        val encodedName =
+                            backStackEntry.arguments?.getString("chatName") ?: "Unknown"
+                        val chatName = String(
+                            Base64.decode(
+                                encodedName,
+                                Base64.URL_SAFE or Base64.NO_WRAP
+                            )
+                        ) // ✅ 여기서 디코딩
                         ChatScreen(chatName, navController)
                     }
 
@@ -167,93 +210,7 @@ class MainActivity : ComponentActivity() {
                         val parentEntry = remember(navBackStackEntry) {
                             navController.getBackStackEntry("profile/edit")
                         }
-                        val viewModel: EditProfileViewModel = hiltViewModel(parentEntry)
-
-                        EditProfileKeyWordRoute(
-                            viewModel = viewModel,
-                            onBackClick = { navController.popBackStack() },
-                            navigateMyProfile = { navController.navigate("profile/me") }
-                        )
                     }
-
-                    composable("notification") {
-                        NotificationScreen(
-                            navController
-                        )
-                    }
-
-                    composable("mypage") {
-                        MyPageScreen(
-                            navController
-                        )
-                    }
-                    composable("bookmark") {
-                        BookmarkScreen(
-                            onItemClick = { /* TODO: 상세 페이지로 이동 등 처리 */ },
-                            navController = navController
-                        )
-                    }
-                    composable("myhousedetail") {
-                        MyHouseDetailScreen(
-                            navController,
-                            isHost = true,
-                            onBackClick = { navController.popBackStack() },
-                            onMenuClick = {},
-                            inviteCode = "000112320",
-                        )
-                    }
-                    composable("notice") {
-                        NoticeScreen(
-                            onBackClick = { navController.popBackStack() },
-                            navController
-                        )
-                    }
-                    composable("edit_my_house") {
-                        MyHouseEditScreen(
-                            navController,
-                            houseName = "곰돌이방",
-                            startDate = "2025.01.05",
-                            inviteCode = "000112320",
-                            onDelete = { /* 삭제 로직 */ },
-                            onComplete = { navController.popBackStack() },
-                            onCodeRefresh = {},
-                            onBackClick = { navController.popBackStack() }
-                        )
-                    }
-                    composable("posted_my_room") {
-                        MyPostedRoomScreen(
-                            navController
-                        )
-                    }
-                    composable("app_setting") {
-                        AppNotificationSettingsScreen(navController)
-                    }
-                    composable("help") {
-                        HelpScreen(navController)
-                    }
-                    composable("terms_conditions_policies") {
-                        TermsConditionsPolicies(navController)
-                    }
-                    composable(
-                        "noticeDetail/{date}/{title}/{content}",
-                        arguments = listOf(
-                            navArgument("date") { type = NavType.StringType },
-                            navArgument("title") { type = NavType.StringType },
-                            navArgument("content") { type = NavType.StringType }
-                        )
-                    ) { backStackEntry ->
-                        val date = backStackEntry.arguments?.getString("date") ?: ""
-                        val title = backStackEntry.arguments?.getString("title") ?: ""
-                        val content = backStackEntry.arguments?.getString("content") ?: ""
-
-                        NoticeDetailScreen(
-                            date = date,
-                            title = title,
-                            content = content,
-                            onBackClick = { navController.popBackStack() }
-                        )
-                    }
-
                 }
             }
         }

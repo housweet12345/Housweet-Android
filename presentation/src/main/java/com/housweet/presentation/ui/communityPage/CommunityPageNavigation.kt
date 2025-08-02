@@ -2,6 +2,7 @@ package com.housweet.presentation.ui.communityPage
 
 import ChatScreen
 import NotificationScreen
+import android.R.attr.mode
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
@@ -20,8 +21,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.navigation.NavController
-import androidx.navigation.NavHostController
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -29,6 +30,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.toRoute
 import com.housweet.domain.model.Coordinate
+import com.housweet.presentation.model.RegisterModel
 import com.housweet.presentation.ui.chatlist.ChatListScreen
 import com.housweet.presentation.ui.communityPage.mapScreen.MapScreen
 import com.housweet.presentation.ui.communityPage.postScreen.detailPostScreen.DetailPostScreen
@@ -51,15 +53,20 @@ import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen1
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen2
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen3
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen4
+import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModel
 import kotlin.reflect.typeOf
 
 @Composable
-fun CommunityPageNavigation(paddingValue: PaddingValues) {
+fun CommunityPageNavigation(
+    paddingValue: PaddingValues,
+    viewModel: HouseRegisterViewModel = hiltViewModel()) {
     val navController = rememberNavController()
 
     val context = LocalContext.current
 
     val selectedImageBitmap = remember { mutableStateOf<Bitmap?>(null) }
+
+    val houseRegisterViewModel: HouseRegisterViewModel = hiltViewModel()
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -72,6 +79,10 @@ fun CommunityPageNavigation(paddingValue: PaddingValues) {
                 ImageDecoder.decodeBitmap(source)
             }
             selectedImageBitmap.value = bitmap
+            // 👉 ViewModel에 저장
+            houseRegisterViewModel.updateImageBitmap(bitmap)
+            Log.d("ImagePicker", "선택된 이미지: $bitmap")
+            Log.d("HouseRegister", "비트맵 감지됨, ViewModel에 업데이트")
         }
     }
 
@@ -98,7 +109,7 @@ fun CommunityPageNavigation(paddingValue: PaddingValues) {
                     navigationManager.navigateTo(Route.CommunityPageRoute.SearchRegion)
                 },
                 onWritePostBtnClick = {
-                    navigationManager.navigateTo(Route.HouseRegisterRoute.Step1)
+                    navigationManager.navigateTo(Route.HouseRegisterRoute.Step1(mode = RegisterModel.CREATE))
                 },
                 onChatClick = {
                     navigationManager.navigateTo(Route.ChatRoute.ChatList)
@@ -146,8 +157,12 @@ fun CommunityPageNavigation(paddingValue: PaddingValues) {
         }
 
         composable<Route.HouseRegisterRoute.Step1> {
+            val route = it.toRoute<Route.HouseRegisterRoute.Step1>()
+            val mode = route.mode
+
             HouseRegisterScreen1(
-                onNextClick = { navController.navigate(Route.HouseRegisterRoute.Step2) },
+                mode = mode,
+                onNextClick = { navController.navigate(Route.HouseRegisterRoute.Step2(mode)) },
                 onBackClick = {
                     val intent = Intent(context, CommunityActivity::class.java)
                     context.startActivity(intent)
@@ -155,23 +170,37 @@ fun CommunityPageNavigation(paddingValue: PaddingValues) {
             )
         }
         composable<Route.HouseRegisterRoute.Step2> {
+            val route = it.toRoute<Route.HouseRegisterRoute.Step2>()
+            val mode = route.mode
+
             HouseRegisterScreen2(
-                onNextClick = { navController.navigate(Route.HouseRegisterRoute.Step3) },
-                onBackClick = { navController.navigate(Route.HouseRegisterRoute.Step1) }
+                mode = mode,
+                onNextClick = { navController.navigate(Route.HouseRegisterRoute.Step3(mode)) },
+                onBackClick = { navController.navigate(Route.HouseRegisterRoute.Step1(mode)) }
             )
         }
         composable<Route.HouseRegisterRoute.Step3> {
+            val route = it.toRoute<Route.HouseRegisterRoute.Step3>()
+            val mode = route.mode
+
             HouseRegisterScreen3(
-                onNextClick = { navController.navigate(Route.HouseRegisterRoute.Step4) },
-                onBackClick = { navController.navigate(Route.HouseRegisterRoute.Step2) },
+                mode = mode,
+                onNextClick = { navController.navigate(Route.HouseRegisterRoute.Step4(mode)) },
+                onBackClick = { navController.navigate(Route.HouseRegisterRoute.Step2(mode)) },
                 onImagePickClick = { launcher.launch("image/*") },
-                selectedImageBitmap = selectedImageBitmap.value
+                selectedImageBitmap = selectedImageBitmap.value,
+                viewModel = houseRegisterViewModel
             )
         }
         composable<Route.HouseRegisterRoute.Step4> {
+            val route = it.toRoute<Route.HouseRegisterRoute.Step4>()
+            val mode = route.mode
+
             HouseRegisterScreen4(
-                onBackClick = { navController.navigate(Route.HouseRegisterRoute.Step2) },
-                onCompleteClick = { }
+                mode = mode,
+                onBackClick = { navController.navigate(Route.HouseRegisterRoute.Step3(mode)) },
+                onCompleteClick = {},
+                viewModel = houseRegisterViewModel
             )
         }
 

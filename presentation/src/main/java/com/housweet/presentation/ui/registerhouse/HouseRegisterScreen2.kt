@@ -1,6 +1,7 @@
 package com.housweet.presentation.ui.registerhouse
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -23,21 +24,26 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.housweet.presentation.model.Region
+import com.housweet.presentation.model.RegisterModel
 import com.housweet.presentation.ui.common.RegionBottomSheet
 import com.housweet.presentation.ui.common.StepIndicator
 import com.housweet.presentation.ui.common.TopBarWithBackButton
+import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModel
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
 @Composable
 fun HouseRegisterScreen2(
+    mode: RegisterModel,
     onNextClick: () -> Unit,
     onBackClick: () -> Unit,
+    viewModel: HouseRegisterViewModel = hiltViewModel()
 ) {
     var region by remember { mutableStateOf("") }
-    var title by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
+    var inputTitle by remember { mutableStateOf("") }
+    var inputDescription by remember { mutableStateOf("") }
     var deposit by remember { mutableStateOf("") }
     var monthlyRent by remember { mutableStateOf("") }
     var managementFee by remember { mutableStateOf("") }
@@ -61,7 +67,7 @@ fun HouseRegisterScreen2(
         val keyboardController = LocalSoftwareKeyboardController.current
 
         TopBarWithBackButton(
-            title = "하우스 올리기",
+            title = if (mode == RegisterModel.EDIT) "글 수정하기" else "하우스 올리기",
             onBackClick = onBackClick
         )
 
@@ -104,8 +110,8 @@ fun HouseRegisterScreen2(
         Text("제목", fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(6.dp))
         OutlinedTextField(
-            value = title,
-            onValueChange = { title = it },
+            value = inputTitle,
+            onValueChange = { inputTitle = it },
             placeholder = { Text("제목을 입력해주세요.", color = Color(0xFFA5A5A5), fontSize = 12.sp) },
             modifier = Modifier
                 .fillMaxWidth()
@@ -126,8 +132,8 @@ fun HouseRegisterScreen2(
         Text("자세한 설명", fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(6.dp))
         OutlinedTextField(
-            value = description,
-            onValueChange = { description = it },
+            value = inputDescription,
+            onValueChange = { inputDescription = it },
             placeholder = { Text("자세한 설명을 입력해주세요.", color = Color(0xFFA5A5A5), fontSize = 12.sp) },
             modifier = Modifier
                 .fillMaxWidth()
@@ -206,8 +212,8 @@ fun HouseRegisterScreen2(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         TextField(
-                            value = deposit,
-                            onValueChange = { deposit = it },
+                            value = monthlyRent,
+                            onValueChange = { monthlyRent = it },
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(end = 8.dp),
@@ -249,8 +255,8 @@ fun HouseRegisterScreen2(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 TextField(
-                    value = deposit,
-                    onValueChange = { deposit = it },
+                    value = managementFee,
+                    onValueChange = { managementFee = it },
                     modifier = Modifier
                         .weight(1f)
                         .padding(end = 8.dp),
@@ -307,7 +313,24 @@ fun HouseRegisterScreen2(
         Spacer(modifier = Modifier.weight(1f))
 
         Button(
-            onClick = onNextClick,
+            onClick = {
+                Log.d("HouseRegisterScreen2", "⛳ selectedRegion: $selectedRegion")
+                Log.d("HouseRegisterScreen2", "⛳ title: $inputTitle")
+                Log.d("HouseRegisterScreen2", "⛳ desc: $inputDescription")
+                Log.d("HouseRegisterScreen2", "⛳ deposit: $deposit, rent: $monthlyRent, fee: $managementFee")
+                Log.d("HouseRegisterScreen2", "⛳ moveInDate: $moveInDate")
+
+                viewModel.setStep2Data(
+                    region = selectedRegion,
+                    title = inputTitle,
+                    desc = inputDescription,
+                    deposit = deposit,
+                    rent = monthlyRent,
+                    fee = managementFee,
+                    moveIn = moveInDate
+                )
+                onNextClick()
+            },
             shape = RoundedCornerShape(6.dp),
             modifier = Modifier
                 .fillMaxWidth()
@@ -332,8 +355,11 @@ fun HouseRegisterScreen2(
             cities = regionBundle.cities,
             districtMap = regionBundle.districtMap,
             neighborhoodMap = regionBundle.neighborhoodMap,
-            onRegionSelected = {
-                selectedRegion = it
+            citiesWithCodes = regionBundle.siList,
+            districtsWithCodes = regionBundle.guList,
+            neighborhoodsWithCodes = regionBundle.dongList,
+            onRegionSelected = { region ->
+                selectedRegion = region
                 showBottomSheet = false
             },
             onDismissRequest = {
@@ -358,8 +384,12 @@ fun readCsv(context: Context, fileName: String): List<Map<String, String>> {
 data class RegionDataBundle(
     val cities: List<String>,
     val districtMap: Map<String, List<String>>,
-    val neighborhoodMap: Map<Pair<String, String>, List<String>>
+    val neighborhoodMap: Map<Pair<String, String>, List<String>>,
+    val siList: List<Map<String, String>>,
+    val guList: List<Map<String, String>>,
+    val dongList: List<Map<String, String>>
 )
+
 
 fun loadRegionDataBundle(context: Context): RegionDataBundle {
     val siList = readCsv(context, "시_정보.csv")
@@ -378,5 +408,12 @@ fun loadRegionDataBundle(context: Context): RegionDataBundle {
         valueTransform = { it["name"] ?: "" }
     ).mapValues { it.value.filter { it.isNotEmpty() } }
 
-    return RegionDataBundle(cities, districtMap, neighborhoodMap)
+    return RegionDataBundle(
+        cities = cities,
+        districtMap = districtMap,
+        neighborhoodMap = neighborhoodMap,
+        siList = siList,
+        guList = guList,
+        dongList = dongList
+    )
 }

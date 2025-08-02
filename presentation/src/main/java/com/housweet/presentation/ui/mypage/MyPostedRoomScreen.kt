@@ -120,7 +120,7 @@ fun MyPostedRoomScreen(navController: NavController) {
                     RoomItem(
                         roomPost = room,
                         onMenuClick = { showSheet = true },
-                        onEditClick = { /* TODO: 글 수정 동작 */ }
+                        onEditClick = { }
                     )
                 }
             }
