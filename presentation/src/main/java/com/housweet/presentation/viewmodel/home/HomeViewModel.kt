@@ -2,12 +2,13 @@ package com.housweet.presentation.viewmodel.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.housweet.presentation.ui.home.state.HomeInfo
 import com.housweet.presentation.ui.home.state.HomeState
-import com.housweet.presentation.ui.home.state.MoodType
-import com.housweet.presentation.ui.home.state.NoticeItem
-import com.housweet.presentation.ui.home.state.RoommateInfo
-import com.housweet.presentation.ui.home.state.TodoInfo
+import com.housweet.presentation.model.home.HomeInfo
+import com.housweet.presentation.model.home.MoodType
+import com.housweet.presentation.model.home.NoticeItem
+import com.housweet.presentation.model.home.RoommateInfo
+import com.housweet.presentation.model.schedule.TodoInfo
+import com.housweet.presentation.model.schedule.TaskType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

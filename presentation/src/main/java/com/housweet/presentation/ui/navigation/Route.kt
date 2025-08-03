@@ -45,4 +45,29 @@ sealed interface Route {
             data object Posts: PostRoute
         }
     }
+
+    sealed interface MainPageRoute: Route {
+        @Serializable
+        data object Home : MainPageRoute
+        
+        @Serializable 
+        data object Calendar : MainPageRoute
+        
+        sealed interface ScheduleRoute : MainPageRoute {
+            @Serializable
+            data object TaskAdd : ScheduleRoute
+            
+            @Serializable
+            data class TaskEdit(val taskTitle: String) : ScheduleRoute
+            
+            @Serializable
+            data object MyTodoEdit : ScheduleRoute
+        }
+        
+        @Serializable
+        data object Notification : MainPageRoute
+        
+        @Serializable
+        data class NoticeDetail(val noticeId: Int) : MainPageRoute
+    }
 }

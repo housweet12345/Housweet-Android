@@ -22,6 +22,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.housweet.presentation.ui.chat.ChatScreen
 import com.housweet.presentation.ui.chatlist.ChatListScreen
 import com.housweet.presentation.ui.home.route.HomeRoute
@@ -37,7 +38,11 @@ import com.housweet.presentation.ui.profile.route.EditProfileKeyWordRoute
 import com.housweet.presentation.ui.profile.route.EditProfileRoute
 import com.housweet.presentation.ui.profile.route.MyProfileRoute
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen1
+import com.housweet.presentation.ui.schedule.route.ScheduleMainRoute
+import com.housweet.presentation.ui.schedule.route.TaskSettingRoute
+import com.housweet.presentation.ui.schedule.route.MyTodoEditRoute
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen2
+import com.housweet.presentation.ui.navigation.Route
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen3
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen4
 import com.housweet.presentation.viewmodel.profile.EditProfileViewModel
@@ -74,17 +79,20 @@ class MainActivity : ComponentActivity() {
                     composable(BottomNavItem.Home.route) {
                         HomeRoute(
                             navigateToChat = { navController.navigate("chat_list") },
-                            navigateToNotification = { /* TODO: 알림 화면 */ },
+                            navigateToNotification = { navController.navigate(Route.MainPageRoute.Notification) },
                             navigateToProfile = { navController.navigate("profile/me") },
-                            navigateToNoticeDetail = { noticeId -> /* TODO: 공지사항 상세 */ },
-                            navigateToTodoDetail = { /* TODO: 할일 상세 */ },
+                            navigateToNoticeDetail = { noticeId -> navController.navigate(Route.MainPageRoute.NoticeDetail(noticeId)) },
+                            navigateToTodoDetail = { navController.navigate(Route.MainPageRoute.ScheduleRoute.MyTodoEdit) },
                             navController = navController
                         )
                     }
 
                     composable(BottomNavItem.Calendar.route) {
-                        //캘린더 화면
-                        Text("캘린더")
+                        ScheduleMainRoute(
+                            onMenuClick = { /*todo 메뉴 팝업 */ },
+                            onAddClick = { navController.navigate(Route.MainPageRoute.ScheduleRoute.MyTodoEdit) },
+                            navController = navController
+                        )
                     }
                     composable(BottomNavItem.FinanceLedger.route) {
                         //가계부 화면
@@ -212,6 +220,51 @@ class MainActivity : ComponentActivity() {
                         MyPostedRoomScreen(
 
                         )
+                    }
+
+                    // Schedule routes using Route objects
+                    composable<Route.MainPageRoute.ScheduleRoute.TaskAdd> {
+                        TaskSettingRoute(
+                            onBackClick = { navController.popBackStack() },
+                            onDeleteClick = { navController.popBackStack() },
+                            onCompleteClick = { navController.popBackStack() }
+                        )
+                    }
+
+                    composable<Route.MainPageRoute.ScheduleRoute.TaskEdit> { backStackEntry ->
+                        val taskEdit = backStackEntry.toRoute<Route.MainPageRoute.ScheduleRoute.TaskEdit>()
+                        TaskSettingRoute(
+                            taskTitle = taskEdit.taskTitle,
+                            onBackClick = { navController.popBackStack() },
+                            onDeleteClick = { navController.popBackStack() },
+                            onCompleteClick = { navController.popBackStack() }
+                        )
+                    }
+
+                    composable<Route.MainPageRoute.ScheduleRoute.MyTodoEdit> {
+                        MyTodoEditRoute(
+                            onBackClick = { navController.popBackStack() },
+                            onTodoClick = { todoTitle -> 
+                                navController.navigate(Route.MainPageRoute.ScheduleRoute.TaskEdit(todoTitle.title))
+                            },
+                            onAddTodo = { 
+                                navController.navigate(Route.MainPageRoute.ScheduleRoute.TaskAdd)
+                            },
+                            onDeleteTodo = { /*todo 할 일 삭제 로직 */ }
+                        )
+                    }
+
+                    composable<Route.MainPageRoute.Notification> {
+                        NotificationScreen(
+                            navController,
+                            onBackClick = { navController.popBackStack() }
+                        )
+                    }
+
+                    composable<Route.MainPageRoute.NoticeDetail> { backStackEntry ->
+                        val noticeDetail = backStackEntry.toRoute<Route.MainPageRoute.NoticeDetail>()
+                        // TODO: NoticeDetailScreen 구현 필요
+                        Text("공지사항 상세 - ID: ${noticeDetail.noticeId}")
                     }
                 }
             }

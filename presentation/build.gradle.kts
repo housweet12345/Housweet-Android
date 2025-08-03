@@ -134,6 +134,9 @@ dependencies {
 
     // Naver Map
     implementation (libs.naver.map.compose)
+    
+    // Calendar
+    implementation(libs.calendar.compose)
 }
 
 kapt {
