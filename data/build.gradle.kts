@@ -14,8 +14,10 @@ val properties = Properties().apply {
 
 //val baseUrl = properties["base_url"] ?: ""
 val baseUrl = properties["base_url"]?.let { "\"$it\"" } ?: "\"https://example.com\""
-val naverClientId = properties["naver_client_id"] ?: ""
-val naverClientSecret = properties["naver_client_secret"] ?: ""
+//val naverClientId = properties["naver_client_id"] ?: ""
+val naverClientId = properties["naver_client_id"]?.let { "\"$it\"" } ?: "\"\""
+//val naverClientSecret = properties["naver_client_secret"] ?: ""
+val naverClientSecret = properties["naver_client_secret"]?.let { "\"$it\"" } ?: "\"\""
 
 android {
     namespace = "com.housweet.data"
@@ -27,9 +29,12 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
 
-        buildConfigField("String", "BASE_URL", baseUrl.toString())
-        buildConfigField("String", "NAVER_CLIENT_ID", naverClientId.toString())
-        buildConfigField("String", "NAVER_CLIENT_SECRET", naverClientSecret.toString())
+//        buildConfigField("String", "BASE_URL", baseUrl.toString())
+        buildConfigField("String", "BASE_URL", baseUrl)
+//        buildConfigField("String", "NAVER_CLIENT_ID", naverClientId.toString())
+        buildConfigField("String", "NAVER_CLIENT_ID", naverClientId)
+//        buildConfigField("String", "NAVER_CLIENT_SECRET", naverClientSecret.toString())
+        buildConfigField("String", "NAVER_CLIENT_SECRET", naverClientSecret)
     }
 
     buildFeatures {
@@ -61,6 +66,12 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
+    // Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    // JSON converter (예: kotlinx.serialization 사용 시)
+    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:0.8.0")
 
     //okhttp
     implementation("com.squareup.okhttp3:okhttp:4.9.0")

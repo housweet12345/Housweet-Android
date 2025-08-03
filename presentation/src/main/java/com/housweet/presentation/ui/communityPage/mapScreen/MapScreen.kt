@@ -65,13 +65,13 @@ fun MapScreen(
     modifier: Modifier,
     searchRegion: Coordinate?,
     mapViewModel: MapViewModel = hiltViewModel(),
-    onChatScreen: () -> Unit,
-    onAlarmScreen: () -> Unit,
-    onMyPageScreen: () -> Unit,
     onMarkerClick: (region: String) -> Unit,
     onViewPostBtnClick: (regions: String) -> Unit,
     onSearchBtnClick: () -> Unit,
     onWritePostBtnClick: () -> Unit,
+    onChatClick: () -> Unit,
+    onNotificationClick: () -> Unit,
+    onMyPageClick: () -> Unit,
 ) {
     val uiState by mapViewModel.uiState.collectAsState()
     val mapState by mapViewModel.mapState.collectAsState()
@@ -117,9 +117,6 @@ fun MapScreen(
                 cameraPositionState = cameraPositionState,
                 snackBarHostState = snackBarHostState,
                 markerStates =  mapState.markerStates,
-                onChatScreen = onChatScreen,
-                onAlarmScreen = onAlarmScreen,
-                onMyPageScreen = onMyPageScreen,
                 onMarkerClick = {
                     onMarkerClick(it)
                 },
@@ -132,7 +129,10 @@ fun MapScreen(
                     onViewPostBtnClick(filteredPostRegion.joinToString(","))
                 },
                 onSearchBtnClick = onSearchBtnClick,
-                onWritePostBtnClick = onWritePostBtnClick
+                onWritePostBtnClick = onWritePostBtnClick,
+                onChatClick = onChatClick,
+                onNotificationClick = onNotificationClick,
+                onMyPageClick = onMyPageClick,
             )
         }
     }
@@ -145,13 +145,13 @@ private fun MapContent(
     cameraPositionState: CameraPositionState,
     snackBarHostState: SnackbarHostState,
     markerStates: MutableMap<NearByPostCountModel, MarkerState>,
-    onChatScreen: () -> Unit,
-    onAlarmScreen: () -> Unit,
-    onMyPageScreen: () -> Unit,
     onMarkerClick: (String) -> Unit,
     onViewPostBtnClick: (LatLngBounds?) -> Unit,
     onSearchBtnClick: () -> Unit,
     onWritePostBtnClick: () -> Unit,
+    onChatClick: () -> Unit,
+    onNotificationClick: () -> Unit,
+    onMyPageClick: () -> Unit,
 ) {
     val mapUiSettings = remember {
         MapUiSettings(
@@ -173,9 +173,9 @@ private fun MapContent(
         modifier = modifier,
         topBar = {
             MapTopBar(
-                onChatScreen = onChatScreen,
-                onAlarmScreen = onAlarmScreen,
-                onMyPageScreen = onMyPageScreen
+                onChatClick = onChatClick,
+                onNotificationClick = onNotificationClick,
+                onMyPageClick = onMyPageClick
             )
         },
         snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
@@ -238,9 +238,9 @@ private fun MapContent(
 
 @Composable
 private fun MapTopBar(
-    onChatScreen: () -> Unit,
-    onAlarmScreen: () -> Unit,
-    onMyPageScreen: () -> Unit
+    onChatClick: () -> Unit,
+    onNotificationClick: () -> Unit,
+    onMyPageClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -273,7 +273,9 @@ private fun MapTopBar(
                     .size(24.dp)
                     .padding(1.dp)
                     .clip(CircleShape)
-                    .clickable { onChatScreen() },
+                    .clickable {
+                        onChatClick()
+                    },
                 tint = White
             )
 
@@ -284,7 +286,9 @@ private fun MapTopBar(
                     .size(24.dp)
                     .padding(1.dp)
                     .clip(CircleShape)
-                    .clickable { onAlarmScreen() },
+                    .clickable {
+                        onNotificationClick()
+                    },
                 tint = White
             )
 
@@ -295,7 +299,9 @@ private fun MapTopBar(
                     .size(24.dp)
                     .padding(1.dp)
                     .clip(CircleShape)
-                    .clickable { onMyPageScreen() },
+                    .clickable {
+                        onMyPageClick()
+                    },
                 tint = White
             )
         }
@@ -384,15 +390,18 @@ private fun RoomMarker(
 
 @Composable
 private fun TestMapContent(
-    modifier: Modifier
+    modifier: Modifier,
+    onChatClick: () -> Unit,
+    onNotificationClick: () -> Unit,
+    onMyPageClick: () -> Unit,
 ) {
     Scaffold(
         modifier = modifier,
         topBar = {
             MapTopBar(
-                onChatScreen = {},
-                onAlarmScreen = {},
-                onMyPageScreen = {}
+                onChatClick = onChatClick,
+                onNotificationClick = onNotificationClick,
+                onMyPageClick = onMyPageClick
             )
         },
         containerColor = White
@@ -432,6 +441,15 @@ private fun TestMapContent(
 @Composable
 private fun MapScreenPreview() {
     TestMapContent(
-        modifier = Modifier
+        modifier = Modifier,
+        onChatClick = {
+            println("채팅 버튼 클릭됨 (Preview용)")
+        },
+        onNotificationClick = {
+            println("알림창 버튼 클릭됨 (Preview용)")
+        },
+        onMyPageClick = {
+            println("마이페이지 버튼 클릭됨 (Preview용)")
+        }
     )
 }

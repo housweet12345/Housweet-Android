@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.housweet.app">
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
-        android:name=".GlobalApplication"
+        android:name="com.housweet.app.GlobalApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -17,8 +20,42 @@
         tools:targetApi="31"
         tools:replace="android:label">
 
+<!--        <activity-->
+<!--            android:name="com.housweet.presentation.MainActivity"-->
+<!--            android:exported="true"-->
+<!--            tools:replace="android:exported">-->
+        <activity
+            android:name="com.housweet.presentation.ui.splash.SplashActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity"
+            android:exported="true"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <!-- Redirect URI: "kakao{nativeAppKey}://oauth" -->
+                <data
+                    android:scheme="${Kakao_Redirect_URI}"
+                    android:host="oauth" />
+            </intent-filter>
+        </activity>
+
         <meta-data
             android:name="com.kakao.sdk.AppKey"
-            android:value="Kakao_API_KEY" />
+            android:value="${Kakao_API_KEY}" />
+
+        <meta-data
+            android:name="com.naver.maps.map.CLIENT_ID"
+            android:value="${Naver_Client_ID}" />
     </application>
 </manifest>

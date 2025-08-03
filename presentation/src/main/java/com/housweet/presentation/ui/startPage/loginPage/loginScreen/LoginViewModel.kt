@@ -1,5 +1,6 @@
 package com.housweet.presentation.ui.startPage.loginPage.loginScreen
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.housweet.domain.usecase.UseCases
@@ -37,6 +38,7 @@ class LoginViewModel @Inject constructor(
                     }
                 }
                 it.onFailure {
+                    Log.d("LoginViewModel", "서버 로그인 실패 : ${it.message}")
                     loginFail()
                 }
             }

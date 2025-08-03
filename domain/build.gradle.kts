@@ -20,4 +20,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
     implementation(libs.javax.inject)
+
+    // JSON Library
+    implementation("org.json:json:20231013")
 }

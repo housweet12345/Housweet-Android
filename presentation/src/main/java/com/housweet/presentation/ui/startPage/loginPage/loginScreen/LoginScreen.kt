@@ -2,6 +2,7 @@ package com.housweet.presentation.ui.startPage.loginPage.loginScreen
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -240,8 +241,10 @@ private fun kakaoLogin(viewModel: LoginViewModel, context: Context) {
     viewModel.isLoading()
     val kakaoLoginCallback: (OAuthToken?, Throwable?) -> Unit = { token, error ->
         if (error != null) {
+            Log.e("KAKAO_LOGIN", "카카오 계정 로그인 실패", error)
             viewModel.loginFail()
         } else if (token != null) {
+            Log.d("KAKAO_LOGIN", "카카오 계정 로그인 성공: ${token.accessToken}")
             UserApiClient.instance.me { user, error1 ->
                 if (error1 != null) {
                     viewModel.loginFail()
@@ -269,24 +272,29 @@ private fun kakaoLogin(viewModel: LoginViewModel, context: Context) {
 
     UserApiClient.instance.loginWithKakaoTalk(context) { token, error ->
         if (error != null) {
+            Log.e("KAKAO_LOGIN", "카카오톡 로그인 실패", error)
             if (error is ClientError && error.reason == ClientErrorCause.Cancelled) {
                 viewModel.loginFail()
                 return@loginWithKakaoTalk
             }
             UserApiClient.instance.loginWithKakaoAccount(context, callback = kakaoLoginCallback)
         } else if (token != null) {
+            Log.d("KAKAO_LOGIN", "카카오톡 로그인 성공: ${token.accessToken}")
             UserApiClient.instance.me { user, error1 ->
                 if (error1 != null) {
+                    Log.e("KAKAO_LOGIN", "UserApiClient.me 실패", error1)
                     viewModel.loginFail()
                     return@me
                 }
 
                 if (user == null) {
+                    Log.e("KAKAO_LOGIN", "User is null")
                     viewModel.loginFail()
                     return@me
                 }
 
                 if (user.kakaoAccount?.email == null) {
+                    Log.e("KAKAO_LOGIN", "이메일 정보 없음")
                     viewModel.loginFail()
                     return@me
                 }

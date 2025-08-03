@@ -4,9 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -19,14 +16,22 @@ import androidx.compose.ui.unit.sp
 import com.housweet.presentation.ui.common.StepIndicator
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontWeight
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.housweet.presentation.model.RegisterModel
 import com.housweet.presentation.ui.common.TopBarWithBackButton
-import com.housweet.presentation.ui.theme.Purple40
+import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModel
 
 @Composable
 fun HouseRegisterScreen1(
+    mode: RegisterModel,
     onNextClick: () -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    viewModel: HouseRegisterViewModel = hiltViewModel()
 ) {
+    LaunchedEffect(Unit) {
+        viewModel.logRoomId()
+    }
+    
     val selectedTags = remember { mutableStateListOf<String>() }
 
     val sections = listOf(
@@ -48,8 +53,8 @@ fun HouseRegisterScreen1(
     ) {
         // 상단바 + 제목
         TopBarWithBackButton(
-            title = "하우스 올리기",
-            onBackClick = onBackClick
+            title = if (mode == RegisterModel.EDIT) "글 수정하기" else "하우스 올리기",
+            onBackClick = onBackClick,
         )
 
         StepIndicator(currentStep = 1)
@@ -66,13 +71,14 @@ fun HouseRegisterScreen1(
             Text(
                 text = "집에 대한 키워드를 선택해주세요.",
                 color = Color(0xFF6C4DFF),
-                modifier = Modifier.padding(bottom = 16.dp)
+                modifier = Modifier.padding(bottom = 16.dp),
+                fontSize = 12.sp
             )
 
             sections.forEach { (title, tags) ->
                 Text(
                     text = title,
-                    fontSize = 13.sp,
+                    fontSize = 12.sp,
                     color = Color.Black,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
@@ -120,7 +126,9 @@ fun HouseRegisterScreen1(
         Spacer(modifier = Modifier.weight(1f))
 
         Button(
-            onClick = onNextClick,
+            onClick = {
+                viewModel.updateHouseTags(selectedTags)
+                onNextClick()},
             shape = RoundedCornerShape(6.dp),
             modifier = Modifier
                 .fillMaxWidth()
@@ -132,7 +140,7 @@ fun HouseRegisterScreen1(
         ) {
             Text(
                 text = "다음",
-                fontSize = 14.sp,
+                fontSize = 15.sp,
                 fontWeight = FontWeight.Bold
             )
         }
