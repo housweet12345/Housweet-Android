@@ -1,6 +1,7 @@
 package com.housweet.presentation
 
 import ChatScreen
+import NotificationScreen
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
@@ -44,6 +45,16 @@ import com.housweet.presentation.ui.communityPage.postScreen.detailPostScreen.De
 import com.housweet.presentation.ui.communityPage.postScreen.postsScreen.PostsScreen
 import com.housweet.presentation.ui.communityPage.searchRegionScreen.SearchRegionScreen
 import com.housweet.presentation.ui.home.route.HomeRoute
+import com.housweet.presentation.ui.mypage.AppNotificationSettingsScreen
+import com.housweet.presentation.ui.mypage.BookmarkScreen
+import com.housweet.presentation.ui.mypage.HelpScreen
+import com.housweet.presentation.ui.mypage.MyHouseDetailScreen
+import com.housweet.presentation.ui.mypage.MyHouseEditScreen
+import com.housweet.presentation.ui.mypage.MyPageScreen
+import com.housweet.presentation.ui.mypage.MyPostedRoomScreen
+import com.housweet.presentation.ui.mypage.NoticeDetailScreen
+import com.housweet.presentation.ui.mypage.NoticeScreen
+import com.housweet.presentation.ui.mypage.TermsConditionsPolicies
 import com.housweet.presentation.ui.navigation.BottomNavItem
 import com.housweet.presentation.ui.navigation.CoordinateType
 import com.housweet.presentation.ui.navigation.NavigationManager
@@ -209,13 +220,13 @@ class MainActivity : ComponentActivity() {
                     composable<Route.StartPageRoute.AccessRoomRoute.AccessRoom> {
                         AccessRoomScreen(
                             onChatScreen = {
-                                navigationManager.navigateTo("chat_list")
+                                navigationManager.navigateTo(Route.ChatRoute.ChatList)
                             },
                             onAlarmScreen = {
-                                navigationManager.navigateTo("notification")
+                                navigationManager.navigateTo(Route.NotificationRoute.Notification)
                             },
                             onMyPageScreen = {
-                                navigationManager.navigateTo("mypage")
+                                navigationManager.navigateTo(Route.MyPageRoute.MyPage)
                             },
                             onFindRoomMateScreen = {
                                 navigationManager.navigateTo(
@@ -403,11 +414,10 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-                    composable("chat_list") {
-                        ChatListScreen(
-                            navController
-                        )
+                    composable<Route.ChatRoute.ChatList> {
+                        ChatListScreen(navController = navController)
                     }
+
 
                     composable(
                         route = "chat_detail/{chatName}",
@@ -423,6 +433,83 @@ class MainActivity : ComponentActivity() {
                             )
                         ) // ✅ 여기서 디코딩
                         ChatScreen(chatName, navController)
+                    }
+
+                    composable<Route.MyPageRoute.MyPage> {
+                        MyPageScreen(
+                            navController = navController
+                        )
+                    }
+
+                    composable("bookmark") {
+                        BookmarkScreen(
+                            onItemClick = { /* TODO: 상세 페이지로 이동 등 처리 */ },
+                            navController = navController
+                        )
+                    }
+                    composable("myhousedetail") {
+                        MyHouseDetailScreen(
+                            navController,
+                            isHost = true,
+                            onBackClick = { navController.popBackStack() },
+                            onMenuClick = {},
+                            inviteCode = "000112320",
+                        )
+                    }
+                    composable("notice") {
+                        NoticeScreen(
+                            onBackClick = { navController.popBackStack() },
+                            navController
+                        )
+                    }
+                    composable("edit_my_house") {
+                        MyHouseEditScreen(
+                            navController,
+                            houseName = "곰돌이방",
+                            startDate = "2025.01.05",
+                            inviteCode = "000112320",
+                            onDelete = { /* 삭제 로직 */ },
+                            onComplete = { navController.popBackStack() },
+                            onCodeRefresh = {},
+                            onBackClick = { navController.popBackStack() }
+                        )
+                    }
+                    composable("posted_my_room") {
+                        MyPostedRoomScreen(
+                            navController
+                        )
+                    }
+                    composable("app_setting") {
+                        AppNotificationSettingsScreen(navController)
+                    }
+                    composable("help") {
+                        HelpScreen(navController)
+                    }
+                    composable("terms_conditions_policies") {
+                        TermsConditionsPolicies(navController)
+                    }
+                    composable(
+                        "noticeDetail/{date}/{title}/{content}",
+                        arguments = listOf(
+                            navArgument("date") { type = NavType.StringType },
+                            navArgument("title") { type = NavType.StringType },
+                            navArgument("content") { type = NavType.StringType }
+                        )
+                    ) { backStackEntry ->
+                        val date = backStackEntry.arguments?.getString("date") ?: ""
+                        val title = backStackEntry.arguments?.getString("title") ?: ""
+                        val content = backStackEntry.arguments?.getString("content") ?: ""
+
+                        NoticeDetailScreen(
+                            date = date,
+                            title = title,
+                            content = content,
+                            onBackClick = { navController.popBackStack() }
+                        )
+                    }
+
+                    composable<Route.NotificationRoute.Notification> {
+                        NotificationScreen(navController = navController)
                     }
 
                     composable("profile/me") {

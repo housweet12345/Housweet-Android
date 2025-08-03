@@ -44,6 +44,8 @@ class AuthRepositoryImpl @Inject constructor(
             Log.d("TokenCheck", "Housweet accessToken: ${authToken.accessToken}")
             authLocalDataSource.saveAuthToken(authToken)
 
+            emit(Result.success(responseBody.isTermsOfServiceAgreed))
+
             // accessToken 만료됐으면 refresh
             if (authToken.isAccessTokenExpired()) {
                 val refreshed = authRemoteDataSource.refreshAccessToken(authToken.refreshToken)
@@ -54,8 +56,6 @@ class AuthRepositoryImpl @Inject constructor(
             //로그인 하자마자 roomId 저장
             val roomId = roomRepository.getMyRoomId()
             roomLocalDataSource.saveRoomId(roomId)
-
-            emit(Result.success(responseBody.isTermsOfServiceAgreed))
         } catch (e: Exception) {
             emit(Result.failure(e))
         }
