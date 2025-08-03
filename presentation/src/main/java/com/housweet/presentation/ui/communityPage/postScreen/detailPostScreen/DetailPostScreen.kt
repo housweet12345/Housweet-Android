@@ -26,7 +26,14 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,9 +43,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.housweet.presentation.ui.startPage.GuideText
+import com.housweet.presentation.ui.startPage.LoadingScreen
 import com.housweet.presentation.ui.theme.Black
 import com.housweet.presentation.ui.theme.Gray_7E7E7E
 import com.housweet.presentation.ui.theme.Gray_CBCBCB
@@ -48,19 +57,54 @@ import com.housweet.presentation.ui.theme.White_F8F8F8
 
 
 @Composable
-fun DetailPostScreen() {
-    DetailPostContent()
+fun DetailPostScreen(
+    onChatScreen: (name: String) -> Unit,
+    detailPostViewModel: DetailPostViewModel = hiltViewModel()
+) {
+    val uiState by detailPostViewModel.uiState.collectAsState()
+    val snackBarHostState = remember { SnackbarHostState() }
+    LaunchedEffect(Unit) {
+        detailPostViewModel.event.collect { event ->
+            when (event) {
+                DetailPostEvent.Error -> {
+                    snackBarHostState.showSnackbar(
+                        message = "방 정보를 제대로 불러오지 못했어요.",
+                        actionLabel = "닫기",
+                        duration = SnackbarDuration.Short
+                    )
+                }
+            }
+        }
+    }
+
+    when(uiState) {
+        DetailPostState.Idle -> {
+            DetailPostContent(
+                snackBarHostState = snackBarHostState,
+            ) { onChatScreen(it) }
+        }
+
+        DetailPostState.IsLoading -> {
+            LoadingScreen()
+        }
+    }
 }
 
 @Composable
-private fun DetailPostContent() {
+private fun DetailPostContent(
+    snackBarHostState: SnackbarHostState,
+    onChatScreen: (name: String) -> Unit
+) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
-            BottomBar()
+            BottomBar(
+                onChatScreen = onChatScreen
+            )
         },
+        snackbarHost = { SnackbarHost(snackBarHostState) },
         containerColor = White
     ) { innerPadding ->
         Column(
@@ -291,7 +335,9 @@ private fun FeatureBox(
 }
 
 @Composable
-private fun BottomBar() {
+private fun BottomBar(
+    onChatScreen: (name: String) -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -335,7 +381,7 @@ private fun BottomBar() {
             Spacer(modifier = Modifier.weight(1f))
 
             Button(
-                onClick = {},
+                onClick = { onChatScreen("") },
                 modifier = Modifier
                     .width(68.dp)
                     .height(30.dp),
@@ -362,12 +408,14 @@ private fun BottomBar() {
 @Preview
 @Composable
 private fun DetailPostScreenPreview() {
-    DetailPostContent()
+    DetailPostContent(
+        snackBarHostState = remember { SnackbarHostState() }
+    ) { }
 }
 
 @Preview
 @Composable
-private fun PeatureBoxPreview() {
+private fun FeatureBoxPreview() {
     FeatureBox(
         feature = "아침형"
     )

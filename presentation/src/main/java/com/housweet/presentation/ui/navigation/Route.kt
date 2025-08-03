@@ -42,10 +42,10 @@ sealed interface Route {
 
         sealed interface PostRoute : CommunityPageRoute {
             @Serializable
-            data object DetailPost : PostRoute
+            data class DetailPost(val postId: Int? = null) : PostRoute
 
             @Serializable
-            data object Posts: PostRoute
+            data class Posts(val postRegions: String? = null): PostRoute
         }
     }
 }

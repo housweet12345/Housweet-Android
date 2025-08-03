@@ -1,17 +1,12 @@
 package com.housweet.presentation.ui.communityPage.mapScreen
 
-import android.util.Log
 import android.view.Gravity
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,8 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -32,7 +25,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -47,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.housweet.domain.model.Coordinate
+import com.housweet.domain.model.NearByPostCountModel
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.startPage.GuideText
 import com.housweet.presentation.ui.theme.Gray_A5A5A5
@@ -58,6 +51,7 @@ import com.naver.maps.geometry.LatLng
 import com.naver.maps.geometry.LatLngBounds
 import com.naver.maps.map.CameraPosition
 import com.naver.maps.map.compose.CameraPositionState
+import com.naver.maps.map.compose.CircleOverlay
 import com.naver.maps.map.compose.ExperimentalNaverMapApi
 import com.naver.maps.map.compose.MapProperties
 import com.naver.maps.map.compose.MapUiSettings
@@ -65,7 +59,6 @@ import com.naver.maps.map.compose.MarkerComposable
 import com.naver.maps.map.compose.MarkerState
 import com.naver.maps.map.compose.NaverMap
 import com.naver.maps.map.compose.rememberCameraPositionState
-import com.naver.maps.map.compose.rememberMarkerState
 
 @Composable
 fun MapScreen(
@@ -75,22 +68,20 @@ fun MapScreen(
     onChatScreen: () -> Unit,
     onAlarmScreen: () -> Unit,
     onMyPageScreen: () -> Unit,
-    onMarkerClick: () -> Unit,
-    onViewPostBtnClick: () -> Unit,
+    onMarkerClick: (region: String) -> Unit,
+    onViewPostBtnClick: (regions: String) -> Unit,
     onSearchBtnClick: () -> Unit,
     onWritePostBtnClick: () -> Unit,
 ) {
     val uiState by mapViewModel.uiState.collectAsState()
     val mapState by mapViewModel.mapState.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
-    val cameraPositionState: CameraPositionState = rememberCameraPositionState()
-    val isDongZoom by remember { derivedStateOf { cameraPositionState.position.zoom >= MapConstants.ZOOM_THRESHOLD } }
-    val animationProgress = remember { Animatable(initialValue = 0f) }
+    val cameraPositionState: CameraPositionState = rememberCameraPositionState { position = CameraPosition(LatLng(37.5666805, 126.9784147), MapConstants.MAX_ZOOM_LEVEL) }
 
     LaunchedEffect(Unit) {
         searchRegion?.let {
             cameraPositionState.position =
-                CameraPosition(LatLng(it.y, it.x), MapConstants.DEFAULT_ZOOM_LEVEL)
+                CameraPosition(LatLng(it.y, it.x), MapConstants.MAX_ZOOM_LEVEL)
         }
     }
     
@@ -110,49 +101,35 @@ fun MapScreen(
 
     LaunchedEffect(cameraPositionState.isMoving) {
         if (!cameraPositionState.isMoving) {
-            mapViewModel.getDongPostInfo()
+            mapViewModel.getDongPostInfo(
+                latitude = cameraPositionState.position.target.latitude,
+                longitude = cameraPositionState.position.target.longitude,
+                zoomLevel = cameraPositionState.position.zoom
+            )
         } else {
             mapViewModel.freeMarkers()
         }
     }
-
-    LaunchedEffect(isDongZoom) {
-        if (mapState.prevZoomState != isDongZoom && !mapState.isMarkerAnimating) {
-            mapViewModel.updateZoomState(isDongZoom = isDongZoom, isMarkerAnimating = true)
-
-            animationProgress.snapTo(0f)
-            animationProgress.animateTo(
-                targetValue = 1f,
-                animationSpec = tween(
-                    durationMillis = MapConstants.ANIMATION_DURATION_MILLIS,
-                    easing = FastOutSlowInEasing
-                )
-            ) {
-                mapViewModel.updateMarkerAnimation(animationProgress.value, isDongZoom, cameraPositionState.contentBounds)
-            }
-        }
-        mapViewModel.updateZoomState(isDongZoom = isDongZoom, isMarkerAnimating = false)
-    }
-
     when (uiState) {
         MapUiState.Idle -> {
             MapContent(
                 modifier = modifier,
                 cameraPositionState = cameraPositionState,
                 snackBarHostState = snackBarHostState,
-                renderMarkers = mapState.renderMarkers,
                 markerStates =  mapState.markerStates,
                 onChatScreen = onChatScreen,
                 onAlarmScreen = onAlarmScreen,
                 onMyPageScreen = onMyPageScreen,
                 onMarkerClick = {
-                    if (!mapState.isMarkerAnimating) {
-                        onMarkerClick()
-                    }
+                    onMarkerClick(it)
                 },
                 onViewPostBtnClick = { range ->
                     if (range == null) return@MapContent
-                    onViewPostBtnClick()
+                    val filteredPostRegion = mapState.markerData
+                        .filter { MapUtils.isPositionVisible(LatLng(it.latitude, it.longitude), range) }
+                        .map { "${it.siName} ${it.guName} ${it.dongName}" }
+
+                    onViewPostBtnClick(filteredPostRegion.joinToString(","))
                 },
                 onSearchBtnClick = onSearchBtnClick,
                 onWritePostBtnClick = onWritePostBtnClick
@@ -167,8 +144,7 @@ private fun MapContent(
     modifier: Modifier,
     cameraPositionState: CameraPositionState,
     snackBarHostState: SnackbarHostState,
-    renderMarkers: Map<String, List<LatLng>>,
-    markerStates: MutableMap<String, MarkerState>,
+    markerStates: MutableMap<NearByPostCountModel, MarkerState>,
     onChatScreen: () -> Unit,
     onAlarmScreen: () -> Unit,
     onMyPageScreen: () -> Unit,
@@ -188,6 +164,7 @@ private fun MapContent(
 
     val mapProperties = remember {
         MapProperties(
+            maxZoom = MapConstants.MAX_ZOOM_LEVEL,
             minZoom = MapConstants.MIN_ZOOM_LEVEL
         )
     }
@@ -216,13 +193,12 @@ private fun MapContent(
                 properties = mapProperties,
                 uiSettings = mapUiSettings
             ) {
-                renderMarkers.forEach { (region, postList) ->
+                markerStates.forEach { (markerInfo, markerState) ->
                     RoomMarker(
-                        postRegion = region,
-                        postNum = postList.size,
-                        markerState = markerStates[region]
-                            ?: rememberMarkerState(position = postList[0]),
-                        onClick = onMarkerClick
+                        postRegion = "${markerInfo.siName} ${markerInfo.guName} ${markerInfo.dongName}",
+                        postNum = markerInfo.roomCount,
+                        markerState = markerState,
+                        onClick = { onMarkerClick("${markerInfo.siName} ${markerInfo.guName} ${markerInfo.dongName}") }
                     )
                 }
             }
@@ -390,7 +366,7 @@ private fun RoomMarker(
     ) {
         Box(
             modifier = Modifier
-                .size(50.dp)
+                .size(40.dp)
                 .background(color = Purple.copy(alpha = 0.9f), shape = CircleShape),
             contentAlignment = Alignment.Center
         ) {
@@ -398,8 +374,8 @@ private fun RoomMarker(
                 color = White_F8F8F8,
                 text = "$postNum",
                 fontWeight = FontWeight.Medium,
-                fontSize = 30.sp,
-                lineHeight = 30.sp,
+                fontSize = 20.sp,
+                lineHeight = 20.sp,
                 textAlign = TextAlign.Center
             )
         }
