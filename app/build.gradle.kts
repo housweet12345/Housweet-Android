@@ -32,6 +32,7 @@ android {
 //        manifestPlaceholders["Kakao_API_KEY"] = kakaoApiKey
 
 
+        buildConfigField("String", "Naver_Client_ID", naverClientId.toString())
         buildConfigField("String", "Kakao_API_KEY", kakaoApiKey)
 
         manifestPlaceholders.putAll(
@@ -87,6 +88,9 @@ dependencies {
     //Hilt
     implementation("com.google.dagger:hilt-android:2.55")
     kapt("com.google.dagger:hilt-android-compiler:2.55")
+
+    //ktor
+    implementation(libs.ktor.client.okhttp)
 
     // OkHttp
     implementation("com.squareup.okhttp3:okhttp:4.9.0")

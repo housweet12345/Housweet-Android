@@ -278,7 +278,7 @@ class MainActivity : ComponentActivity() {
                                 navigationManager.navigateTo(Route.CommunityPageRoute.SearchRegion)
                             },
                             onWritePostBtnClick = {
-                                navigationManager.navigateTo("house_register_1")
+                                navigationManager.navigateTo(Route.HouseRegisterRoute.Step1(mode = RegisterModel.CREATE))
                             },
                             onChatClick = {
                                 navigationManager.navigateTo(Route.ChatRoute.ChatList)
@@ -312,8 +312,8 @@ class MainActivity : ComponentActivity() {
                     composable<Route.CommunityPageRoute.PostRoute.Posts> {
                         val postRegions = it.toRoute<Route.CommunityPageRoute.PostRoute.Posts>().postRegions
                         PostsScreen(
-                            onPostClick = {
-                                navigationManager.navigateTo(Route.CommunityPageRoute.PostRoute.DetailPost(it))
+                            onPostClick = { id ->
+                                navigationManager.navigateTo(Route.CommunityPageRoute.PostRoute.DetailPost(id))
                             },
                             onBackBtnClick = {
                                 navigationManager.navigateOneWay(
@@ -356,72 +356,49 @@ class MainActivity : ComponentActivity() {
                         Text("공지사항")
                     }
 
-                    composable(
-                        route = "house_register_1/{mode}",
-                        arguments = listOf(navArgument("mode") { type = NavType.StringType })
-                    ) { backStackEntry ->
-                        val modeStr =
-                            backStackEntry.arguments?.getString("mode") ?: RegisterModel.CREATE.name
-                        val mode = RegisterModel.valueOf(modeStr)
+                    composable<Route.HouseRegisterRoute.Step1> {
+                        val route = it.toRoute<Route.HouseRegisterRoute.Step1>()
+                        val mode = route.mode
 
                         HouseRegisterScreen1(
                             mode = mode,
-                            onNextClick = { navController.navigate("house_register_2/${mode.name}") },
-                            onBackClick = { navController.popBackStack() }
+                            onNextClick = { navController.navigate(Route.HouseRegisterRoute.Step2(mode)) },
+                            onBackClick = {
+                                navController.popBackStack()
+                            }
                         )
                     }
+                    composable<Route.HouseRegisterRoute.Step2> {
+                        val route = it.toRoute<Route.HouseRegisterRoute.Step2>()
+                        val mode = route.mode
 
-                    composable(
-                        route = "house_register_2/{mode}",
-                        arguments = listOf(navArgument("mode") { type = NavType.StringType })
-                    ) { backStackEntry ->
-                        val modeStr =
-                            backStackEntry.arguments?.getString("mode") ?: RegisterModel.CREATE.name
-                        val mode = RegisterModel.valueOf(modeStr)
                         HouseRegisterScreen2(
                             mode = mode,
-                            onNextClick = { navController.navigate("house_register_3/${mode.name}") },
-                            onBackClick = { navController.navigate("house_register_1/${mode.name}") }
+                            onNextClick = { navController.navigate(Route.HouseRegisterRoute.Step3(mode)) },
+                            onBackClick = { navController.navigate(Route.HouseRegisterRoute.Step1(mode)) }
                         )
                     }
-
-                    composable(
-                        route = "house_register_3/{mode}",
-                        arguments = listOf(navArgument("mode") { type = NavType.StringType })
-                    ) { backStackEntry ->
-                        val modeStr =
-                            backStackEntry.arguments?.getString("mode") ?: RegisterModel.CREATE.name
-                        val mode = RegisterModel.valueOf(modeStr)
+                    composable<Route.HouseRegisterRoute.Step3> {
+                        val route = it.toRoute<Route.HouseRegisterRoute.Step3>()
+                        val mode = route.mode
 
                         HouseRegisterScreen3(
                             mode = mode,
-                            onNextClick = { navController.navigate("house_register_4/${mode.name}") },
-                            onBackClick = { navController.navigate("house_register_2/${mode.name}") },
+                            onNextClick = { navController.navigate(Route.HouseRegisterRoute.Step4(mode)) },
+                            onBackClick = { navController.navigate(Route.HouseRegisterRoute.Step2(mode)) },
                             onImagePickClick = { launcher.launch("image/*") },
                             selectedImageBitmap = selectedImageBitmap.value,
                             viewModel = houseRegisterViewModel
                         )
                     }
-
-                    composable(
-                        route = "house_register_4/{mode}",
-                        arguments = listOf(navArgument("mode") { type = NavType.StringType })
-                    ) { backStackEntry ->
-                        val modeStr =
-                            backStackEntry.arguments?.getString("mode") ?: RegisterModel.CREATE.name
-                        val mode = RegisterModel.valueOf(modeStr)
+                    composable<Route.HouseRegisterRoute.Step4> {
+                        val route = it.toRoute<Route.HouseRegisterRoute.Step4>()
+                        val mode = route.mode
 
                         HouseRegisterScreen4(
                             mode = mode,
-                            onBackClick = { navController.navigate("house_register_3/${mode.name}") },
-                            onCompleteClick = {
-                                if (mode == RegisterModel.CREATE) {
-                                    Log.d("HouseRegisterScreen4", "✅ 등록 성공")
-                                    navController.popBackStack()
-                                } else {
-                                    //글 수정 API 호출
-                                }
-                            },
+                            onBackClick = { navController.navigate(Route.HouseRegisterRoute.Step3(mode)) },
+                            onCompleteClick = {},
                             viewModel = houseRegisterViewModel
                         )
                     }
