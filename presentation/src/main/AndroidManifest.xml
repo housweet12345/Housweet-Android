@@ -11,19 +11,6 @@
         android:label="Housweet"
         android:usesCleartextTraffic="true">
         <activity
-            android:name=".ui.startPage.StartActivity"
-            android:exported="true"
-            android:label="@string/title_activity_start"
-            android:theme="@style/Theme.MySplashScreen">
-        </activity>
-
-        <activity
-            android:name=".ui.communityPage.CommunityActivity"
-            android:exported="true"
-            android:label="@string/title_activity_community"
-            android:theme="@style/Theme.Housweet"/>
-
-        <activity
             android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity"
             android:exported="true"
             android:launchMode="singleTask">
