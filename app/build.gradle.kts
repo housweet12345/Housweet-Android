@@ -27,13 +27,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-//        buildConfigField("String", "Kakao_API_KEY", kakaoApiKey)
-//        buildConfigField("String", "Naver_Client_ID", naverClientId.toString())
-//        manifestPlaceholders["Kakao_API_KEY"] = kakaoApiKey
 
-
-        buildConfigField("String", "Naver_Client_ID", naverClientId.toString())
-        buildConfigField("String", "Kakao_API_KEY", kakaoApiKey)
+        buildConfigField("String", "Naver_Client_ID", "\"$naverClientId\"")
+        buildConfigField("String", "Kakao_API_KEY", "\"$kakaoApiKey\"")
 
         manifestPlaceholders.putAll(
             mapOf(

@@ -220,13 +220,13 @@ class MainActivity : ComponentActivity() {
                     composable<Route.StartPageRoute.AccessRoomRoute.AccessRoom> {
                         AccessRoomScreen(
                             onChatScreen = {
-                                navigationManager.navigateTo(Route.ChatRoute.ChatList)
+                                navController.navigate("chat_list")
                             },
                             onAlarmScreen = {
-                                navigationManager.navigateTo(Route.NotificationRoute.Notification)
+                                navigationManager.navigateTo("notification")
                             },
                             onMyPageScreen = {
-                                navigationManager.navigateTo(Route.MyPageRoute.MyPage)
+                                navigationManager.navigateTo("mypage")
                             },
                             onFindRoomMateScreen = {
                                 navigationManager.navigateTo(
@@ -418,6 +418,65 @@ class MainActivity : ComponentActivity() {
                         ChatListScreen(navController = navController)
                     }
 
+                    composable("mypage") {
+                        MyPageScreen(
+                            navController
+                        )
+                    }
+
+                    composable("bookmark") {
+                        BookmarkScreen(
+                            onItemClick = { /* TODO: 상세 페이지로 이동 등 처리 */ },
+                            navController = navController
+                        )
+                    }
+
+                    composable("posted_my_room") {
+                        MyPostedRoomScreen(
+                            navController
+                        )
+                    }
+
+                    composable("myhousedetail") {
+                        MyHouseDetailScreen(
+                            navController,
+                            isHost = true,
+                            onBackClick = { navController.popBackStack() },
+                            onMenuClick = {},
+                            inviteCode = "000112320",
+                        )
+                    }
+
+                    composable("app_setting") {
+                        AppNotificationSettingsScreen(navController)
+                    }
+
+                    composable("notice") {
+                        NoticeScreen(
+                            onBackClick = { navController.popBackStack() },
+                            navController
+                        )
+                    }
+
+                    composable("help") {
+                        HelpScreen(navController)
+                    }
+
+                    composable("terms_conditions_policies") {
+                        TermsConditionsPolicies(navController)
+                    }
+
+                    composable("notification") {
+                        NotificationScreen(
+                            navController
+                        )
+                    }
+
+                    composable("chat_list") {
+                        ChatListScreen(
+                            navController
+                        )
+                    }
 
                     composable(
                         route = "chat_detail/{chatName}",
