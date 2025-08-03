@@ -6,6 +6,8 @@ import com.housweet.data.local.AuthLocalDataSource
 import com.housweet.data.local.AuthLocalDataSourceImpl
 import com.housweet.domain.local.RoomLocalDataSource
 import com.housweet.data.local.RoomLocalDataSourceImpl
+import com.housweet.data.network.AccessRoomRemoteDataSource
+import com.housweet.data.network.AccessRoomRemoteDataSourceImpl
 import com.housweet.data.network.AccessRoomRemoteDateSource
 import com.housweet.data.network.AccessRoomRemoteDateSourceImpl
 import com.housweet.data.network.AuthRemoteDataSource

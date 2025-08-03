@@ -1,24 +1,17 @@
 package com.housweet.presentation
 
-import NotificationScreen
-import android.content.Intent
 import ChatScreen
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.platform.LocalContext
-import androidx.navigation.NavType
-import com.housweet.presentation.ui.home.route.HomeRoute
-import com.housweet.presentation.ui.navigation.BottomNavItem
 import android.provider.MediaStore
 import android.util.Base64
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -35,41 +28,32 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.housweet.presentation.model.RegisterModel
 import androidx.navigation.toRoute
 import com.housweet.domain.event.AuthEvent
 import com.housweet.domain.event.AuthEventBus
 import com.housweet.domain.model.Coordinate
-import com.housweet.presentation.ui.chat.ChatScreen
+import com.housweet.presentation.model.RegisterModel
 import com.housweet.presentation.ui.chatlist.ChatListScreen
 import com.housweet.presentation.ui.communityPage.mapScreen.MapScreen
 import com.housweet.presentation.ui.communityPage.postScreen.detailPostScreen.DetailPostScreen
 import com.housweet.presentation.ui.communityPage.postScreen.postsScreen.PostsScreen
 import com.housweet.presentation.ui.communityPage.searchRegionScreen.SearchRegionScreen
 import com.housweet.presentation.ui.home.route.HomeRoute
-import com.housweet.presentation.ui.mypage.BookmarkScreen
-import com.housweet.presentation.ui.mypage.MyHouseDetailScreen
-import com.housweet.presentation.ui.mypage.MyHouseEditScreen
-import com.housweet.presentation.ui.mypage.MyPageScreen
-import com.housweet.presentation.ui.mypage.MyPostedRoomScreen
-import com.housweet.presentation.ui.mypage.NoticeScreen
-import com.housweet.presentation.ui.mypage.sampleBookmarks
 import com.housweet.presentation.ui.navigation.BottomNavItem
 import com.housweet.presentation.ui.navigation.CoordinateType
 import com.housweet.presentation.ui.navigation.NavigationManager
 import com.housweet.presentation.ui.navigation.Route
-import com.housweet.presentation.ui.profile.route.EditProfileKeyWordRoute
 import com.housweet.presentation.ui.profile.route.EditProfileRoute
 import com.housweet.presentation.ui.profile.route.MyProfileRoute
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen1
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen2
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen3
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen4
-import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModel
 import com.housweet.presentation.ui.startPage.StartViewModel
 import com.housweet.presentation.ui.startPage.accessRoomPage.AccessRoomScreen
 import com.housweet.presentation.ui.startPage.accessRoomPage.createRoomScreen.CreateRoomScreen
@@ -79,7 +63,7 @@ import com.housweet.presentation.ui.startPage.loginPage.WelcomeScreen
 import com.housweet.presentation.ui.startPage.loginPage.loginScreen.LoginScreen
 import com.housweet.presentation.ui.startPage.loginPage.termsOfServicePage.TermsOfServiceScreen
 import com.housweet.presentation.ui.startPage.splashPage.SplashScreen
-import com.housweet.presentation.viewmodel.profile.EditProfileViewModel
+import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -276,26 +260,34 @@ class MainActivity : ComponentActivity() {
                         MapScreen(
                             modifier = Modifier,
                             searchRegion = coordinate,
-                            onChatScreen = {
-                                navigationManager.navigateTo("chat_list")
-                            },
-                            onAlarmScreen = {
-                                navigationManager.navigateTo("notification")
-                            },
-                            onMyPageScreen = {
-                                navigationManager.navigateTo("mypage")
-                            },
                             onMarkerClick = { postRegion ->
-                                navigationManager.navigateTo(Route.CommunityPageRoute.PostRoute.Posts(postRegion))
+                                navigationManager.navigateTo(
+                                    Route.CommunityPageRoute.PostRoute.Posts(
+                                        postRegion
+                                    )
+                                )
                             },
                             onViewPostBtnClick = { postRegions ->
-                                navigationManager.navigateTo(Route.CommunityPageRoute.PostRoute.Posts(postRegions))
+                                navigationManager.navigateTo(
+                                    Route.CommunityPageRoute.PostRoute.Posts(
+                                        postRegions
+                                    )
+                                )
                             },
                             onSearchBtnClick = {
                                 navigationManager.navigateTo(Route.CommunityPageRoute.SearchRegion)
                             },
                             onWritePostBtnClick = {
                                 navigationManager.navigateTo("house_register_1")
+                            },
+                            onChatClick = {
+                                navigationManager.navigateTo(Route.ChatRoute.ChatList)
+                            },
+                            onNotificationClick = {
+                                navigationManager.navigateTo(Route.NotificationRoute.Notification)
+                            },
+                            onMyPageClick = {
+                                navigationManager.navigateTo(Route.MyPageRoute.MyPage)
                             }
                         )
                     }

@@ -32,8 +32,7 @@ android {
 //        manifestPlaceholders["Kakao_API_KEY"] = kakaoApiKey
 
 
-        buildConfigField("String", "Kakao_API_KEY", "\"$kakaoApiKey\"")
-        buildConfigField("String", "Naver_Client_ID", "\"$naverClientId\"")
+        buildConfigField("String", "Kakao_API_KEY", kakaoApiKey)
 
         manifestPlaceholders.putAll(
             mapOf(
