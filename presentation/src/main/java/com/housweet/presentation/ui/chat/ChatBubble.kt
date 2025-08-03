@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
@@ -63,6 +64,7 @@ fun ChatBubble(
 
         Box(
             modifier = Modifier
+                .widthIn(max = 180.dp)
                 .background(
                     color = if (isMine) Color(0xFF6F3DD2) else Color(0xFFF2F2F2),
                     shape = RoundedCornerShape(16.dp)

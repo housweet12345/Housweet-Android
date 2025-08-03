@@ -10,12 +10,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -68,6 +71,9 @@ fun ChatScreen(chatName: String, navController: NavController) {
     var inputText by remember { mutableStateOf("") }
     var showGallery by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf(false) }
+    val imageModifier = Modifier
+        .widthIn(max = 180.dp)
+        .heightIn(max = 240.dp)
 
     // 샘플 채팅 데이터
     LaunchedEffect(Unit) {
@@ -112,7 +118,8 @@ fun ChatScreen(chatName: String, navController: NavController) {
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.White)
             )
         },
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
+        contentWindowInsets = WindowInsets(0)
     ) { innerPadding ->
 
         Column(
@@ -195,7 +202,8 @@ fun ChatScreen(chatName: String, navController: NavController) {
                                 Image(
                                     bitmap = item.bitmap.asImageBitmap(),
                                     contentDescription = "채팅 이미지",
-                                    modifier = Modifier.size(width = 180.dp, height = 200.dp)
+                                    modifier = imageModifier,
+                                    contentScale = ContentScale.Fit // 또는 Crop
                                 )
                             }
                         }
@@ -229,7 +237,7 @@ fun ChatScreen(chatName: String, navController: NavController) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(200.dp) // 세로 더 넓게
+                            .height(216.dp) // 세로 더 넓게
                             .background(Color.White), // 배경 흰색
                         contentAlignment = Alignment.Center // 텍스트 정중앙
                     ) {
@@ -243,7 +251,7 @@ fun ChatScreen(chatName: String, navController: NavController) {
                         columns = GridCells.Fixed(3),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(200.dp)
+                            .height(216.dp)
                             .background(Color(0xFFF0F0F0))
                             .padding(8.dp),
                         horizontalArrangement = Arrangement.spacedBy(2.dp),
@@ -254,7 +262,7 @@ fun ChatScreen(chatName: String, navController: NavController) {
                                 painter = rememberAsyncImagePainter(model = uri),
                                 contentDescription = null,
                                 modifier = Modifier
-                                    .size(100.dp)
+                                    .size(108.dp)
                                     .clip(RoundedCornerShape(8.dp))
                                     .clickable {
                                         val bitmap = if (Build.VERSION.SDK_INT < 28) {
