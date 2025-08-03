@@ -89,18 +89,6 @@ fun MyPostedRoomScreen(navController: NavController) {
         }
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding).background(Color.White)) {
-            // 방 올리기 버튼
-            Button(
-                onClick = { /* TODO: 방 올리기 */ },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFECE6FF)),
-                shape = RoundedCornerShape(6.dp)
-            ) {
-                Text("방 올리기", color = Color(0xFF6C5CE7), fontSize = 12.sp)
-            }
-
             // 탭
             TabRow(
                 selectedTabIndex = selectedTab,
@@ -205,38 +193,48 @@ fun RoomItem(
 
         Spacer(Modifier.height(8.dp))
 
-        Row {
-            Button(
-                onClick = onEditClick,
-                modifier = Modifier.width(280.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF7F7F7)),
-                shape = RoundedCornerShape(6.dp)
-            ) {
-                Text("글 수정하기", color = Color.Black, fontSize = 12.sp)
-            }
-            Spacer(modifier = Modifier.width(18.dp))
-
-            Box(
-                modifier = Modifier
-                    .width(70.dp)
-                    .clip(RoundedCornerShape(6.dp)) // ✅ radius 설정
-                    .background(Color(0xFFF7F7F7))   // ✅ 배경색
-            ) {
-                IconButton(
-                    onClick = onMenuClick,
-                    modifier = Modifier.fillMaxSize(),
-                    colors = IconButtonDefaults.iconButtonColors(
-                        containerColor = Color.Transparent // ✅ 배경 투명으로
-                    )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp), // 높이를 명확히 줘야 가운데 정렬이 잘 적용돼요
+            contentAlignment = Alignment.Center
+        ) {
+            Row (
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.align(Alignment.Center)
+            ){
+                Button(
+                    onClick = onEditClick,
+                    modifier = Modifier.width(250.dp).height(36.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF7F7F7)),
+                    shape = RoundedCornerShape(6.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.MoreHoriz,
-                        contentDescription = "More",
-                        modifier = Modifier.size(12.dp) // ← 아이콘 크기 조절
-                    )
+                    Text("글 수정하기", color = Color.Black, fontSize = 12.sp)
+                }
+                Spacer(modifier = Modifier.width(18.dp))
+
+                Box(
+                    modifier = Modifier
+                        .width(60.dp)
+                        .height(36.dp)
+                        .clip(RoundedCornerShape(6.dp)) // ✅ radius 설정
+                        .background(Color(0xFFF7F7F7)),  // ✅ 배경색
+                    contentAlignment = Alignment.Center) {
+                    IconButton(
+                        onClick = onMenuClick,
+                        modifier = Modifier.fillMaxSize(),
+                        colors = IconButtonDefaults.iconButtonColors(
+                            containerColor = Color.Transparent // ✅ 배경 투명으로
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.MoreHoriz,
+                            contentDescription = "More",
+                            modifier = Modifier.size(12.dp) // ← 아이콘 크기 조절
+                        )
+                    }
                 }
             }
-
         }
     }
 }
