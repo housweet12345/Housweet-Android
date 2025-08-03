@@ -1,5 +1,6 @@
 package com.housweet.presentation.ui.registerhouse
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -26,13 +27,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.housweet.presentation.model.RegisterModel
 import com.housweet.presentation.ui.common.StepIndicator
 import com.housweet.presentation.ui.common.TopBarWithBackButton
+import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModel
 
 @Composable
 fun HouseRegisterScreen4(
+    mode: RegisterModel,
     onBackClick: () -> Unit,
-    onCompleteClick: () -> Unit
+    onCompleteClick: () -> Unit,
+    viewModel: HouseRegisterViewModel
 ) {
     val selectedTags = remember { mutableStateListOf<String>() }
 
@@ -55,7 +61,7 @@ fun HouseRegisterScreen4(
             .padding(horizontal = 16.dp)
     ) {
         TopBarWithBackButton(
-            title = "하우스 올리기",
+            title = if (mode == RegisterModel.EDIT) "글 수정하기" else "하우스 올리기",
             onBackClick = onBackClick
         )
 
@@ -70,7 +76,7 @@ fun HouseRegisterScreen4(
             Text(
                 text = "선호하는 사람에 대한 키워드를 선택해주세요.",
                 color = Color(0xFF6C4DFF),
-                fontSize = 14.sp,
+                fontSize = 12.sp,
                 modifier = Modifier.padding(vertical = 8.dp)
             )
         }
@@ -85,7 +91,7 @@ fun HouseRegisterScreen4(
                     Text(
                         text = title,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 13.sp,
+                        fontSize = 12.sp,
                         modifier = Modifier.padding(vertical = 4.dp)
                     )
                 }
@@ -118,7 +124,7 @@ fun HouseRegisterScreen4(
                             ) {
                                 Text(
                                     text = tag,
-                                    fontSize = 13.sp,
+                                    fontSize = 12.sp,
                                     color = if (isSelected) Color.White else Color.Black
                                 )
                             }
@@ -131,7 +137,20 @@ fun HouseRegisterScreen4(
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = onCompleteClick,
+            onClick = {
+                viewModel.updatePreferredTags(selectedTags)
+                viewModel.submitHouseRegister(
+                    onSuccess = {
+                        // 등록 성공 시
+                        onCompleteClick()  // 👉 예: 등록 완료 후 화면 이동
+                    },
+                    onError = { e ->
+                        // 등록 실패 시 로그 출력 또는 메시지 표시 등
+                        Log.e("HouseRegisterScreen4", "등록 실패: ${e.message}")
+                        // 필요하면 Toast나 AlertDialog 띄우기
+                    }
+                )
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
@@ -141,7 +160,11 @@ fun HouseRegisterScreen4(
                 contentColor = Color.White
             )
         ) {
-            Text("완료")
+            Text(
+                text = "완료",
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
 
         Spacer(modifier = Modifier.height(16.dp))

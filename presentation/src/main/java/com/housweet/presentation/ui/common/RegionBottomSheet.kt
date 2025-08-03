@@ -13,26 +13,33 @@ import com.housweet.presentation.model.Region
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegionBottomSheet(
-    regions: List<Region>,
+    cities: List<String>,
+    districtMap: Map<String, List<String>>,
+    neighborhoodMap: Map<Pair<String, String>, List<String>>,
     onRegionSelected: (Region) -> Unit,
-    onDismissRequest: () -> Unit
+    onDismissRequest: () -> Unit,
+    citiesWithCodes: List<Map<String, String>>,  // 시 정보
+    districtsWithCodes: List<Map<String, String>>, // 구 정보
+    neighborhoodsWithCodes: List<Map<String, String>>, // 동 정보
 ) {
-    var currentStep by remember { mutableStateOf(1) } // 1: 시도, 2: 시군구, 3: 동
-    var selectedSido by remember { mutableStateOf<String?>(null) }
-    var selectedSigungu by remember { mutableStateOf<String?>(null) }
+    var currentStep by remember { mutableStateOf(1) }
+    var selectedCity by remember { mutableStateOf<String?>(null) }
+    var selectedDistrict by remember { mutableStateOf<String?>(null) }
 
-    val sidoList = regions.map { it.sido }.distinct()
-    val sigunguList = regions.filter { it.sido == selectedSido }.map { it.sigungu }.distinct()
-    val dongList = regions.filter { it.sido == selectedSido && it.sigungu == selectedSigungu }
+    val districtList = selectedCity?.let { districtMap[it] } ?: emptyList()
+    val neighborhoodList = selectedCity?.let { city ->
+        selectedDistrict?.let { district ->
+            neighborhoodMap[city to district]
+        }
+    } ?: emptyList()
 
     ModalBottomSheet(onDismissRequest = onDismissRequest) {
         Column(
             modifier = Modifier
-                .fillMaxHeight(0.8f) // 최대 높이 제한해서 스크롤 가능하게
+                .fillMaxHeight(0.8f)
                 .padding(16.dp)
         ) {
-
-            // 헤더
+            // Header
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -40,9 +47,7 @@ fun RegionBottomSheet(
                 if (currentStep > 1) {
                     Text(
                         text = "← 뒤로",
-                        modifier = Modifier.clickable {
-                            currentStep--
-                        }
+                        modifier = Modifier.clickable { currentStep-- }
                     )
                 }
                 Text(
@@ -54,22 +59,22 @@ fun RegionBottomSheet(
                     },
                     style = MaterialTheme.typography.titleMedium
                 )
-                Spacer(modifier = Modifier.width(48.dp)) // 균형 맞춤용
+                Spacer(modifier = Modifier.width(48.dp)) // 헤더 정렬용
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 스크롤 가능한 목록
+            // 리스트
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 when (currentStep) {
                     1 -> {
-                        items(sidoList) { sido ->
+                        items(cities) { city ->
                             Text(
-                                text = sido,
+                                text = city,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {
-                                        selectedSido = sido
+                                        selectedCity = city
                                         currentStep = 2
                                     }
                                     .padding(8.dp)
@@ -78,13 +83,13 @@ fun RegionBottomSheet(
                     }
 
                     2 -> {
-                        items(sigunguList) { sigungu ->
+                        items(districtList) { district ->
                             Text(
-                                text = sigungu,
+                                text = district,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {
-                                        selectedSigungu = sigungu
+                                        selectedDistrict = district
                                         currentStep = 3
                                     }
                                     .padding(8.dp)
@@ -93,13 +98,31 @@ fun RegionBottomSheet(
                     }
 
                     3 -> {
-                        items(dongList) { region ->
+                        items(neighborhoodList) { neighborhood ->
                             Text(
-                                text = region.dong,
+                                text = neighborhood,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {
-                                        onRegionSelected(region)
+                                        selectedCity?.let { city ->
+                                            selectedDistrict?.let { district ->
+                                                onRegionSelected(
+                                                    Region(
+                                                        sido = city,
+                                                        sigungu = district,
+                                                        dong = neighborhood,
+                                                        sidoCode = citiesWithCodes.find { it["name"] == city }?.get("code") ?: "",
+                                                        sigunguCode = districtsWithCodes.find {
+                                                            it["si__name"] == city && it["name"] == district
+                                                        }?.get("code") ?: "",
+                                                        dongCode = neighborhoodsWithCodes.find {
+                                                            it["si__name"] == city && it["gu__name"] == district && it["name"] == neighborhood
+                                                        }?.get("code") ?: ""
+                                                    )
+                                                )
+
+                                            }
+                                        }
                                     }
                                     .padding(8.dp)
                             )

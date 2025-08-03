@@ -1,12 +1,17 @@
 package com.housweet.data.repository
 
+import android.util.Log
 import com.housweet.data.local.AuthLocalDataSource
+import com.housweet.domain.local.RoomLocalDataSource
 import com.housweet.data.network.AuthRemoteDataSource
+import com.housweet.data.network.RoomRepository
 import com.housweet.data.network.dto.LoginResponseDto
 import com.housweet.data.network.dto.toAuthToken
 import com.housweet.data.utils.NetworkConnectionManager
 import com.housweet.data.utils.NoInternetException
 import com.housweet.domain.model.AuthToken
+import com.housweet.domain.model.Coordinate
+import com.housweet.domain.model.isAccessTokenExpired
 import com.housweet.domain.repository.AuthRepository
 import io.ktor.client.call.body
 import kotlinx.coroutines.flow.Flow
@@ -18,7 +23,9 @@ import javax.inject.Singleton
 class AuthRepositoryImpl @Inject constructor(
     private val authLocalDataSource: AuthLocalDataSource,
     private val authRemoteDataSource: AuthRemoteDataSource,
-    private val networkConnectionManager: NetworkConnectionManager
+    private val networkConnectionManager: NetworkConnectionManager,
+    private val roomRepository: RoomRepository,
+    private val roomLocalDataSource: RoomLocalDataSource
 ) : AuthRepository {
     override suspend fun loginWithKakao(
         socialId: String,
@@ -34,7 +41,20 @@ class AuthRepositoryImpl @Inject constructor(
             val responseBody = response.body<LoginResponseDto>()
 
             val authToken = responseBody.toAuthToken()
+            Log.d("TokenCheck", "Housweet accessToken: ${authToken.accessToken}")
             authLocalDataSource.saveAuthToken(authToken)
+
+            // accessToken 만료됐으면 refresh
+            if (authToken.isAccessTokenExpired()) {
+                val refreshed = authRemoteDataSource.refreshAccessToken(authToken.refreshToken)
+                val newToken = AuthToken(refreshed.accessToken, authToken.refreshToken)
+                authLocalDataSource.saveAuthToken(newToken)
+            }
+
+            //로그인 하자마자 roomId 저장
+            val roomId = roomRepository.getMyRoomId()
+            roomLocalDataSource.saveRoomId(roomId)
+
             emit(Result.success(responseBody.isTermsOfServiceAgreed))
         } catch (e: Exception) {
             emit(Result.failure(e))

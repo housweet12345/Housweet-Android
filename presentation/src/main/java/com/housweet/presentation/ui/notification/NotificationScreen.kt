@@ -1,4 +1,5 @@
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -7,13 +8,18 @@ import androidx.compose.material.DismissDirection
 import androidx.compose.material.DismissValue
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.SwipeToDismiss
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.housweet.presentation.R
 
 data class Notification(
     val title: String,
@@ -21,9 +27,9 @@ data class Notification(
     val date: String
 )
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun NotificationScreen(navController: NavController, onBackClick: () -> Unit = {}) {
+fun NotificationScreen(navController: NavController) {
     var notifications by remember {
         mutableStateOf(
             listOf(
@@ -36,9 +42,25 @@ fun NotificationScreen(navController: NavController, onBackClick: () -> Unit = {
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("알림") },
-                backgroundColor = Color.White
+            CenterAlignedTopAppBar(
+                title={
+                    Text(
+                        text = "알림",
+                        fontSize = 14.sp
+                    )
+                },
+                navigationIcon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.back_black),
+                        contentDescription = "뒤로가기",
+                        modifier = Modifier
+                            .padding(start = 16.dp)
+                            .clickable { navController.popBackStack() }
+                    )
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color.White // ✅ 배경색 흰색 지정
+                )
             )
         }
     ) { innerPadding ->
@@ -89,18 +111,18 @@ fun NotificationItem(notification: Notification) {
     ) {
         Text(
             text = notification.title,
-            color = Color(0xFF5B4FFF),
-            fontSize = 14.sp
+            color = Color(0xFF665ED3),
+            fontSize = 10.sp
         )
         Text(
             text = notification.message,
-            fontSize = 16.sp,
+            fontSize = 12.sp,
             modifier = Modifier.padding(top = 4.dp)
         )
         Text(
             text = notification.date,
             color = Color.Gray,
-            fontSize = 12.sp,
+            fontSize = 10.sp,
             modifier = Modifier
                 .align(Alignment.End)
                 .padding(top = 4.dp)

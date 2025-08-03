@@ -1,6 +1,7 @@
 package com.housweet.presentation.ui.registerhouse
 
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -19,24 +21,39 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.housweet.presentation.R
+import com.housweet.presentation.model.RegisterModel
 import com.housweet.presentation.ui.common.StepIndicator
 import com.housweet.presentation.ui.common.TopBarWithBackButton
+import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModel
 
 @Composable
 fun HouseRegisterScreen3(
+    mode: RegisterModel,
     onNextClick: () -> Unit,
     onBackClick: () -> Unit,
     onImagePickClick: () -> Unit,
-    selectedImageBitmap: Bitmap? = null
+    selectedImageBitmap: Bitmap? = null,
+    viewModel: HouseRegisterViewModel
 ) {
+//    val viewModel: HouseRegisterViewModel = hiltViewModel()
+
+    LaunchedEffect(selectedImageBitmap) {
+        selectedImageBitmap?.let {
+            Log.d("HouseRegister", "비트맵 감지됨, ViewModel에 업데이트")
+            viewModel.updateImageBitmap(it)
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
             .padding(horizontal = 16.dp)
     ) {
-        TopBarWithBackButton(title = "하우스 올리기", onBackClick = onBackClick)
+        TopBarWithBackButton(title = if (mode == RegisterModel.EDIT) "글 수정하기" else "하우스 올리기", onBackClick = onBackClick)
 
         StepIndicator(currentStep = 3)
 
@@ -49,7 +66,7 @@ fun HouseRegisterScreen3(
             Text(
                 text = "실제 사진을 첨부해주세요.",
                 color = Color(0xFF6C4DFF),
-                fontSize = 14.sp,
+                fontSize = 12.sp,
                 modifier = Modifier.padding(vertical = 8.dp)
             )
         }
@@ -58,7 +75,7 @@ fun HouseRegisterScreen3(
 
         Text(
             text = "사진 첨부",
-            fontSize = 13.sp,
+            fontSize = 12.sp,
             fontWeight = FontWeight.Bold,
             color = Color.Black
         )
@@ -107,7 +124,11 @@ fun HouseRegisterScreen3(
                 contentColor = Color.White
             )
         ) {
-            Text("다음")
+            Text(
+                text = "다음",
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
 
         Spacer(modifier = Modifier.height(16.dp))

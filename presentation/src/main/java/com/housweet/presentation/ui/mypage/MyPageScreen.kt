@@ -1,5 +1,6 @@
 package com.housweet.presentation.ui.mypage
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -13,23 +14,30 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.housweet.presentation.R
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyPageScreen(navController: NavController, onBackClick: () -> Unit = {}) {
+fun MyPageScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
             .verticalScroll(rememberScrollState())
+            .background(Color.White)
     ) {
         // Top Bar
         Row(
@@ -38,13 +46,27 @@ fun MyPageScreen(navController: NavController, onBackClick: () -> Unit = {}) {
                 .padding(vertical = 16.dp, horizontal = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Back",
-                modifier = Modifier.clickable { navController.popBackStack() }
+            // 상단 AppBar
+            CenterAlignedTopAppBar(
+                title={
+                    Text(
+                        text = "마이페이지",
+                        fontSize = 14.sp
+                    )
+                },
+                navigationIcon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.back_black),
+                        contentDescription = "뒤로가기",
+                        modifier = Modifier
+                            .padding(start = 16.dp)
+                            .clickable { navController.popBackStack() }
+                    )
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color.White // ✅ 배경색 흰색 지정
+                )
             )
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(text = "마이페이지", fontSize = 18.sp, fontWeight = FontWeight.Bold)
         }
 
         // Profile Section
@@ -85,14 +107,25 @@ fun MyPageScreen(navController: NavController, onBackClick: () -> Unit = {}) {
 
         // Support Section
         SectionTitle("고객 지원")
-        MyPageMenuItem("앱 설정")
+        MyPageMenuItem("앱 설정") {
+            Log.d("MyPage", "navigate to app_setting")
+            try {
+                navController.navigate("app_setting")
+            } catch (e: Exception) {
+                Log.e("MyPage", "Navigation error", e)
+            }
+        }
         MyPageMenuItem("공지사항") {
             navController.navigate("notice") {
                 launchSingleTop = true
             }
         }
-        MyPageMenuItem("도움말")
-        MyPageMenuItem("약관 및 정책")
+        MyPageMenuItem("도움말") {
+            navController.navigate("help")
+        }
+        MyPageMenuItem("약관 및 정책") {
+            navController.navigate("terms_conditions_policies")
+        }
 
         // Feedback CTA
         Spacer(modifier = Modifier.height(24.dp))
