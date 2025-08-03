@@ -1,5 +1,6 @@
 package com.housweet.presentation.ui.communityPage.postScreen.postsScreen
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,7 +17,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,48 +35,105 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.housweet.domain.model.RoomPostsByLocationDataModel
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.startPage.GuideText
+import com.housweet.presentation.ui.startPage.LoadingScreen
 import com.housweet.presentation.ui.theme.Black
 import com.housweet.presentation.ui.theme.Gray_A5A5A5
-import com.housweet.presentation.ui.theme.Purple
 import com.housweet.presentation.ui.theme.White
 
 @Composable
 fun PostsScreen(
-    onPostClick: () -> Unit,
+    postsViewModel: PostsViewModel = hiltViewModel(),
+    onPostClick: (postId: Int) -> Unit,
     onBackBtnClick: () -> Unit
 ) {
-    PostsContent(
-        dong = "문정동",
-        onPostClick = onPostClick,
-        onBackBtnClick = onBackBtnClick
-    )
+    val uiState by postsViewModel.uiState.collectAsState()
+    val posts by postsViewModel.posts.collectAsState()
+    val snackBarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(Unit) {
+        postsViewModel.event.collect { event ->
+            when (event) {
+                PostsEvent.Error -> {
+                    snackBarHostState.showSnackbar(
+                        message = "방 정보를 제대로 불러오지 못했어요.",
+                        actionLabel = "닫기",
+                        duration = SnackbarDuration.Short
+                    )
+                }
+
+                PostsEvent.BookMarkError -> {
+                    snackBarHostState.showSnackbar(
+                        message = "북마크를 제대로 설정하지 못했어요.",
+                        actionLabel = "닫기",
+                        duration = SnackbarDuration.Short
+                    )
+                }
+            }
+        }
+    }
+
+    when(uiState) {
+        PostsState.Idle -> {
+            PostsContent(
+                postRegions = postsViewModel.postRegions,
+                posts = posts,
+                snackBarHostState = snackBarHostState,
+                onPostClick = onPostClick,
+                onToggleLike = { postRegion, postIndex ->
+                    postsViewModel.toggleLike(postRegion, postIndex)
+                },
+                onBackBtnClick = onBackBtnClick
+            )
+        }
+
+        PostsState.IsLoading -> {
+            LoadingScreen()
+        }
+    }
 }
 
 @Composable
 private fun PostsContent(
-    dong: String,
-    onPostClick: () -> Unit,
+    postRegions: List<String>,
+    posts: Map<String, List<RoomPostsByLocationDataModel>>,
+    snackBarHostState: SnackbarHostState,
+    onPostClick: (postId: Int) -> Unit,
+    onToggleLike: (postRegion: String, postIndex: Int) -> Unit,
     onBackBtnClick: () -> Unit
 ) {
     Scaffold(
         topBar = {
             PostsTopBar(
-                dong = dong,
+                regions = if (postRegions.size > 3) {
+                    postRegions.take(3).joinToString(", ") { it.split(" ").last() } + "..."
+                } else {
+                    postRegions.joinToString(", ") { it.split(" ").last() }
+                },
                 onBackBtnClick = onBackBtnClick
             )
         },
+        snackbarHost = { SnackbarHost(snackBarHostState) },
         containerColor = White
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier.padding(innerPadding),
         ) {
-            items(10) {
-                PostItem {
-                    onPostClick()
+            posts.forEach { (postRegion, posts) ->
+                val regionParts  = postRegion.split(" ")
+                items(posts.size) { postIndex ->
+                    val postInfo = posts[postIndex]
+                    PostItem(
+                        postInfo = postInfo,
+                        postRegion = "${regionParts[1]} ${regionParts[2]}",
+                        onPostClick = { onPostClick(postInfo.id) },
+                        onToggleLike = { onToggleLike(postRegion, postIndex) }
+                    )
                 }
             }
         }
@@ -77,7 +142,7 @@ private fun PostsContent(
 
 @Composable
 private fun PostsTopBar(
-    dong: String,
+    regions: String,
     onBackBtnClick: () -> Unit
 ) {
     Row(
@@ -100,7 +165,7 @@ private fun PostsTopBar(
 
         GuideText(
             color = Black,
-            text = dong,
+            text = regions,
             fontWeight = FontWeight.Bold,
             fontSize = 14.sp,
             lineHeight = 14.sp,
@@ -118,7 +183,10 @@ private fun PostsTopBar(
 
 @Composable
 private fun PostItem(
-    onPostClick: () -> Unit
+    postInfo: RoomPostsByLocationDataModel,
+    postRegion: String,
+    onPostClick: () -> Unit,
+    onToggleLike: () -> Unit
 ) {
     val context = LocalContext.current
     Row(modifier = Modifier
@@ -133,7 +201,7 @@ private fun PostItem(
          AsyncImage(
             model = ImageRequest
                 .Builder(context)
-                .data("https://picsum.photos/300/300")
+                .data(postInfo.imageUri)
                 .build(),
             contentDescription = "RoomImage",
             modifier = Modifier
@@ -148,20 +216,22 @@ private fun PostItem(
                 GuideText(
                     modifier = Modifier.width(190.dp),
                     color = Black,
-                    text = "애완동물 좋아하는 사람을 구하고 있습니다.",
+                    text = postInfo.title,
                     fontWeight = FontWeight.Bold,
                     fontSize = 12.sp,
-                    lineHeight = 18.sp,
+                    lineHeight = 20.sp,
                     textAlign = TextAlign.Start
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                Icon(
-                    painter = painterResource(id = R.drawable.favorite),
+                Image(
+                    painter = painterResource(id = if (postInfo.isBookmarked) R.drawable.like else R.drawable.unlike),
                     contentDescription = "favorite",
-                    modifier = Modifier.padding(start = 25.1.dp),
-                    tint = Purple
+                    modifier = Modifier
+                        .padding(start = 25.1.dp)
+                        .clip(CircleShape)
+                        .clickable { onToggleLike() }
                 )
             }
 
@@ -169,7 +239,7 @@ private fun PostItem(
 
             GuideText(
                 color = Black,
-                text = "보증금 400 월세 20",
+                text = "보증금 ${postInfo.deposit} 월세 ${postInfo.rent}",
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 12.sp,
                 lineHeight = 12.sp,
@@ -183,7 +253,7 @@ private fun PostItem(
             ) {
                 GuideText(
                     color = Black,
-                    text = "송파구 문정동",
+                    text = postRegion,
                     fontWeight = FontWeight.Bold,
                     fontSize = 10.sp,
                     lineHeight = 10.sp,
@@ -193,7 +263,7 @@ private fun PostItem(
                 GuideText(
                     modifier = Modifier.padding(start = 8.dp),
                     color = Gray_A5A5A5,
-                    text = "20대 남자",
+                    text = postInfo.ageRangeAndGender,
                     fontWeight = FontWeight.Bold,
                     fontSize = 10.sp,
                     lineHeight = 10.sp,
@@ -203,7 +273,7 @@ private fun PostItem(
                 Spacer(modifier = Modifier.weight(1f))
 
                 Icon(
-                    painter = painterResource(id = R.drawable.favorite_count),
+                    painter = painterResource(id = R.drawable.like_count),
                     contentDescription = "favoriteCount",
                     modifier = Modifier.padding(start = 25.1.dp),
                     tint = Gray_A5A5A5
@@ -227,8 +297,23 @@ private fun PostItem(
 @Composable
 private fun PostsScreenPreview() {
     PostsContent(
-        dong = "문정동",
+        postRegions = listOf("서울특별시 강남구 역삼동"),
+        posts = mapOf(
+            "서울특별시 강남구 역삼동" to listOf(
+                RoomPostsByLocationDataModel(
+                    id = 1,
+                    title = "방 구하는 분",
+                    imageUri = "https://picsum.photos/200/300",
+                    isBookmarked = false,
+                    rent = 40,
+                    deposit = 1000,
+                    ageRangeAndGender = "20대 남성"
+                )
+            )
+        ),
+        snackBarHostState = remember { SnackbarHostState() },
         onPostClick = {},
+        onToggleLike = { _, _ -> },
         onBackBtnClick = {}
     )
 }

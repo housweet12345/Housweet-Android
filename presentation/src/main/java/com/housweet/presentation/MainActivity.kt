@@ -266,11 +266,11 @@ class MainActivity : ComponentActivity() {
                             onMyPageScreen = {
                                 navigationManager.navigateTo("mypage")
                             },
-                            onMarkerClick = {
-                                navigationManager.navigateTo(Route.CommunityPageRoute.PostRoute.Posts)
+                            onMarkerClick = { postRegion ->
+                                navigationManager.navigateTo(Route.CommunityPageRoute.PostRoute.Posts(postRegion))
                             },
-                            onViewPostBtnClick = {
-                                navigationManager.navigateTo(Route.CommunityPageRoute.PostRoute.Posts)
+                            onViewPostBtnClick = { postRegions ->
+                                navigationManager.navigateTo(Route.CommunityPageRoute.PostRoute.Posts(postRegions))
                             },
                             onSearchBtnClick = {
                                 navigationManager.navigateTo(Route.CommunityPageRoute.SearchRegion)
@@ -299,13 +299,14 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable<Route.CommunityPageRoute.PostRoute.Posts> {
+                        val postRegions = it.toRoute<Route.CommunityPageRoute.PostRoute.Posts>().postRegions
                         PostsScreen(
                             onPostClick = {
-                                navigationManager.navigateTo(Route.CommunityPageRoute.PostRoute.DetailPost)
+                                navigationManager.navigateTo(Route.CommunityPageRoute.PostRoute.DetailPost(it))
                             },
                             onBackBtnClick = {
                                 navigationManager.navigateOneWay(
-                                    Route.CommunityPageRoute.PostRoute.Posts,
+                                    Route.CommunityPageRoute.PostRoute.Posts(postRegions),
                                     Route.CommunityPageRoute.Map(coordinate = null)
                                 )
                             }
@@ -313,7 +314,11 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable<Route.CommunityPageRoute.PostRoute.DetailPost> {
-                        DetailPostScreen()
+                        DetailPostScreen(
+                            onChatScreen = {
+                                navigationManager.navigateTo("chat_detail/${it}")
+                            }
+                        )
                     }
 
                     composable(BottomNavItem.Home.route) {
