@@ -479,10 +479,14 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable(
-                        route = "chat_detail/{chatName}",
-                        arguments = listOf(navArgument("chatName") { defaultValue = "Unknown" })
+                        route = "chat_detail/{receiverId}/{chatName}",
+                        arguments = listOf(
+                            navArgument("receiverId") { type = NavType.IntType },
+                            navArgument("chatName") { defaultValue = "Unknown" }
+                        )
                     )
                     { backStackEntry ->
+                        val receiverId = backStackEntry.arguments?.getInt("receiverId") ?: -1
                         val encodedName =
                             backStackEntry.arguments?.getString("chatName") ?: "Unknown"
                         val chatName = String(
@@ -491,7 +495,11 @@ class MainActivity : ComponentActivity() {
                                 Base64.URL_SAFE or Base64.NO_WRAP
                             )
                         ) // ✅ 여기서 디코딩
-                        ChatScreen(chatName, navController)
+                        ChatScreen(
+                            chatName = chatName,
+                            receiverId = receiverId,
+                            navController = navController,
+                        )
                     }
 
                     composable<Route.MyPageRoute.MyPage> {
