@@ -17,6 +17,7 @@ import com.housweet.data.network.ImageUploadRemoteDataSource
 import com.housweet.data.network.KtorService
 import com.housweet.data.network.RoomRemoteDataSource
 import com.housweet.data.network.RoomRemoteDataSourceImpl
+import com.housweet.data.network.RoomPostingRepositoryImpl
 import com.housweet.data.repository.AccessRoomRepositoryImpl
 import com.housweet.data.repository.AuthRepositoryImpl
 import com.housweet.data.repository.CommunityRepositoryImpl
@@ -31,6 +32,7 @@ import com.housweet.domain.repository.AuthRepository
 import com.housweet.domain.repository.CommunityRepository
 import com.housweet.domain.repository.HouseRegisterRepository
 import com.housweet.domain.repository.ImageUploadRepository
+import com.housweet.domain.repository.RoomPostingRepository
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -119,6 +121,11 @@ abstract class Module {
     abstract fun bindImageUploadRepository(
         impl: ImageUploadRepositoryImpl
     ): ImageUploadRepository
+
+    @Binds
+    abstract fun bindRoomRepository(
+        impl: RoomPostingRepositoryImpl
+    ): RoomPostingRepository
 
     companion object {
         @Provides

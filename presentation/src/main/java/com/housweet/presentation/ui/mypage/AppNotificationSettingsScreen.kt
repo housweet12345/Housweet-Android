@@ -41,17 +41,8 @@ fun AppNotificationSettingsScreen(
     var isNotificationOn by remember { mutableStateOf(false) }
 
     Scaffold (
-        containerColor = Color.White
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-                .padding(16.dp)
-                .background(Color.White),
-            horizontalAlignment = Alignment.Start
-        ) {
-
+        containerColor = Color.White,
+        topBar = {
             // 상단 AppBar
             CenterAlignedTopAppBar(
                 title={
@@ -73,6 +64,16 @@ fun AppNotificationSettingsScreen(
                     containerColor = Color.White // ✅ 배경색 흰색 지정
                 )
             )
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+                .padding(16.dp)
+                .background(Color.White),
+            horizontalAlignment = Alignment.Start
+        ) {
 
             // 알림 켜기 토글
             Row(
