@@ -91,9 +91,8 @@ fun MyPostedRoomScreen(navController: NavController) {
 
     // 화면이 처음 렌더링될 때, 데이터 불러오기
     LaunchedEffect(Unit) {
-        Log.d("MyPostedRoomScreen", "초기 데이터 로딩 시작")
-        viewModel.loadRoom(1) // 처음 1번 id로 로딩
-        viewModel.loadRoom(2) // 필요한 만큼 더 추가 가능
+        Log.d("MyPostedRoomScreen", "내가 올린 방 목록 로딩")
+        viewModel.loadMyRooms()
     }
 
     suspend fun hidePost(post: RoomPost) {
