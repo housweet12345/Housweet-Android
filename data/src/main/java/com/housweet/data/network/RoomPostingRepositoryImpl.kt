@@ -2,7 +2,7 @@ package com.housweet.data.network
 
 import com.housweet.data.BuildConfig
 import com.housweet.data.local.AuthLocalDataSource
-import com.housweet.data.network.dto.RoomPostingDto
+import com.housweet.data.network.dto.RoomPostingListResponse
 import com.housweet.data.network.dto.VisibilityRequestDto
 import com.housweet.data.network.dto.toRoomPost
 import com.housweet.domain.model.RoomPost
@@ -26,17 +26,18 @@ class RoomPostingRepositoryImpl @Inject constructor(
     private val client by lazy { ktorService.createHttpClient() }
     private val BASE_URL = BuildConfig.BASE_URL
 
-    override suspend fun getRoomPosting(id: Int): RoomPost {
+    override suspend fun getMyRoomPostings(): List<RoomPost> {
         val token = authLocalDataSource.getAuthToken()?.accessToken.orEmpty()
 
-        val response: RoomPostingDto = client.get("$BASE_URL/room/room-postings/$id/") {
+        val response: RoomPostingListResponse = client.get("$BASE_URL/room/room-postings/me/") {
             headers {
                 append("Authorization", "Bearer $token")
             }
         }.body()
 
-        return response.toRoomPost()
+        return response.data.map { it.toRoomPost() }
     }
+
 
     override suspend fun updatePostVisibility(postingId: Int, isVisible: Boolean) {
         val token = authLocalDataSource.getAuthToken()?.accessToken.orEmpty()
