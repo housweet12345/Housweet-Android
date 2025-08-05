@@ -60,22 +60,6 @@ class AppSettingViewModel @Inject constructor(
         }
     }
 
-//    fun setNotificationToggle(value: Boolean) {
-//        isNotificationOn.value = value
-//
-//        // "알림 켜기" id 찾아서 설정
-//        val globalSettingId = appSettings
-//            .flatMap { it.settings }
-//            .find { it.key == "global_notifications_on_off" }
-//            ?.id
-//
-//        if (globalSettingId != null) {
-//            updateSetting(globalSettingId, value)
-//        } else {
-//            Log.e("AppSettingViewModel", "global_notifications_on_off 설정을 찾을 수 없습니다.")
-//        }
-//    }
-
     fun setNotificationToggle(value: Boolean) {
         isNotificationOn.value = value
 
