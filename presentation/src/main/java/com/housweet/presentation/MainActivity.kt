@@ -1,6 +1,5 @@
 package com.housweet.presentation
 
-import ChatScreen
 import NotificationScreen
 import android.content.Intent
 import android.graphics.Bitmap
@@ -39,6 +38,7 @@ import com.housweet.domain.event.AuthEvent
 import com.housweet.domain.event.AuthEventBus
 import com.housweet.domain.model.Coordinate
 import com.housweet.presentation.model.RegisterModel
+import com.housweet.presentation.ui.chat.ChatScreen
 import com.housweet.presentation.ui.chatlist.ChatListScreen
 import com.housweet.presentation.ui.communityPage.mapScreen.MapScreen
 import com.housweet.presentation.ui.communityPage.postScreen.detailPostScreen.DetailPostScreen
@@ -415,7 +415,9 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable<Route.ChatRoute.ChatList> {
-                        ChatListScreen(navController = navController)
+                        ChatListScreen(
+                            navController = navController
+                        )
                     }
 
                     composable("mypage") {
