@@ -11,14 +11,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -28,6 +31,8 @@ import com.housweet.presentation.model.RegisterModel
 import com.housweet.presentation.ui.common.StepIndicator
 import com.housweet.presentation.ui.common.TopBarWithBackButton
 import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModel
+import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModelBase
+import androidx.core.graphics.createBitmap
 
 @Composable
 fun HouseRegisterScreen3(
@@ -36,7 +41,7 @@ fun HouseRegisterScreen3(
     onBackClick: () -> Unit,
     onImagePickClick: () -> Unit,
     selectedImageBitmap: Bitmap? = null,
-    viewModel: HouseRegisterViewModel
+    viewModel: HouseRegisterViewModelBase
 ) {
 //    val viewModel: HouseRegisterViewModel = hiltViewModel()
 
@@ -134,3 +139,31 @@ fun HouseRegisterScreen3(
         Spacer(modifier = Modifier.height(16.dp))
     }
 }
+
+// region Preview
+
+@Preview(showBackground = true)
+@Composable
+fun HouseRegisterScreen3Preview() {
+    val context = LocalContext.current
+
+    // ✅ 1x1 흰색 비트맵 (간단한 프리뷰용)
+    val dummyBitmap = remember {
+        createBitmap(1, 1).apply {
+            eraseColor(android.graphics.Color.LTGRAY) // 회색
+        }
+    }
+
+    val fakeViewModel = remember { PreviewHouseRegisterViewModel3() }
+
+    HouseRegisterScreen3(
+        mode = RegisterModel.CREATE,
+        onNextClick = {},
+        onBackClick = {},
+        onImagePickClick = {},
+        selectedImageBitmap = dummyBitmap,
+        viewModel = fakeViewModel
+    )
+}
+
+class PreviewHouseRegisterViewModel3 : HouseRegisterViewModelBase()
