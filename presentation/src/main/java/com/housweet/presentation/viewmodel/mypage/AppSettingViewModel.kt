@@ -60,19 +60,51 @@ class AppSettingViewModel @Inject constructor(
         }
     }
 
+//    fun setNotificationToggle(value: Boolean) {
+//        isNotificationOn.value = value
+//
+//        // "알림 켜기" id 찾아서 설정
+//        val globalSettingId = appSettings
+//            .flatMap { it.settings }
+//            .find { it.key == "global_notifications_on_off" }
+//            ?.id
+//
+//        if (globalSettingId != null) {
+//            updateSetting(globalSettingId, value)
+//        } else {
+//            Log.e("AppSettingViewModel", "global_notifications_on_off 설정을 찾을 수 없습니다.")
+//        }
+//    }
+
     fun setNotificationToggle(value: Boolean) {
         isNotificationOn.value = value
 
-        // "알림 켜기" id 찾아서 설정
-        val globalSettingId = appSettings
-            .flatMap { it.settings }
-            .find { it.key == "global_notifications_on_off" }
-            ?.id
+        viewModelScope.launch {
+            try {
+                // 1. global_notifications_on_off 설정 변경
+                val globalSetting = appSettings
+                    .flatMap { it.settings }
+                    .find { it.key == "global_notifications_on_off" }
 
-        if (globalSettingId != null) {
-            updateSetting(globalSettingId, value)
-        } else {
-            Log.e("AppSettingViewModel", "global_notifications_on_off 설정을 찾을 수 없습니다.")
+                globalSetting?.let {
+                    updateSetting(it.id, value)
+                }
+
+                // 2. 만약 알림을 끄는 경우 → 모든 세부 알림도 Off
+                if (!value) {
+                    appSettings.forEach { category ->
+                        category.settings.forEach { setting ->
+                            // global_notifications_on_off는 제외하고 전부 끄기
+                            if (setting.key != "global_notifications_on_off" && setting.isEnabled) {
+                                updateSetting(setting.id, isEnabled = false)
+                            }
+                        }
+                    }
+                }
+
+            } catch (e: Exception) {
+                Log.e("AppSettingViewModel", "알림 토글 처리 실패", e)
+            }
         }
     }
 }
