@@ -7,6 +7,7 @@ import com.housweet.data.local.AuthLocalDataSourceImpl
 import com.housweet.data.local.RoomLocalDataSourceImpl
 import com.housweet.data.network.AccessRoomRemoteDataSource
 import com.housweet.data.network.AccessRoomRemoteDataSourceImpl
+import com.housweet.data.network.AppSettingRemoteDataSource
 import com.housweet.data.network.AuthRemoteDataSource
 import com.housweet.data.network.AuthRemoteDataSourceImpl
 import com.housweet.data.network.ChatRemoteDataSource
@@ -20,7 +21,9 @@ import com.housweet.data.network.KtorService
 import com.housweet.data.network.RoomRemoteDataSource
 import com.housweet.data.network.RoomRemoteDataSourceImpl
 import com.housweet.data.network.RoomPostingRepositoryImpl
+import com.housweet.data.network.dto.AppSettingRemoteDataSourceImpl
 import com.housweet.data.repository.AccessRoomRepositoryImpl
+import com.housweet.data.repository.AppSettingRepositoryImpl
 import com.housweet.data.repository.AuthRepositoryImpl
 import com.housweet.data.repository.ChatRepositoryImpl
 import com.housweet.data.repository.CommunityRepositoryImpl
@@ -31,6 +34,7 @@ import com.housweet.data.utils.NetworkConnectionManager
 import com.housweet.domain.event.AuthEventBus
 import com.housweet.domain.local.RoomLocalDataSource
 import com.housweet.domain.repository.AccessRoomRepository
+import com.housweet.domain.repository.AppSettingRepository
 import com.housweet.domain.repository.AuthRepository
 import com.housweet.domain.repository.ChatRepository
 import com.housweet.domain.repository.CommunityRepository
@@ -143,6 +147,17 @@ abstract class Module {
         impl: ChatRepositoryImpl
     ): ChatRepository
 
+    @Binds
+    @Singleton
+    abstract fun bindAppSettingRemoteDataSource(
+        impl: AppSettingRemoteDataSourceImpl
+    ): AppSettingRemoteDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindAppSettingRepository(
+        impl: AppSettingRepositoryImpl
+    ): AppSettingRepository
 
     companion object {
         @Provides
