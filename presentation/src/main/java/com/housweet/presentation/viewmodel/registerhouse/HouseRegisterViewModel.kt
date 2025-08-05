@@ -3,7 +3,6 @@ package com.housweet.presentation.viewmodel.registerhouse
 import android.graphics.Bitmap
 import android.util.Log
 import androidx.compose.runtime.*
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.housweet.domain.local.RoomLocalDataSource
 import com.housweet.domain.model.HouseRegisterModel
@@ -24,10 +23,10 @@ class HouseRegisterViewModel @Inject constructor(
     private val houseRegisterRepository: HouseRegisterRepository,
     private val roomLocalDataSource: RoomLocalDataSource,
     private val imageUploadRepository: ImageUploadRepository
-) : ViewModel() {
+) : HouseRegisterViewModelBase() {
 
     // Room ID 로깅용 함수
-    fun logRoomId() {
+    override fun logRoomId() {
         viewModelScope.launch {
             val roomId = roomLocalDataSource.getRoomId()
             Log.d("HouseRegister", "Room ID: $roomId")
@@ -35,23 +34,23 @@ class HouseRegisterViewModel @Inject constructor(
     }
 
     // Step 1: 교통/인프라 등 태그
-    var houseTags by mutableStateOf<List<String>>(emptyList())
-        private set
-    fun updateHouseTags(tags: List<String>) {
+    override var houseTags by mutableStateOf<List<String>>(emptyList())
+        set
+    override fun updateHouseTags(tags: List<String>) {
         houseTags = tags
     }
 
     // Step 2: 주소, 제목, 설명, 금액 등
-    var region: Region? by mutableStateOf(null)
-        private set
-    var title by mutableStateOf("")
-    var description by mutableStateOf("")
-    var deposit by mutableStateOf("")
-    var monthlyRent by mutableStateOf("")
-    var managementFee by mutableStateOf("")
-    var moveInDate by mutableStateOf("")
+    override var region: Region? by mutableStateOf(null)
+        set
+    override var title by mutableStateOf("")
+    override var description by mutableStateOf("")
+    override var deposit by mutableStateOf("")
+    override var monthlyRent by mutableStateOf("")
+    override var managementFee by mutableStateOf("")
+    override var moveInDate by mutableStateOf("")
 
-    fun setStep2Data(
+    override fun setStep2Data(
         region: Region?,
         title: String,
         desc: String,
@@ -81,7 +80,7 @@ class HouseRegisterViewModel @Inject constructor(
     // Step 3: Bitmap
     private val _imageBitmap = mutableStateOf<Bitmap?>(null)
 
-    fun updateImageBitmap(bitmap: Bitmap) {
+    override fun updateImageBitmap(bitmap: Bitmap) {
         _imageBitmap.value = bitmap
     }
 
@@ -95,14 +94,14 @@ class HouseRegisterViewModel @Inject constructor(
     }
 
     // Step 4: 선호 태그
-    var preferredTags by mutableStateOf<List<String>>(emptyList())
-        private set
-    fun updatePreferredTags(tags: List<String>) {
+    override var preferredTags by mutableStateOf<List<String>>(emptyList())
+        set
+    override fun updatePreferredTags(tags: List<String>) {
         preferredTags = tags
     }
 
     // 등록 요청
-    fun submitHouseRegister(
+    override fun submitHouseRegister(
         onSuccess: () -> Unit,
         onError: (Throwable) -> Unit
     ) {
