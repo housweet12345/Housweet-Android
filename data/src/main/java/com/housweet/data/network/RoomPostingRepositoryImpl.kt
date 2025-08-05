@@ -1,5 +1,6 @@
 package com.housweet.data.network
 
+import android.util.Log
 import com.housweet.data.BuildConfig
 import com.housweet.data.local.AuthLocalDataSource
 import com.housweet.data.network.dto.RoomPostingListResponse
@@ -8,6 +9,7 @@ import com.housweet.data.network.dto.toRoomPost
 import com.housweet.domain.model.RoomPost
 import com.housweet.domain.repository.RoomPostingRepository
 import io.ktor.client.call.body
+import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.patch
 import io.ktor.client.request.setBody
@@ -47,6 +49,16 @@ class RoomPostingRepositoryImpl @Inject constructor(
                 append("Authorization", "Bearer $token")
             }
             setBody(VisibilityRequestDto(isVisible))
+        }
+    }
+
+    override suspend fun deletePost(postingId: Int) {
+        val token = authLocalDataSource.getAuthToken()?.accessToken.orEmpty()
+        Log.d("RoomRepo", "삭제 요청 토큰: $token")
+        client.delete("$BASE_URL/room/room-postings/$postingId/") {
+            headers {
+                append("Authorization", "Bearer $token")
+            }
         }
     }
 }

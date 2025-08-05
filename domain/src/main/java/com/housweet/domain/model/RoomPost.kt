@@ -16,5 +16,6 @@ data class RoomPost(
     val priceInfo: String,
     val metaInfo: String,
 
-    var isHidden: Boolean = false // ✅ 생성자 파라미터로 변경 (val로 해도 무방)
+    var isHidden: Boolean = false, // 생성자 파라미터로 변경 (val로 해도 무방)
+    val userId: Int, // 추가: 게시글 작성자 ID
 )
