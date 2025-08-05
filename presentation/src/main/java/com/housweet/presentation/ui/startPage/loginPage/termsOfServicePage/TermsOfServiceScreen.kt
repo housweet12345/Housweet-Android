@@ -44,6 +44,7 @@ import com.housweet.presentation.ui.theme.White
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun TermsOfServiceScreen(
+    modifier: Modifier,
     termsOfServiceViewModel: TermsOfServiceViewModel = hiltViewModel(),
     onNextScreen: () -> Unit
 ) {
@@ -75,7 +76,7 @@ fun TermsOfServiceScreen(
     when(uiState) {
         TermsOfServiceState.Idle -> {
             Scaffold(
-                modifier = Modifier.fillMaxSize(),
+                modifier = modifier.fillMaxSize(),
                 snackbarHost = { SnackbarHost(hostState = snackBarHostState) }
             ) {
                 TermsOfServiceContent(

@@ -1,12 +1,13 @@
 package com.housweet.presentation.ui.communityPage.postScreen.detailPostScreen
 
+import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -58,7 +59,9 @@ import com.housweet.presentation.ui.theme.White_F8F8F8
 
 @Composable
 fun DetailPostScreen(
+    modifier: Modifier,
     onChatScreen: (name: String) -> Unit,
+    onProfileScreen: () -> Unit,
     detailPostViewModel: DetailPostViewModel = hiltViewModel()
 ) {
     val uiState by detailPostViewModel.uiState.collectAsState()
@@ -80,8 +83,11 @@ fun DetailPostScreen(
     when(uiState) {
         DetailPostState.Idle -> {
             DetailPostContent(
+                modifier = modifier,
                 snackBarHostState = snackBarHostState,
-            ) { onChatScreen(it) }
+                onChatScreen = onChatScreen,
+                onProfileScreen = onProfileScreen
+            )
         }
 
         DetailPostState.IsLoading -> {
@@ -90,15 +96,18 @@ fun DetailPostScreen(
     }
 }
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 private fun DetailPostContent(
+    modifier: Modifier,
     snackBarHostState: SnackbarHostState,
-    onChatScreen: (name: String) -> Unit
+    onChatScreen: (name: String) -> Unit,
+    onProfileScreen: () -> Unit
 ) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         bottomBar = {
             BottomBar(
                 onChatScreen = onChatScreen
@@ -106,10 +115,9 @@ private fun DetailPostContent(
         },
         snackbarHost = { SnackbarHost(snackBarHostState) },
         containerColor = White
-    ) { innerPadding ->
+    ) {
         Column(
             modifier = Modifier
-                .padding(innerPadding)
                 .fillMaxSize()
                 .verticalScroll(scrollState)
         ) {
@@ -130,7 +138,8 @@ private fun DetailPostContent(
                     .padding(horizontal = 20.dp)
             ) {
                 UserProfile(
-                    context = context
+                    context = context,
+                    onProfileScreen = onProfileScreen
                 )
 
                 DetailContent()
@@ -151,7 +160,8 @@ private fun DetailPostContent(
 
 @Composable
 private fun UserProfile(
-    context: Context
+    context: Context,
+    onProfileScreen: () -> Unit
 ) {
     Spacer(modifier = Modifier.height(16.dp))
 
@@ -169,6 +179,7 @@ private fun UserProfile(
             modifier = Modifier
                 .size(30.dp)
                 .clip(CircleShape)
+                .clickable { onProfileScreen() }
         )
         Column(
             modifier = Modifier.padding(start = 8.dp)
@@ -291,7 +302,6 @@ private fun PreferredFeatures() {
     )
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun FeaturesLayout(
     maxLines: Int,
@@ -342,6 +352,7 @@ private fun BottomBar(
         modifier = Modifier
             .fillMaxWidth()
             .height(65.dp)
+            .background(White)
     ) {
         HorizontalDivider(
             modifier = Modifier
@@ -409,8 +420,11 @@ private fun BottomBar(
 @Composable
 private fun DetailPostScreenPreview() {
     DetailPostContent(
-        snackBarHostState = remember { SnackbarHostState() }
-    ) { }
+        modifier = Modifier,
+        snackBarHostState = remember { SnackbarHostState() },
+        onChatScreen = {},
+        onProfileScreen = {}
+    )
 }
 
 @Preview

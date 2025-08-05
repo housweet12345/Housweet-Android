@@ -31,17 +31,25 @@ import com.housweet.presentation.ui.theme.Purple
 import com.housweet.presentation.ui.theme.White
 
 @Composable
-fun PermissionGuideScreen(onNextScreen: () -> Unit) {
+fun PermissionGuideScreen(
+    modifier: Modifier,
+    onNextScreen: () -> Unit
+) {
     BackOnPressed()
-    PermissionGuideContent {
+    PermissionGuideContent(
+        modifier = modifier
+    ) {
         onNextScreen()
     }
 }
 
 @Composable
-private fun PermissionGuideContent(onPermitBtnClick: () -> Unit) {
+private fun PermissionGuideContent(
+    modifier: Modifier,
+    onPermitBtnClick: () -> Unit
+) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(White)
     ) {
@@ -167,5 +175,8 @@ private fun PermissionGuideItem(
 @Preview(showBackground = true)
 @Composable
 private fun PermissionGuideScreenPreview() {
-    PermissionGuideContent { }
+    PermissionGuideContent(
+        modifier = Modifier,
+        onPermitBtnClick = {}
+    )
 }
