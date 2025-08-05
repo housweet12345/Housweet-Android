@@ -225,8 +225,18 @@ fun MyPostedRoomScreen(navController: NavController) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
-                                // TODO: 삭제 동작
-                                showSheet = false
+                                coroutineScope.launch {
+                                    selectedPost?.let {
+                                        val success = viewModel.deletePost(it.id)
+                                        if (success) {
+                                            snackbarHostState.showSnackbar("게시글이 삭제되었습니다.")
+                                            viewModel.loadMyRooms() // 🔄 삭제 후 목록 갱신
+                                        } else {
+                                            snackbarHostState.showSnackbar("삭제에 실패했습니다.")
+                                        }
+                                    }
+                                    showSheet = false
+                                }
                             }
                             .padding(vertical = 10.dp),
                         contentAlignment = Alignment.Center

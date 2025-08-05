@@ -12,5 +12,6 @@ data class RoomPostingDto(
     val deposit: Int,
     val image_uri: String? = null,
     val created_at: String = "",
-    val age_range_and_gender: String = ""
+    val age_range_and_gender: String = "",
+    val user_id: Int? = null // 추가
 )

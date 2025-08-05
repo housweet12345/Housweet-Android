@@ -16,6 +16,7 @@ class RoomPostingViewModel @Inject constructor(
     private val repository: RoomPostingRepository
 ) : ViewModel() {
 
+    val currentUserId: Int = 1 // TODO: 추후 로그인 유저의 ID로 교체
     private val _roomPosts = mutableStateListOf<RoomPost>()
     val roomPosts: SnapshotStateList<RoomPost> get() = _roomPosts
 
@@ -40,6 +41,17 @@ class RoomPostingViewModel @Inject constructor(
             } catch (e: Exception) {
                 Log.e("RoomViewModel", "숨김 처리 실패", e)
             }
+        }
+    }
+
+    suspend fun deletePost(id: Int): Boolean {
+        return try {
+            repository.deletePost(id)
+            _roomPosts.removeAll { it.id == id } // ✅ 리스트에서 직접 제거
+            true
+        } catch (e: Exception) {
+            Log.e("RoomViewModel", "삭제 실패: ${e.message}")
+            false
         }
     }
 }

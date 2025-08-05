@@ -12,6 +12,7 @@ fun RoomPostingDto.toRoomPost(): RoomPost {
         imageUrl = image_uri,
         priceInfo = "보증금 ${deposit / 10000} / 월세 ${rent / 10000}",
         metaInfo = age_range_and_gender,
-        isHidden = !is_visible
+        isHidden = !is_visible,
+        userId = user_id ?: -1 //user_id가 null이면 -1로 처리
     )
 }
