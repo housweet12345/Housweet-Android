@@ -150,7 +150,9 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.padding(top = paddingValues.calculateTopPadding())
                 ) {
                     composable<Route.StartPageRoute.Splash> {
-                        SplashScreen { isAutoLogin, isAgreeTermsOfService ->
+                        SplashScreen(
+                            modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
+                        ) { isAutoLogin, isAgreeTermsOfService ->
                             when {
                                 !isAutoLogin -> {
                                     navigationManager.navigateOneWay(
@@ -200,7 +202,9 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable<Route.StartPageRoute.LoginRoute.PermissionGuide> {
-                        PermissionGuideScreen {
+                        PermissionGuideScreen(
+                            modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
+                        ) {
                             navigationManager.navigateOneWay(
                                 Route.StartPageRoute.LoginRoute.PermissionGuide,
                                 Route.StartPageRoute.LoginRoute.TermsOfService
@@ -209,7 +213,9 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable<Route.StartPageRoute.LoginRoute.TermsOfService> {
-                        TermsOfServiceScreen {
+                        TermsOfServiceScreen(
+                            modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
+                        ) {
                             navigationManager.navigateOneWay(
                                 Route.StartPageRoute.LoginRoute.TermsOfService,
                                 Route.StartPageRoute.AccessRoomRoute.AccessRoom
@@ -247,7 +253,9 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable<Route.StartPageRoute.AccessRoomRoute.CreateRoom> {
-                        CreateRoomScreen {
+                        CreateRoomScreen(
+                            modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
+                        ){
                             navigationManager.navigateOneWay(
                                 Route.StartPageRoute.AccessRoomRoute.AccessRoom,
                                 BottomNavItem.Home.route
@@ -256,7 +264,9 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable<Route.StartPageRoute.AccessRoomRoute.SearchRoom> {
-                        SearchRoomScreen {
+                        SearchRoomScreen(
+                            modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
+                        ){
                             navigationManager.navigateOneWay(
                                 Route.StartPageRoute.AccessRoomRoute.AccessRoom,
                                 BottomNavItem.Home.route
@@ -292,13 +302,13 @@ class MainActivity : ComponentActivity() {
                                 navigationManager.navigateTo(Route.HouseRegisterRoute.Step1(mode = RegisterModel.CREATE))
                             },
                             onChatClick = {
-                                navigationManager.navigateTo(Route.ChatRoute.ChatList)
+                                navigationManager.navigateTo("chat_list")
                             },
                             onNotificationClick = {
-                                navigationManager.navigateTo(Route.NotificationRoute.Notification)
+                                navigationManager.navigateTo("notification")
                             },
                             onMyPageClick = {
-                                navigationManager.navigateTo(Route.MyPageRoute.MyPage)
+                                navigationManager.navigateTo("mypage")
                             }
                         )
                     }
@@ -312,10 +322,7 @@ class MainActivity : ComponentActivity() {
                                 )
                             },
                             onBackBtnClick = {
-                                navigationManager.navigateOneWay(
-                                    Route.CommunityPageRoute.SearchRegion,
-                                    Route.CommunityPageRoute.Map(coordinate = null)
-                                )
+                                navController.popBackStack()
                             }
                         )
                     }
@@ -327,18 +334,19 @@ class MainActivity : ComponentActivity() {
                                 navigationManager.navigateTo(Route.CommunityPageRoute.PostRoute.DetailPost(id))
                             },
                             onBackBtnClick = {
-                                navigationManager.navigateOneWay(
-                                    Route.CommunityPageRoute.PostRoute.Posts(postRegions),
-                                    Route.CommunityPageRoute.Map(coordinate = null)
-                                )
+                                navController.popBackStack()
                             }
                         )
                     }
 
                     composable<Route.CommunityPageRoute.PostRoute.DetailPost> {
                         DetailPostScreen(
+                            modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
                             onChatScreen = {
                                 navigationManager.navigateTo("chat_detail/${it}")
+                            },
+                            onProfileScreen = {
+                                navigationManager.navigateTo("profile/me")
                             }
                         )
                     }
@@ -412,10 +420,6 @@ class MainActivity : ComponentActivity() {
                             onCompleteClick = {},
                             viewModel = houseRegisterViewModel
                         )
-                    }
-
-                    composable<Route.ChatRoute.ChatList> {
-                        ChatListScreen(navController = navController)
                     }
 
                     composable("mypage") {
@@ -492,83 +496,6 @@ class MainActivity : ComponentActivity() {
                             )
                         ) // ✅ 여기서 디코딩
                         ChatScreen(chatName, navController)
-                    }
-
-                    composable<Route.MyPageRoute.MyPage> {
-                        MyPageScreen(
-                            navController = navController
-                        )
-                    }
-
-                    composable("bookmark") {
-                        BookmarkScreen(
-                            onItemClick = { /* TODO: 상세 페이지로 이동 등 처리 */ },
-                            navController = navController
-                        )
-                    }
-                    composable("myhousedetail") {
-                        MyHouseDetailScreen(
-                            navController,
-                            isHost = true,
-                            onBackClick = { navController.popBackStack() },
-                            onMenuClick = {},
-                            inviteCode = "000112320",
-                        )
-                    }
-                    composable("notice") {
-                        NoticeScreen(
-                            onBackClick = { navController.popBackStack() },
-                            navController
-                        )
-                    }
-                    composable("edit_my_house") {
-                        MyHouseEditScreen(
-                            navController,
-                            houseName = "곰돌이방",
-                            startDate = "2025.01.05",
-                            inviteCode = "000112320",
-                            onDelete = { /* 삭제 로직 */ },
-                            onComplete = { navController.popBackStack() },
-                            onCodeRefresh = {},
-                            onBackClick = { navController.popBackStack() }
-                        )
-                    }
-                    composable("posted_my_room") {
-                        MyPostedRoomScreen(
-                            navController
-                        )
-                    }
-                    composable("app_setting") {
-                        AppNotificationSettingsScreen(navController)
-                    }
-                    composable("help") {
-                        HelpScreen(navController)
-                    }
-                    composable("terms_conditions_policies") {
-                        TermsConditionsPolicies(navController)
-                    }
-                    composable(
-                        "noticeDetail/{date}/{title}/{content}",
-                        arguments = listOf(
-                            navArgument("date") { type = NavType.StringType },
-                            navArgument("title") { type = NavType.StringType },
-                            navArgument("content") { type = NavType.StringType }
-                        )
-                    ) { backStackEntry ->
-                        val date = backStackEntry.arguments?.getString("date") ?: ""
-                        val title = backStackEntry.arguments?.getString("title") ?: ""
-                        val content = backStackEntry.arguments?.getString("content") ?: ""
-
-                        NoticeDetailScreen(
-                            date = date,
-                            title = title,
-                            content = content,
-                            onBackClick = { navController.popBackStack() }
-                        )
-                    }
-
-                    composable<Route.NotificationRoute.Notification> {
-                        NotificationScreen(navController = navController)
                     }
 
                     composable("profile/me") {

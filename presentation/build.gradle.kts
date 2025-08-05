@@ -134,6 +134,8 @@ dependencies {
 
     // Naver Map
     implementation (libs.naver.map.compose)
+
+    implementation("com.airbnb.android:lottie-compose:6.1.0")
 }
 
 kapt {

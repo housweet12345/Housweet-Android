@@ -29,7 +29,7 @@ class SplashViewModel @Inject constructor(
     fun checkLogin() {
         viewModelScope.launch {
             useCases.checkLoginUseCase().collect {
-                delay(1000)
+                delay(1500)
                 it.onSuccess { isAutoLogin ->
                     if (isAutoLogin) isTermsOfServiceAgreedUseCase()
                     else _event.emit(SplashEvent.IsNotAutoLogin)
