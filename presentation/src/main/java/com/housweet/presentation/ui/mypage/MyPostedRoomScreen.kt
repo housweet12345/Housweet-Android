@@ -50,11 +50,14 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.compose.rememberNavController
 import com.housweet.domain.model.RoomPost
+import com.housweet.domain.repository.RoomPostingRepository
 import com.housweet.presentation.model.RegisterModel
 import com.housweet.presentation.ui.navigation.Route
 import com.housweet.presentation.viewmodel.roomposting.RoomPostingViewModel
@@ -63,7 +66,10 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyPostedRoomScreen(navController: NavController) {
+fun MyPostedRoomScreen(
+    navController: NavController,
+    viewModel: RoomPostingViewModel = hiltViewModel()
+) {
     var selectedTab by remember { mutableStateOf(0) } // 0: 게시중, 1: 숨김
     val tabTitles = listOf("게시중", "숨김")
 
@@ -74,8 +80,6 @@ fun MyPostedRoomScreen(navController: NavController) {
     val coroutineScope = rememberCoroutineScope()
 
     val snackbarHostState = remember { SnackbarHostState() }
-
-    val viewModel: RoomPostingViewModel = hiltViewModel() // Hilt 또는 ViewModel에서 주입
     val roomPosts = viewModel.roomPosts
 
     // 게시글 목록 필터링
@@ -89,10 +93,13 @@ fun MyPostedRoomScreen(navController: NavController) {
         }
     }
 
-    // 화면이 처음 렌더링될 때, 데이터 불러오기
+    val inPreview = isPreview()
+
     LaunchedEffect(Unit) {
-        Log.d("MyPostedRoomScreen", "내가 올린 방 목록 로딩")
-        viewModel.loadMyRooms()
+        if (!inPreview) {
+            Log.d("MyPostedRoomScreen", "내가 올린 방 목록 로딩")
+            viewModel.loadMyRooms()
+        }
     }
 
     suspend fun hidePost(post: RoomPost) {
@@ -338,4 +345,57 @@ fun RoomItem(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MyPostedRoomScreenPreview() {
+    val dummyPosts = listOf(
+        RoomPost(
+            id = 1,
+            title = "가까운 역세권 쉐어하우스",
+            priceInfo = "보증금 100 / 월세 30",
+            metaInfo = "서울시 강남구 · 20대 여성",
+            isHidden = false,
+            deposit = "100",
+            rent = "30",
+            ageRangeAndGender = "20대 여성",
+            imageUrl = null,
+            userId = 1
+        ),
+        RoomPost(
+            id = 2,
+            title = "조용한 동네 쉐어하우스",
+            priceInfo = "보증금 200 / 월세 40",
+            metaInfo = "서울시 송파구 · 30대 남성",
+            isHidden = true,
+            deposit = "200",
+            rent = "40",
+            ageRangeAndGender = "30대 남성",
+            imageUrl = null,
+            userId = 1
+        )
+    )
+
+    val previewViewModel = object : RoomPostingViewModel(
+        repository = object : RoomPostingRepository {
+            override suspend fun updatePostVisibility(postingId: Int, isVisible: Boolean) {}
+            override suspend fun getMyRoomPostings(): List<RoomPost> = dummyPosts
+            override suspend fun deletePost(postingId: Int) {}
+        }
+    ) {
+        init {
+            roomPosts.addAll(dummyPosts)
+        }
+    }
+
+    MyPostedRoomScreen(
+        navController = rememberNavController(),
+        viewModel = previewViewModel
+    )
+}
+
+@Composable
+fun isPreview(): Boolean {
+    return LocalInspectionMode.current
 }
