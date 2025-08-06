@@ -275,7 +275,8 @@ fun RoomItem(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
                 Modifier
-                    .size(70.dp)
+                    .size(80.dp)
+                    .clip(RoundedCornerShape(6.dp))
                     .background(Color.LightGray)
             )
             Spacer(Modifier.width(12.dp))
