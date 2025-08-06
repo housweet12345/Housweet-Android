@@ -6,18 +6,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -27,6 +26,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.housweet.presentation.R
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -96,7 +97,8 @@ fun BookmarkCard(
         // 썸네일 영역
         Box(
             modifier = Modifier
-                .size(70.dp)
+                .size(80.dp)
+                .clip(RoundedCornerShape(6.dp))
                 .background(Color(0xFFE0E0E0))
         )
 
@@ -134,8 +136,26 @@ fun BookmarkCard(
             modifier = Modifier
                 .size(20.dp)
                 .clickable { onBookmarkToggle() },
-            //삭제?
             contentScale = ContentScale.Fit
         )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun BookmarkScreenPreview() {
+    val previewItems = listOf(
+        BookmarkItem(1, "프리뷰용 북마크 1입니다", "보증금 100 / 월세 30", "서울시 강남구", "20대 여성", true),
+        BookmarkItem(2, "프리뷰용 북마크 2입니다", "보증금 200 / 월세 40", "서울시 서초구", "30대 남성", false)
+    )
+    val dummyViewModel = object : BookmarkViewModel() {
+        override val bookmarks: List<BookmarkItem>
+            get() = previewItems
+    }
+
+    BookmarkScreen(
+        viewModel = dummyViewModel,
+        onItemClick = {},
+        navController = rememberNavController()
+    )
 }
