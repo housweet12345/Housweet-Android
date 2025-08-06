@@ -11,9 +11,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -25,14 +22,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.housweet.presentation.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyPageScreen(navController: NavController) {
+fun MyPageScreen(
+    navController: NavController
+) {
     Scaffold (
         containerColor = Color.White,
         topBar = {
@@ -64,9 +65,7 @@ fun MyPageScreen(navController: NavController) {
                 .fillMaxSize()
                 .background(Color.White)
                 .verticalScroll(rememberScrollState())
-                .background(Color.White)
         ) {
-            // Profile Section
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -77,14 +76,14 @@ fun MyPageScreen(navController: NavController) {
             ) {
                 Box(
                     modifier = Modifier
-                        .size(64.dp)
+                        .size(58.dp)
                         .clip(CircleShape)
                         .background(Color(0xFFE0E0E0))
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Column {
-                    Text(text = "김지안", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                    Text(text = "20대 남자", fontSize = 14.sp, color = Color.Gray)
+                    Text(text = "김지안", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    Text(text = "20대 남자", fontSize = 12.sp, color = Color.Gray)
                 }
             }
 
@@ -100,7 +99,7 @@ fun MyPageScreen(navController: NavController) {
                 navController.navigate("myhousedetail")
             }
 
-            Divider(color = Color(0xFFEEEEEE), thickness = 8.dp)
+            Divider(color = Color(0xFFEEEEEE), thickness = 1.dp)
 
             // Support Section
             SectionTitle("고객 지원")
@@ -124,7 +123,6 @@ fun MyPageScreen(navController: NavController) {
                 navController.navigate("terms_conditions_policies")
             }
 
-            // Feedback CTA
             Spacer(modifier = Modifier.height(24.dp))
             Box(
                 modifier = Modifier
@@ -134,20 +132,11 @@ fun MyPageScreen(navController: NavController) {
                     .padding(16.dp)
             ) {
                 Column {
-                    Text(
-                        text = "하우스잇이 도움이 되었나요?",
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "여러분의 의견을 들려주세요!",
-                        color = Color.White,
-                        fontSize = 12.sp
-                    )
+                    Text("하우스잇이 도움이 되었나요?", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text("여러분의 의견을 들려주세요!", color = Color.White, fontSize = 12.sp)
                 }
             }
-
-            Spacer(modifier = Modifier.height(32.dp)) // 마지막 여백
+            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }
@@ -157,7 +146,7 @@ fun SectionTitle(title: String) {
     Text(
         text = title,
         fontWeight = FontWeight.Bold,
-        fontSize = 14.sp,
+        fontSize = 12.sp,
         modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
     )
 }
@@ -172,7 +161,22 @@ fun MyPageMenuItem(text: String, onClick: () -> Unit = {}) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = text, fontSize = 15.sp)
-        Icon(imageVector = Icons.Default.KeyboardArrowRight, contentDescription = null)
+        Text(text = text, fontSize = 12.sp)
+
+        Icon(
+            painter = painterResource(id = R.drawable.right_back_black),
+            contentDescription = "메뉴이동",
+            modifier = Modifier
+                .padding(start = 16.dp)
+        )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MyPageScreenPreview() {
+    val navController = rememberNavController()
+    MyPageScreen(
+        navController = navController
+    )
 }
