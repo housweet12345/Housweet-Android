@@ -1,6 +1,5 @@
 package com.housweet.presentation
 
-import NotificationScreen
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
@@ -59,6 +58,7 @@ import com.housweet.presentation.ui.navigation.BottomNavItem
 import com.housweet.presentation.ui.navigation.CoordinateType
 import com.housweet.presentation.ui.navigation.NavigationManager
 import com.housweet.presentation.ui.navigation.Route
+import com.housweet.presentation.ui.notification.NotificationScreen
 import com.housweet.presentation.ui.profile.route.EditProfileRoute
 import com.housweet.presentation.ui.profile.route.MyProfileRoute
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen1
