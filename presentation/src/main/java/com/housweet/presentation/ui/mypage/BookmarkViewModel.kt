@@ -2,13 +2,13 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import com.housweet.presentation.ui.mypage.BookmarkItem
 
-class BookmarkViewModel : ViewModel() {
+open class BookmarkViewModel : ViewModel() {
     // 샘플 데이터 - 나중에 Retrofit으로 대체
     private val _bookmarks = mutableStateListOf(
         BookmarkItem(1, "애완동물을 좋아하는 사람을 구하고 있어요.", "보증금 400 월세 20", "송파구 문정동", "20대 남자", true),
         BookmarkItem(2, "애완동물 좋아하는 사람을 구하고 있습니...", "보증금 400 월세 20", "송파구 문정동", "20대 남자", true)
     )
-    val bookmarks: List<BookmarkItem> get() = _bookmarks
+    open val bookmarks: List<BookmarkItem> get() = _bookmarks
 
     // 북마크 상태 토글
     fun toggleBookmark(item: BookmarkItem) {
