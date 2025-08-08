@@ -7,9 +7,9 @@ import com.housweet.domain.repository.AccessRoomRepository
 import com.housweet.domain.repository.AuthRepository
 import com.housweet.domain.repository.CommunityRepository
 import com.housweet.domain.repository.UserRepository
-import com.housweet.domain.usecase.AccessRoomWithInviteCodeUseCase
-import com.housweet.domain.usecase.AgreeTermsOfServiceUseCase
-import com.housweet.domain.usecase.IsTermsOfServiceAgreedUseCase
+import com.housweet.domain.usecase.start.AccessRoomWithInviteCodeUseCase
+import com.housweet.domain.usecase.start.AgreeTermsOfServiceUseCase
+import com.housweet.domain.usecase.start.IsTermsOfServiceAgreedUseCase
 import com.housweet.domain.usecase.LogoutUseCase
 import com.housweet.domain.usecase.UseCases
 import com.housweet.domain.usecase.community.ClickBookMarkUseCase
