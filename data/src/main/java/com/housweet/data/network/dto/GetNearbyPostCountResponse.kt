@@ -1,6 +1,6 @@
 package com.housweet.data.network.dto
 
-import com.housweet.domain.model.NearByPostCountModel
+import com.housweet.domain.model.NearByPostCountDataModel
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -32,9 +32,9 @@ data class GetNearbyPostCountResponseDto(
     val roomCount: Int
 )
 
-fun GetNearbyPostCountResponseListDto.toNearByPostCountModel(): List<NearByPostCountModel> {
+fun GetNearbyPostCountResponseListDto.toNearByPostCountDataModel(): List<NearByPostCountDataModel> {
     return this.data.map {
-        NearByPostCountModel(
+        NearByPostCountDataModel(
             siName = it.siName,
             guName = it.guName,
             dongName = it.dongName,

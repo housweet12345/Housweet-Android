@@ -3,7 +3,7 @@ package com.housweet.presentation.ui.communityPage.mapScreen
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.housweet.domain.model.NearByPostCountModel
+import com.housweet.domain.model.NearByPostCountDataModel
 import com.housweet.domain.usecase.UseCases
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.compose.MarkerState
@@ -33,6 +33,7 @@ class MapViewModel @Inject constructor(
             markerStates = mutableStateMapOf()
         )
     )
+
     val mapState: StateFlow<MapState> = _mapState.asStateFlow()
 
     fun getDongPostInfo(latitude: Double, longitude: Double, zoomLevel: Double) {
@@ -60,8 +61,8 @@ class MapViewModel @Inject constructor(
         )
     }
 
-    private fun setMarkerStates(dongPostInfo: List<NearByPostCountModel>) {
-        val markerStates = mutableMapOf<NearByPostCountModel, MarkerState>()
+    private fun setMarkerStates(dongPostInfo: List<NearByPostCountDataModel>) {
+        val markerStates = mutableMapOf<NearByPostCountDataModel, MarkerState>()
 
         dongPostInfo.forEach {
             markerStates[it] = MarkerState(position = LatLng(it.latitude, it.longitude))
@@ -69,7 +70,7 @@ class MapViewModel @Inject constructor(
 
         _mapState.value = _mapState.value.copy(
             markerData = dongPostInfo,
-            markerStates = mutableStateMapOf<NearByPostCountModel, MarkerState>().apply {
+            markerStates = mutableStateMapOf<NearByPostCountDataModel, MarkerState>().apply {
                 putAll(markerStates)
             }
         )
