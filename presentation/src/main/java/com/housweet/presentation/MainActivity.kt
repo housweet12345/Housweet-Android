@@ -428,7 +428,17 @@ class MainActivity : ComponentActivity() {
                     composable("mypage") {
                         MyPageScreen(
                             navController
-                        )
+                        ) {
+                            val previousRoute = navController.previousBackStackEntry?.destination?.route
+                            if (previousRoute?.contains("CommunityPageRoute.Map") == true) {
+                                navigationManager.navigateOneWay(
+                                    "mypage",
+                                    Route.CommunityPageRoute.Map()
+                                )
+                            } else {
+                                navController.popBackStack()
+                            }
+                        }
                     }
 
                     composable("bookmark") {
@@ -476,13 +486,33 @@ class MainActivity : ComponentActivity() {
                     composable("notification") {
                         NotificationScreen(
                             navController
-                        )
+                        ) {
+                            val previousRoute = navController.previousBackStackEntry?.destination?.route
+                            if (previousRoute?.contains("CommunityPageRoute.Map") == true) {
+                                navigationManager.navigateOneWay(
+                                    "notification",
+                                    Route.CommunityPageRoute.Map()
+                                )
+                            } else {
+                                navController.popBackStack()
+                            }
+                        }
                     }
 
                     composable("chat_list") {
                         ChatListScreen(
                             navController
-                        )
+                        ) {
+                            val previousRoute = navController.previousBackStackEntry?.destination?.route
+                            if (previousRoute?.contains("CommunityPageRoute.Map") == true) {
+                                navigationManager.navigateOneWay(
+                                    "chat_list",
+                                    Route.CommunityPageRoute.Map()
+                                )
+                            } else {
+                                navController.popBackStack()
+                            }
+                        }
                     }
 
                     composable(

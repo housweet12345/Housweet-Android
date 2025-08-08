@@ -1,3 +1,4 @@
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -29,7 +30,14 @@ data class Notification(
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun NotificationScreen(navController: NavController) {
+fun NotificationScreen(
+    navController: NavController,
+    onBackClick: () -> Unit
+) {
+    BackHandler {
+        onBackClick()
+    }
+
     var notifications by remember {
         mutableStateOf(
             listOf(
@@ -55,7 +63,7 @@ fun NotificationScreen(navController: NavController) {
                         contentDescription = "뒤로가기",
                         modifier = Modifier
                             .padding(start = 16.dp)
-                            .clickable { navController.popBackStack() }
+                            .clickable { onBackClick() }
                     )
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
