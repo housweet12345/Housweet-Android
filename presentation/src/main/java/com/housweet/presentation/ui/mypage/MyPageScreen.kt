@@ -1,6 +1,7 @@
 package com.housweet.presentation.ui.mypage
 
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -31,7 +32,14 @@ import com.housweet.presentation.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyPageScreen(navController: NavController) {
+fun MyPageScreen(
+    navController: NavController,
+    onBackClick: () -> Unit
+) {
+    BackHandler {
+        onBackClick()
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -60,7 +68,7 @@ fun MyPageScreen(navController: NavController) {
                         contentDescription = "뒤로가기",
                         modifier = Modifier
                             .padding(start = 16.dp)
-                            .clickable { navController.popBackStack() }
+                            .clickable { onBackClick() }
                     )
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
