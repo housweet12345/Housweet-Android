@@ -38,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -47,6 +48,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.housweet.domain.model.RoomPostDetailDataModel
+import com.housweet.presentation.R
 import com.housweet.presentation.ui.startPage.GuideText
 import com.housweet.presentation.ui.startPage.LoadingScreen
 import com.housweet.presentation.ui.theme.Black
@@ -60,12 +63,14 @@ import com.housweet.presentation.ui.theme.White_F8F8F8
 @Composable
 fun DetailPostScreen(
     modifier: Modifier,
-    onChatScreen: (name: String) -> Unit,
-    onProfileScreen: () -> Unit,
+    onChatScreen: (userId: Int) -> Unit,
+    onProfileScreen: (userId: Int) -> Unit,
     detailPostViewModel: DetailPostViewModel = hiltViewModel()
 ) {
     val uiState by detailPostViewModel.uiState.collectAsState()
+    val roomPostDetail by detailPostViewModel.roomPostDetail.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
+
     LaunchedEffect(Unit) {
         detailPostViewModel.event.collect { event ->
             when (event) {
@@ -84,6 +89,7 @@ fun DetailPostScreen(
         DetailPostState.Idle -> {
             DetailPostContent(
                 modifier = modifier,
+                roomPostDetail = roomPostDetail,
                 snackBarHostState = snackBarHostState,
                 onChatScreen = onChatScreen,
                 onProfileScreen = onProfileScreen
@@ -100,9 +106,10 @@ fun DetailPostScreen(
 @Composable
 private fun DetailPostContent(
     modifier: Modifier,
+    roomPostDetail: RoomPostDetailDataModel,
     snackBarHostState: SnackbarHostState,
-    onChatScreen: (name: String) -> Unit,
-    onProfileScreen: () -> Unit
+    onChatScreen: (userId: Int) -> Unit,
+    onProfileScreen: (userId: Int) -> Unit
 ) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
@@ -110,6 +117,7 @@ private fun DetailPostContent(
         modifier = modifier.fillMaxSize(),
         bottomBar = {
             BottomBar(
+                roomPostDetail = roomPostDetail,
                 onChatScreen = onChatScreen
             )
         },
@@ -124,9 +132,11 @@ private fun DetailPostContent(
             AsyncImage(
                 model = ImageRequest
                     .Builder(context)
-                    .data("https://picsum.photos/300/300")
+                    .data(roomPostDetail.imageUri)
+                    .error(R.drawable.small_house)
                     .build(),
                 contentDescription = "RoomImage",
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(1f)
@@ -138,19 +148,26 @@ private fun DetailPostContent(
                     .padding(horizontal = 20.dp)
             ) {
                 UserProfile(
+                    roomPostDetail = roomPostDetail,
                     context = context,
                     onProfileScreen = onProfileScreen
                 )
 
-                DetailContent()
+                DetailContent(
+                    roomPostDetail = roomPostDetail
+                )
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                HouseFeatures()
+                HouseFeatures(
+                    roomPostDetail = roomPostDetail
+                )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                PreferredFeatures()
+                PreferredFeatures(
+                    roomPostDetail = roomPostDetail
+                )
 
                 Spacer(modifier = Modifier.height(101.dp))
             }
@@ -160,8 +177,9 @@ private fun DetailPostContent(
 
 @Composable
 private fun UserProfile(
+    roomPostDetail: RoomPostDetailDataModel,
     context: Context,
-    onProfileScreen: () -> Unit
+    onProfileScreen: (userId: Int) -> Unit
 ) {
     Spacer(modifier = Modifier.height(16.dp))
 
@@ -179,7 +197,7 @@ private fun UserProfile(
             modifier = Modifier
                 .size(30.dp)
                 .clip(CircleShape)
-                .clickable { onProfileScreen() }
+                .clickable { onProfileScreen(roomPostDetail.userId) }
         )
         Column(
             modifier = Modifier.padding(start = 8.dp)
@@ -198,7 +216,7 @@ private fun UserProfile(
             Row {
                 GuideText(
                     color = Black,
-                    text = "20대 남자",
+                    text = roomPostDetail.ageRangeAndGender,
                     fontWeight = FontWeight.Normal,
                     fontSize = 10.sp,
                     lineHeight = 10.sp,
@@ -221,11 +239,13 @@ private fun UserProfile(
 }
 
 @Composable
-private fun DetailContent() {
+private fun DetailContent(
+    roomPostDetail: RoomPostDetailDataModel
+) {
     Spacer(modifier = Modifier.height(16.dp))
     GuideText(
         color = Black,
-        text = "애완동물 좋아하는 사람",
+        text = roomPostDetail.title,
         fontWeight = FontWeight.ExtraBold,
         fontSize = 14.sp,
         lineHeight = 20.sp,
@@ -236,8 +256,7 @@ private fun DetailContent() {
 
     GuideText(
         color = Black,
-        text = "집이 넓어 같이 살 사람을 구합니다.\n" +
-                "밤에 시끄럽지 않은 사람이면 좋겠습니다.",
+        text = roomPostDetail.content,
         fontWeight = FontWeight.Normal,
         fontSize = 12.sp,
         lineHeight = 20.sp,
@@ -248,14 +267,15 @@ private fun DetailContent() {
 
     Box(
         modifier = Modifier
-            .width(119.dp)
             .height(28.dp)
             .background(color = White_F8F8F8, shape = RoundedCornerShape(6.dp))
     ) {
         GuideText(
-            modifier = Modifier.align(Alignment.Center),
+            modifier = Modifier
+                .padding(horizontal = 8.dp)
+                .align(Alignment.Center),
             color = Black,
-            text = "입주가능일 : 협의 가능",
+            text = "입주가능일 : ${roomPostDetail.availableFrom}",
             fontWeight = FontWeight.Bold,
             fontSize = 11.sp,
             lineHeight = 20.sp,
@@ -265,7 +285,9 @@ private fun DetailContent() {
 }
 
 @Composable
-private fun HouseFeatures() {
+private fun HouseFeatures(
+    roomPostDetail: RoomPostDetailDataModel
+) {
     GuideText(
         color = Black,
         text = "이 집의 특징",
@@ -279,12 +301,14 @@ private fun HouseFeatures() {
 
     FeaturesLayout(
         maxLines = 4,
-        featureList = listOf("미흡연자", "저녁형", "조용한 환경 선호", "음악, 소음 OK", "전화를 자주함", "흡연자", "술은 적당히", "미흡연자", "요리를 자주 함", "음식은 사먹는 편")
+        featureList = roomPostDetail.trafficTags + roomPostDetail.sizeOfHouseTags + roomPostDetail.infraTags + roomPostDetail.personalityTags
     )
 }
 
 @Composable
-private fun PreferredFeatures() {
+private fun PreferredFeatures(
+    roomPostDetail: RoomPostDetailDataModel
+) {
     GuideText(
         color = Black,
         text = "선호하는 사람",
@@ -298,7 +322,7 @@ private fun PreferredFeatures() {
 
     FeaturesLayout(
         maxLines = 3,
-        featureList = listOf("아침형", "청소를 자주하는 편", "정리는 적당히", "공용 공간 정리 철저", "빨래를 자주 돌림", "설거지를 자주함")
+        featureList = roomPostDetail.lifePatternTags + roomPostDetail.tidyingUpHabitTags
     )
 }
 
@@ -346,7 +370,8 @@ private fun FeatureBox(
 
 @Composable
 private fun BottomBar(
-    onChatScreen: (name: String) -> Unit
+    roomPostDetail: RoomPostDetailDataModel,
+    onChatScreen: (userId: Int) -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -371,7 +396,7 @@ private fun BottomBar(
             Column {
                 GuideText(
                     color = Black,
-                    text = "문정동",
+                    text = "${roomPostDetail.lotNumberAddress} ${roomPostDetail.detailedAddress}",
                     fontWeight = FontWeight.Normal,
                     fontSize = 12.sp,
                     lineHeight = 12.sp,
@@ -381,7 +406,7 @@ private fun BottomBar(
                 GuideText(
                     modifier = Modifier.padding(top = 4.dp),
                     color = Black,
-                    text = "보증금 200만 월세 40만",
+                    text = "보증금 ${roomPostDetail.deposit} 월세 ${roomPostDetail.rent} 관리비 ${roomPostDetail.managementFee}",
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 12.sp,
                     lineHeight = 12.sp,
@@ -392,7 +417,7 @@ private fun BottomBar(
             Spacer(modifier = Modifier.weight(1f))
 
             Button(
-                onClick = { onChatScreen("") },
+                onClick = { onChatScreen(roomPostDetail.userId) },
                 modifier = Modifier
                     .width(68.dp)
                     .height(30.dp),
@@ -421,6 +446,7 @@ private fun BottomBar(
 private fun DetailPostScreenPreview() {
     DetailPostContent(
         modifier = Modifier,
+        roomPostDetail = RoomPostDetailDataModel(),
         snackBarHostState = remember { SnackbarHostState() },
         onChatScreen = {},
         onProfileScreen = {}

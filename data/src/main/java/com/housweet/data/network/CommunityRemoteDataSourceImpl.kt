@@ -10,6 +10,7 @@ import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
+import java.net.URLDecoder
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -37,7 +38,7 @@ class CommunityRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun getRoomPostsByLocation(searchWord: String): GetRoomPostsByLocationResponseListDto {
         return httpClient.get("$BASE_URL/room/room-postings/") {
-            parameter("search_word", searchWord)
+            parameter("search_word", URLDecoder.decode(searchWord, "UTF-8"))
         }.body()
     }
 
@@ -52,8 +53,6 @@ class CommunityRemoteDataSourceImpl @Inject constructor(
     }
 
     override suspend fun getRoomPostDetail(roomPostingId: Int): GetRoomPostDetailResponseDto {
-        return httpClient.get("$BASE_URL/room/room-postings/") {
-            parameter("room_posting_id", roomPostingId)
-        }.body()
+        return httpClient.get("$BASE_URL/room/room-postings/${roomPostingId}/").body()
     }
 }

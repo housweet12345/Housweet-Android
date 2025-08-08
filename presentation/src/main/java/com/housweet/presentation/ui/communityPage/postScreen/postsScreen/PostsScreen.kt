@@ -1,5 +1,6 @@
 package com.housweet.presentation.ui.communityPage.postScreen.postsScreen
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -28,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -55,6 +57,10 @@ fun PostsScreen(
     val uiState by postsViewModel.uiState.collectAsState()
     val posts by postsViewModel.posts.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
+
+    BackHandler {
+        onBackBtnClick()
+    }
 
     LaunchedEffect(Unit) {
         postsViewModel.event.collect { event ->
@@ -126,14 +132,19 @@ private fun PostsContent(
         ) {
             posts.forEach { (postRegion, posts) ->
                 val regionParts  = postRegion.split(" ")
-                items(posts.size) { postIndex ->
+                items(
+                    count = posts.size,
+                    key = { posts[it].id }
+                ) { postIndex ->
                     val postInfo = posts[postIndex]
-                    PostItem(
-                        postInfo = postInfo,
-                        postRegion = "${regionParts[1]} ${regionParts[2]}",
-                        onPostClick = { onPostClick(postInfo.id) },
-                        onToggleLike = { onToggleLike(postRegion, postIndex) }
-                    )
+                    if (postInfo.isVisible) {
+                        PostItem(
+                            postInfo = postInfo,
+                            postRegion = "${regionParts[1]} ${regionParts[2]}",
+                            onPostClick = { onPostClick(postInfo.id) },
+                            onToggleLike = { onToggleLike(postRegion, postIndex) }
+                        )
+                    }
                 }
             }
         }
@@ -198,12 +209,14 @@ private fun PostItem(
         },
         verticalAlignment = Alignment.CenterVertically
     ) {
-         AsyncImage(
+        AsyncImage(
             model = ImageRequest
                 .Builder(context)
                 .data(postInfo.imageUri)
+                .error(R.drawable.small_house)
                 .build(),
             contentDescription = "RoomImage",
+            contentScale = ContentScale.Crop,
             modifier = Modifier
                 .size(80.dp)
                 .clip(RoundedCornerShape(6.dp))
@@ -307,7 +320,8 @@ private fun PostsScreenPreview() {
                     isBookmarked = false,
                     rent = 40,
                     deposit = 1000,
-                    ageRangeAndGender = "20대 남성"
+                    ageRangeAndGender = "20대 남성",
+                    isVisible = true
                 )
             )
         ),

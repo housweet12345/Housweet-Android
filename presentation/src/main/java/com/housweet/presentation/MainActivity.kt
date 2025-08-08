@@ -41,6 +41,7 @@ import com.housweet.domain.model.Coordinate
 import com.housweet.presentation.model.RegisterModel
 import com.housweet.presentation.ui.chatlist.ChatListScreen
 import com.housweet.presentation.ui.communityPage.mapScreen.MapScreen
+import com.housweet.presentation.ui.communityPage.mapScreen.MapViewModel
 import com.housweet.presentation.ui.communityPage.postScreen.detailPostScreen.DetailPostScreen
 import com.housweet.presentation.ui.communityPage.postScreen.postsScreen.PostsScreen
 import com.housweet.presentation.ui.communityPage.searchRegionScreen.SearchRegionScreen
@@ -282,17 +283,10 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier,
                             searchRegion = coordinate,
                             onMarkerClick = { postRegion ->
-                                navigationManager.navigateTo(
-                                    Route.CommunityPageRoute.PostRoute.Posts(
-                                        postRegion
-                                    )
-                                )
+                                navigationManager.navigateTo(Route.CommunityPageRoute.PostRoute.Posts(postRegion))
                             },
                             onViewPostBtnClick = { postRegions ->
-                                navigationManager.navigateTo(
-                                    Route.CommunityPageRoute.PostRoute.Posts(
-                                        postRegions
-                                    )
+                                navigationManager.navigateTo(Route.CommunityPageRoute.PostRoute.Posts(postRegions)
                                 )
                             },
                             onSearchBtnClick = {
@@ -322,7 +316,10 @@ class MainActivity : ComponentActivity() {
                                 )
                             },
                             onBackBtnClick = {
-                                navController.popBackStack()
+                                navigationManager.navigateOneWay(
+                                    Route.CommunityPageRoute.SearchRegion,
+                                    Route.CommunityPageRoute.Map()
+                                )
                             }
                         )
                     }
@@ -334,7 +331,10 @@ class MainActivity : ComponentActivity() {
                                 navigationManager.navigateTo(Route.CommunityPageRoute.PostRoute.DetailPost(id))
                             },
                             onBackBtnClick = {
-                                navController.popBackStack()
+                                navigationManager.navigateOneWay(
+                                    Route.CommunityPageRoute.PostRoute.Posts(postRegions),
+                                    Route.CommunityPageRoute.Map()
+                                )
                             }
                         )
                     }
@@ -383,7 +383,10 @@ class MainActivity : ComponentActivity() {
                             mode = mode,
                             onNextClick = { navController.navigate(Route.HouseRegisterRoute.Step2(mode)) },
                             onBackClick = {
-                                navController.popBackStack()
+                                navigationManager.navigateOneWay(
+                                    Route.HouseRegisterRoute.Step1(mode),
+                                    Route.CommunityPageRoute.Map()
+                                )
                             }
                         )
                     }
