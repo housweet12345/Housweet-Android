@@ -1,8 +1,10 @@
 package com.housweet.data.repository
 
 import com.housweet.data.network.CommunityRemoteDataSource
+import com.housweet.data.network.dto.toRoomPostDetailDataModel
 import com.housweet.data.network.dto.toNearByPostCountDataModel
 import com.housweet.data.network.dto.toRoomPostsByLocationDataModel
+import com.housweet.domain.model.RoomPostDetailDataModel
 import com.housweet.domain.model.NearByPostCountDataModel
 import com.housweet.domain.model.RoomPostsByLocationDataModel
 import com.housweet.domain.repository.CommunityRepository
@@ -55,9 +57,10 @@ class CommunityRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getRoomPostDetail(roomPostingId: Int) {
+    override suspend fun getRoomPostDetail(roomPostingId: Int): Flow<Result<RoomPostDetailDataModel>> = flow {
         try {
-            communityRemoteDataSource.getRoomPostDetail(roomPostingId)
+            val response = communityRemoteDataSource.getRoomPostDetail(roomPostingId)
+            emit(Result.success(response.toRoomPostDetailDataModel()))
         } catch (e: Exception) {
             e.printStackTrace()
         }

@@ -3,6 +3,7 @@ package com.housweet.presentation.ui.communityPage.postScreen.detailPostScreen
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.housweet.domain.model.RoomPostDetailDataModel
 import com.housweet.domain.usecase.UseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -25,6 +26,9 @@ class DetailPostViewModel @Inject constructor(
     private val _event = MutableSharedFlow<DetailPostEvent>()
     val event: SharedFlow<DetailPostEvent> = _event.asSharedFlow()
 
+    private val _roomPostDetail = MutableStateFlow(RoomPostDetailDataModel())
+    val roomPostDetail: StateFlow<RoomPostDetailDataModel> = _roomPostDetail.asStateFlow()
+
     init {
         val postId = savedStateHandle.get<Int>("postId")
         viewModelScope.launch {
@@ -34,8 +38,15 @@ class DetailPostViewModel @Inject constructor(
 
     private fun getRoomPostDetail(postId: Int) {
         viewModelScope.launch {
-            useCases.getRoomPostDetailUseCase(postId)
-        }
+            useCases.getRoomPostDetailUseCase(postId).collect { result ->
+                result.onSuccess {
+                    _roomPostDetail.value = it
+                }
 
+                result.onFailure {
+                    _event.emit(DetailPostEvent.Error)
+                }
+            }
+        }
     }
 }
