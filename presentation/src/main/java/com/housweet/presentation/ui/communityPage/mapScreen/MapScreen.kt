@@ -39,7 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.housweet.domain.model.Coordinate
-import com.housweet.domain.model.NearByPostCountModel
+import com.housweet.domain.model.NearByPostCountDataModel
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.startPage.GuideText
 import com.housweet.presentation.ui.theme.Gray_A5A5A5
@@ -144,7 +144,7 @@ private fun MapContent(
     modifier: Modifier,
     cameraPositionState: CameraPositionState,
     snackBarHostState: SnackbarHostState,
-    markerStates: MutableMap<NearByPostCountModel, MarkerState>,
+    markerStates: MutableMap<NearByPostCountDataModel, MarkerState>,
     onMarkerClick: (String) -> Unit,
     onViewPostBtnClick: (LatLngBounds?) -> Unit,
     onSearchBtnClick: () -> Unit,
