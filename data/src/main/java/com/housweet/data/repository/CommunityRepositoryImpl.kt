@@ -1,8 +1,10 @@
 package com.housweet.data.repository
 
 import com.housweet.data.network.CommunityRemoteDataSource
+import com.housweet.data.network.dto.toDomain
 import com.housweet.data.network.dto.toNearByPostCountModel
 import com.housweet.data.network.dto.toRoomPostsByLocationDataModel
+import com.housweet.domain.model.BookmarkItem
 import com.housweet.domain.model.NearByPostCountModel
 import com.housweet.domain.model.RoomPostsByLocationDataModel
 import com.housweet.domain.repository.CommunityRepository
@@ -35,6 +37,11 @@ class CommunityRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             emit(Result.failure(e))
         }
+    }
+
+    override suspend fun getBookmarkedPostings(): Result<List<BookmarkItem>> = runCatching {
+        val res = communityRemoteDataSource.getBookmarkedPostings()
+        res.data.map { it.toDomain() }
     }
 
     override suspend fun clickBookMark(roomPostingId: Int): Flow<Result<Boolean>> = flow {

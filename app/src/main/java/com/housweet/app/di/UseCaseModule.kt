@@ -9,6 +9,7 @@ import com.housweet.domain.repository.CommunityRepository
 import com.housweet.domain.repository.UserRepository
 import com.housweet.domain.usecase.AccessRoomWithInviteCodeUseCase
 import com.housweet.domain.usecase.AgreeTermsOfServiceUseCase
+import com.housweet.domain.usecase.GetBookmarkedPostingsUseCase
 import com.housweet.domain.usecase.IsTermsOfServiceAgreedUseCase
 import com.housweet.domain.usecase.LogoutUseCase
 import com.housweet.domain.usecase.UseCases
@@ -52,7 +53,8 @@ object UseCaseModule {
             getRoomPostDetailUseCase = GetRoomPostDetailUseCase(communityRepository),
             accessRoomWithInviteCodeUseCase = AccessRoomWithInviteCodeUseCase(accessRoomRepository),
             agreeTermsOfServiceUseCase = AgreeTermsOfServiceUseCase(authRepository),
-            isTermsOfServiceAgreedUseCase = IsTermsOfServiceAgreedUseCase(authRepository)
+            isTermsOfServiceAgreedUseCase = IsTermsOfServiceAgreedUseCase(authRepository),
+            getBookmarkedPostingsUseCase = GetBookmarkedPostingsUseCase(communityRepository)
         )
     }
 

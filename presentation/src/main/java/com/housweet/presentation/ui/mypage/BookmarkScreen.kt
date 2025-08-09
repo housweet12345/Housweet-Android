@@ -1,6 +1,5 @@
 package com.housweet.presentation.ui.mypage
 
-import BookmarkViewModel
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -11,9 +10,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,29 +22,49 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.housweet.presentation.R
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.compose.rememberNavController
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.housweet.domain.model.BookmarkItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookmarkScreen(
-    viewModel: BookmarkViewModel = viewModel(),
-    onItemClick: (BookmarkItem) -> Unit,
-    navController: NavController
+    navController: NavController,
+    viewModel: BookmarkViewModel = hiltViewModel(),
+    onItemClick: (BookmarkItem) -> Unit = {}
 ) {
-    val bookmarks by remember { mutableStateOf(viewModel.bookmarks) }
+    val bookmarks by viewModel.bookmarks.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
 
+    LaunchedEffect(Unit) { viewModel.load() }
+
+    BookmarkContent(
+        bookmarks = bookmarks,
+        isLoading = isLoading,
+        onBack = { navController.popBackStack() },
+        onItemClick = onItemClick as (BookmarkUiItem) -> Unit,
+        onToggleBookmark = { viewModel.toggleBookmark(it) }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun BookmarkContent(
+    bookmarks: List<BookmarkUiItem>,
+    isLoading: Boolean,
+    onBack: () -> Unit,
+    onItemClick: (BookmarkUiItem) -> Unit,
+    onToggleBookmark: (BookmarkUiItem) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
     ) {
-        // TopAppBar
         CenterAlignedTopAppBar(
-            title={
+            title = {
                 androidx.compose.material.Text(
                     text = "북마크",
                     fontSize = 14.sp
@@ -57,26 +76,32 @@ fun BookmarkScreen(
                     contentDescription = "뒤로가기",
                     modifier = Modifier
                         .padding(start = 16.dp)
-                        .clickable { navController.popBackStack() }
+                        .clickable { onBack() }
                 )
             },
             colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                containerColor = Color.White // ✅ 배경색 흰색 지정
+                containerColor = Color.White
             )
         )
 
-        Column(
-            modifier = Modifier
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-        ) {
-            bookmarks.forEach { item ->
-                BookmarkCard(
-                    item = item,
-                    onClick = { onItemClick(item) },
-                    onBookmarkToggle = {viewModel.toggleBookmark(item)}
-                )
-                Divider(modifier = Modifier.padding(vertical = 8.dp))
+        if (isLoading) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                bookmarks.forEach { item ->
+                    BookmarkCard(
+                        item = item,
+                        onClick = { onItemClick(item) },
+                        onBookmarkToggle = { onToggleBookmark(item) }
+                    )
+                    Divider(modifier = Modifier.padding(vertical = 8.dp))
+                }
             }
         }
     }
@@ -84,7 +109,7 @@ fun BookmarkScreen(
 
 @Composable
 fun BookmarkCard(
-    item: BookmarkItem,
+    item: BookmarkUiItem,
     onClick: () -> Unit,
     onBookmarkToggle: () -> Unit
 ) {
@@ -94,7 +119,7 @@ fun BookmarkCard(
             .clickable { onClick() },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // 썸네일 영역
+        // 썸네일 영역 (이미지 로더 붙일거면 Coil 등으로 대체)
         Box(
             modifier = Modifier
                 .size(80.dp)
@@ -119,15 +144,12 @@ fun BookmarkCard(
                 modifier = Modifier.padding(top = 4.dp)
             )
             Row(modifier = Modifier.padding(top = 2.dp)) {
-                Text(text = item.location, fontSize = 10.sp, color = Color.Black)
-                Spacer(modifier = Modifier.width(6.dp))
                 Text(text = item.ageGender, fontSize = 10.sp, color = Color.Gray)
             }
         }
 
         Spacer(modifier = Modifier.width(8.dp))
 
-        // 북마크 아이콘
         Image(
             painter = painterResource(
                 id = if (item.bookmarked) R.drawable.bookmark_active else R.drawable.bookmark_inactive
@@ -145,17 +167,15 @@ fun BookmarkCard(
 @Composable
 fun BookmarkScreenPreview() {
     val previewItems = listOf(
-        BookmarkItem(1, "프리뷰용 북마크 1입니다", "보증금 100 / 월세 30", "서울시 강남구", "20대 여성", true),
-        BookmarkItem(2, "프리뷰용 북마크 2입니다", "보증금 200 / 월세 40", "서울시 서초구", "30대 남성", false)
+        BookmarkUiItem(1, "프리뷰용 북마크 1입니다", null, "보증금 100 / 월세 30", "20대 여성", true),
+        BookmarkUiItem(2, "프리뷰용 북마크 2입니다", null, "보증금 200 / 월세 40", "30대 남성", true)
     )
-    val dummyViewModel = object : BookmarkViewModel() {
-        override val bookmarks: List<BookmarkItem>
-            get() = previewItems
-    }
 
-    BookmarkScreen(
-        viewModel = dummyViewModel,
+    BookmarkContent(
+        bookmarks = previewItems,
+        isLoading = false,
+        onBack = {},
         onItemClick = {},
-        navController = rememberNavController()
+        onToggleBookmark = {}
     )
 }
