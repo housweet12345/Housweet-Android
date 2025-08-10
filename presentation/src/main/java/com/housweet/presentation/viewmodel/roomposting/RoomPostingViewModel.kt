@@ -15,8 +15,6 @@ import javax.inject.Inject
 open class RoomPostingViewModel @Inject constructor(
     private val repository: RoomPostingRepository
 ) : ViewModel() {
-
-    val currentUserId: Int = 1 // TODO: 추후 로그인 유저의 ID로 교체
     private val _roomPosts = mutableStateListOf<RoomPost>()
     val roomPosts: SnapshotStateList<RoomPost> get() = _roomPosts
 

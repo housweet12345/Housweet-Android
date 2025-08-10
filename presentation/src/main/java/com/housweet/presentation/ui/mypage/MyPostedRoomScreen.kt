@@ -1,5 +1,6 @@
 package com.housweet.presentation.ui.mypage
 
+import android.R.attr.fontWeight
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -104,7 +105,7 @@ fun MyPostedRoomScreen(
 
     suspend fun hidePost(post: RoomPost) {
         viewModel.updatePostVisibility(post.id, false)
-        delay(100) // 💡 상태 반영 시간 확보
+        delay(16) // 💡 상태 반영 시간 확보
         selectedTab = 1
         snackbarHostState.showSnackbar("숨김 처리되었습니다.")
     }
@@ -283,8 +284,16 @@ fun RoomItem(
 
             Column(Modifier.weight(1f)) {
                 Text(roomPost.title, fontSize = 12.sp)
-                Text(roomPost.priceInfo, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                Text(roomPost.metaInfo, fontSize = 10.sp, color = Color.Gray)
+                Row(verticalAlignment = Alignment.CenterVertically){
+                    Text("보증금 ${roomPost.deposit}", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Spacer(Modifier.width(8.dp))
+                    Text("월세 ${roomPost.rent}", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                }
+                Row(verticalAlignment = Alignment.CenterVertically){
+                    Text(roomPost.areaText.toString(), fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                    Spacer(Modifier.width(8.dp))
+                    Text(roomPost.ageRangeAndGender, fontSize = 10.sp, color = Color.Gray)
+                }
             }
         }
 
@@ -354,27 +363,27 @@ fun MyPostedRoomScreenPreview() {
     val dummyPosts = listOf(
         RoomPost(
             id = 1,
+            userId = 3,
             title = "가까운 역세권 쉐어하우스",
-            priceInfo = "보증금 100 / 월세 30",
-            metaInfo = "서울시 강남구 · 20대 여성",
-            isHidden = false,
-            deposit = "100",
-            rent = "30",
+            imageUri = "",
+            rent = 30,
+            deposit = 100,
             ageRangeAndGender = "20대 여성",
-            imageUrl = null,
-            userId = 1
+            isVisible = true,
+            areaText = "서울시 강남구",
+            isHidden = false
         ),
         RoomPost(
             id = 2,
+            userId = 3,
             title = "조용한 동네 쉐어하우스",
-            priceInfo = "보증금 200 / 월세 40",
-            metaInfo = "서울시 송파구 · 30대 남성",
-            isHidden = true,
-            deposit = "200",
-            rent = "40",
+            imageUri = "",
+            rent = 40,
+            deposit = 200,
             ageRangeAndGender = "30대 남성",
-            imageUrl = null,
-            userId = 1
+            isVisible = true,
+            areaText = "서울시 송파구",
+            isHidden = false
         )
     )
 
