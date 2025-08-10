@@ -32,21 +32,14 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
@@ -54,11 +47,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEach
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.home.state.HomeInfo
 import com.housweet.presentation.ui.home.state.MoodType
 import com.housweet.presentation.ui.navigation.BottomNavigation
-import com.housweet.presentation.ui.profile.component.ProfileTopBar
 import com.housweet.presentation.ui.theme.ColorGroup
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,6 +64,7 @@ fun HomeScreen(
     onProfileClick: () -> Unit = {},
     onNoticeClick: (Int) -> Unit = {},
     onTodoClick: () -> Unit = {},
+    onMoodSectionClick: () -> Unit = {},
     onTodoToggle: (Int) -> Unit = {},
     onMoodSelect: (MoodType) -> Unit = {},
     navController: NavController = rememberNavController()
@@ -137,7 +132,7 @@ fun HomeScreen(
         // 룸메이트 기분 섹션
         item {
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                RoommatesMoodSection(homeInfo.roommates, onMoodSelect)
+                RoommatesMoodSection(homeInfo.roommates, onMoodSelect, onMoodSectionClick)
             }
         }
 
@@ -241,10 +236,12 @@ fun NoticeSection(
 @Composable
 fun RoommatesMoodSection(
     roommates: List<com.housweet.presentation.ui.home.state.RoommateInfo>,
-    onMoodSelect: (com.housweet.presentation.ui.home.state.MoodType) -> Unit
+    onMoodSelect: (com.housweet.presentation.ui.home.state.MoodType) -> Unit,
+    onMoodSectionClick: () -> Unit,
 ) {
     Column {
         Card(
+            onClick = onMoodSectionClick,
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = Color.White),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),

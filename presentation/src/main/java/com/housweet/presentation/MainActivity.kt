@@ -74,6 +74,7 @@ import com.housweet.presentation.ui.startPage.loginPage.WelcomeScreen
 import com.housweet.presentation.ui.startPage.loginPage.loginScreen.LoginScreen
 import com.housweet.presentation.ui.startPage.loginPage.termsOfServicePage.TermsOfServiceScreen
 import com.housweet.presentation.ui.startPage.splashPage.SplashScreen
+import com.housweet.presentation.ui.userlist.route.UserListRoute
 import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -350,6 +351,7 @@ class MainActivity : ComponentActivity() {
                             navigateToProfile = { navController.navigate("profile/me") },
                             navigateToNoticeDetail = { noticeId -> /* TODO: 공지사항 상세 */ },
                             navigateToTodoDetail = { /* TODO: 할일 상세 */ },
+                            navigateToUserList = { navigationManager.navigateTo("roommate/userlist") },
                             navController = navController
                         )
                     }
@@ -590,6 +592,12 @@ class MainActivity : ComponentActivity() {
                         val parentEntry = remember(navBackStackEntry) {
                             navController.getBackStackEntry("profile/edit")
                         }
+                    }
+
+                    composable("roommate/userlist") {
+                        UserListRoute(
+                            onBackClick = { navController.popBackStack() }
+                        )
                     }
                 }
             }
