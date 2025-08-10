@@ -31,7 +31,7 @@ class SplashViewModel @Inject constructor(
             useCases.checkLoginUseCase().collect {
                 delay(1500)
                 it.onSuccess { isAutoLogin ->
-                    if (isAutoLogin) isTermsOfServiceAgreedUseCase()
+                    if (isAutoLogin) isTermsOfServiceAgreed()
                     else _event.emit(SplashEvent.IsNotAutoLogin)
                 }
                 it.onFailure { e ->
@@ -42,12 +42,27 @@ class SplashViewModel @Inject constructor(
         }
     }
 
-    private fun isTermsOfServiceAgreedUseCase() {
+    private fun isTermsOfServiceAgreed() {
         viewModelScope.launch {
             useCases.isTermsOfServiceAgreedUseCase().collect {
-                delay(1000)
                 it.onSuccess { isAgreeTermsOfService ->
-                    _event.emit(SplashEvent.IsAutoLogin(isAgreeTermsOfService))
+                    isBelongToRoom(isAgreeTermsOfService)
+                }
+                it.onFailure { e ->
+                    e.printStackTrace()
+                    _event.emit(SplashEvent.Error)
+                }
+            }
+        }
+    }
+
+    private fun isBelongToRoom(isAgreeTermsOfService: Boolean) {
+        viewModelScope.launch {
+            useCases.isBelongToRoomUseCase().collect {
+                it.onSuccess { isBelongToRoom ->
+                    _event.emit(
+                        SplashEvent.IsAutoLogin(isAgreeTermsOfService, isBelongToRoom)
+                    )
                 }
 
                 it.onFailure { e ->

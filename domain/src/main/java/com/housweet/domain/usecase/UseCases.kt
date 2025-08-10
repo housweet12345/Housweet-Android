@@ -9,6 +9,7 @@ import com.housweet.domain.usecase.start.AccessRoomWithInviteCodeUseCase
 import com.housweet.domain.usecase.start.AgreeTermsOfServiceUseCase
 import com.housweet.domain.usecase.start.CheckLoginUseCase
 import com.housweet.domain.usecase.start.CreateRoomUseCase
+import com.housweet.domain.usecase.start.IsBelongToRoomUseCase
 import com.housweet.domain.usecase.start.IsTermsOfServiceAgreedUseCase
 import com.housweet.domain.usecase.start.LoginWithKakaoUseCase
 
@@ -24,5 +25,6 @@ data class UseCases (
     val getRoomPostDetailUseCase: GetRoomPostDetailUseCase,
     val accessRoomWithInviteCodeUseCase: AccessRoomWithInviteCodeUseCase,
     val agreeTermsOfServiceUseCase: AgreeTermsOfServiceUseCase,
-    val isTermsOfServiceAgreedUseCase: IsTermsOfServiceAgreedUseCase
+    val isTermsOfServiceAgreedUseCase: IsTermsOfServiceAgreedUseCase,
+    val isBelongToRoomUseCase: IsBelongToRoomUseCase
 )

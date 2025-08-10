@@ -1,14 +1,9 @@
 package com.housweet.presentation.ui.startPage.splashPage
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -21,29 +16,18 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.ImageLoader
-import coil.compose.rememberAsyncImagePainter
-import coil.decode.ImageDecoderDecoder
-import coil.request.ImageRequest
-import coil.size.Size
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
-import com.housweet.presentation.R
 import com.housweet.presentation.ui.startPage.GuideText
-import com.housweet.presentation.ui.theme.Gray_7D7D7D
-import com.housweet.presentation.ui.theme.Purple
 import com.housweet.presentation.ui.theme.Purple_7342DD
 import com.housweet.presentation.ui.theme.White
 
@@ -51,7 +35,7 @@ import com.housweet.presentation.ui.theme.White
 fun SplashScreen(
     modifier: Modifier,
     splashViewModel: SplashViewModel = hiltViewModel(),
-    onNextScreen: (isAutoLogin: Boolean, isAgreeTermsOfService: Boolean) -> Unit,
+    onNextScreen: (isAutoLogin: Boolean, isAgreeTermsOfService: Boolean, isBelongToRoom: Boolean) -> Unit,
 ) {
     val uiState: SplashState by splashViewModel.uiState.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
@@ -60,11 +44,11 @@ fun SplashScreen(
         splashViewModel.event.collect { event ->
             when (event) {
                 is SplashEvent.IsAutoLogin -> {
-                    onNextScreen(true, event.isAgreeTermsOfService)
+                    onNextScreen(true, event.isAgreeTermsOfService, event.isBelongToRoom)
                 }
 
                 is SplashEvent.IsNotAutoLogin -> {
-                    onNextScreen(false, false)
+                    onNextScreen(false, false, false)
                 }
 
                 SplashEvent.Error -> {
