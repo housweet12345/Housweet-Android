@@ -7,9 +7,6 @@ import com.housweet.domain.repository.AccessRoomRepository
 import com.housweet.domain.repository.AuthRepository
 import com.housweet.domain.repository.CommunityRepository
 import com.housweet.domain.repository.UserRepository
-import com.housweet.domain.usecase.start.AccessRoomWithInviteCodeUseCase
-import com.housweet.domain.usecase.start.AgreeTermsOfServiceUseCase
-import com.housweet.domain.usecase.start.IsTermsOfServiceAgreedUseCase
 import com.housweet.domain.usecase.LogoutUseCase
 import com.housweet.domain.usecase.UseCases
 import com.housweet.domain.usecase.community.ClickBookMarkUseCase
@@ -20,8 +17,12 @@ import com.housweet.domain.usecase.community.UnClickBookMarkUseCase
 import com.housweet.domain.usecase.profile.GetMyProfileUseCase
 import com.housweet.domain.usecase.profile.GetOtherUserProfileUseCase
 import com.housweet.domain.usecase.profile.UpdateProfileUseCase
+import com.housweet.domain.usecase.start.AccessRoomWithInviteCodeUseCase
+import com.housweet.domain.usecase.start.AgreeTermsOfServiceUseCase
 import com.housweet.domain.usecase.start.CheckLoginUseCase
 import com.housweet.domain.usecase.start.CreateRoomUseCase
+import com.housweet.domain.usecase.start.IsBelongToRoomUseCase
+import com.housweet.domain.usecase.start.IsTermsOfServiceAgreedUseCase
 import com.housweet.domain.usecase.start.LoginWithKakaoUseCase
 import dagger.Module
 import dagger.Provides
@@ -52,7 +53,8 @@ object UseCaseModule {
             getRoomPostDetailUseCase = GetRoomPostDetailUseCase(communityRepository),
             accessRoomWithInviteCodeUseCase = AccessRoomWithInviteCodeUseCase(accessRoomRepository),
             agreeTermsOfServiceUseCase = AgreeTermsOfServiceUseCase(authRepository),
-            isTermsOfServiceAgreedUseCase = IsTermsOfServiceAgreedUseCase(authRepository)
+            isTermsOfServiceAgreedUseCase = IsTermsOfServiceAgreedUseCase(authRepository),
+            isBelongToRoomUseCase = IsBelongToRoomUseCase(authRepository)
         )
     }
 

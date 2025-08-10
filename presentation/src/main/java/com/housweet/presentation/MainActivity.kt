@@ -29,7 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -49,10 +48,8 @@ import com.housweet.presentation.ui.mypage.AppNotificationSettingsScreen
 import com.housweet.presentation.ui.mypage.BookmarkScreen
 import com.housweet.presentation.ui.mypage.HelpScreen
 import com.housweet.presentation.ui.mypage.MyHouseDetailScreen
-import com.housweet.presentation.ui.mypage.MyHouseEditScreen
 import com.housweet.presentation.ui.mypage.MyPageScreen
 import com.housweet.presentation.ui.mypage.MyPostedRoomScreen
-import com.housweet.presentation.ui.mypage.NoticeDetailScreen
 import com.housweet.presentation.ui.mypage.NoticeScreen
 import com.housweet.presentation.ui.mypage.TermsConditionsPolicies
 import com.housweet.presentation.ui.navigation.BottomNavItem
@@ -152,7 +149,7 @@ class MainActivity : ComponentActivity() {
                     composable<Route.StartPageRoute.Splash> {
                         SplashScreen(
                             modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
-                        ) { isAutoLogin, isAgreeTermsOfService ->
+                        ) { isAutoLogin, isAgreeTermsOfService, isBelongToRoom ->
                             when {
                                 !isAutoLogin -> {
                                     navigationManager.navigateOneWay(
@@ -161,10 +158,17 @@ class MainActivity : ComponentActivity() {
                                     )
                                 }
                                 isAgreeTermsOfService -> {
-                                    navigationManager.navigateOneWay(
-                                        Route.StartPageRoute.Splash,
-                                        Route.StartPageRoute.AccessRoomRoute.AccessRoom
-                                    )
+                                    if (isBelongToRoom) {
+                                        navigationManager.navigateOneWay(
+                                            Route.StartPageRoute.Splash,
+                                            BottomNavItem.Home
+                                        )
+                                    } else {
+                                        navigationManager.navigateOneWay(
+                                            Route.StartPageRoute.Splash,
+                                            Route.StartPageRoute.AccessRoomRoute.AccessRoom
+                                        )
+                                    }
                                 }
                                 else -> {
                                     navigationManager.navigateOneWay(
