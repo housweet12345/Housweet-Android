@@ -455,7 +455,6 @@ class MainActivity : ComponentActivity() {
 
                     composable("notice") {
                         NoticeScreen(
-                            onBackClick = { navController.popBackStack() },
                             navController
                         )
                     }
@@ -527,7 +526,6 @@ class MainActivity : ComponentActivity() {
                     }
                     composable("notice") {
                         NoticeScreen(
-                            onBackClick = { navController.popBackStack() },
                             navController
                         )
                     }

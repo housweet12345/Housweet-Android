@@ -22,13 +22,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.housweet.presentation.R
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
-fun NoticeScreen(onBackClick: () -> Unit = {}, navController: NavController) {
+fun NoticeScreen(navController: NavController) {
     val notices = remember {
         mutableStateListOf(
             Notice(
@@ -160,3 +162,12 @@ data class Notice(
     val title: String,
     val content: String
 )
+
+@Preview(showBackground = true)
+@Composable
+fun NoticeScreenPreview() {
+    val navController = rememberNavController()
+    NoticeScreen(
+        navController = navController
+    )
+}
