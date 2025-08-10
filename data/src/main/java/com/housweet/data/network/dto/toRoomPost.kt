@@ -5,14 +5,14 @@ import com.housweet.domain.model.RoomPost
 fun RoomPostingDto.toRoomPost(): RoomPost {
     return RoomPost(
         id = id,
+        userId = userId,
         title = title,
-        deposit = deposit.toString(),
-        rent = rent.toString(),
-        ageRangeAndGender = age_range_and_gender,
-        imageUrl = image_uri,
-        priceInfo = "보증금 ${deposit / 10000} / 월세 ${rent / 10000}",
-        metaInfo = age_range_and_gender,
-        isHidden = !is_visible,
-        userId = user_id ?: -1 //user_id가 null이면 -1로 처리
+        imageUri = imageUri,
+        rent = rent / 10000,
+        deposit = deposit / 10000,
+        ageRangeAndGender = ageRangeAndGender,
+        isVisible = isVisible,
+        areaText = areaText,
+        isHidden = !isVisible
     )
 }
