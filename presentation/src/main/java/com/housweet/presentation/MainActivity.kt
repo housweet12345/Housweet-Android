@@ -60,7 +60,7 @@ import com.housweet.presentation.ui.navigation.CoordinateType
 import com.housweet.presentation.ui.navigation.NavigationManager
 import com.housweet.presentation.ui.navigation.Route
 import com.housweet.presentation.ui.profile.route.EditProfileRoute
-import com.housweet.presentation.ui.profile.route.MyProfileRoute
+import com.housweet.presentation.ui.profile.route.ProfileRoute
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen1
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen2
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen3
@@ -147,7 +147,7 @@ class MainActivity : ComponentActivity() {
             ) { paddingValues ->
                 NavHost(
                     navController = navController,
-                    startDestination = if (!isFailedRefreshToken) Route.StartPageRoute.Splash else Route.StartPageRoute.LoginRoute.Login,
+                    startDestination = BottomNavItem.Home.route,
                     modifier = Modifier.padding(top = paddingValues.calculateTopPadding())
                 ) {
                     composable<Route.StartPageRoute.Splash> {
@@ -573,8 +573,13 @@ class MainActivity : ComponentActivity() {
                         NotificationScreen(navController = navController)
                     }
 
-                    composable("profile/me") {
-                        MyProfileRoute(
+                    composable(
+                        route = "profile/{userId}",
+                        arguments = listOf(navArgument("userId") { type = NavType.StringType })
+                    ) {
+                        val userId = it.arguments?.getString("userId")
+                        ProfileRoute(
+                            userId = userId,
                             navigateEditProfile = { navController.navigate("profile/edit") },
                             onBackClick = { navController.popBackStack() },
                             navigateChatting = { }
@@ -596,7 +601,8 @@ class MainActivity : ComponentActivity() {
 
                     composable("roommate/userlist") {
                         UserListRoute(
-                            onBackClick = { navController.popBackStack() }
+                            onBackClick = { navController.popBackStack() },
+                            navigateToProfile = { navController.navigate("profile/$it") }
                         )
                     }
                 }
