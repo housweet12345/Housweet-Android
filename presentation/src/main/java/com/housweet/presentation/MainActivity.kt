@@ -147,7 +147,7 @@ class MainActivity : ComponentActivity() {
             ) { paddingValues ->
                 NavHost(
                     navController = navController,
-                    startDestination = BottomNavItem.Home.route,
+                    startDestination = if (!isFailedRefreshToken) Route.StartPageRoute.Splash else Route.StartPageRoute.LoginRoute.Login,
                     modifier = Modifier.padding(top = paddingValues.calculateTopPadding())
                 ) {
                     composable<Route.StartPageRoute.Splash> {
