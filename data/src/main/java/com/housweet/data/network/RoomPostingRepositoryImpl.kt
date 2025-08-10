@@ -41,24 +41,31 @@ class RoomPostingRepositoryImpl @Inject constructor(
     }
 
 
-    override suspend fun updatePostVisibility(postingId: Int, isVisible: Boolean) {
+    override suspend fun updatePostVisibility(postingId: Int, isVisible: Boolean):Boolean {
         val token = authLocalDataSource.getAuthToken()?.accessToken.orEmpty()
-        client.patch("$BASE_URL/room/room-postings/$postingId/") {
-            contentType(ContentType.Application.Json)
-            headers {
-                append("Authorization", "Bearer $token")
+        return try {
+            client.patch("$BASE_URL/room/room-postings/$postingId/") {
+                contentType(ContentType.Application.Json)
+                headers { append("Authorization", "Bearer $token") }
+                setBody(VisibilityRequestDto(isVisible))
             }
-            setBody(VisibilityRequestDto(isVisible))
+            true
+        } catch (t: Throwable) {
+            Log.e("RoomRepo", "updatePostVisibility failed", t)
+            false
         }
     }
 
-    override suspend fun deletePost(postingId: Int) {
+    override suspend fun deletePost(postingId: Int):Boolean {
         val token = authLocalDataSource.getAuthToken()?.accessToken.orEmpty()
-        Log.d("RoomRepo", "삭제 요청 토큰: $token")
-        client.delete("$BASE_URL/room/room-postings/$postingId/") {
-            headers {
-                append("Authorization", "Bearer $token")
+        return try {
+            client.delete("$BASE_URL/room/room-postings/$postingId/") {
+                headers { append("Authorization", "Bearer $token") }
             }
+            true
+        } catch (t: Throwable) {
+            Log.e("RoomRepo", "deletePost failed", t)
+            false
         }
     }
 }

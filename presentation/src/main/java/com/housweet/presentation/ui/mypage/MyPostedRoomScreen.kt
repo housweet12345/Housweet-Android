@@ -95,7 +95,6 @@ fun MyPostedRoomScreen(
     }
 
     val inPreview = isPreview()
-
     LaunchedEffect(Unit) {
         if (!inPreview) {
             Log.d("MyPostedRoomScreen", "내가 올린 방 목록 로딩")
@@ -103,12 +102,12 @@ fun MyPostedRoomScreen(
         }
     }
 
-    suspend fun hidePost(post: RoomPost) {
-        viewModel.updatePostVisibility(post.id, false)
-        delay(16) // 💡 상태 반영 시간 확보
-        selectedTab = 1
-        snackbarHostState.showSnackbar("숨김 처리되었습니다.")
-    }
+//    suspend fun hidePost(post: RoomPost) {
+//        viewModel.updatePostVisibility(post.id, false)
+//        delay(16) // 💡 상태 반영 시간 확보
+//        selectedTab = 1
+////        snackbarHostState.showSnackbar("숨김 처리되었습니다.")
+//    }
 
     Scaffold(
         containerColor = Color.White,
@@ -161,22 +160,60 @@ fun MyPostedRoomScreen(
                         },
                         onEditClick = {
                             if (!room.isHidden) {
-                                navController.navigate(Route.HouseRegisterRoute.Step1(mode = RegisterModel.EDIT))
+                                navController.navigate(
+                                    Route.HouseRegisterRoute.Step1(mode = RegisterModel.EDIT)
+                                )
                             } else {
+                                // 숨김 상태에서 "글 수정하기"를 누르면 우선 해제하고 게시중 탭으로
                                 coroutineScope.launch {
-                                    viewModel.updatePostVisibility(room.id, true)
-                                    delay(100) // 💡 살짝 기다렸다가
+                                    viewModel.setHiddenLocally(room.id, false)
+                                    val prevTab = selectedTab
                                     selectedTab = 0
+                                    val ok = viewModel.updatePostVisibilityRemote(room.id, true)
+                                    if (!ok) {
+                                        // 롤백
+                                        viewModel.setHiddenLocally(room.id, true)
+                                        selectedTab = prevTab
+                                        snackbarHostState.showSnackbar("숨김 해제 실패. 다시 시도해주세요.")
+                                    } else {
+                                        snackbarHostState.showSnackbar("숨김 해제되었습니다.")
+                                    }
                                 }
                             }
                         },
                         onUnhideClick = {
                             coroutineScope.launch {
-                                viewModel.updatePostVisibility(room.id, true)
-                                delay(100) // 💡 마찬가지로
+                                viewModel.setHiddenLocally(room.id, false)
+                                val prevTab = selectedTab
                                 selectedTab = 0
+                                val ok = viewModel.updatePostVisibilityRemote(room.id, true)
+                                if (!ok) {
+                                    viewModel.setHiddenLocally(room.id, true)
+                                    selectedTab = prevTab
+                                    snackbarHostState.showSnackbar("숨김 해제 실패. 다시 시도해주세요.")
+                                } else {
+                                    snackbarHostState.showSnackbar("숨김 해제되었습니다.")
+                                }
                             }
                         }
+//                        onEditClick = {
+//                            if (!room.isHidden) {
+//                                navController.navigate(Route.HouseRegisterRoute.Step1(mode = RegisterModel.EDIT))
+//                            } else {
+//                                coroutineScope.launch {
+//                                    viewModel.updatePostVisibility(room.id, true)
+//                                    delay(100) // 💡 살짝 기다렸다가
+//                                    selectedTab = 0
+//                                }
+//                            }
+//                        },
+//                        onUnhideClick = {
+//                            coroutineScope.launch {
+//                                viewModel.updatePostVisibility(room.id, true)
+//                                delay(100) // 💡 마찬가지로
+//                                selectedTab = 0
+//                            }
+//                        }
                     )
                 }
             }
@@ -200,13 +237,31 @@ fun MyPostedRoomScreen(
                                 .fillMaxWidth()
                                 .clickable {
                                     coroutineScope.launch {
-                                        selectedPost?.let {
-                                            hidePost(it)
-                                            selectedTab = 1 // "숨김" 탭으로 전환
-                                        }
+                                        val id = selectedPost?.id ?: return@launch
+                                        // 1) 즉시 숨김 + 탭 이동
+                                        viewModel.setHiddenLocally(id, true)
+                                        selectedTab = 1
                                         showSheet = false
-                                        snackbarHostState.showSnackbar("숨김 처리되었습니다.")
+
+                                        // 2) 서버 패치
+                                        val ok = viewModel.updatePostVisibilityRemote(id, false)
+                                        if (ok) {
+                                            snackbarHostState.showSnackbar("숨김 처리되었습니다.")
+                                        } else {
+                                            // 3) 실패 시 롤백
+                                            viewModel.setHiddenLocally(id, false)
+                                            selectedTab = 0
+                                            snackbarHostState.showSnackbar("숨김 처리 실패. 다시 시도해주세요.")
+                                        }
                                     }
+//                                    coroutineScope.launch {
+//                                        selectedPost?.let {
+//                                            hidePost(it)
+//                                            selectedTab = 1 // "숨김" 탭으로 전환
+//                                        }
+//                                        showSheet = false
+//                                        snackbarHostState.showSnackbar("숨김 처리되었습니다.")
+//                                    }
                                 }
                                 .padding(vertical = 10.dp),
                             contentAlignment = Alignment.Center

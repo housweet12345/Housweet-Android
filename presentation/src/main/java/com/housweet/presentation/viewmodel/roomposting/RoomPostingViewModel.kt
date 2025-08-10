@@ -26,21 +26,33 @@ open class RoomPostingViewModel @Inject constructor(
         }
     }
 
-    fun updatePostVisibility(postingId: Int, isVisible: Boolean) {
-        viewModelScope.launch {
-            try {
-                repository.updatePostVisibility(postingId, isVisible)
-
-                val index = _roomPosts.indexOfFirst { it.id == postingId }
-                if (index != -1) {
-                    val updated = _roomPosts[index].copy(isHidden = !isVisible)
-                    _roomPosts[index] = updated
-                }
-            } catch (e: Exception) {
-                Log.e("RoomViewModel", "숨김 처리 실패", e)
-            }
+    /** UI를 즉시 반영(낙관적 업데이트) */
+    fun setHiddenLocally(id: Int, hidden: Boolean) {
+        val index = _roomPosts.indexOfFirst { it.id == id }
+        if (index != -1) {
+            val curr = _roomPosts[index]
+            _roomPosts[index] = curr.copy(
+                isHidden = hidden,
+                // 도메인 모델에 isVisible이 있으면 같이 맞춰줘도 OK
+                // isVisible = !hidden
+            )
         }
     }
+
+    /**
+     * 서버에 is_visible 패치 (호출부에서 await 가능하도록 suspend)
+     * 성공 시 true, 실패 시 false
+     */
+    suspend fun updatePostVisibilityRemote(postingId: Int, isVisible: Boolean): Boolean {
+        return try {
+            repository.updatePostVisibility(postingId, isVisible)
+            true
+        } catch (e: Exception) {
+            Log.e("RoomViewModel", "가시성 변경 실패: ${e.message}", e)
+            false
+        }
+    }
+
 
     suspend fun deletePost(id: Int): Boolean {
         return try {
