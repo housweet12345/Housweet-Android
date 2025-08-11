@@ -130,8 +130,6 @@ class KtorService @Inject constructor(
                                 authEventBus.emit(AuthEvent.TokenRefreshFailed)
                             }
                             null
-                        } finally {
-                            client.close()
                         }
                     }
 
@@ -174,12 +172,14 @@ class KtorService @Inject constructor(
         val refreshToken = oldTokens?.refreshToken ?: return null
         Log.d(TAG, "Token expired, refreshing with refresh token")
 
-        val client = createHttpClientForRefresh()
+        val refreshClient = createHttpClientForRefresh()
 
         val refreshResponse = runBlocking {
-            client.post("$BASE_URL/auth/token/refresh") {
-                contentType(ContentType.Application.Json)
-                setBody(RefreshTokenRequest(refreshToken = refreshToken))
+            refreshClient.use { client ->
+                client.post("$BASE_URL/auth/token/refresh") {
+                    contentType(ContentType.Application.Json)
+                    setBody(RefreshTokenRequest(refreshToken = refreshToken))
+                }
             }
         }
 

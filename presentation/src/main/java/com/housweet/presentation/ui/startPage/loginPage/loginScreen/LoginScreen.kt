@@ -60,7 +60,7 @@ import com.kakao.sdk.user.UserApiClient
 @Composable
 fun LoginScreen(
     loginViewModel: LoginViewModel = hiltViewModel(),
-    onNextScreen: (String) -> Unit,
+    onNextScreen: (isTermsOfServiceAgreed: Boolean, isBelongToRoom: Boolean) -> Unit,
 ) {
     val uiState: LoginUiState by loginViewModel.uiState.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
@@ -70,12 +70,8 @@ fun LoginScreen(
     LaunchedEffect(Unit) {
         loginViewModel.event.collect { event ->
             when (event) {
-                LoginEvent.SignUp -> {
-                    onNextScreen("sign_up")
-                }
-
-                LoginEvent.SignIn -> {
-                    onNextScreen("sign_in")
+                is LoginEvent.LoginSuccess -> {
+                    onNextScreen(event.isTermsOfServiceAgreed, event.isBelongToRoom)
                 }
 
                 LoginEvent.LoginError -> {

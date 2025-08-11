@@ -30,14 +30,4 @@ class NavigationManager(private val navController: NavController) {
             launchSingleTop = true
         }
     }
-
-    fun navigateOneWay(popUpToRoute: Any, to: Any) {
-        navController.navigate(to) {
-            popUpTo(popUpToRoute) {
-                inclusive = true
-            }
-
-            launchSingleTop = true
-        }
-    }
 }
