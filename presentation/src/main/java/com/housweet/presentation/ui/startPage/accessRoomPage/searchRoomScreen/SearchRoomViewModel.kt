@@ -34,17 +34,13 @@ class SearchRoomViewModel @Inject constructor(
         }
     }
 
-    private fun success() {
-        viewModelScope.launch {
-            _event.emit(SearchRoomEvent.Success)
-        }
+    private suspend fun success() {
+        _event.emit(SearchRoomEvent.Success)
     }
 
-    private fun error() {
-        viewModelScope.launch {
-            isIdle()
-            _event.emit(SearchRoomEvent.Error)
-        }
+    private suspend fun error() {
+        isIdle()
+        _event.emit(SearchRoomEvent.Error)
     }
 
     private fun isIdle() {

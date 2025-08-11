@@ -42,33 +42,29 @@ class SplashViewModel @Inject constructor(
         }
     }
 
-    private fun isTermsOfServiceAgreed() {
-        viewModelScope.launch {
-            useCases.isTermsOfServiceAgreedUseCase().collect {
-                it.onSuccess { isAgreeTermsOfService ->
-                    isBelongToRoom(isAgreeTermsOfService)
-                }
-                it.onFailure { e ->
-                    e.printStackTrace()
-                    _event.emit(SplashEvent.Error)
-                }
+    private suspend fun isTermsOfServiceAgreed() {
+        useCases.isTermsOfServiceAgreedUseCase().collect {
+            it.onSuccess { isAgreeTermsOfService ->
+                isBelongToRoom(isAgreeTermsOfService)
+            }
+            it.onFailure { e ->
+                e.printStackTrace()
+                _event.emit(SplashEvent.Error)
             }
         }
     }
 
-    private fun isBelongToRoom(isAgreeTermsOfService: Boolean) {
-        viewModelScope.launch {
-            useCases.isBelongToRoomUseCase().collect {
-                it.onSuccess { isBelongToRoom ->
-                    _event.emit(
-                        SplashEvent.IsAutoLogin(isAgreeTermsOfService, isBelongToRoom)
-                    )
-                }
+    private suspend fun isBelongToRoom(isAgreeTermsOfService: Boolean) {
+        useCases.isBelongToRoomUseCase().collect {
+            it.onSuccess { isBelongToRoom ->
+                _event.emit(
+                    SplashEvent.IsAutoLogin(isAgreeTermsOfService, isBelongToRoom)
+                )
+            }
 
-                it.onFailure { e ->
-                    e.printStackTrace()
-                    _event.emit(SplashEvent.Error)
-                }
+            it.onFailure { e ->
+                e.printStackTrace()
+                _event.emit(SplashEvent.Error)
             }
         }
     }

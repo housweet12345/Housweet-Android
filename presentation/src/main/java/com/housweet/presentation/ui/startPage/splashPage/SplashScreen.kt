@@ -28,7 +28,7 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.housweet.presentation.ui.startPage.GuideText
-import com.housweet.presentation.ui.theme.Purple_7342DD
+import com.housweet.presentation.ui.theme.Purple_4B3AAC
 import com.housweet.presentation.ui.theme.White
 
 @Composable
@@ -88,7 +88,7 @@ private fun SplashContent(
     Scaffold(
         modifier = modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
-        containerColor = Purple_7342DD
+        containerColor = Purple_4B3AAC
     ) {
         Column(
             modifier = Modifier
