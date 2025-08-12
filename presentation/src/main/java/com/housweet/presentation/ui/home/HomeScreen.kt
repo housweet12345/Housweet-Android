@@ -237,7 +237,7 @@ fun NoticeSection(
 @Composable
 fun RoommatesMoodSection(
     roommates: List<RoommateInfo>,
-    onMoodSelect: (MoodType) -> Unit
+    onMoodSelect: (MoodType) -> Unit,
     onMoodSectionClick: () -> Unit,
 ) {
     Column {

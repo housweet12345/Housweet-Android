@@ -35,17 +35,13 @@ class TermsOfServiceViewModel @Inject constructor(
         }
     }
 
-    private fun success() {
-        viewModelScope.launch {
-            _event.emit(TermsOfServiceEvent.Success)
-        }
+    private suspend fun success() {
+        _event.emit(TermsOfServiceEvent.Success)
     }
 
-    private fun error() {
-        viewModelScope.launch {
-            isIdle()
-            _event.emit(TermsOfServiceEvent.Error)
-        }
+    private suspend fun error() {
+        isIdle()
+        _event.emit(TermsOfServiceEvent.Error)
     }
 
     private fun isIdle() {

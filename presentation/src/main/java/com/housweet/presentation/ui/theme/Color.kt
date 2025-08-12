@@ -20,6 +20,7 @@ val Gray_D9D9D9 = Color(0xFFD9D9D9)
 val Red = Color(0xFFED6868)
 
 val Yellow = Color(0xfffee500)
+val Purple_4B3AAC = Color(0xff4B3AAC)
 
 val Purple80 = Color(0xFFD0BCFF)
 val PurpleGrey80 = Color(0xFFCCC2DC)

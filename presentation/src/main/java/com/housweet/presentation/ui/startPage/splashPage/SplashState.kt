@@ -4,7 +4,7 @@ sealed interface SplashState {
 }
 
 sealed interface SplashEvent {
-    data class IsAutoLogin(val isAgreeTermsOfService: Boolean) : SplashEvent
+    data class IsAutoLogin(val isAgreeTermsOfService: Boolean, val isBelongToRoom: Boolean) : SplashEvent
     data object IsNotAutoLogin : SplashEvent
     data object Error : SplashEvent
 }

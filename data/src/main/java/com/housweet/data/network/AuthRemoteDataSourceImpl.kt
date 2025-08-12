@@ -4,9 +4,10 @@ import com.housweet.data.BuildConfig
 import com.housweet.data.network.dto.AgreeTermsOfServiceRequest
 import com.housweet.data.network.dto.IsTermsOfServiceAgreedResponseDto
 import com.housweet.data.network.dto.KakaoLoginRequest
-import com.housweet.data.network.dto.RefreshTokenRequest
 import com.housweet.data.network.dto.RefreshResponseDto
+import com.housweet.data.network.dto.RefreshTokenRequest
 import io.ktor.client.call.body
+import io.ktor.client.request.get
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -68,5 +69,10 @@ class AuthRemoteDataSourceImpl @Inject constructor(
         return httpClient.patch("$BASE_URL/user/settings/me/") {
             contentType(ContentType.Application.Json)
         }.body()
+    }
+
+    override suspend fun isBelongToRoom(): Boolean {
+        val response = httpClient.get("$BASE_URL/room/rooms/me/")
+        return response.status.value == 200
     }
 }
