@@ -28,5 +28,6 @@ data class UseCases (
     val agreeTermsOfServiceUseCase: AgreeTermsOfServiceUseCase,
     val isTermsOfServiceAgreedUseCase: IsTermsOfServiceAgreedUseCase,
     val isBelongToRoomUseCase: IsBelongToRoomUseCase,
-    val reportRoomPostUseCase: ReportRoomPostUseCase
+    val reportRoomPostUseCase: ReportRoomPostUseCase,
+    val getBookmarkedPostingsUseCase: GetBookmarkedPostingsUseCase,
 )

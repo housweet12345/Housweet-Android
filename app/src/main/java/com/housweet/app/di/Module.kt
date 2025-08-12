@@ -7,18 +7,27 @@ import com.housweet.data.local.AuthLocalDataSourceImpl
 import com.housweet.data.local.RoomLocalDataSourceImpl
 import com.housweet.data.network.AccessRoomRemoteDataSource
 import com.housweet.data.network.AccessRoomRemoteDataSourceImpl
+import com.housweet.data.network.AppSettingRemoteDataSource
 import com.housweet.data.network.AuthRemoteDataSource
 import com.housweet.data.network.AuthRemoteDataSourceImpl
+import com.housweet.data.network.ChatRemoteDataSource
+import com.housweet.data.network.ChatRemoteDataSourceImpl
 import com.housweet.data.network.CommunityRemoteDataSource
 import com.housweet.data.network.CommunityRemoteDataSourceImpl
 import com.housweet.data.network.HouseRegisterRemoteDataSource
 import com.housweet.data.network.HouseRegisterRemoteDataSourceImpl
 import com.housweet.data.network.ImageUploadRemoteDataSource
 import com.housweet.data.network.KtorService
+import com.housweet.data.network.NotificationRemoteDataSource
+import com.housweet.data.network.NotificationRemoteDataSourceImpl
 import com.housweet.data.network.RoomRemoteDataSource
 import com.housweet.data.network.RoomRemoteDataSourceImpl
+import com.housweet.data.network.RoomPostingRepositoryImpl
+import com.housweet.data.network.dto.AppSettingRemoteDataSourceImpl
 import com.housweet.data.repository.AccessRoomRepositoryImpl
+import com.housweet.data.repository.AppSettingRepositoryImpl
 import com.housweet.data.repository.AuthRepositoryImpl
+import com.housweet.data.repository.ChatRepositoryImpl
 import com.housweet.data.repository.CommunityRepositoryImpl
 import com.housweet.data.repository.HouseRegisterRepositoryImpl
 import com.housweet.data.repository.ImageUploadRepositoryImpl
@@ -27,10 +36,15 @@ import com.housweet.data.utils.NetworkConnectionManager
 import com.housweet.domain.event.AuthEventBus
 import com.housweet.domain.local.RoomLocalDataSource
 import com.housweet.domain.repository.AccessRoomRepository
+import com.housweet.domain.repository.AppSettingRepository
 import com.housweet.domain.repository.AuthRepository
+import com.housweet.domain.repository.ChatRepository
 import com.housweet.domain.repository.CommunityRepository
 import com.housweet.domain.repository.HouseRegisterRepository
 import com.housweet.domain.repository.ImageUploadRepository
+import com.housweet.domain.repository.NotificationRepository
+import com.housweet.data.repository.NotificationRepositoryImpl
+import com.housweet.domain.repository.RoomPostingRepository
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -119,6 +133,48 @@ abstract class Module {
     abstract fun bindImageUploadRepository(
         impl: ImageUploadRepositoryImpl
     ): ImageUploadRepository
+
+    @Binds
+    abstract fun bindRoomRepository(
+        impl: RoomPostingRepositoryImpl
+    ): RoomPostingRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindChatRemoteDataSource(
+        impl: ChatRemoteDataSourceImpl
+    ): ChatRemoteDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindChatRepository(
+        impl: ChatRepositoryImpl
+    ): ChatRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindAppSettingRemoteDataSource(
+        impl: AppSettingRemoteDataSourceImpl
+    ): AppSettingRemoteDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindAppSettingRepository(
+        impl: AppSettingRepositoryImpl
+    ): AppSettingRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindNotificationRemoteDataSource(
+        impl: NotificationRemoteDataSourceImpl
+    ): NotificationRemoteDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindNotificationRepository(
+        impl: NotificationRepositoryImpl
+    ): NotificationRepository
+
 
     companion object {
         @Provides

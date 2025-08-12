@@ -7,6 +7,7 @@ import com.housweet.domain.repository.AccessRoomRepository
 import com.housweet.domain.repository.AuthRepository
 import com.housweet.domain.repository.CommunityRepository
 import com.housweet.domain.repository.UserRepository
+import com.housweet.domain.usecase.GetBookmarkedPostingsUseCase
 import com.housweet.domain.usecase.LogoutUseCase
 import com.housweet.domain.usecase.UseCases
 import com.housweet.domain.usecase.community.ClickBookMarkUseCase
@@ -56,7 +57,8 @@ object UseCaseModule {
             agreeTermsOfServiceUseCase = AgreeTermsOfServiceUseCase(authRepository),
             isTermsOfServiceAgreedUseCase = IsTermsOfServiceAgreedUseCase(authRepository),
             isBelongToRoomUseCase = IsBelongToRoomUseCase(authRepository),
-            reportRoomPostUseCase = ReportRoomPostUseCase(communityRepository)
+            reportRoomPostUseCase = ReportRoomPostUseCase(communityRepository),
+            getBookmarkedPostingsUseCase = GetBookmarkedPostingsUseCase(communityRepository),
         )
     }
 
