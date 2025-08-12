@@ -65,6 +65,7 @@ fun HomeScreen(
     onProfileClick: () -> Unit = {},
     onNoticeClick: (Int) -> Unit = {},
     onTodoClick: () -> Unit = {},
+    onMoodSectionClick: () -> Unit = {},
     onTodoToggle: (Int) -> Unit = {},
     onMoodSelect: (MoodType) -> Unit = {},
     navController: NavController = rememberNavController()
@@ -132,7 +133,7 @@ fun HomeScreen(
         // 룸메이트 기분 섹션
         item {
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                RoommatesMoodSection(homeInfo.roommates, onMoodSelect)
+                RoommatesMoodSection(homeInfo.roommates, onMoodSelect, onMoodSectionClick)
             }
         }
 
@@ -237,9 +238,11 @@ fun NoticeSection(
 fun RoommatesMoodSection(
     roommates: List<RoommateInfo>,
     onMoodSelect: (MoodType) -> Unit
+    onMoodSectionClick: () -> Unit,
 ) {
     Column {
         Card(
+            onClick = onMoodSectionClick,
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = Color.White),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
