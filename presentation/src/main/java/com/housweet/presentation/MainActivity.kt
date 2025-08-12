@@ -60,7 +60,7 @@ import com.housweet.presentation.ui.navigation.NavigationManager
 import com.housweet.presentation.ui.navigation.Route
 import com.housweet.presentation.ui.notification.NotificationScreen
 import com.housweet.presentation.ui.profile.route.EditProfileRoute
-import com.housweet.presentation.ui.profile.route.MyProfileRoute
+import com.housweet.presentation.ui.profile.route.ProfileRoute
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen1
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen2
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen3
@@ -74,6 +74,7 @@ import com.housweet.presentation.ui.startPage.loginPage.WelcomeScreen
 import com.housweet.presentation.ui.startPage.loginPage.loginScreen.LoginScreen
 import com.housweet.presentation.ui.startPage.loginPage.termsOfServicePage.TermsOfServiceScreen
 import com.housweet.presentation.ui.startPage.splashPage.SplashScreen
+import com.housweet.presentation.ui.userlist.route.UserListRoute
 import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -350,6 +351,7 @@ class MainActivity : ComponentActivity() {
                             navigateToProfile = { navController.navigate("profile/me") },
                             navigateToNoticeDetail = { noticeId -> /* TODO: 공지사항 상세 */ },
                             navigateToTodoDetail = { /* TODO: 할일 상세 */ },
+                            navigateToUserList = { navigationManager.navigateTo("roommate/userlist") },
                             navController = navController
                         )
                     }
@@ -579,8 +581,13 @@ class MainActivity : ComponentActivity() {
                         NotificationScreen(navController = navController)
                     }
 
-                    composable("profile/me") {
-                        MyProfileRoute(
+                    composable(
+                        route = "profile/{userId}",
+                        arguments = listOf(navArgument("userId") { type = NavType.StringType })
+                    ) {
+                        val userId = it.arguments?.getString("userId")
+                        ProfileRoute(
+                            userId = userId,
                             navigateEditProfile = { navController.navigate("profile/edit") },
                             onBackClick = { navController.popBackStack() },
                             navigateChatting = { }
@@ -598,6 +605,13 @@ class MainActivity : ComponentActivity() {
                         val parentEntry = remember(navBackStackEntry) {
                             navController.getBackStackEntry("profile/edit")
                         }
+                    }
+
+                    composable("roommate/userlist") {
+                        UserListRoute(
+                            onBackClick = { navController.popBackStack() },
+                            navigateToProfile = { navController.navigate("profile/$it") }
+                        )
                     }
                 }
             }
