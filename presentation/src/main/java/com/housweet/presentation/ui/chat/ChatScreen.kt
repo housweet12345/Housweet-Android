@@ -46,12 +46,18 @@ import coil.compose.rememberAsyncImagePainter
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImagePainter.State.Empty.painter
 import com.housweet.presentation.R
 import com.housweet.presentation.viewmodel.chatlist.ChatListViewModel
 import kotlinx.coroutines.delay
@@ -70,7 +76,8 @@ fun ChatScreen(
     val galleryImages = remember { mutableStateListOf<Uri>() }
     var showGallery by remember { mutableStateOf(false) }
 
-    val senderId = 1
+    var expanded by remember { mutableStateOf(false) }
+    val senderId = 3
     val listState = rememberLazyListState()
 
     // 채팅 메시지 polling
@@ -103,6 +110,15 @@ fun ChatScreen(
                             .padding(start = 16.dp)
                             .clickable { navController.popBackStack() }
                     )
+                },
+                actions = {
+                    IconButton(onClick = { expanded = true }) {
+                        Icon(painter=painterResource(id = R.drawable.ic_more_vert), contentDescription = "메뉴")
+                    }
+                    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                        DropdownMenuItem(onClick = { expanded = false }) { Text("채팅방 삭제하기", fontSize = 12.sp) }
+                        DropdownMenuItem(onClick = { expanded = false }) { Text("신고하기", fontSize = 12.sp) }
+                    }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.White)
             )
@@ -191,7 +207,6 @@ fun ChatScreen(
     }
 }
 
-
 @Composable
 fun ChatScreenContent(
     chatItems: List<ChatItem>,
@@ -207,6 +222,7 @@ fun ChatScreenContent(
         verticalArrangement = Arrangement.spacedBy(4.dp),
         state = listState
     ) {
+        item { WarningBanner() }
         items(chatItems) { item ->
             when (item) {
                 is ChatItem.TextMessage -> {
@@ -232,6 +248,33 @@ fun ChatScreenContent(
     }
 }
 
+@Composable
+private fun WarningBanner() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.White)
+            .padding(top = 12.dp, bottom = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.notification),
+            contentDescription = "notification",
+            modifier = Modifier.size(16.dp),
+            tint = Color(0xFF6F3DD2)
+        )
+        Text(
+            "연락처, 주소 등 민감한 개인정보는 채팅을 통해 공유하지 마세요.",
+            fontSize = 10.sp,
+            color = Color(0xFF6F3DD2)
+        )
+        Text(
+            "직접 만나실 경우, 안전한 공공장소에서 만나시길 바랍니다.",
+            fontSize = 10.sp,
+            color = Color(0xFF6F3DD2)
+        )
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
