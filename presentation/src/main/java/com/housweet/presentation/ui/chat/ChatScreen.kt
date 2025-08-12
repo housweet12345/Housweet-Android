@@ -1,3 +1,6 @@
+package com.housweet.presentation.ui.chat
+
+import GetGalleryImages
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
@@ -9,28 +12,19 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -43,59 +37,71 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import com.housweet.presentation.ui.chat.ChatBubble
-import com.housweet.presentation.ui.chat.ChatInput
-import com.housweet.presentation.ui.chat.ChatItem
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImagePainter.State.Empty.painter
 import com.housweet.presentation.R
-import com.housweet.presentation.ui.chat.RequestGalleryPermission
+import com.housweet.presentation.viewmodel.chatlist.ChatListViewModel
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChatScreen(chatName: String, navController: NavController) {
+fun ChatScreen(
+    chatName: String,
+    navController: NavController,
+    receiverId: Int
+) {
     RequestGalleryPermission()
     val context = LocalContext.current
+    val viewModel = hiltViewModel<ChatListViewModel>()
     val chatItems = remember { mutableStateListOf<ChatItem>() }
     val galleryImages = remember { mutableStateListOf<Uri>() }
-    var inputText by remember { mutableStateOf("") }
     var showGallery by remember { mutableStateOf(false) }
-    var expanded by remember { mutableStateOf(false) }
-    val imageModifier = Modifier
-        .widthIn(max = 180.dp)
-        .heightIn(max = 240.dp)
 
-    // 샘플 채팅 데이터
+    var expanded by remember { mutableStateOf(false) }
+    val senderId = 3
+    val listState = rememberLazyListState()
+
+    // 채팅 메시지 polling
     LaunchedEffect(Unit) {
-        chatItems.addAll(
-            listOf(
-                ChatItem.TextMessage("안녕하세요", false, R.drawable.default_profile),
-                ChatItem.TextMessage("안녕하세요~ 반갑습니다!", true),
-                ChatItem.TextMessage("집 문의하고 싶어서 연락드렸어요. 지금도 메이트 구하시나요?", false, R.drawable.default_profile),
-                ChatItem.TextMessage("네! 아직 구하고 있어요 :)", true)
-            )
-        )
+        while (true) {
+            viewModel.fetchChatMessages(senderId, receiverId) { messages ->
+                chatItems.clear()
+                chatItems.addAll(processChatMessagesWithDate(messages, senderId))
+            }
+            delay(3000)
+        }
+    }
+
+    // 최신 메시지로 스크롤
+    LaunchedEffect(chatItems.size) {
+        if (chatItems.isNotEmpty()) {
+            listState.animateScrollToItem(chatItems.size - 1)
+        }
     }
 
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = chatName,
-                        fontSize = 14.sp
-                    )
-                        },
+                title = { Text(chatName, fontSize = 14.sp) },
                 navigationIcon = {
                     Icon(
                         painter = painterResource(id = R.drawable.back_black),
@@ -107,179 +113,214 @@ fun ChatScreen(chatName: String, navController: NavController) {
                 },
                 actions = {
                     IconButton(onClick = { expanded = true }) {
-                        Icon(Icons.Default.MoreVert, contentDescription = "메뉴")
+                        Icon(painter=painterResource(id = R.drawable.ic_more_vert), contentDescription = "메뉴")
                     }
                     DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                         DropdownMenuItem(onClick = { expanded = false }) { Text("채팅방 삭제하기", fontSize = 12.sp) }
-                        DropdownMenuItem(onClick = { expanded = false }) { Text("차단하기", fontSize = 12.sp) }
                         DropdownMenuItem(onClick = { expanded = false }) { Text("신고하기", fontSize = 12.sp) }
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.White)
             )
         },
-        modifier = Modifier.fillMaxSize(),
-        contentWindowInsets = WindowInsets(0)
-    ) { innerPadding ->
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .imePadding()
-                .background(Color.White)
-        ) {
-            // 채팅 리스트
-            LazyColumn(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                // 안내 문구 (Composable 함수이므로 item 블록 안에 넣어야 함)
-                item {
-
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color.White)
-                            .padding(top = 12.dp, bottom = 8.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        androidx.compose.material.Icon(
-                            painter = painterResource(id = R.drawable.notification),
-                            contentDescription = "notification",
-                            modifier = Modifier
-                                .size(16.dp),
-//                            tint = Color(0xFF665ED3)
-                        )
-                        Text(
-                            "연락처, 주소 등 민감한 개정보는 채팅을 통해 공유하지 마세요.",
-                            fontSize = 10.sp,
-                            color = Color(0xFF6F3DD2)
-                        )
-                        Text(
-                            "직접 만날 경우, 안전한 공공장소에서 만나시기 바랍니다.",
-                            fontSize = 10.sp,
-                            color = Color(0xFF6F3DD2)
-                        )
-                    }
-                }
-
-                // 날짜
-                item {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "3월 8일",
-                            fontSize = 12.sp,
-                            color = Color.Gray
-                        )
-                    }
-                }
-
-                items(chatItems) { item ->
-                    when (item) {
-                        is ChatItem.TextMessage -> {
-                            ChatBubble(
-                                message = item.message,
-                                isMine = item.isMine,
-                                profileImage = item.profileImageRes?.let { painterResource(id = it) }
-                            )
+        bottomBar = {
+            Column {
+                ChatInput(
+                    senderId = senderId,
+                    receiverId = receiverId,
+                    onSendMessage = { sId, rId, message ->
+                        if (message.isNotBlank()) {
+                            chatItems.add(ChatItem.TextMessage(message, true))
+                            viewModel.sendChatMessage(sId, rId, message) { success ->
+                                Log.d("Chat", if (success) "전송 성공" else "전송 실패")
+                            }
                         }
+                    },
+                    onAddImageClick = {
+                        showGallery = !showGallery
+                        if (showGallery && galleryImages.isEmpty()) {
+                            val images = GetGalleryImages(context)
+                            galleryImages.addAll(images)
+                        }
+                    }
+                )
 
-                        is ChatItem.ImageMessage -> {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(bottom = 4.dp),
-                                horizontalArrangement = if (item.isMine) Arrangement.End else Arrangement.Start
-                            ) {
+                if (showGallery) {
+                    // 갤러리 미리보기
+                    if (galleryImages.isEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(216.dp)
+                                .background(Color.White),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("갤러리 사진이 없습니다.", color = Color(0xFF6F3DD2))
+                        }
+                    } else {
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(3),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(216.dp)
+                                .background(Color(0xFFF0F0F0))
+                                .padding(8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(2.dp),
+                            verticalArrangement = Arrangement.spacedBy(2.dp)
+                        ) {
+                            items(galleryImages) { uri ->
                                 Image(
-                                    bitmap = item.bitmap.asImageBitmap(),
-                                    contentDescription = "채팅 이미지",
-                                    modifier = imageModifier,
-                                    contentScale = ContentScale.Fit // 또는 Crop
+                                    painter = rememberAsyncImagePainter(uri),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(108.dp)
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .clickable {
+                                            val bitmap = if (Build.VERSION.SDK_INT < 28) {
+                                                MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
+                                            } else {
+                                                val source = ImageDecoder.createSource(context.contentResolver, uri)
+                                                ImageDecoder.decodeBitmap(source)
+                                            }
+                                            chatItems.add(ChatItem.ImageMessage(bitmap, true))
+                                            showGallery = false
+                                        },
+                                    contentScale = ContentScale.Crop
                                 )
                             }
                         }
                     }
                 }
             }
+        },
+        containerColor = Color.White
+    ) { innerPadding ->
+        ChatScreenContent(
+            chatItems = chatItems,
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize(),
+            listState = listState,
+            navController = navController,
+            chatName = "채팅 미리보기"
+        )
+    }
+}
 
-            // ✅ ChatInput은 항상 하단 고정 + 갤러리 뜨면 그 위로
-            ChatInput(
-                inputText = inputText,
-                onTextChange = { inputText = it },
-                onSend = {
-                    if (inputText.isNotBlank()) {
-                        chatItems.add(ChatItem.TextMessage(inputText, true))
-                        inputText = ""
-                    }
-                },
-                onAddImageClick = {
-                    showGallery = !showGallery
-                    if (showGallery && galleryImages.isEmpty()) {
-                        val images = GetGalleryImages(context)
-                        Log.d("ChatScreen", "불러온 이미지 수: ${images.size}")
-                        galleryImages.addAll(images)
-                    }
+@Composable
+fun ChatScreenContent(
+    chatItems: List<ChatItem>,
+    modifier: Modifier = Modifier,
+    listState: LazyListState,
+    navController: NavController,
+    chatName: String
+) {
+    LazyColumn(
+        modifier = modifier
+            .background(Color.White)
+            .padding(horizontal = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        state = listState
+    ) {
+        item { WarningBanner() }
+        items(chatItems) { item ->
+            when (item) {
+                is ChatItem.TextMessage -> {
+                    ChatBubble(
+                        message = item.message,
+                        isMine = item.isMine,
+                        profileImage = item.profileImageRes?.let { painterResource(id = it) }
+                    )
                 }
-            )
-
-            // ✅ 갤러리 미리보기 (ChatInput 아래)
-            if (showGallery) {
-                if (galleryImages.isEmpty()) {
+                is ChatItem.DateHeader -> {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(216.dp) // 세로 더 넓게
-                            .background(Color.White), // 배경 흰색
-                        contentAlignment = Alignment.Center // 텍스트 정중앙
+                            .padding(vertical = 4.dp),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = "갤러리 사진이 없습니다.",
-                            color = Color(0xFF6F3DD2)
-                        )
-                    }
-                } else {
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(3),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(216.dp)
-                            .background(Color(0xFFF0F0F0))
-                            .padding(8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(2.dp),
-                        verticalArrangement = Arrangement.spacedBy(2.dp)
-                    ) {
-                        items(galleryImages) { uri ->
-                            Image(
-                                painter = rememberAsyncImagePainter(model = uri),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(108.dp)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .clickable {
-                                        val bitmap = if (Build.VERSION.SDK_INT < 28) {
-                                            MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
-                                        } else {
-                                            val source = ImageDecoder.createSource(context.contentResolver, uri)
-                                            ImageDecoder.decodeBitmap(source)
-                                        }
-                                        chatItems.add(ChatItem.ImageMessage(bitmap, true))
-                                        showGallery = false
-                                    },
-                                contentScale = ContentScale.Crop // ✅ 꽉 채우기 + 자르기
-                            )
-                        }
+                        Text(item.date, fontSize = 12.sp, color = Color.Gray)
                     }
                 }
+                else -> Unit
             }
         }
+    }
+}
+
+@Composable
+private fun WarningBanner() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.White)
+            .padding(top = 12.dp, bottom = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.notification),
+            contentDescription = "notification",
+            modifier = Modifier.size(16.dp),
+            tint = Color(0xFF6F3DD2)
+        )
+        Text(
+            "연락처, 주소 등 민감한 개인정보는 채팅을 통해 공유하지 마세요.",
+            fontSize = 10.sp,
+            color = Color(0xFF6F3DD2)
+        )
+        Text(
+            "직접 만나실 경우, 안전한 공공장소에서 만나시길 바랍니다.",
+            fontSize = 10.sp,
+            color = Color(0xFF6F3DD2)
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(showBackground = true)
+@Composable
+fun ChatScreenPreview() {
+    val navController = rememberNavController()
+    val chatItems = listOf(
+        ChatItem.DateHeader("8월 6일"),
+        ChatItem.TextMessage("안녕하세요!", isMine = false, profileImageRes = R.drawable.default_profile),
+        ChatItem.TextMessage("안녕하세요~ 반가워요!", isMine = true)
+    )
+
+    val listState = rememberLazyListState()
+
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text("채팅 미리보기", fontSize = 14.sp) },
+                navigationIcon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.back_black),
+                        contentDescription = "뒤로가기",
+                        modifier = Modifier.padding(start = 16.dp)
+                    )
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.White)
+            )
+        },
+        bottomBar = {
+            ChatInput(
+                senderId = 1,
+                receiverId = 2,
+                onSendMessage = { _, _, _ -> },
+                onAddImageClick = {}
+            )
+        },
+        containerColor = Color.White
+    ) { innerPadding ->
+        ChatScreenContent(
+            chatName = "채팅 미리보기",
+            chatItems = chatItems,
+            navController = navController,
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize(),
+            listState = listState
+        )
     }
 }
