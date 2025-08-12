@@ -1,5 +1,7 @@
 package com.housweet.presentation.ui.mypage
 
+import android.R.attr.fontWeight
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -45,36 +47,80 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.housweet.presentation.R
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.compose.rememberNavController
+import com.housweet.domain.model.RoomPost
+import com.housweet.domain.repository.RoomPostingRepository
+import com.housweet.presentation.model.RegisterModel
+import com.housweet.presentation.ui.navigation.Route
+import com.housweet.presentation.viewmodel.roomposting.RoomPostingViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyPostedRoomScreen(navController: NavController) {
+fun MyPostedRoomScreen(
+    navController: NavController,
+    viewModel: RoomPostingViewModel = hiltViewModel()
+) {
     var selectedTab by remember { mutableStateOf(0) } // 0: 게시중, 1: 숨김
     val tabTitles = listOf("게시중", "숨김")
 
     // 모달 상태
     val sheetState = rememberModalBottomSheetState()
     var showSheet by remember { mutableStateOf(false) }
+    var selectedPost by remember { mutableStateOf<RoomPost?>(null) }
+    val coroutineScope = rememberCoroutineScope()
 
-    val sampleRoomPosts = listOf(
-        RoomPost("애완동물 좋아하는 사람을 구하고 있습니다.", "보증금 400 월세 20", "송파구 문정동 · 20대 남자"),
-        RoomPost("깔끔한 사람을 구해요!", "보증금 300 월세 25", "강남구 역삼동 · 30대 여자")
-    )
+    val snackbarHostState = remember { SnackbarHostState() }
+    val roomPosts = viewModel.roomPosts
+
+    // 게시글 목록 필터링
+    val filteredPosts by remember {
+        derivedStateOf {
+            if (selectedTab == 0) {
+                roomPosts.filter { !it.isHidden }
+            } else {
+                roomPosts.filter { it.isHidden }
+            }
+        }
+    }
+
+    val inPreview = isPreview()
+    LaunchedEffect(Unit) {
+        if (!inPreview) {
+            Log.d("MyPostedRoomScreen", "내가 올린 방 목록 로딩")
+            viewModel.loadMyRooms()
+        }
+    }
+
+//    suspend fun hidePost(post: RoomPost) {
+//        viewModel.updatePostVisibility(post.id, false)
+//        delay(16) // 💡 상태 반영 시간 확보
+//        selectedTab = 1
+////        snackbarHostState.showSnackbar("숨김 처리되었습니다.")
+//    }
 
     Scaffold(
         containerColor = Color.White,
         topBar = {
-            // TopAppBar
             CenterAlignedTopAppBar(
-                title={
-                    androidx.compose.material.Text(
+                title = {
+                    Text(
                         text = "올린 방 관리",
                         fontSize = 14.sp
                     )
                 },
                 navigationIcon = {
-                    androidx.compose.material.Icon(
+                    Icon(
                         painter = painterResource(id = R.drawable.back_black),
                         contentDescription = "뒤로가기",
                         modifier = Modifier
@@ -83,10 +129,11 @@ fun MyPostedRoomScreen(navController: NavController) {
                     )
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color.White // ✅ 배경색 흰색 지정
+                    containerColor = Color.White
                 )
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding).background(Color.White)) {
             // 탭
@@ -104,15 +151,72 @@ fun MyPostedRoomScreen(navController: NavController) {
             }
 
             LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(items = sampleRoomPosts) { room ->
+                items(filteredPosts) { room ->
                     RoomItem(
                         roomPost = room,
-                        onMenuClick = { showSheet = true },
-                        onEditClick = { }
+                        onMenuClick = {
+                            selectedPost = room
+                            showSheet = true
+                        },
+                        onEditClick = {
+                            if (!room.isHidden) {
+                                navController.navigate(
+                                    Route.HouseRegisterRoute.Step1(mode = RegisterModel.EDIT)
+                                )
+                            } else {
+                                // 숨김 상태에서 "글 수정하기"를 누르면 우선 해제하고 게시중 탭으로
+                                coroutineScope.launch {
+                                    viewModel.setHiddenLocally(room.id, false)
+                                    val prevTab = selectedTab
+                                    selectedTab = 0
+                                    val ok = viewModel.updatePostVisibilityRemote(room.id, true)
+                                    if (!ok) {
+                                        // 롤백
+                                        viewModel.setHiddenLocally(room.id, true)
+                                        selectedTab = prevTab
+                                        snackbarHostState.showSnackbar("숨김 해제 실패. 다시 시도해주세요.")
+                                    } else {
+                                        snackbarHostState.showSnackbar("숨김 해제되었습니다.")
+                                    }
+                                }
+                            }
+                        },
+                        onUnhideClick = {
+                            coroutineScope.launch {
+                                viewModel.setHiddenLocally(room.id, false)
+                                val prevTab = selectedTab
+                                selectedTab = 0
+                                val ok = viewModel.updatePostVisibilityRemote(room.id, true)
+                                if (!ok) {
+                                    viewModel.setHiddenLocally(room.id, true)
+                                    selectedTab = prevTab
+                                    snackbarHostState.showSnackbar("숨김 해제 실패. 다시 시도해주세요.")
+                                } else {
+                                    snackbarHostState.showSnackbar("숨김 해제되었습니다.")
+                                }
+                            }
+                        }
+//                        onEditClick = {
+//                            if (!room.isHidden) {
+//                                navController.navigate(Route.HouseRegisterRoute.Step1(mode = RegisterModel.EDIT))
+//                            } else {
+//                                coroutineScope.launch {
+//                                    viewModel.updatePostVisibility(room.id, true)
+//                                    delay(100) // 💡 살짝 기다렸다가
+//                                    selectedTab = 0
+//                                }
+//                            }
+//                        },
+//                        onUnhideClick = {
+//                            coroutineScope.launch {
+//                                viewModel.updatePostVisibility(room.id, true)
+//                                delay(100) // 💡 마찬가지로
+//                                selectedTab = 0
+//                            }
+//                        }
                     )
                 }
             }
-
         }
 
         // 🛠️ Modal Bottom Sheet
@@ -127,28 +231,75 @@ fun MyPostedRoomScreen(navController: NavController) {
                         .fillMaxWidth()
                         .padding(vertical = 10.dp)
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                // TODO: 숨기기 동작
-                                showSheet = false
-                            }
-                            .padding(vertical = 10.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "게시글 숨기기",
-                            fontSize = 14.sp,
-                        )
+                    if (selectedPost?.isHidden == false) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    coroutineScope.launch {
+                                        val id = selectedPost?.id ?: return@launch
+                                        // 1) 즉시 숨김 + 탭 이동
+                                        viewModel.setHiddenLocally(id, true)
+                                        selectedTab = 1
+                                        showSheet = false
+
+                                        // 2) 서버 패치
+                                        val ok = viewModel.updatePostVisibilityRemote(id, false)
+                                        if (ok) {
+                                            snackbarHostState.showSnackbar("숨김 처리되었습니다.")
+                                        } else {
+                                            // 3) 실패 시 롤백
+                                            viewModel.setHiddenLocally(id, false)
+                                            selectedTab = 0
+                                            snackbarHostState.showSnackbar("숨김 처리 실패. 다시 시도해주세요.")
+                                        }
+                                    }
+//                                    coroutineScope.launch {
+//                                        selectedPost?.let {
+//                                            hidePost(it)
+//                                            selectedTab = 1 // "숨김" 탭으로 전환
+//                                        }
+//                                        showSheet = false
+//                                        snackbarHostState.showSnackbar("숨김 처리되었습니다.")
+//                                    }
+                                }
+                                .padding(vertical = 10.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("게시글 숨기기", fontSize = 14.sp)
+                        }
+                    }
+                    else {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    navController.navigate(Route.HouseRegisterRoute.Step1(mode = RegisterModel.EDIT))
+                                    showSheet = false
+                                }
+                                .padding(vertical = 10.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("게시글 수정", fontSize = 14.sp)
+                        }
                     }
 
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
-                                // TODO: 삭제 동작
-                                showSheet = false
+                                coroutineScope.launch {
+                                    selectedPost?.let {
+                                        val success = viewModel.deletePost(it.id)
+                                        if (success) {
+                                            snackbarHostState.showSnackbar("게시글이 삭제되었습니다.")
+                                            viewModel.loadMyRooms() // 🔄 삭제 후 목록 갱신
+                                        } else {
+                                            snackbarHostState.showSnackbar("삭제에 실패했습니다.")
+                                        }
+                                    }
+                                    showSheet = false
+                                }
                             }
                             .padding(vertical = 10.dp),
                         contentAlignment = Alignment.Center
@@ -169,7 +320,8 @@ fun MyPostedRoomScreen(navController: NavController) {
 fun RoomItem(
     roomPost: RoomPost,
     onMenuClick: () -> Unit,
-    onEditClick: () -> Unit
+    onEditClick: () -> Unit,
+    onUnhideClick: () -> Unit
 ) {
     Column(
         Modifier
@@ -179,15 +331,24 @@ fun RoomItem(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
                 Modifier
-                    .size(70.dp)
+                    .size(80.dp)
+                    .clip(RoundedCornerShape(6.dp))
                     .background(Color.LightGray)
             )
             Spacer(Modifier.width(12.dp))
 
             Column(Modifier.weight(1f)) {
                 Text(roomPost.title, fontSize = 12.sp)
-                Text(roomPost.priceInfo, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                Text(roomPost.metaInfo, fontSize = 10.sp, color = Color.Gray)
+                Row(verticalAlignment = Alignment.CenterVertically){
+                    Text("보증금 ${roomPost.deposit}", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Spacer(Modifier.width(8.dp))
+                    Text("월세 ${roomPost.rent}", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                }
+                Row(verticalAlignment = Alignment.CenterVertically){
+                    Text(roomPost.areaText.toString(), fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                    Spacer(Modifier.width(8.dp))
+                    Text(roomPost.ageRangeAndGender, fontSize = 10.sp, color = Color.Gray)
+                }
             }
         }
 
@@ -203,14 +364,26 @@ fun RoomItem(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.align(Alignment.Center)
             ){
-                Button(
-                    onClick = onEditClick,
-                    modifier = Modifier.width(250.dp).height(36.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF7F7F7)),
-                    shape = RoundedCornerShape(6.dp)
-                ) {
-                    Text("글 수정하기", color = Color.Black, fontSize = 12.sp)
+                if (!roomPost.isHidden) {
+                    Button(
+                        onClick = onEditClick,
+                        modifier = Modifier.width(250.dp).height(36.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF7F7F7)),
+                        shape = RoundedCornerShape(6.dp)
+                    ) {
+                        Text("글 수정하기", color = Color.Black, fontSize = 12.sp)
+                    }
+                } else {
+                    Button(
+                        onClick = onUnhideClick,
+                        modifier = Modifier.width(250.dp).height(36.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF7F7F7)),
+                        shape = RoundedCornerShape(6.dp)
+                    ) {
+                        Text("숨김 해제", color = Color.Black, fontSize = 12.sp)
+                    }
                 }
+
                 Spacer(modifier = Modifier.width(18.dp))
 
                 Box(
@@ -237,4 +410,57 @@ fun RoomItem(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MyPostedRoomScreenPreview() {
+    val dummyPosts = listOf(
+        RoomPost(
+            id = 1,
+            userId = 3,
+            title = "가까운 역세권 쉐어하우스",
+            imageUri = "",
+            rent = 30,
+            deposit = 100,
+            ageRangeAndGender = "20대 여성",
+            isVisible = true,
+            areaText = "서울시 강남구",
+            isHidden = false
+        ),
+        RoomPost(
+            id = 2,
+            userId = 3,
+            title = "조용한 동네 쉐어하우스",
+            imageUri = "",
+            rent = 40,
+            deposit = 200,
+            ageRangeAndGender = "30대 남성",
+            isVisible = true,
+            areaText = "서울시 송파구",
+            isHidden = false
+        )
+    )
+
+    val previewViewModel = object : RoomPostingViewModel(
+        repository = object : RoomPostingRepository {
+            override suspend fun updatePostVisibility(postingId: Int, isVisible: Boolean) {}
+            override suspend fun getMyRoomPostings(): List<RoomPost> = dummyPosts
+            override suspend fun deletePost(postingId: Int) {}
+        }
+    ) {
+        init {
+            roomPosts.addAll(dummyPosts)
+        }
+    }
+
+    MyPostedRoomScreen(
+        navController = rememberNavController(),
+        viewModel = previewViewModel
+    )
+}
+
+@Composable
+fun isPreview(): Boolean {
+    return LocalInspectionMode.current
 }

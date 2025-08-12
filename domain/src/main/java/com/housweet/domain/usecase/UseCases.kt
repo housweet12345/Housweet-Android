@@ -21,5 +21,6 @@ data class UseCases (
     val getRoomPostDetailUseCase: GetRoomPostDetailUseCase,
     val accessRoomWithInviteCodeUseCase: AccessRoomWithInviteCodeUseCase,
     val agreeTermsOfServiceUseCase: AgreeTermsOfServiceUseCase,
-    val isTermsOfServiceAgreedUseCase: IsTermsOfServiceAgreedUseCase
+    val isTermsOfServiceAgreedUseCase: IsTermsOfServiceAgreedUseCase,
+    val getBookmarkedPostingsUseCase: GetBookmarkedPostingsUseCase,
 )

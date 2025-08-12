@@ -78,7 +78,7 @@ fun ChatBubble(
             )
         }
         if (isMine) {
-            Spacer(modifier = Modifier.width(38.dp)) // 내 메시지일 땐 균형 맞추기
+            Spacer(modifier = Modifier.width(0.dp)) // 내 메시지일 땐 균형 맞추기
         }
     }
 }

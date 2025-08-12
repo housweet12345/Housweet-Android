@@ -14,7 +14,8 @@ import com.housweet.presentation.ui.profile.state.ProfileInfoState
 import com.housweet.presentation.viewmodel.profile.ProfileInfoViewModel
 
 @Composable
-fun MyProfileRoute(
+fun ProfileRoute(
+    userId: String?,
     viewModel: ProfileInfoViewModel = hiltViewModel(),
     navigateEditProfile: () -> Unit = {},
     onBackClick: () -> Unit = {},
@@ -23,8 +24,8 @@ fun MyProfileRoute(
     val state = viewModel.profileState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        //null일 때 자신의 프로필을 가져옴
-        viewModel.loadProfile(null)
+        val id = if (userId == "me") null else userId
+        viewModel.loadProfile(id)
     }
 
     when (state.value) {
