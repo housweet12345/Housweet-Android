@@ -47,7 +47,7 @@ fun ChatListContent(
     navController: NavController,
     chatUsers: List<ChatUser>
 ) {
-    val myUserId = 1
+    val myUserId = 3
     val filteredUsers = chatUsers.filter { it.id != myUserId }
 
     Scaffold(
@@ -85,7 +85,9 @@ fun ChatListContent(
                         chat = ChatPreview(
                             name = user.username,
                             lastMessage = "말이 없어요",
+//                            lastMessage = "",
                             time = "12:34",
+//                            time = "",
                             profileImageUrl = "",
                             unread = false
                         ),
