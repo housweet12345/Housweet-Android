@@ -7,4 +7,5 @@ sealed interface DetailPostState {
 
 sealed interface DetailPostEvent {
     data object Error: DetailPostEvent
+    data class ReportRoom(val message: String): DetailPostEvent
 }

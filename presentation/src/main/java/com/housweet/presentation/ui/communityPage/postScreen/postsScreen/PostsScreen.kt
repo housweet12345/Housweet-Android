@@ -4,7 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -156,38 +156,31 @@ private fun PostsTopBar(
     regions: String,
     onBackBtnClick: () -> Unit
 ) {
-    Row(
+    Box(
         modifier = Modifier
             .background(White)
             .fillMaxWidth()
-            .height(48.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+            .height(48.dp)
     ) {
         Icon(
             painter = painterResource(id = R.drawable.back),
             contentDescription = "back",
             modifier = Modifier
                 .padding(start = 20.dp)
+                .align(Alignment.CenterStart)
                 .clip(CircleShape)
                 .clickable { onBackBtnClick() },
             tint = Black
         )
 
         GuideText(
+            modifier = Modifier.align(Alignment.Center),
             color = Black,
             text = regions,
             fontWeight = FontWeight.Bold,
             fontSize = 14.sp,
             lineHeight = 14.sp,
             textAlign = TextAlign.Center
-        )
-
-        Icon(
-            painter = painterResource(id = R.drawable.menu),
-            contentDescription = "menu",
-            modifier = Modifier.padding(end = 20.dp),
-            tint = Black
         )
     }
 }

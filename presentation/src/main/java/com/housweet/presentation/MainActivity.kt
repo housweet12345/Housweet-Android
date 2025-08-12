@@ -369,6 +369,9 @@ class MainActivity : ComponentActivity() {
                             },
                             onProfileScreen = {
                                 navigationManager.navigateTo("profile/me")
+                            },
+                            onBackBtnClick = {
+                                navController.popBackStack()
                             }
                         )
                     }

@@ -15,4 +15,5 @@ interface CommunityRepository {
     suspend fun clickBookMark(roomPostingId: Int): Flow<Result<Boolean>>
     suspend fun unClickBookMark(roomPostingId: Int): Flow<Result<Boolean>>
     suspend fun getRoomPostDetail(roomPostingId: Int): Flow<Result<RoomPostDetailDataModel>>
+    suspend fun reportRoomPost(roomPostingId: Int): Flow<Result<Boolean>>
 }

@@ -196,16 +196,6 @@ private fun MapContent(
                 properties = mapProperties,
                 uiSettings = mapUiSettings
             ) {
-                RoomMarker(
-                    postRegion = "aaa aaa 민니니니",
-                    postNum = 20,
-                    markerState = MarkerState(
-                        position = LatLng(37.5666805, 126.9784147)
-                    ),
-                    onClick = { },
-                    zoomLevel = cameraPositionState.position.zoom
-                )
-
                 markerStates.forEach { (markerInfo, markerState) ->
                     if (markerInfo.roomCount > 0) {
                         RoomMarker(

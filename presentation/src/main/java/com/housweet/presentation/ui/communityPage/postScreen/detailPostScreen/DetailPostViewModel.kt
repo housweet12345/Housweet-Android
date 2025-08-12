@@ -49,4 +49,18 @@ class DetailPostViewModel @Inject constructor(
             }
         }
     }
+
+    fun reportRoom() {
+        viewModelScope.launch {
+            useCases.reportRoomPostUseCase(_roomPostDetail.value.id).collect { result ->
+                result.onSuccess {
+                    _event.emit(DetailPostEvent.ReportRoom("신고 접수가 완료되었습니다."))
+                }
+
+                result.onFailure {
+                    _event.emit(DetailPostEvent.ReportRoom("신고 접수에 실패했습니다."))
+                }
+            }
+        }
+    }
 }

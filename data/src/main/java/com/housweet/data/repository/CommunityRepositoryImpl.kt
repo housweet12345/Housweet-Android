@@ -1,5 +1,6 @@
 package com.housweet.data.repository
 
+import android.util.Log
 import com.housweet.data.network.CommunityRemoteDataSource
 import com.housweet.data.network.dto.toRoomPostDetailDataModel
 import com.housweet.data.network.dto.toNearByPostCountDataModel
@@ -63,6 +64,15 @@ class CommunityRepositoryImpl @Inject constructor(
             emit(Result.success(response.toRoomPostDetailDataModel()))
         } catch (e: Exception) {
             e.printStackTrace()
+        }
+    }
+
+    override suspend fun reportRoomPost(roomPostingId: Int): Flow<Result<Boolean>> = flow {
+        try {
+            val response = communityRemoteDataSource.reportRoomPost(roomPostingId)
+            emit(Result.success(response))
+        } catch (e: Exception) {
+            emit(Result.failure(e))
         }
     }
 }

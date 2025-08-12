@@ -2,9 +2,11 @@ package com.housweet.presentation.ui.communityPage.postScreen.detailPostScreen
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,20 +28,27 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -54,22 +63,24 @@ import com.housweet.presentation.ui.startPage.GuideText
 import com.housweet.presentation.ui.startPage.LoadingScreen
 import com.housweet.presentation.ui.theme.Black
 import com.housweet.presentation.ui.theme.Gray_7E7E7E
+import com.housweet.presentation.ui.theme.Gray_A5A5A5
 import com.housweet.presentation.ui.theme.Gray_CBCBCB
 import com.housweet.presentation.ui.theme.Purple
 import com.housweet.presentation.ui.theme.White
 import com.housweet.presentation.ui.theme.White_F8F8F8
-
 
 @Composable
 fun DetailPostScreen(
     modifier: Modifier,
     onChatScreen: (userId: Int) -> Unit,
     onProfileScreen: (userId: Int) -> Unit,
+    onBackBtnClick: () -> Unit,
     detailPostViewModel: DetailPostViewModel = hiltViewModel()
 ) {
     val uiState by detailPostViewModel.uiState.collectAsState()
     val roomPostDetail by detailPostViewModel.roomPostDetail.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
+    var isMenuExpanded by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         detailPostViewModel.event.collect { event ->
@@ -77,6 +88,14 @@ fun DetailPostScreen(
                 DetailPostEvent.Error -> {
                     snackBarHostState.showSnackbar(
                         message = "방 정보를 제대로 불러오지 못했어요.",
+                        actionLabel = "닫기",
+                        duration = SnackbarDuration.Short
+                    )
+                }
+
+                is DetailPostEvent.ReportRoom -> {
+                    snackBarHostState.showSnackbar(
+                        message = event.message,
                         actionLabel = "닫기",
                         duration = SnackbarDuration.Short
                     )
@@ -91,8 +110,20 @@ fun DetailPostScreen(
                 modifier = modifier,
                 roomPostDetail = roomPostDetail,
                 snackBarHostState = snackBarHostState,
+                isMenuExpanded = isMenuExpanded,
                 onChatScreen = onChatScreen,
-                onProfileScreen = onProfileScreen
+                onProfileScreen = onProfileScreen,
+                onBackBtnClick = onBackBtnClick,
+                onMenuClick = {
+                    isMenuExpanded = !isMenuExpanded
+                },
+                onScreenClick = {
+                    isMenuExpanded = false
+                },
+                onReportClick = {
+                    isMenuExpanded = false
+                    detailPostViewModel.reportRoom()
+                }
             )
         }
 
@@ -108,13 +139,31 @@ private fun DetailPostContent(
     modifier: Modifier,
     roomPostDetail: RoomPostDetailDataModel,
     snackBarHostState: SnackbarHostState,
+    isMenuExpanded: Boolean,
     onChatScreen: (userId: Int) -> Unit,
-    onProfileScreen: (userId: Int) -> Unit
+    onProfileScreen: (userId: Int) -> Unit,
+    onBackBtnClick: () -> Unit,
+    onMenuClick: () -> Unit,
+    onScreenClick: () -> Unit,
+    onReportClick: () -> Unit
 ) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
     Scaffold(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .pointerInput(Unit) {
+                detectTapGestures {
+                    onScreenClick()
+                }
+            },
+        topBar = {
+            DetailPostTopBar(
+                roomPostDetail = roomPostDetail,
+                onBackBtnClick = onBackBtnClick,
+                onMenuClick = onMenuClick
+            )
+        },
         bottomBar = {
             BottomBar(
                 roomPostDetail = roomPostDetail,
@@ -172,6 +221,94 @@ private fun DetailPostContent(
                 Spacer(modifier = Modifier.height(101.dp))
             }
         }
+    }
+
+    Box(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        if (isMenuExpanded) {
+            MenuDropdownMenu(
+                modifier = Modifier.align(Alignment.TopEnd),
+                onReportClick = onReportClick
+            )
+        }
+    }
+}
+
+@Composable
+private fun MenuDropdownMenu(
+    modifier: Modifier,
+    onReportClick: () -> Unit
+) {
+    Surface(
+        modifier = modifier
+            .padding(top = 10.dp, end = 10.dp)
+            .shadow(
+                elevation = 4.dp,
+                spotColor = Gray_A5A5A5,
+                ambientColor = Gray_CBCBCB
+            ),
+        shape = RoundedCornerShape(6.dp),
+        color = White
+    ) {
+        Column {
+            GuideText(
+                modifier = Modifier
+                    .padding(start = 16.dp, end = 90.dp, top = 12.dp, bottom = 12.dp)
+                    .clickable { onReportClick() },
+                color = Black,
+                text = "게시글 신고하기",
+                fontWeight = FontWeight.Normal,
+                fontSize = 12.sp,
+                lineHeight = 12.sp,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+@Composable
+private fun DetailPostTopBar(
+    roomPostDetail: RoomPostDetailDataModel,
+    onBackBtnClick: () -> Unit,
+    onMenuClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .background(White)
+            .fillMaxWidth()
+            .height(48.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.back),
+            contentDescription = "back",
+            modifier = Modifier
+                .padding(start = 20.dp)
+                .clip(CircleShape)
+                .clickable { onBackBtnClick() },
+            tint = Black
+        )
+
+        GuideText(
+            color = Black,
+            text = roomPostDetail.lotNumberAddress,
+            fontWeight = FontWeight.Bold,
+            fontSize = 14.sp,
+            lineHeight = 14.sp,
+            textAlign = TextAlign.Center
+        )
+
+        Icon(
+            painter = painterResource(id = R.drawable.menu),
+            contentDescription = "menu",
+            modifier = Modifier
+                .padding(end = 20.dp)
+                .clip(CircleShape)
+                .clickable { onMenuClick() },
+            tint = Black
+        )
     }
 }
 
@@ -396,7 +533,7 @@ private fun BottomBar(
             Column {
                 GuideText(
                     color = Black,
-                    text = "${roomPostDetail.lotNumberAddress} ${roomPostDetail.detailedAddress}",
+                    text = roomPostDetail.lotNumberAddress,
                     fontWeight = FontWeight.Normal,
                     fontSize = 12.sp,
                     lineHeight = 12.sp,
@@ -440,23 +577,20 @@ private fun BottomBar(
     }
 }
 
-
 @Preview
 @Composable
 private fun DetailPostScreenPreview() {
+    var isMenuExpanded by remember { mutableStateOf(false) }
     DetailPostContent(
         modifier = Modifier,
         roomPostDetail = RoomPostDetailDataModel(),
         snackBarHostState = remember { SnackbarHostState() },
         onChatScreen = {},
-        onProfileScreen = {}
-    )
-}
-
-@Preview
-@Composable
-private fun FeatureBoxPreview() {
-    FeatureBox(
-        feature = "아침형"
+        onProfileScreen = {},
+        onBackBtnClick = {},
+        isMenuExpanded = isMenuExpanded,
+        onMenuClick = { isMenuExpanded = !isMenuExpanded },
+        onScreenClick = { isMenuExpanded = false },
+        onReportClick = {}
     )
 }
