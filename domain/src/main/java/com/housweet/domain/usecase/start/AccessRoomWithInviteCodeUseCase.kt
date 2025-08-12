@@ -1,4 +1,4 @@
-package com.housweet.domain.usecase
+package com.housweet.domain.usecase.start
 
 import com.housweet.domain.repository.AccessRoomRepository
 import kotlinx.coroutines.flow.Flow

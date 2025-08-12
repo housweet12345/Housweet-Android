@@ -1,12 +1,12 @@
-package com.housweet.domain.usecase
+package com.housweet.domain.usecase.start
 
 import com.housweet.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.Flow
 
-class IsTermsOfServiceAgreedUseCase(
+class IsBelongToRoomUseCase(
     private val authRepository: AuthRepository
 ) {
     suspend operator fun invoke(): Flow<Result<Boolean>> {
-        return authRepository.isTermsOfServiceAgreed()
+        return authRepository.isBelongToRoom()
     }
 }

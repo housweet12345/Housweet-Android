@@ -1,9 +1,20 @@
 package com.housweet.presentation.ui.mypage
 
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,8 +43,12 @@ import com.housweet.presentation.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyPageScreen(
-    navController: NavController
+    navController: NavController,
+    onBackClick: () -> Unit,
 ) {
+    BackHandler {
+        onBackClick()
+    }
     Scaffold (
         containerColor = Color.White,
         topBar = {
@@ -50,7 +65,7 @@ fun MyPageScreen(
                         contentDescription = "뒤로가기",
                         modifier = Modifier
                             .padding(start = 16.dp)
-                            .clickable { navController.popBackStack() }
+                            .clickable { onBackClick() }
                     )
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -177,6 +192,7 @@ fun MyPageMenuItem(text: String, onClick: () -> Unit = {}) {
 fun MyPageScreenPreview() {
     val navController = rememberNavController()
     MyPageScreen(
-        navController = navController
+        navController = navController,
+        onBackClick = {}
     )
 }

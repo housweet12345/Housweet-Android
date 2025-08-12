@@ -1,5 +1,6 @@
 package com.housweet.presentation.ui.registerhouse
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -40,6 +41,10 @@ fun HouseRegisterScreen1(
 ) {
     LaunchedEffect(Unit) {
         viewModel.logRoomId()
+    }
+
+    BackHandler {
+        onBackClick()
     }
     
     val selectedTags = remember { mutableStateListOf<String>() }

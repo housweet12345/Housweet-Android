@@ -8,4 +8,5 @@ data class RoomPostsByLocationDataModel(
     val rent: Int,
     val deposit: Int,
     val ageRangeAndGender: String,
+    val isVisible: Boolean
 )

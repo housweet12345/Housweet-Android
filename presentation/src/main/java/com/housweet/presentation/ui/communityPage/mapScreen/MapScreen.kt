@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -39,7 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.housweet.domain.model.Coordinate
-import com.housweet.domain.model.NearByPostCountModel
+import com.housweet.domain.model.NearByPostCountDataModel
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.startPage.GuideText
 import com.housweet.presentation.ui.theme.Gray_A5A5A5
@@ -51,7 +53,6 @@ import com.naver.maps.geometry.LatLng
 import com.naver.maps.geometry.LatLngBounds
 import com.naver.maps.map.CameraPosition
 import com.naver.maps.map.compose.CameraPositionState
-import com.naver.maps.map.compose.CircleOverlay
 import com.naver.maps.map.compose.ExperimentalNaverMapApi
 import com.naver.maps.map.compose.MapProperties
 import com.naver.maps.map.compose.MapUiSettings
@@ -124,7 +125,9 @@ fun MapScreen(
                     if (range == null) return@MapContent
                     val filteredPostRegion = mapState.markerData
                         .filter { MapUtils.isPositionVisible(LatLng(it.latitude, it.longitude), range) }
+                        .filter { it.roomCount > 0}
                         .map { "${it.siName} ${it.guName} ${it.dongName}" }
+                        .let { it.ifEmpty { return@MapContent }}
 
                     onViewPostBtnClick(filteredPostRegion.joinToString(","))
                 },
@@ -132,7 +135,7 @@ fun MapScreen(
                 onWritePostBtnClick = onWritePostBtnClick,
                 onChatClick = onChatClick,
                 onNotificationClick = onNotificationClick,
-                onMyPageClick = onMyPageClick,
+                onMyPageClick = onMyPageClick
             )
         }
     }
@@ -144,7 +147,7 @@ private fun MapContent(
     modifier: Modifier,
     cameraPositionState: CameraPositionState,
     snackBarHostState: SnackbarHostState,
-    markerStates: MutableMap<NearByPostCountModel, MarkerState>,
+    markerStates: MutableMap<NearByPostCountDataModel, MarkerState>,
     onMarkerClick: (String) -> Unit,
     onViewPostBtnClick: (LatLngBounds?) -> Unit,
     onSearchBtnClick: () -> Unit,
@@ -194,12 +197,15 @@ private fun MapContent(
                 uiSettings = mapUiSettings
             ) {
                 markerStates.forEach { (markerInfo, markerState) ->
-                    RoomMarker(
-                        postRegion = "${markerInfo.siName} ${markerInfo.guName} ${markerInfo.dongName}",
-                        postNum = markerInfo.roomCount,
-                        markerState = markerState,
-                        onClick = { onMarkerClick("${markerInfo.siName} ${markerInfo.guName} ${markerInfo.dongName}") }
-                    )
+                    if (markerInfo.roomCount > 0) {
+                        RoomMarker(
+                            postRegion = "${markerInfo.siName} ${markerInfo.guName} ${markerInfo.dongName}",
+                            postNum = markerInfo.roomCount,
+                            markerState = markerState,
+                            onClick = { onMarkerClick("${markerInfo.siName} ${markerInfo.guName} ${markerInfo.dongName}") },
+                            zoomLevel = cameraPositionState.position.zoom
+                        )
+                    }
                 }
             }
 
@@ -359,7 +365,8 @@ private fun RoomMarker(
     postRegion: String,
     postNum: Int,
     markerState: MarkerState,
-    onClick: (String) -> Unit
+    onClick: (String) -> Unit,
+    zoomLevel: Double
 ) {
     MarkerComposable(
         keys = arrayOf(postRegion),
@@ -372,18 +379,40 @@ private fun RoomMarker(
     ) {
         Box(
             modifier = Modifier
-                .size(40.dp)
-                .background(color = Purple.copy(alpha = 0.9f), shape = CircleShape),
+                .widthIn(min = 50.dp)
+                .height(50.dp)
+                .background(
+                    color = Purple.copy(alpha = 0.9f),
+                    shape = RoundedCornerShape(
+                        if(zoomLevel < 13) 6.dp else 18.dp
+                    )
+                ),
             contentAlignment = Alignment.Center
         ) {
-            GuideText(
-                color = White_F8F8F8,
-                text = "$postNum",
-                fontWeight = FontWeight.Medium,
-                fontSize = 20.sp,
-                lineHeight = 20.sp,
-                textAlign = TextAlign.Center
-            )
+            Column(
+                modifier = Modifier.padding(horizontal = 11.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                GuideText(
+                    color = White_F8F8F8,
+                    text = "$postNum",
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 14.sp,
+                    lineHeight = 14.sp,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(2.dp))
+
+                GuideText(
+                    color = White_F8F8F8,
+                    text = postRegion.split(" ").last(),
+                    fontWeight = FontWeight.Normal,
+                    fontSize = 10.sp,
+                    lineHeight = 10.sp,
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     }
 }
@@ -435,6 +464,61 @@ private fun TestMapContent(
             ) { }
         }
     }
+}
+
+@Composable
+private fun TestRoomMarker(
+    postRegion: String,
+    postNum: Int,
+    zoomLevel: Double
+) {
+    Box(
+        modifier = Modifier
+            .widthIn(min = 50.dp)
+            .height(50.dp)
+            .background(
+                color = Purple.copy(alpha = 0.9f),
+                shape = RoundedCornerShape(
+                    if(zoomLevel < 13) 18.dp else 6.dp
+                )
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 11.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            GuideText(
+                color = White_F8F8F8,
+                text = "$postNum",
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 14.sp,
+                lineHeight = 14.sp,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            GuideText(
+                color = White_F8F8F8,
+                text = postRegion.split(" ").last(),
+                fontWeight = FontWeight.Normal,
+                fontSize = 10.sp,
+                lineHeight = 10.sp,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun MarkerPreview() {
+    TestRoomMarker(
+        postRegion = "서울특별시 강남구 역1삼동",
+        postNum = 5,
+        zoomLevel = 13.0
+    )
 }
 
 @Preview
