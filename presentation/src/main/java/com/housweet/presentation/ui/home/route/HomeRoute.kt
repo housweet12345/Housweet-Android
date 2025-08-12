@@ -21,7 +21,8 @@ fun HomeRoute(
     navigateToNotification: () -> Unit = {},
     navigateToProfile: () -> Unit = {},
     navigateToNoticeDetail: (Int) -> Unit = {},
-    navigateToTodoDetail: () -> Unit = {}
+    navigateToTodoDetail: () -> Unit = {},
+    navigateToUserList: () -> Unit = {},
 ) {
     val state = viewModel.homeState.collectAsStateWithLifecycle()
 
@@ -35,6 +36,7 @@ fun HomeRoute(
                 onProfileClick = navigateToProfile,
                 onNoticeClick = navigateToNoticeDetail,
                 onTodoClick = navigateToTodoDetail,
+                onMoodSectionClick = navigateToUserList,
                 onTodoToggle = viewModel::toggleTodoComplete,
                 onMoodSelect = viewModel::updateMood,
                 navController = navController
