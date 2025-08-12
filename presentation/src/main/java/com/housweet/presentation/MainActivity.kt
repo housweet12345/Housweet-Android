@@ -1,7 +1,5 @@
 package com.housweet.presentation
 
-import ChatScreen
-import NotificationScreen
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
@@ -39,6 +37,7 @@ import com.housweet.domain.event.AuthEvent
 import com.housweet.domain.event.AuthEventBus
 import com.housweet.domain.model.Coordinate
 import com.housweet.presentation.model.RegisterModel
+import com.housweet.presentation.ui.chat.ChatScreen
 import com.housweet.presentation.ui.chatlist.ChatListScreen
 import com.housweet.presentation.ui.communityPage.mapScreen.MapScreen
 import com.housweet.presentation.ui.communityPage.postScreen.detailPostScreen.DetailPostScreen
@@ -59,6 +58,7 @@ import com.housweet.presentation.ui.navigation.BottomNavItem
 import com.housweet.presentation.ui.navigation.CoordinateType
 import com.housweet.presentation.ui.navigation.NavigationManager
 import com.housweet.presentation.ui.navigation.Route
+import com.housweet.presentation.ui.notification.NotificationScreen
 import com.housweet.presentation.ui.profile.route.EditProfileRoute
 import com.housweet.presentation.ui.profile.route.MyProfileRoute
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen1
@@ -415,7 +415,9 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable<Route.ChatRoute.ChatList> {
-                        ChatListScreen(navController = navController)
+                        ChatListScreen(
+                            navController = navController
+                        )
                     }
 
                     composable("mypage") {
@@ -453,7 +455,6 @@ class MainActivity : ComponentActivity() {
 
                     composable("notice") {
                         NoticeScreen(
-                            onBackClick = { navController.popBackStack() },
                             navController
                         )
                     }
@@ -479,10 +480,14 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable(
-                        route = "chat_detail/{chatName}",
-                        arguments = listOf(navArgument("chatName") { defaultValue = "Unknown" })
+                        route = "chat_detail/{receiverId}/{chatName}",
+                        arguments = listOf(
+                            navArgument("receiverId") { type = NavType.IntType },
+                            navArgument("chatName") { defaultValue = "Unknown" }
+                        )
                     )
                     { backStackEntry ->
+                        val receiverId = backStackEntry.arguments?.getInt("receiverId") ?: -1
                         val encodedName =
                             backStackEntry.arguments?.getString("chatName") ?: "Unknown"
                         val chatName = String(
@@ -491,7 +496,11 @@ class MainActivity : ComponentActivity() {
                                 Base64.URL_SAFE or Base64.NO_WRAP
                             )
                         ) // ✅ 여기서 디코딩
-                        ChatScreen(chatName, navController)
+                        ChatScreen(
+                            chatName = chatName,
+                            receiverId = receiverId,
+                            navController = navController,
+                        )
                     }
 
                     composable<Route.MyPageRoute.MyPage> {
@@ -517,7 +526,6 @@ class MainActivity : ComponentActivity() {
                     }
                     composable("notice") {
                         NoticeScreen(
-                            onBackClick = { navController.popBackStack() },
                             navController
                         )
                     }
