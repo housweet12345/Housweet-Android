@@ -14,4 +14,5 @@ interface CommunityRemoteDataSource {
     suspend fun clickBookMark(roomPostingId: Int): Boolean
     suspend fun unClickBookMark(roomPostingId: Int): Boolean
     suspend fun getRoomPostDetail(roomPostingId: Int): GetRoomPostDetailResponseDto
+    suspend fun reportRoomPost(roomPostingId: Int): Boolean
 }

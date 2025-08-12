@@ -4,6 +4,7 @@ import com.housweet.domain.usecase.community.ClickBookMarkUseCase
 import com.housweet.domain.usecase.community.GetNearbyPostCountUseCase
 import com.housweet.domain.usecase.community.GetRoomPostDetailUseCase
 import com.housweet.domain.usecase.community.GetRoomPostsByLocationUsaCase
+import com.housweet.domain.usecase.community.ReportRoomPostUseCase
 import com.housweet.domain.usecase.community.UnClickBookMarkUseCase
 import com.housweet.domain.usecase.start.AccessRoomWithInviteCodeUseCase
 import com.housweet.domain.usecase.start.AgreeTermsOfServiceUseCase
@@ -26,5 +27,6 @@ data class UseCases (
     val accessRoomWithInviteCodeUseCase: AccessRoomWithInviteCodeUseCase,
     val agreeTermsOfServiceUseCase: AgreeTermsOfServiceUseCase,
     val isTermsOfServiceAgreedUseCase: IsTermsOfServiceAgreedUseCase,
-    val isBelongToRoomUseCase: IsBelongToRoomUseCase
+    val isBelongToRoomUseCase: IsBelongToRoomUseCase,
+    val reportRoomPostUseCase: ReportRoomPostUseCase
 )

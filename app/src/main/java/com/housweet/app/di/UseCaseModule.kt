@@ -13,6 +13,7 @@ import com.housweet.domain.usecase.community.ClickBookMarkUseCase
 import com.housweet.domain.usecase.community.GetNearbyPostCountUseCase
 import com.housweet.domain.usecase.community.GetRoomPostDetailUseCase
 import com.housweet.domain.usecase.community.GetRoomPostsByLocationUsaCase
+import com.housweet.domain.usecase.community.ReportRoomPostUseCase
 import com.housweet.domain.usecase.community.UnClickBookMarkUseCase
 import com.housweet.domain.usecase.profile.GetMyProfileUseCase
 import com.housweet.domain.usecase.profile.GetOtherUserProfileUseCase
@@ -54,7 +55,8 @@ object UseCaseModule {
             accessRoomWithInviteCodeUseCase = AccessRoomWithInviteCodeUseCase(accessRoomRepository),
             agreeTermsOfServiceUseCase = AgreeTermsOfServiceUseCase(authRepository),
             isTermsOfServiceAgreedUseCase = IsTermsOfServiceAgreedUseCase(authRepository),
-            isBelongToRoomUseCase = IsBelongToRoomUseCase(authRepository)
+            isBelongToRoomUseCase = IsBelongToRoomUseCase(authRepository),
+            reportRoomPostUseCase = ReportRoomPostUseCase(communityRepository)
         )
     }
 
