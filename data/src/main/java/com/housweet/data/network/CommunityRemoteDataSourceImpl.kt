@@ -1,9 +1,9 @@
 package com.housweet.data.network
 
 import com.housweet.data.BuildConfig
+import com.housweet.data.network.dto.BookmarkedPostingListResponse
 import com.housweet.data.network.dto.GetNearbyPostCountResponseListDto
 import com.housweet.data.network.dto.GetRoomPostDetailResponseDto
-import com.housweet.data.network.dto.GetRoomPostsByLocationResponseDto
 import com.housweet.data.network.dto.GetRoomPostsByLocationResponseListDto
 import com.housweet.data.network.dto.ReportRoomPostRequest
 import io.ktor.client.call.body
@@ -42,6 +42,10 @@ class CommunityRemoteDataSourceImpl @Inject constructor(
         return httpClient.get("$BASE_URL/room/room-postings/") {
             parameter("search_word", URLDecoder.decode(searchWord, "UTF-8"))
         }.body()
+    }
+
+    override suspend fun getBookmarkedPostings(): BookmarkedPostingListResponse {
+        return httpClient.get("$BASE_URL/room/room-postings/bookmarked-postings/").body()
     }
 
     override suspend fun clickBookMark(roomPostingId: Int): Boolean {

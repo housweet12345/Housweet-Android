@@ -1,7 +1,5 @@
 package com.housweet.presentation
 
-import ChatScreen
-import NotificationScreen
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
@@ -29,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -38,9 +37,9 @@ import com.housweet.domain.event.AuthEvent
 import com.housweet.domain.event.AuthEventBus
 import com.housweet.domain.model.Coordinate
 import com.housweet.presentation.model.RegisterModel
+import com.housweet.presentation.ui.chat.ChatScreen
 import com.housweet.presentation.ui.chatlist.ChatListScreen
 import com.housweet.presentation.ui.communityPage.mapScreen.MapScreen
-import com.housweet.presentation.ui.communityPage.mapScreen.MapViewModel
 import com.housweet.presentation.ui.communityPage.postScreen.detailPostScreen.DetailPostScreen
 import com.housweet.presentation.ui.communityPage.postScreen.postsScreen.PostsScreen
 import com.housweet.presentation.ui.communityPage.searchRegionScreen.SearchRegionScreen
@@ -49,16 +48,19 @@ import com.housweet.presentation.ui.mypage.AppNotificationSettingsScreen
 import com.housweet.presentation.ui.mypage.BookmarkScreen
 import com.housweet.presentation.ui.mypage.HelpScreen
 import com.housweet.presentation.ui.mypage.MyHouseDetailScreen
+import com.housweet.presentation.ui.mypage.MyHouseEditScreen
 import com.housweet.presentation.ui.mypage.MyPageScreen
 import com.housweet.presentation.ui.mypage.MyPostedRoomScreen
+import com.housweet.presentation.ui.mypage.NoticeDetailScreen
 import com.housweet.presentation.ui.mypage.NoticeScreen
 import com.housweet.presentation.ui.mypage.TermsConditionsPolicies
 import com.housweet.presentation.ui.navigation.BottomNavItem
 import com.housweet.presentation.ui.navigation.CoordinateType
 import com.housweet.presentation.ui.navigation.NavigationManager
 import com.housweet.presentation.ui.navigation.Route
+import com.housweet.presentation.ui.notification.NotificationScreen
 import com.housweet.presentation.ui.profile.route.EditProfileRoute
-import com.housweet.presentation.ui.profile.route.MyProfileRoute
+import com.housweet.presentation.ui.profile.route.ProfileRoute
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen1
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen2
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen3
@@ -72,6 +74,7 @@ import com.housweet.presentation.ui.startPage.loginPage.WelcomeScreen
 import com.housweet.presentation.ui.startPage.loginPage.loginScreen.LoginScreen
 import com.housweet.presentation.ui.startPage.loginPage.termsOfServicePage.TermsOfServiceScreen
 import com.housweet.presentation.ui.startPage.splashPage.SplashScreen
+import com.housweet.presentation.ui.userlist.route.UserListRoute
 import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -383,6 +386,7 @@ class MainActivity : ComponentActivity() {
                             navigateToProfile = { navController.navigate("profile/me") },
                             navigateToNoticeDetail = { noticeId -> /* TODO: 공지사항 상세 */ },
                             navigateToTodoDetail = { /* TODO: 할일 상세 */ },
+                            navigateToUserList = { navigationManager.navigateTo("roommate/userlist") },
                             navController = navController
                         )
                     }
@@ -496,7 +500,7 @@ class MainActivity : ComponentActivity() {
                     composable("notice") {
                         NoticeScreen(
                             onBackClick = { navController.popBackStack() },
-                            navController
+                            navController,
                         )
                     }
 
@@ -526,25 +530,30 @@ class MainActivity : ComponentActivity() {
 
                     composable("chat_list") {
                         ChatListScreen(
-                            navController
-                        ) {
-                            val previousRoute = navController.previousBackStackEntry?.destination?.route
-                            if (previousRoute?.contains("CommunityPageRoute.Map") == true) {
-                                navigationManager.navigateOneWay(
-                                    "chat_list",
-                                    Route.CommunityPageRoute.Map()
-                                )
-                            } else {
-                                navController.popBackStack()
+                            navController,
+                            onBackClick = {
+                                val previousRoute = navController.previousBackStackEntry?.destination?.route
+                                if (previousRoute?.contains("CommunityPageRoute.Map") == true) {
+                                    navigationManager.navigateOneWay(
+                                        "chat_list",
+                                        Route.CommunityPageRoute.Map()
+                                    )
+                                } else {
+                                    navController.popBackStack()
+                                }
                             }
-                        }
+                        )
                     }
 
                     composable(
-                        route = "chat_detail/{chatName}",
-                        arguments = listOf(navArgument("chatName") { defaultValue = "Unknown" })
+                        route = "chat_detail/{receiverId}/{chatName}",
+                        arguments = listOf(
+                            navArgument("receiverId") { type = NavType.IntType },
+                            navArgument("chatName") { defaultValue = "Unknown" }
+                        )
                     )
                     { backStackEntry ->
+                        val receiverId = backStackEntry.arguments?.getInt("receiverId") ?: -1
                         val encodedName =
                             backStackEntry.arguments?.getString("chatName") ?: "Unknown"
                         val chatName = String(
@@ -553,11 +562,53 @@ class MainActivity : ComponentActivity() {
                                 Base64.URL_SAFE or Base64.NO_WRAP
                             )
                         ) // ✅ 여기서 디코딩
-                        ChatScreen(chatName, navController)
+                        ChatScreen(
+                            chatName = chatName,
+                            receiverId = receiverId,
+                            navController = navController,
+                        )
                     }
 
-                    composable("profile/me") {
-                        MyProfileRoute(
+                    composable("edit_my_house") {
+                        MyHouseEditScreen(
+                            navController,
+                            houseName = "곰돌이방",
+                            startDate = "2025.01.05",
+                            inviteCode = "000112320",
+                            onDelete = { /* 삭제 로직 */ },
+                            onComplete = { navController.popBackStack() },
+                            onCodeRefresh = {},
+                            onBackClick = { navController.popBackStack() }
+                        )
+                    }
+
+                    composable(
+                        "noticeDetail/{date}/{title}/{content}",
+                        arguments = listOf(
+                            navArgument("date") { type = NavType.StringType },
+                            navArgument("title") { type = NavType.StringType },
+                            navArgument("content") { type = NavType.StringType }
+                        )
+                    ) { backStackEntry ->
+                        val date = backStackEntry.arguments?.getString("date") ?: ""
+                        val title = backStackEntry.arguments?.getString("title") ?: ""
+                        val content = backStackEntry.arguments?.getString("content") ?: ""
+
+                        NoticeDetailScreen(
+                            date = date,
+                            title = title,
+                            content = content,
+                            onBackClick = { navController.popBackStack() }
+                        )
+                    }
+
+                    composable(
+                        route = "profile/{userId}",
+                        arguments = listOf(navArgument("userId") { type = NavType.StringType })
+                    ) {
+                        val userId = it.arguments?.getString("userId")
+                        ProfileRoute(
+                            userId = userId,
                             navigateEditProfile = { navController.navigate("profile/edit") },
                             onBackClick = { navController.popBackStack() },
                             navigateChatting = { }
@@ -575,6 +626,13 @@ class MainActivity : ComponentActivity() {
                         val parentEntry = remember(navBackStackEntry) {
                             navController.getBackStackEntry("profile/edit")
                         }
+                    }
+
+                    composable("roommate/userlist") {
+                        UserListRoute(
+                            onBackClick = { navController.popBackStack() },
+                            navigateToProfile = { navController.navigate("profile/$it") }
+                        )
                     }
                 }
             }

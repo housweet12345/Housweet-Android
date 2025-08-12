@@ -23,4 +23,8 @@ dependencies {
 
     // JSON Library
     implementation("org.json:json:20231013")
+
+    // Moshi
+    implementation("com.squareup.moshi:moshi:1.15.0")
+    implementation("com.squareup.moshi:moshi-kotlin:1.15.0")
 }

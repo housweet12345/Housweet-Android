@@ -7,9 +7,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Send
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -24,14 +22,16 @@ import com.housweet.presentation.R
 
 @Composable
 fun ChatInput(
-    inputText: String,
-    onTextChange: (String) -> Unit,
-    onSend: () -> Unit,
+    senderId: Int,
+    receiverId: Int,
+    onSendMessage: (senderId: Int, receiverId: Int, message: String) -> Unit,
     onAddImageClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var inputText by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
+
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
@@ -48,7 +48,7 @@ fun ChatInput(
 
         TextField(
             value = inputText,
-            onValueChange = onTextChange,
+            onValueChange = { inputText = it },
             placeholder = { Text("메세지 입력", fontSize = 12.sp) },
             modifier = Modifier
                 .weight(1f)
@@ -74,7 +74,12 @@ fun ChatInput(
             modifier = Modifier
                 .padding(8.dp)
                 .size(16.dp)
-                .clickable { onSend() },
+                .clickable {
+                    if (inputText.isNotBlank()) {
+                        onSendMessage(senderId, receiverId, inputText)
+                        inputText = ""
+                    }
+                },
             tint = Color(0xFF665ED3)
         )
     }

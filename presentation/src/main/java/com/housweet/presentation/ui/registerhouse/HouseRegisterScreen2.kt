@@ -22,15 +22,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.housweet.presentation.model.Region
 import com.housweet.presentation.model.RegisterModel
 import com.housweet.presentation.ui.common.RegionBottomSheet
 import com.housweet.presentation.ui.common.StepIndicator
 import com.housweet.presentation.ui.common.TopBarWithBackButton
 import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModel
+import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModelBase
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
@@ -39,7 +43,8 @@ fun HouseRegisterScreen2(
     mode: RegisterModel,
     onNextClick: () -> Unit,
     onBackClick: () -> Unit,
-    viewModel: HouseRegisterViewModel = hiltViewModel()
+//    viewModel: HouseRegisterViewModel = hiltViewModel()
+    viewModel: HouseRegisterViewModelBase = hiltViewModel<HouseRegisterViewModel>()
 ) {
     var region by remember { mutableStateOf("") }
     var inputTitle by remember { mutableStateOf("") }
@@ -417,3 +422,18 @@ fun loadRegionDataBundle(context: Context): RegionDataBundle {
         dongList = dongList
     )
 }
+
+@Preview(showBackground = true)
+@Composable
+fun HouseRegisterScreen2Preview() {
+    val fakeViewModel = remember { PreviewHouseRegisterViewModel2() }
+
+    HouseRegisterScreen2(
+        mode = RegisterModel.CREATE,
+        onNextClick = {},
+        onBackClick = {},
+        viewModel = fakeViewModel
+    )
+}
+
+class PreviewHouseRegisterViewModel2 : HouseRegisterViewModelBase()

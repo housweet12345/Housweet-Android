@@ -17,17 +17,27 @@ import androidx.compose.ui.unit.sp
 import com.housweet.presentation.ui.common.StepIndicator
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.housweet.domain.local.RoomLocalDataSource
+import com.housweet.domain.model.HouseRegisterModel
+import com.housweet.domain.repository.HouseRegisterRepository
+import com.housweet.domain.repository.ImageUploadRepository
 import com.housweet.presentation.model.RegisterModel
 import com.housweet.presentation.ui.common.TopBarWithBackButton
 import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModel
+import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModelBase
+import java.io.File
 
 @Composable
 fun HouseRegisterScreen1(
     mode: RegisterModel,
     onNextClick: () -> Unit,
     onBackClick: () -> Unit,
-    viewModel: HouseRegisterViewModel = hiltViewModel()
+//    viewModel: HouseRegisterViewModel = hiltViewModel()
+    viewModel: HouseRegisterViewModelBase = hiltViewModel<HouseRegisterViewModel>()
 ) {
     LaunchedEffect(Unit) {
         viewModel.logRoomId()
@@ -153,3 +163,41 @@ fun HouseRegisterScreen1(
         Spacer(modifier = Modifier.height(32.dp))
     }
 }
+
+@Composable
+fun HouseRegisterScreen1PreviewWrapper() {
+    val fakeViewModel = remember { PreviewHouseRegisterViewModel() }
+    HouseRegisterScreen1(
+        mode = RegisterModel.CREATE,
+        onNextClick = {},
+        onBackClick = {},
+        viewModel = fakeViewModel
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HouseRegisterScreen1Preview() {
+    val fakeViewModel = remember { PreviewHouseRegisterViewModel() }
+
+    HouseRegisterScreen1(
+        mode = RegisterModel.CREATE,
+        onNextClick = {},
+        onBackClick = {},
+        viewModel = fakeViewModel
+    )
+}
+
+class PreviewHouseRegisterViewModel : HouseRegisterViewModelBase()
+
+//@Stable
+//open class HouseRegisterViewModelBase : ViewModel() {
+//    open var houseTags by mutableStateOf<List<String>>(emptyList())
+//        protected set
+//
+//    open fun updateHouseTags(tags: List<String>) {
+//        houseTags = tags
+//    }
+//
+//    open fun logRoomId() {}  // ViewModel에서 호출은 되지만 실제론 아무것도 안 해도 됨
+//}

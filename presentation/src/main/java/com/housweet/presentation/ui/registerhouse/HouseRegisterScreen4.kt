@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -32,13 +33,14 @@ import com.housweet.presentation.model.RegisterModel
 import com.housweet.presentation.ui.common.StepIndicator
 import com.housweet.presentation.ui.common.TopBarWithBackButton
 import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModel
+import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModelBase
 
 @Composable
 fun HouseRegisterScreen4(
     mode: RegisterModel,
     onBackClick: () -> Unit,
     onCompleteClick: () -> Unit,
-    viewModel: HouseRegisterViewModel
+    viewModel: HouseRegisterViewModelBase
 ) {
     val selectedTags = remember { mutableStateListOf<String>() }
 
@@ -168,5 +170,26 @@ fun HouseRegisterScreen4(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HouseRegisterScreen4Preview() {
+    val fakeViewModel = remember { PreviewHouseRegisterViewModel4() }
+
+    HouseRegisterScreen4(
+        mode = RegisterModel.CREATE,
+        onBackClick = {},
+        onCompleteClick = {},
+        viewModel = fakeViewModel
+    )
+}
+
+class PreviewHouseRegisterViewModel4 : HouseRegisterViewModelBase() {
+    override fun submitHouseRegister(onSuccess: () -> Unit, onError: (Throwable) -> Unit) {
+        // Preview용: 아무 것도 하지 않음
+        println("🏠 하우스 등록 요청 (프리뷰용)")
+        onSuccess()  // 성공 콜백만 호출
     }
 }
