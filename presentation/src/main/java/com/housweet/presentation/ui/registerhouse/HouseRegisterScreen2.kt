@@ -2,6 +2,7 @@ package com.housweet.presentation.ui.registerhouse
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -22,12 +23,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.housweet.presentation.model.Region
 import com.housweet.presentation.model.RegisterModel
 import com.housweet.presentation.ui.common.RegionBottomSheet
@@ -43,7 +44,6 @@ fun HouseRegisterScreen2(
     mode: RegisterModel,
     onNextClick: () -> Unit,
     onBackClick: () -> Unit,
-//    viewModel: HouseRegisterViewModel = hiltViewModel()
     viewModel: HouseRegisterViewModelBase = hiltViewModel<HouseRegisterViewModel>()
 ) {
     var region by remember { mutableStateOf("") }
@@ -60,6 +60,22 @@ fun HouseRegisterScreen2(
 
     var showBottomSheet by remember { mutableStateOf(false) }
     var selectedRegion by remember { mutableStateOf<Region?>(null) }
+
+    var showDialog by remember { mutableStateOf(false) }
+    var missingField by remember { mutableStateOf<String?>(null) }
+
+    fun firstMissingFieldOrNull(): String? {
+        return when {
+            selectedRegion == null -> "지역"
+            inputTitle.isBlank() -> "제목"
+            inputDescription.isBlank() -> "자세한 설명"
+            deposit.isBlank() -> "보증금"
+            monthlyRent.isBlank() -> "월세"
+            managementFee.isBlank() -> "관리비"
+            moveInDate.isBlank() -> "입주 가능일"
+            else -> null
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -319,20 +335,23 @@ fun HouseRegisterScreen2(
 
         Button(
             onClick = {
-                Log.d("HouseRegisterScreen2", "⛳ selectedRegion: $selectedRegion")
-                Log.d("HouseRegisterScreen2", "⛳ title: $inputTitle")
-                Log.d("HouseRegisterScreen2", "⛳ desc: $inputDescription")
-                Log.d("HouseRegisterScreen2", "⛳ deposit: $deposit, rent: $monthlyRent, fee: $managementFee")
-                Log.d("HouseRegisterScreen2", "⛳ moveInDate: $moveInDate")
+                // 검증
+                val missing = firstMissingFieldOrNull()
+                if (missing != null) {
+                    missingField = missing
+                    showDialog = true
+                    return@Button
+                }
 
+                // 통과 시 ViewModel 저장 & 다음 단계
                 viewModel.setStep2Data(
                     region = selectedRegion,
-                    title = inputTitle,
-                    desc = inputDescription,
-                    deposit = deposit,
-                    rent = monthlyRent,
-                    fee = managementFee,
-                    moveIn = moveInDate
+                    title = inputTitle.trim(),
+                    desc = inputDescription.trim(),
+                    deposit = deposit.trim(),
+                    rent = monthlyRent.trim(),
+                    fee = managementFee.trim(),
+                    moveIn = moveInDate.trim()
                 )
                 onNextClick()
             },
@@ -372,6 +391,31 @@ fun HouseRegisterScreen2(
             }
         )
     }
+
+    if (showDialog) {
+        Dialog(onDismissRequest = { showDialog = false }) {
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = Color.White,
+                tonalElevation = 2.dp,
+                border = BorderStroke(1.dp, Color(0xFF665ED3))
+            ) {
+                Column(
+                    modifier = Modifier.padding(20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "${missingField ?: "항목"}을(를) 입력(선택)해주세요.",
+                        textAlign = TextAlign.Center,
+                        fontSize = 14.sp
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    TextButton(onClick = { showDialog = false }) { Text("확인") }
+                }
+            }
+        }
+    }
+
 }
 
 fun readCsv(context: Context, fileName: String): List<Map<String, String>> {

@@ -24,13 +24,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.housweet.presentation.R
 import com.housweet.presentation.model.RegisterModel
 import com.housweet.presentation.ui.common.StepIndicator
 import com.housweet.presentation.ui.common.TopBarWithBackButton
-import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModel
 import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModelBase
 import androidx.core.graphics.createBitmap
 
@@ -43,8 +40,6 @@ fun HouseRegisterScreen3(
     selectedImageBitmap: Bitmap? = null,
     viewModel: HouseRegisterViewModelBase
 ) {
-//    val viewModel: HouseRegisterViewModel = hiltViewModel()
-
     LaunchedEffect(selectedImageBitmap) {
         selectedImageBitmap?.let {
             Log.d("HouseRegister", "비트맵 감지됨, ViewModel에 업데이트")
