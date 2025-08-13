@@ -64,6 +64,10 @@ private fun BookmarkContent(
             .background(Color.White)
     ) {
         CenterAlignedTopAppBar(
+            windowInsets = WindowInsets(
+                top = 0.dp,
+                bottom = 0.dp
+            ),
             title = {
                 androidx.compose.material.Text(
                     text = "북마크",
