@@ -19,13 +19,15 @@ data class GetRoomPostsByLocationResponseDto(
     @SerialName("is_bookmarked")
     val isBookmarked: Boolean,
     @SerialName("image_uri")
-    val imageUri: String,
+    val imageUri: String?,
     @SerialName("rent")
     val rent: Int,
     @SerialName("deposit")
     val deposit: Int,
     @SerialName("age_range_and_gender")
-    val ageRangeAndGender: String
+    val ageRangeAndGender: String,
+    @SerialName("is_visible")
+    val isVisible: Boolean
 )
 
 fun GetRoomPostsByLocationResponseListDto.toRoomPostsByLocationDataModel(): List<RoomPostsByLocationDataModel> {
@@ -34,10 +36,11 @@ fun GetRoomPostsByLocationResponseListDto.toRoomPostsByLocationDataModel(): List
             id = it.id,
             title = it.title,
             isBookmarked = it.isBookmarked,
-            imageUri = it.imageUri,
+            imageUri = it.imageUri ?: "",
             rent = it.rent,
             deposit = it.deposit,
-            ageRangeAndGender = it.ageRangeAndGender
+            ageRangeAndGender = it.ageRangeAndGender,
+            isVisible = it.isVisible
         )
     }
 }

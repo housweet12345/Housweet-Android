@@ -3,7 +3,7 @@ package com.housweet.presentation.ui.communityPage.mapScreen
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.housweet.domain.model.NearByPostCountModel
+import com.housweet.domain.model.NearByPostCountDataModel
 import com.housweet.domain.usecase.UseCases
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.compose.MarkerState
@@ -33,6 +33,7 @@ class MapViewModel @Inject constructor(
             markerStates = mutableStateMapOf()
         )
     )
+
     val mapState: StateFlow<MapState> = _mapState.asStateFlow()
 
     fun getDongPostInfo(latitude: Double, longitude: Double, zoomLevel: Double) {
@@ -60,8 +61,8 @@ class MapViewModel @Inject constructor(
         )
     }
 
-    private fun setMarkerStates(dongPostInfo: List<NearByPostCountModel>) {
-        val markerStates = mutableMapOf<NearByPostCountModel, MarkerState>()
+    private fun setMarkerStates(dongPostInfo: List<NearByPostCountDataModel>) {
+        val markerStates = mutableMapOf<NearByPostCountDataModel, MarkerState>()
 
         dongPostInfo.forEach {
             markerStates[it] = MarkerState(position = LatLng(it.latitude, it.longitude))
@@ -69,25 +70,22 @@ class MapViewModel @Inject constructor(
 
         _mapState.value = _mapState.value.copy(
             markerData = dongPostInfo,
-            markerStates = mutableStateMapOf<NearByPostCountModel, MarkerState>().apply {
+            markerStates = mutableStateMapOf<NearByPostCountDataModel, MarkerState>().apply {
                 putAll(markerStates)
             }
         )
     }
 
-    // 검색 반경 계산 함수
     private fun getFilteringDistance(zoomLevel: Double): Int {
         return when {
-            zoomLevel < 10.425 -> 35000
-            zoomLevel < 10.8 -> 27500
-            zoomLevel < 11.174 -> 21000
-            zoomLevel < 11.548 -> 16000
-            zoomLevel < 11.922 -> 12500
-            zoomLevel < 12.296 -> 9550
-            zoomLevel < 12.78 -> 6900
-            zoomLevel < 13.27 -> 4500
-            zoomLevel < 13.76 -> 3500
-            else -> 2500
+            zoomLevel < 11.275 -> 16500
+            zoomLevel < 11.7 -> 12200
+            zoomLevel < 12.125 -> 9200
+            zoomLevel < 12.55 -> 6800
+            zoomLevel < 13 -> 5000
+            zoomLevel < 13.4 -> 3800
+            zoomLevel < 13.825 -> 2900
+            else -> 2100
         }
     }
 }

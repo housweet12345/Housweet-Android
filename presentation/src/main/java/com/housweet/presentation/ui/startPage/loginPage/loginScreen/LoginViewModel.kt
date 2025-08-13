@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.housweet.domain.usecase.UseCases
+import com.housweet.presentation.ui.startPage.splashPage.SplashEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -31,16 +32,23 @@ class LoginViewModel @Inject constructor(
                 email = email
             ).collect {
                 it.onSuccess { isTermsOfServiceAgreed ->
-                    if (isTermsOfServiceAgreed) {
-                        signIn()
-                    } else {
-                        signUp()
-                    }
+                    isBelongToRoom(isTermsOfServiceAgreed)
                 }
                 it.onFailure {
-                    Log.d("LoginViewModel", "서버 로그인 실패 : ${it.message}")
                     loginFail()
                 }
+            }
+        }
+    }
+
+    private suspend fun isBelongToRoom(isTermsOfServiceAgreed: Boolean) {
+        useCases.isBelongToRoomUseCase().collect {
+            it.onSuccess { isBelongToRoom ->
+                loginSuccess(isTermsOfServiceAgreed, isBelongToRoom)
+            }
+
+            it.onFailure { e ->
+                e.printStackTrace()
             }
         }
     }
@@ -60,11 +68,7 @@ class LoginViewModel @Inject constructor(
         _uiState.value = LoginUiState.Idle
     }
 
-    private suspend fun signUp() {
-        _event.emit(LoginEvent.SignUp)
-    }
-
-    private suspend fun signIn() {
-        _event.emit(LoginEvent.SignIn)
+    private suspend fun loginSuccess(isTermsOfServiceAgreed: Boolean ,isBelongToRoom: Boolean) {
+        _event.emit(LoginEvent.LoginSuccess(isTermsOfServiceAgreed, isBelongToRoom))
     }
 }
