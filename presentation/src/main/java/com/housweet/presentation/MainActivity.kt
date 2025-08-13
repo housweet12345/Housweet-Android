@@ -59,6 +59,7 @@ import com.housweet.presentation.ui.navigation.CoordinateType
 import com.housweet.presentation.ui.navigation.NavigationManager
 import com.housweet.presentation.ui.navigation.Route
 import com.housweet.presentation.ui.notification.NotificationScreen
+import com.housweet.presentation.ui.profile.route.EditProfileKeyWordRoute
 import com.housweet.presentation.ui.profile.route.EditProfileRoute
 import com.housweet.presentation.ui.profile.route.ProfileRoute
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen1
@@ -244,7 +245,7 @@ class MainActivity : ComponentActivity() {
                             } else {
                                 navigationManager.navigateOneWay(
                                     Route.StartPageRoute.LoginRoute.TermsOfService(false),
-                                    Route.StartPageRoute.AccessRoomRoute.AccessRoom
+                                    "profile/edit"
                                 )
                             }
                         }
@@ -626,6 +627,11 @@ class MainActivity : ComponentActivity() {
                         val parentEntry = remember(navBackStackEntry) {
                             navController.getBackStackEntry("profile/edit")
                         }
+                        EditProfileKeyWordRoute(
+                            onBackClick = { navController.popBackStack() },
+                            viewModel = hiltViewModel(parentEntry),
+                            navigateNextPage = { /*TODO 건너뛰기, 완료 기능 추가*/  }
+                        )
                     }
 
                     composable("roommate/userlist") {
