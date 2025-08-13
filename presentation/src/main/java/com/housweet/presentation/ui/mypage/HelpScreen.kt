@@ -52,6 +52,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import android.widget.Toast
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.ui.text.style.TextDecoration
 
 private data class Faq(val q: String, val a: String)
@@ -123,6 +124,10 @@ fun HelpScreen(navController: NavController) {
         containerColor = Color.White,
         topBar = {
             CenterAlignedTopAppBar(
+                windowInsets = WindowInsets(
+                    top = 0.dp,
+                    bottom = 0.dp
+                ),
                 title={
                     androidx.compose.material.Text(
                         text = "도움말",

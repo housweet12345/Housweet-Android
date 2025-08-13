@@ -55,6 +55,10 @@ fun NotificationScreen(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
+                windowInsets = WindowInsets(
+                    top = 0.dp,
+                    bottom = 0.dp
+                ),
                 title = { Text(text = "알림", fontSize = 14.sp) },
                 navigationIcon = {
                     Icon(

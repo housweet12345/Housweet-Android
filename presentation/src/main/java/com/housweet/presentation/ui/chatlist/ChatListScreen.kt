@@ -30,6 +30,7 @@ import com.housweet.presentation.R
 import com.housweet.presentation.viewmodel.chatlist.ChatListViewModel
 import kotlin.collections.filter
 import android.util.Base64
+import androidx.compose.foundation.layout.WindowInsets
 import kotlin.io.encoding.ExperimentalEncodingApi
 
 @Composable
@@ -54,6 +55,10 @@ fun ChatListContent(
         containerColor = Color.White,
         topBar = {
             CenterAlignedTopAppBar(
+                windowInsets = WindowInsets(
+                    top = 0.dp,
+                    bottom = 0.dp
+                ),
                 title = { Text(text = "채팅", fontSize = 14.sp) },
                 navigationIcon = {
                     Icon(
