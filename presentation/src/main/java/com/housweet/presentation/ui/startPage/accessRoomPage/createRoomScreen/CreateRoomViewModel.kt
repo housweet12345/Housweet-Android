@@ -34,17 +34,13 @@ class CreateRoomViewModel @Inject constructor(
         }
     }
 
-    private fun success() {
-        viewModelScope.launch {
-            _event.emit(CreateRoomEvent.Success)
-        }
+    private suspend fun success() {
+        _event.emit(CreateRoomEvent.Success)
     }
 
-    private fun error() {
-        viewModelScope.launch {
-            isIdle()
-            _event.emit(CreateRoomEvent.Error)
-        }
+    private suspend fun error() {
+        isIdle()
+        _event.emit(CreateRoomEvent.Error)
     }
 
     private fun isIdle() {

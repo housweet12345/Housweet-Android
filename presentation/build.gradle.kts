@@ -88,6 +88,7 @@ dependencies {
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.material)
+    implementation(libs.androidx.ui.tooling.preview.v183)
 
     //Navigation (Compose용)
     implementation("androidx.navigation:navigation-compose:2.7.7")
@@ -134,6 +135,8 @@ dependencies {
 
     // Naver Map
     implementation (libs.naver.map.compose)
+
+    implementation(libs.lottie.compose)
 }
 
 kapt {

@@ -2,15 +2,14 @@ package com.housweet.data.repository
 
 import android.util.Log
 import com.housweet.data.local.AuthLocalDataSource
-import com.housweet.domain.local.RoomLocalDataSource
 import com.housweet.data.network.AuthRemoteDataSource
 import com.housweet.data.network.RoomRepository
 import com.housweet.data.network.dto.LoginResponseDto
 import com.housweet.data.network.dto.toAuthToken
 import com.housweet.data.utils.NetworkConnectionManager
 import com.housweet.data.utils.NoInternetException
+import com.housweet.domain.local.RoomLocalDataSource
 import com.housweet.domain.model.AuthToken
-import com.housweet.domain.model.Coordinate
 import com.housweet.domain.model.isAccessTokenExpired
 import com.housweet.domain.repository.AuthRepository
 import io.ktor.client.call.body
@@ -111,6 +110,16 @@ class AuthRepositoryImpl @Inject constructor(
             val isTermsOfServiceAgreed = authRemoteDataSource.isTermsOfServiceAgreed().termsOfServiceAgreed
             emit(Result.success(isTermsOfServiceAgreed))
         } catch (e: Exception) {
+            emit(Result.failure(e))
+        }
+    }
+
+    override suspend fun isBelongToRoom(): Flow<Result<Boolean>> = flow {
+        try {
+            val isBelongToRoom = authRemoteDataSource.isBelongToRoom()
+            emit(Result.success(isBelongToRoom))
+        } catch (e: Exception) {
+            if (e.message.toString().contains("Room not found")) emit(Result.success(false))
             emit(Result.failure(e))
         }
     }

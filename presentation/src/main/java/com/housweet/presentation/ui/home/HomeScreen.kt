@@ -25,28 +25,19 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
@@ -54,11 +45,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEach
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.home.state.HomeInfo
 import com.housweet.presentation.ui.home.state.MoodType
+import com.housweet.presentation.ui.home.state.NoticeItem
+import com.housweet.presentation.ui.home.state.RoommateInfo
+import com.housweet.presentation.ui.home.state.TodoInfo
 import com.housweet.presentation.ui.navigation.BottomNavigation
-import com.housweet.presentation.ui.profile.component.ProfileTopBar
 import com.housweet.presentation.ui.theme.ColorGroup
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,6 +65,7 @@ fun HomeScreen(
     onProfileClick: () -> Unit = {},
     onNoticeClick: (Int) -> Unit = {},
     onTodoClick: () -> Unit = {},
+    onMoodSectionClick: () -> Unit = {},
     onTodoToggle: (Int) -> Unit = {},
     onMoodSelect: (MoodType) -> Unit = {},
     navController: NavController = rememberNavController()
@@ -137,7 +133,7 @@ fun HomeScreen(
         // 룸메이트 기분 섹션
         item {
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                RoommatesMoodSection(homeInfo.roommates, onMoodSelect)
+                RoommatesMoodSection(homeInfo.roommates, onMoodSelect, onMoodSectionClick)
             }
         }
 
@@ -188,7 +184,7 @@ fun RoomTitleSection(
 
 @Composable
 fun NoticeSection(
-    notices: List<com.housweet.presentation.ui.home.state.NoticeItem>,
+    notices: List<NoticeItem>,
     onNoticeClick: (Int) -> Unit
 ) {
     if (notices.isNotEmpty()) {
@@ -240,11 +236,13 @@ fun NoticeSection(
 
 @Composable
 fun RoommatesMoodSection(
-    roommates: List<com.housweet.presentation.ui.home.state.RoommateInfo>,
-    onMoodSelect: (com.housweet.presentation.ui.home.state.MoodType) -> Unit
+    roommates: List<RoommateInfo>,
+    onMoodSelect: (MoodType) -> Unit,
+    onMoodSectionClick: () -> Unit,
 ) {
     Column {
         Card(
+            onClick = onMoodSectionClick,
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = Color.White),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
@@ -298,12 +296,12 @@ fun RoommatesMoodSection(
             ) {
                 val moods = listOf(
                     MoodData(R.drawable.ic_happy, "행복"),
-                    MoodData(R.drawable.ic_normal, "무난"),
+                    MoodData(R.drawable.ic_good, "무난"),
                     MoodData(R.drawable.ic_sad, "슬픔"),
                     MoodData(R.drawable.ic_angry, "화남"),
-                    MoodData(R.drawable.ic_love, "애정"),
-                    MoodData(R.drawable.ic_congrat, "축하"),
-                    MoodData(R.drawable.ic_outside, "외출")
+                    MoodData(R.drawable.ic_heart, "애정"),
+                    MoodData(R.drawable.ic_congratulation, "축하"),
+                    MoodData(R.drawable.ic_none, "외출")
                 )
 
                 moods.fastForEach {
@@ -316,7 +314,7 @@ fun RoommatesMoodSection(
 
 @Composable
 fun MyTodoSection(
-    todos: List<com.housweet.presentation.ui.home.state.TodoInfo>,
+    todos: List<TodoInfo>,
     onTodoClick: () -> Unit,
     onTodoToggle: (Int) -> Unit
 ) {
@@ -409,7 +407,7 @@ fun MyTodoSection(
 }
 
 @Composable
-fun RoommateProfile(roommate: com.housweet.presentation.ui.home.state.RoommateInfo) {
+fun RoommateProfile(roommate: RoommateInfo) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -458,7 +456,7 @@ fun RoommateProfile(roommate: com.housweet.presentation.ui.home.state.RoommateIn
 @Composable
 fun MoodItem(
     mood: MoodData,
-    onMoodSelect: (com.housweet.presentation.ui.home.state.MoodType) -> Unit
+    onMoodSelect: (MoodType) -> Unit
 ) {
     Column(
         modifier = Modifier.padding(vertical = 15.dp),
@@ -493,66 +491,8 @@ fun MoodItem(
 }
 
 @Composable
-fun LocationButton(
-    text: String,
-    isSelected: Boolean,
-    onClick: () -> Unit
-) {
-    Button(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = if (isSelected) Color(0xFF6C5CE7) else Color(0xFFF8F9FA),
-            contentColor = if (isSelected) Color.White else Color.Black
-        ),
-        shape = RoundedCornerShape(12.dp),
-        elevation = ButtonDefaults.buttonElevation(
-            defaultElevation = if (isSelected) 0.dp else 0.dp
-        )
-    ) {
-        Text(
-            text = text,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier.padding(vertical = 8.dp)
-        )
-    }
-}
-
-@Composable
-fun TodoItemRow(
-    item: TodoItem,
-    onCheckedChange: (Boolean) -> Unit
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = item.text,
-            fontSize = 16.sp,
-            color = if (item.isCompleted) Color.Gray else Color.Black,
-            textDecoration = if (item.isCompleted) TextDecoration.LineThrough else null,
-            modifier = Modifier.weight(1f)
-        )
-
-        IconButton(
-            onClick = { onCheckedChange(!item.isCompleted) }
-        ) {
-            Icon(
-                imageVector = if (item.isCompleted) Icons.Default.CheckCircle else Icons.Default.Close,
-                contentDescription = if (item.isCompleted) "완료됨" else "미완료",
-                tint = if (item.isCompleted) Color(0xFF6C5CE7) else Color.Gray,
-                modifier = Modifier.size(24.dp)
-            )
-        }
-    }
-}
-
-@Composable
 fun TodoInfoRow(
-    todo: com.housweet.presentation.ui.home.state.TodoInfo,
+    todo: TodoInfo,
     onToggle: (Int) -> Unit
 ) {
     Row(
@@ -581,38 +521,32 @@ fun TodoInfoRow(
     }
 }
 
-
-data class TodoItem(
-    val text: String,
-    val isCompleted: Boolean
-)
-
 data class MoodData(
     val iconRes: Int, // 이미지 리소스 ID
     val name: String
 )
 
-fun getMoodIconRes(moodType: com.housweet.presentation.ui.home.state.MoodType): Int {
+fun getMoodIconRes(moodType: MoodType): Int {
     return when (moodType) {
-        com.housweet.presentation.ui.home.state.MoodType.HAPPY -> R.drawable.ic_happy
-        com.housweet.presentation.ui.home.state.MoodType.NORMAL -> R.drawable.ic_normal
-        com.housweet.presentation.ui.home.state.MoodType.SAD -> R.drawable.ic_sad
-        com.housweet.presentation.ui.home.state.MoodType.ANGRY -> R.drawable.ic_angry
-        com.housweet.presentation.ui.home.state.MoodType.LOVE -> R.drawable.ic_love
-        com.housweet.presentation.ui.home.state.MoodType.CONGRAT -> R.drawable.ic_congrat
-        com.housweet.presentation.ui.home.state.MoodType.OUTSIDE -> R.drawable.ic_outside
+        MoodType.HAPPY -> R.drawable.ic_happy
+        MoodType.NORMAL -> R.drawable.ic_good
+        MoodType.SAD -> R.drawable.ic_sad
+        MoodType.ANGRY -> R.drawable.ic_angry
+        MoodType.LOVE -> R.drawable.ic_heart
+        MoodType.CONGRAT -> R.drawable.ic_congratulation
+        MoodType.OUTSIDE -> R.drawable.ic_none
     }
 }
 
-fun getMoodTypeFromName(name: String): com.housweet.presentation.ui.home.state.MoodType? {
+fun getMoodTypeFromName(name: String): MoodType? {
     return when (name) {
-        "행복" -> com.housweet.presentation.ui.home.state.MoodType.HAPPY
-        "무난" -> com.housweet.presentation.ui.home.state.MoodType.NORMAL
-        "슬픔" -> com.housweet.presentation.ui.home.state.MoodType.SAD
-        "화남" -> com.housweet.presentation.ui.home.state.MoodType.ANGRY
-        "애정" -> com.housweet.presentation.ui.home.state.MoodType.LOVE
-        "축하" -> com.housweet.presentation.ui.home.state.MoodType.CONGRAT
-        "외출" -> com.housweet.presentation.ui.home.state.MoodType.OUTSIDE
+        "행복" -> MoodType.HAPPY
+        "무난" -> MoodType.NORMAL
+        "슬픔" -> MoodType.SAD
+        "화남" -> MoodType.ANGRY
+        "애정" -> MoodType.LOVE
+        "축하" -> MoodType.CONGRAT
+        "외출" -> MoodType.OUTSIDE
         else -> null
     }
 }
