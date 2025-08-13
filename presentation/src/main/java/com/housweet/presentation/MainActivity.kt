@@ -383,7 +383,7 @@ class MainActivity : ComponentActivity() {
                         HomeRoute(
                             navigateToChat = { navController.navigate("chat_list") },
                             navigateToNotification = { /* TODO: 알림 화면 */ },
-                            navigateToProfile = { navController.navigate("profile/me") },
+                            navigateToProfile = { navController.navigate("mypage") },
                             navigateToNoticeDetail = { noticeId -> /* TODO: 공지사항 상세 */ },
                             navigateToTodoDetail = { /* TODO: 할일 상세 */ },
                             navigateToUserList = { navigationManager.navigateTo("roommate/userlist") },
