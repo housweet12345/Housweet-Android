@@ -7,22 +7,24 @@ import com.housweet.domain.repository.AccessRoomRepository
 import com.housweet.domain.repository.AuthRepository
 import com.housweet.domain.repository.CommunityRepository
 import com.housweet.domain.repository.UserRepository
-import com.housweet.domain.usecase.AccessRoomWithInviteCodeUseCase
-import com.housweet.domain.usecase.AgreeTermsOfServiceUseCase
 import com.housweet.domain.usecase.GetBookmarkedPostingsUseCase
-import com.housweet.domain.usecase.IsTermsOfServiceAgreedUseCase
 import com.housweet.domain.usecase.LogoutUseCase
 import com.housweet.domain.usecase.UseCases
 import com.housweet.domain.usecase.community.ClickBookMarkUseCase
 import com.housweet.domain.usecase.community.GetNearbyPostCountUseCase
 import com.housweet.domain.usecase.community.GetRoomPostDetailUseCase
 import com.housweet.domain.usecase.community.GetRoomPostsByLocationUsaCase
+import com.housweet.domain.usecase.community.ReportRoomPostUseCase
 import com.housweet.domain.usecase.community.UnClickBookMarkUseCase
 import com.housweet.domain.usecase.profile.GetMyProfileUseCase
 import com.housweet.domain.usecase.profile.GetOtherUserProfileUseCase
 import com.housweet.domain.usecase.profile.UpdateProfileUseCase
+import com.housweet.domain.usecase.start.AccessRoomWithInviteCodeUseCase
+import com.housweet.domain.usecase.start.AgreeTermsOfServiceUseCase
 import com.housweet.domain.usecase.start.CheckLoginUseCase
 import com.housweet.domain.usecase.start.CreateRoomUseCase
+import com.housweet.domain.usecase.start.IsBelongToRoomUseCase
+import com.housweet.domain.usecase.start.IsTermsOfServiceAgreedUseCase
 import com.housweet.domain.usecase.start.LoginWithKakaoUseCase
 import dagger.Module
 import dagger.Provides
@@ -54,7 +56,9 @@ object UseCaseModule {
             accessRoomWithInviteCodeUseCase = AccessRoomWithInviteCodeUseCase(accessRoomRepository),
             agreeTermsOfServiceUseCase = AgreeTermsOfServiceUseCase(authRepository),
             isTermsOfServiceAgreedUseCase = IsTermsOfServiceAgreedUseCase(authRepository),
-            getBookmarkedPostingsUseCase = GetBookmarkedPostingsUseCase(communityRepository)
+            isBelongToRoomUseCase = IsBelongToRoomUseCase(authRepository),
+            reportRoomPostUseCase = ReportRoomPostUseCase(communityRepository),
+            getBookmarkedPostingsUseCase = GetBookmarkedPostingsUseCase(communityRepository),
         )
     }
 

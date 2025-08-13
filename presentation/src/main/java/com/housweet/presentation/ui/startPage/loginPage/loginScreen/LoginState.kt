@@ -6,7 +6,6 @@ sealed interface LoginUiState {
 }
 
 sealed interface LoginEvent {
-    data object SignIn : LoginEvent
-    data object SignUp : LoginEvent
+    data class LoginSuccess(val isTermsOfServiceAgreed: Boolean, val isBelongToRoom: Boolean) : LoginEvent
     data object LoginError : LoginEvent
 }

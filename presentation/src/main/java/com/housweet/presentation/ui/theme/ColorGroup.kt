@@ -9,4 +9,5 @@ object ColorGroup {
     val White_F8F8F8 = Color(0xFFF8F8F8)
     val Gray_CBCBCB = Color(0xFFCBCBCB)
     val Gray_7E7E7E = Color(0xFF7E7E7E)
+    val Gray_878787 = Color(0xFF878787)
 }

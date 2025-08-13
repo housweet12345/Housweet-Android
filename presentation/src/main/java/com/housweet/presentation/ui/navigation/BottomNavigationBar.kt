@@ -23,9 +23,9 @@ import com.housweet.presentation.ui.theme.ColorGroup
 fun BottomNavigation(navController: NavController) {
     val items = listOf(
         BottomNavItem.Home,
+        BottomNavItem.Notice,
         BottomNavItem.Calendar,
         BottomNavItem.FinanceLedger,
-        BottomNavItem.Notice
     )
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
