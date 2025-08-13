@@ -1,6 +1,5 @@
 package com.housweet.presentation.ui.mypage
 
-import android.R.attr.top
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -44,7 +43,7 @@ fun TermsConditionsPolicies(
                     bottom = 0.dp
                 ),
                 title = {
-                    androidx.compose.material.Text(
+                    Text(
                         text = "서비스 이용 약관",
                         fontSize = 14.sp
                     )

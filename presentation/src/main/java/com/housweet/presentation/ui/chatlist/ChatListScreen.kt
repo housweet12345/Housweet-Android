@@ -1,6 +1,5 @@
 package com.housweet.presentation.ui.chatlist
 
-import android.util.Base64
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
