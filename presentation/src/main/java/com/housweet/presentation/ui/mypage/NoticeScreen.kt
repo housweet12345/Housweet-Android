@@ -73,6 +73,10 @@ fun NoticeScreen(onBackClick: () -> Unit = {}, navController: NavController) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
+                windowInsets = WindowInsets(
+                    top = 0.dp,
+                    bottom = 0.dp
+                ),
                 title={
                     Text(
                         text = "공지사항",

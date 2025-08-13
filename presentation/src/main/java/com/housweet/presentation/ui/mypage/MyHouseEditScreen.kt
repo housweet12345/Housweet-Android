@@ -20,10 +20,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.housweet.presentation.R
+import com.housweet.presentation.ui.notification.NotificationScreen
+import com.housweet.presentation.ui.notification.sampleNotifications
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,20 +44,12 @@ fun MyHouseEditScreen(
     var name by remember { mutableStateOf(houseName) }
 
     Scaffold (
-        containerColor = Color.White
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-                .padding(horizontal = 24.dp)
-                .background(Color.White),
-            horizontalAlignment = Alignment.Start
-        ) {
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Title
+        topBar = {
             CenterAlignedTopAppBar(
+                windowInsets = WindowInsets(
+                    top = 0.dp,
+                    bottom = 0.dp
+                ),
                 title={
                     Text(
                         text = "마이하우스 수정",
@@ -73,7 +69,17 @@ fun MyHouseEditScreen(
                     containerColor = Color.White // ✅ 배경색 흰색 지정
                 )
             )
-
+        },
+        containerColor = Color.White
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+                .padding(horizontal = 24.dp)
+                .background(Color.White),
+            horizontalAlignment = Alignment.Start
+        ) {
             Spacer(modifier = Modifier.height(32.dp))
 
             Row(
