@@ -13,6 +13,7 @@ interface AuthRemoteDataSource {
     suspend fun refreshAccessToken(
         refreshToken: String
     ): RefreshResponseDto
-    suspend fun agreeTermsOfService() : Boolean
+    suspend fun agreeTermsOfService(): Boolean
     suspend fun isTermsOfServiceAgreed(): IsTermsOfServiceAgreedResponseDto
+    suspend fun isBelongToRoom(): Boolean
 }

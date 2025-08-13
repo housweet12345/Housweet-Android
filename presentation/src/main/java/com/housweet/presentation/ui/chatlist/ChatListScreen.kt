@@ -1,4 +1,7 @@
 package com.housweet.presentation.ui.chatlist
+
+import android.util.Base64
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -36,17 +39,23 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 @Composable
 fun ChatListScreen(
     navController: NavController,
+    onBackClick: () -> Unit,
     viewModel: ChatListViewModel = hiltViewModel()
 ) {
+    BackHandler {
+        onBackClick()
+    }
+
     val chatUsersState = viewModel.chatUsers.collectAsState()
-    ChatListContent(navController = navController, chatUsers = chatUsersState.value)
+    ChatListContent(navController = navController, chatUsers = chatUsersState.value, onBackClick = onBackClick)
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalEncodingApi::class)
 @Composable
 fun ChatListContent(
     navController: NavController,
-    chatUsers: List<ChatUser>
+    chatUsers: List<ChatUser>,
+    onBackClick: () -> Unit,
 ) {
     val myUserId = 3
     val filteredUsers = chatUsers.filter { it.id != myUserId }
@@ -66,7 +75,7 @@ fun ChatListContent(
                         contentDescription = "뒤로가기",
                         modifier = Modifier
                             .padding(start = 16.dp)
-                            .clickable { navController.popBackStack() }
+                            .clickable { onBackClick() }
                     )
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -120,5 +129,5 @@ fun ChatListScreenPreview() {
         ChatUser(3, "박민규", "test3@example.com")
     )
 
-    ChatListContent(navController = navController, chatUsers = mockUsers)
+    ChatListContent(navController = navController, chatUsers = mockUsers, onBackClick = {})
 }

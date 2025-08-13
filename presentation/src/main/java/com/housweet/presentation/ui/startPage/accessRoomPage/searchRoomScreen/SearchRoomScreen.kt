@@ -3,8 +3,12 @@ package com.housweet.presentation.ui.startPage.accessRoomPage.searchRoomScreen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -31,6 +35,7 @@ import com.housweet.presentation.ui.theme.White
 
 @Composable
 fun SearchRoomScreen(
+    modifier: Modifier,
     searchRoomViewModel: SearchRoomViewModel = hiltViewModel(),
     onSuccessSearchRoom: () -> Unit
 ) {
@@ -55,6 +60,7 @@ fun SearchRoomScreen(
     when (uiState) {
         SearchRoomState.Idle -> {
             SearchRoomContent(
+                modifier = modifier,
                 code = code,
                 isWarning = isWarning,
                 onValueChange = {
@@ -77,14 +83,17 @@ fun SearchRoomScreen(
 
 @Composable
 private fun SearchRoomContent(
+    modifier: Modifier,
     code: String,
     isWarning: Boolean,
     onBtnClick: (name: String) -> Unit,
     onValueChange: (String) -> Unit
 ) {
-    Column(modifier = Modifier
+    Column(modifier = modifier
         .fillMaxSize()
         .background(White)
+        .consumeWindowInsets(WindowInsets.navigationBars)
+        .imePadding()
     ) {
         Spacer(modifier = Modifier.height(92.dp))
         GuideText(
@@ -127,6 +136,7 @@ private fun SearchRoomContent(
 @Composable
 private fun SearchRoomScreenPreview() {
     SearchRoomContent(
+        modifier = Modifier,
         code = "asdasas",
         isWarning = true,
         onValueChange = {},

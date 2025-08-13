@@ -60,7 +60,7 @@ import com.housweet.presentation.ui.navigation.NavigationManager
 import com.housweet.presentation.ui.navigation.Route
 import com.housweet.presentation.ui.notification.NotificationScreen
 import com.housweet.presentation.ui.profile.route.EditProfileRoute
-import com.housweet.presentation.ui.profile.route.MyProfileRoute
+import com.housweet.presentation.ui.profile.route.ProfileRoute
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen1
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen2
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen3
@@ -74,6 +74,7 @@ import com.housweet.presentation.ui.startPage.loginPage.WelcomeScreen
 import com.housweet.presentation.ui.startPage.loginPage.loginScreen.LoginScreen
 import com.housweet.presentation.ui.startPage.loginPage.termsOfServicePage.TermsOfServiceScreen
 import com.housweet.presentation.ui.startPage.splashPage.SplashScreen
+import com.housweet.presentation.ui.userlist.route.UserListRoute
 import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -150,7 +151,9 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.padding(top = paddingValues.calculateTopPadding())
                 ) {
                     composable<Route.StartPageRoute.Splash> {
-                        SplashScreen { isAutoLogin, isAgreeTermsOfService ->
+                        SplashScreen(
+                            modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
+                        ) { isAutoLogin, isAgreeTermsOfService, isBelongToRoom ->
                             when {
                                 !isAutoLogin -> {
                                     navigationManager.navigateOneWay(
@@ -159,15 +162,22 @@ class MainActivity : ComponentActivity() {
                                     )
                                 }
                                 isAgreeTermsOfService -> {
-                                    navigationManager.navigateOneWay(
-                                        Route.StartPageRoute.Splash,
-                                        Route.StartPageRoute.AccessRoomRoute.AccessRoom
-                                    )
+                                    if (isBelongToRoom) {
+                                        navigationManager.navigateOneWay(
+                                            Route.StartPageRoute.Splash,
+                                            BottomNavItem.Home.route
+                                        )
+                                    } else {
+                                        navigationManager.navigateOneWay(
+                                            Route.StartPageRoute.Splash,
+                                            Route.StartPageRoute.AccessRoomRoute.AccessRoom
+                                        )
+                                    }
                                 }
                                 else -> {
                                     navigationManager.navigateOneWay(
                                         Route.StartPageRoute.Splash,
-                                        Route.StartPageRoute.LoginRoute.WelCome
+                                        Route.StartPageRoute.LoginRoute.WelCome(isBelongToRoom)
                                     )
                                 }
                             }
@@ -175,45 +185,68 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable<Route.StartPageRoute.LoginRoute.Login> {
-                        LoginScreen {
-                            if (it == "sign_in") {
-                                navigationManager.navigateOneWay(
-                                    Route.StartPageRoute.LoginRoute.Login,
-                                    Route.StartPageRoute.AccessRoomRoute.AccessRoom
-                                )
-                            } else if (it == "sign_up") {
-                                navigationManager.navigateOneWay(
-                                    Route.StartPageRoute.LoginRoute.Login,
-                                    Route.StartPageRoute.LoginRoute.WelCome
-                                )
+                        LoginScreen { isTermsOfServiceAgreed, isBelongToRoom ->
+                            when {
+                                !isTermsOfServiceAgreed -> {
+                                    navigationManager.navigateOneWay(
+                                        Route.StartPageRoute.LoginRoute.Login,
+                                        Route.StartPageRoute.LoginRoute.WelCome(isBelongToRoom)
+                                    )
+                                }
+                                isBelongToRoom -> {
+                                    navigationManager.navigateOneWay(
+                                        Route.StartPageRoute.LoginRoute.Login,
+                                        BottomNavItem.Home.route
+                                    )
+                                }
+                                else -> {
+                                    navigationManager.navigateOneWay(
+                                        Route.StartPageRoute.LoginRoute.Login,
+                                        Route.StartPageRoute.AccessRoomRoute.AccessRoom
+                                    )
+                                }
                             }
                         }
                     }
 
                     composable<Route.StartPageRoute.LoginRoute.WelCome> {
+                        val isBelongToRoom = it.toRoute<Route.StartPageRoute.LoginRoute.WelCome>().isBelongToRoom
                         WelcomeScreen {
                             navigationManager.navigateOneWay(
-                                Route.StartPageRoute.LoginRoute.WelCome,
-                                Route.StartPageRoute.LoginRoute.PermissionGuide
+                                Route.StartPageRoute.LoginRoute.WelCome(isBelongToRoom),
+                                Route.StartPageRoute.LoginRoute.PermissionGuide(isBelongToRoom)
                             )
                         }
                     }
 
                     composable<Route.StartPageRoute.LoginRoute.PermissionGuide> {
-                        PermissionGuideScreen {
+                        val isBelongToRoom = it.toRoute<Route.StartPageRoute.LoginRoute.PermissionGuide>().isBelongToRoom
+                        PermissionGuideScreen(
+                            modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
+                        ) {
                             navigationManager.navigateOneWay(
-                                Route.StartPageRoute.LoginRoute.PermissionGuide,
-                                Route.StartPageRoute.LoginRoute.TermsOfService
+                                Route.StartPageRoute.LoginRoute.PermissionGuide(isBelongToRoom),
+                                Route.StartPageRoute.LoginRoute.TermsOfService(isBelongToRoom)
                             )
                         }
                     }
 
                     composable<Route.StartPageRoute.LoginRoute.TermsOfService> {
-                        TermsOfServiceScreen {
-                            navigationManager.navigateOneWay(
-                                Route.StartPageRoute.LoginRoute.TermsOfService,
-                                Route.StartPageRoute.AccessRoomRoute.AccessRoom
-                            )
+                        val isBelongToRoom = it.toRoute<Route.StartPageRoute.LoginRoute.TermsOfService>().isBelongToRoom
+                        TermsOfServiceScreen(
+                            modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
+                        ) {
+                            if (isBelongToRoom) {
+                                navigationManager.navigateOneWay(
+                                    Route.StartPageRoute.LoginRoute.TermsOfService(true),
+                                    BottomNavItem.Home.route
+                                )
+                            } else {
+                                navigationManager.navigateOneWay(
+                                    Route.StartPageRoute.LoginRoute.TermsOfService(false),
+                                    Route.StartPageRoute.AccessRoomRoute.AccessRoom
+                                )
+                            }
                         }
                     }
 
@@ -247,7 +280,9 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable<Route.StartPageRoute.AccessRoomRoute.CreateRoom> {
-                        CreateRoomScreen {
+                        CreateRoomScreen(
+                            modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
+                        ){
                             navigationManager.navigateOneWay(
                                 Route.StartPageRoute.AccessRoomRoute.AccessRoom,
                                 BottomNavItem.Home.route
@@ -256,7 +291,9 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable<Route.StartPageRoute.AccessRoomRoute.SearchRoom> {
-                        SearchRoomScreen {
+                        SearchRoomScreen(
+                            modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
+                        ){
                             navigationManager.navigateOneWay(
                                 Route.StartPageRoute.AccessRoomRoute.AccessRoom,
                                 BottomNavItem.Home.route
@@ -272,18 +309,10 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier,
                             searchRegion = coordinate,
                             onMarkerClick = { postRegion ->
-                                navigationManager.navigateTo(
-                                    Route.CommunityPageRoute.PostRoute.Posts(
-                                        postRegion
-                                    )
-                                )
+                                navigationManager.navigateTo(Route.CommunityPageRoute.PostRoute.Posts(postRegion))
                             },
                             onViewPostBtnClick = { postRegions ->
-                                navigationManager.navigateTo(
-                                    Route.CommunityPageRoute.PostRoute.Posts(
-                                        postRegions
-                                    )
-                                )
+                                navigationManager.navigateTo(Route.CommunityPageRoute.PostRoute.Posts(postRegions))
                             },
                             onSearchBtnClick = {
                                 navigationManager.navigateTo(Route.CommunityPageRoute.SearchRegion)
@@ -292,13 +321,13 @@ class MainActivity : ComponentActivity() {
                                 navigationManager.navigateTo(Route.HouseRegisterRoute.Step1(mode = RegisterModel.CREATE))
                             },
                             onChatClick = {
-                                navigationManager.navigateTo(Route.ChatRoute.ChatList)
+                                navigationManager.navigateTo("chat_list")
                             },
                             onNotificationClick = {
-                                navigationManager.navigateTo(Route.NotificationRoute.Notification)
+                                navigationManager.navigateTo("notification")
                             },
                             onMyPageClick = {
-                                navigationManager.navigateTo(Route.MyPageRoute.MyPage)
+                                navigationManager.navigateTo("mypage")
                             }
                         )
                     }
@@ -314,7 +343,7 @@ class MainActivity : ComponentActivity() {
                             onBackBtnClick = {
                                 navigationManager.navigateOneWay(
                                     Route.CommunityPageRoute.SearchRegion,
-                                    Route.CommunityPageRoute.Map(coordinate = null)
+                                    Route.CommunityPageRoute.Map()
                                 )
                             }
                         )
@@ -329,7 +358,7 @@ class MainActivity : ComponentActivity() {
                             onBackBtnClick = {
                                 navigationManager.navigateOneWay(
                                     Route.CommunityPageRoute.PostRoute.Posts(postRegions),
-                                    Route.CommunityPageRoute.Map(coordinate = null)
+                                    Route.CommunityPageRoute.Map()
                                 )
                             }
                         )
@@ -337,8 +366,15 @@ class MainActivity : ComponentActivity() {
 
                     composable<Route.CommunityPageRoute.PostRoute.DetailPost> {
                         DetailPostScreen(
+                            modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
                             onChatScreen = {
                                 navigationManager.navigateTo("chat_detail/${it}")
+                            },
+                            onProfileScreen = {
+                                navigationManager.navigateTo("profile/me")
+                            },
+                            onBackBtnClick = {
+                                navController.popBackStack()
                             }
                         )
                     }
@@ -350,6 +386,7 @@ class MainActivity : ComponentActivity() {
                             navigateToProfile = { navController.navigate("profile/me") },
                             navigateToNoticeDetail = { noticeId -> /* TODO: 공지사항 상세 */ },
                             navigateToTodoDetail = { /* TODO: 할일 상세 */ },
+                            navigateToUserList = { navigationManager.navigateTo("roommate/userlist") },
                             navController = navController
                         )
                     }
@@ -375,7 +412,10 @@ class MainActivity : ComponentActivity() {
                             mode = mode,
                             onNextClick = { navController.navigate(Route.HouseRegisterRoute.Step2(mode)) },
                             onBackClick = {
-                                navController.popBackStack()
+                                navigationManager.navigateOneWay(
+                                    Route.HouseRegisterRoute.Step1(mode),
+                                    Route.CommunityPageRoute.Map()
+                                )
                             }
                         )
                     }
@@ -414,16 +454,20 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-                    composable<Route.ChatRoute.ChatList> {
-                        ChatListScreen(
-                            navController = navController
-                        )
-                    }
-
                     composable("mypage") {
                         MyPageScreen(
                             navController
-                        )
+                        ) {
+                            val previousRoute = navController.previousBackStackEntry?.destination?.route
+                            if (previousRoute?.contains("CommunityPageRoute.Map") == true) {
+                                navigationManager.navigateOneWay(
+                                    "mypage",
+                                    Route.CommunityPageRoute.Map()
+                                )
+                            } else {
+                                navController.popBackStack()
+                            }
+                        }
                     }
 
                     composable("bookmark") {
@@ -455,7 +499,8 @@ class MainActivity : ComponentActivity() {
 
                     composable("notice") {
                         NoticeScreen(
-                            navController
+                            onBackClick = { navController.popBackStack() },
+                            navController,
                         )
                     }
 
@@ -470,12 +515,33 @@ class MainActivity : ComponentActivity() {
                     composable("notification") {
                         NotificationScreen(
                             navController
-                        )
+                        ) {
+                            val previousRoute = navController.previousBackStackEntry?.destination?.route
+                            if (previousRoute?.contains("CommunityPageRoute.Map") == true) {
+                                navigationManager.navigateOneWay(
+                                    "notification",
+                                    Route.CommunityPageRoute.Map()
+                                )
+                            } else {
+                                navController.popBackStack()
+                            }
+                        }
                     }
 
                     composable("chat_list") {
                         ChatListScreen(
-                            navController
+                            navController,
+                            onBackClick = {
+                                val previousRoute = navController.previousBackStackEntry?.destination?.route
+                                if (previousRoute?.contains("CommunityPageRoute.Map") == true) {
+                                    navigationManager.navigateOneWay(
+                                        "chat_list",
+                                        Route.CommunityPageRoute.Map()
+                                    )
+                                } else {
+                                    navController.popBackStack()
+                                }
+                            }
                         )
                     }
 
@@ -503,32 +569,6 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-                    composable<Route.MyPageRoute.MyPage> {
-                        MyPageScreen(
-                            navController = navController
-                        )
-                    }
-
-                    composable("bookmark") {
-                        BookmarkScreen(
-                            onItemClick = { /* TODO: 상세 페이지로 이동 등 처리 */ },
-                            navController = navController
-                        )
-                    }
-                    composable("myhousedetail") {
-                        MyHouseDetailScreen(
-                            navController,
-                            isHost = true,
-                            onBackClick = { navController.popBackStack() },
-                            onMenuClick = {},
-                            inviteCode = "000112320",
-                        )
-                    }
-                    composable("notice") {
-                        NoticeScreen(
-                            navController
-                        )
-                    }
                     composable("edit_my_house") {
                         MyHouseEditScreen(
                             navController,
@@ -541,20 +581,7 @@ class MainActivity : ComponentActivity() {
                             onBackClick = { navController.popBackStack() }
                         )
                     }
-                    composable("posted_my_room") {
-                        MyPostedRoomScreen(
-                            navController
-                        )
-                    }
-                    composable("app_setting") {
-                        AppNotificationSettingsScreen(navController)
-                    }
-                    composable("help") {
-                        HelpScreen(navController)
-                    }
-                    composable("terms_conditions_policies") {
-                        TermsConditionsPolicies(navController)
-                    }
+
                     composable(
                         "noticeDetail/{date}/{title}/{content}",
                         arguments = listOf(
@@ -575,12 +602,13 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-                    composable<Route.NotificationRoute.Notification> {
-                        NotificationScreen(navController = navController)
-                    }
-
-                    composable("profile/me") {
-                        MyProfileRoute(
+                    composable(
+                        route = "profile/{userId}",
+                        arguments = listOf(navArgument("userId") { type = NavType.StringType })
+                    ) {
+                        val userId = it.arguments?.getString("userId")
+                        ProfileRoute(
+                            userId = userId,
                             navigateEditProfile = { navController.navigate("profile/edit") },
                             onBackClick = { navController.popBackStack() },
                             navigateChatting = { }
@@ -598,6 +626,13 @@ class MainActivity : ComponentActivity() {
                         val parentEntry = remember(navBackStackEntry) {
                             navController.getBackStackEntry("profile/edit")
                         }
+                    }
+
+                    composable("roommate/userlist") {
+                        UserListRoute(
+                            onBackClick = { navController.popBackStack() },
+                            navigateToProfile = { navController.navigate("profile/$it") }
+                        )
                     }
                 }
             }

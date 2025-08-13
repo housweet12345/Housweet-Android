@@ -4,8 +4,12 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -36,6 +40,7 @@ import com.housweet.presentation.ui.theme.White
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun CreateRoomScreen(
+    modifier: Modifier,
     createRoomViewModel: CreateRoomViewModel = hiltViewModel(),
     onSuccessCreateRoom: () -> Unit
 ) {
@@ -63,7 +68,7 @@ fun CreateRoomScreen(
     when (uiState) {
         CreateRoomState.Idle -> {
             Scaffold(
-                modifier = Modifier.fillMaxSize(),
+                modifier = modifier.fillMaxSize(),
                 snackbarHost = { SnackbarHost(hostState = snackBarHostState) }
             ) {
                 CreateRoomContent {
@@ -85,6 +90,8 @@ private fun CreateRoomContent(
     Column(modifier = Modifier
         .fillMaxSize()
         .background(White)
+        .consumeWindowInsets(WindowInsets.navigationBars)
+        .imePadding()
     ) {
         var roomName by remember { mutableStateOf("") }
         Spacer(modifier = Modifier.height(92.dp))
