@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -100,17 +101,14 @@ fun MyPostedRoomScreen(
         }
     }
 
-//    suspend fun hidePost(post: RoomPost) {
-//        viewModel.updatePostVisibility(post.id, false)
-//        delay(16) // 💡 상태 반영 시간 확보
-//        selectedTab = 1
-////        snackbarHostState.showSnackbar("숨김 처리되었습니다.")
-//    }
-
     Scaffold(
         containerColor = Color.White,
         topBar = {
             CenterAlignedTopAppBar(
+                windowInsets = WindowInsets(
+                    top = 0.dp,
+                    bottom = 0.dp
+                ),
                 title = {
                     Text(
                         text = "올린 방 관리",
@@ -194,30 +192,12 @@ fun MyPostedRoomScreen(
                                 }
                             }
                         }
-//                        onEditClick = {
-//                            if (!room.isHidden) {
-//                                navController.navigate(Route.HouseRegisterRoute.Step1(mode = RegisterModel.EDIT))
-//                            } else {
-//                                coroutineScope.launch {
-//                                    viewModel.updatePostVisibility(room.id, true)
-//                                    delay(100) // 💡 살짝 기다렸다가
-//                                    selectedTab = 0
-//                                }
-//                            }
-//                        },
-//                        onUnhideClick = {
-//                            coroutineScope.launch {
-//                                viewModel.updatePostVisibility(room.id, true)
-//                                delay(100) // 💡 마찬가지로
-//                                selectedTab = 0
-//                            }
-//                        }
                     )
                 }
             }
         }
 
-        // 🛠️ Modal Bottom Sheet
+        // Modal Bottom Sheet
         if (showSheet) {
             ModalBottomSheet(
                 onDismissRequest = { showSheet = false },
@@ -252,14 +232,6 @@ fun MyPostedRoomScreen(
                                             snackbarHostState.showSnackbar("숨김 처리 실패. 다시 시도해주세요.")
                                         }
                                     }
-//                                    coroutineScope.launch {
-//                                        selectedPost?.let {
-//                                            hidePost(it)
-//                                            selectedTab = 1 // "숨김" 탭으로 전환
-//                                        }
-//                                        showSheet = false
-//                                        snackbarHostState.showSnackbar("숨김 처리되었습니다.")
-//                                    }
                                 }
                                 .padding(vertical = 10.dp),
                             contentAlignment = Alignment.Center
@@ -291,7 +263,7 @@ fun MyPostedRoomScreen(
                                         val success = viewModel.deletePost(it.id)
                                         if (success) {
                                             snackbarHostState.showSnackbar("게시글이 삭제되었습니다.")
-                                            viewModel.loadMyRooms() // 🔄 삭제 후 목록 갱신
+                                            viewModel.loadMyRooms() // 삭제 후 목록 갱신
                                         } else {
                                             snackbarHostState.showSnackbar("삭제에 실패했습니다.")
                                         }

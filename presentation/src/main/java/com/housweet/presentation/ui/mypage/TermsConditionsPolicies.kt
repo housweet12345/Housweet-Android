@@ -3,6 +3,7 @@ package com.housweet.presentation.ui.mypage
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Icon
@@ -34,6 +35,10 @@ fun TermsConditionsPolicies(
         topBar = {
             // 상단 AppBar
             CenterAlignedTopAppBar(
+                windowInsets = WindowInsets(
+                    top = 0.dp,
+                    bottom = 0.dp
+                ),
                 title = {
                     androidx.compose.material.Text(
                         text = "서비스 이용 약관",

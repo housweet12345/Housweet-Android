@@ -53,6 +53,10 @@ fun MyPageScreen(
         containerColor = Color.White,
         topBar = {
             CenterAlignedTopAppBar(
+                windowInsets = WindowInsets(
+                    top = 0.dp,
+                    bottom = 0.dp
+                ),
                 title={
                     Text(
                         text = "마이페이지",
