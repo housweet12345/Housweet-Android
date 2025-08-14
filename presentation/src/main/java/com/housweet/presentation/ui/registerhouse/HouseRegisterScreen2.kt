@@ -1,7 +1,6 @@
 package com.housweet.presentation.ui.registerhouse
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

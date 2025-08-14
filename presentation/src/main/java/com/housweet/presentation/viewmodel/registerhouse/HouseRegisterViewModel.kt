@@ -77,13 +77,6 @@ class HouseRegisterViewModel @Inject constructor(
         Log.d("HouseRegister", "📌 moveInDate: $moveInDate")
     }
 
-    // Step 3: Bitmap
-    private val _imageBitmap = mutableStateOf<Bitmap?>(null)
-
-    override fun updateImageBitmap(bitmap: Bitmap) {
-        _imageBitmap.value = bitmap
-    }
-
     // Step 3: Bitmap → File 변환 (data URI 형식 포함)
     private suspend fun convertBitmapToFile(bitmap: Bitmap): File = withContext(Dispatchers.IO) {
         val file = File.createTempFile("house_image", ".jpg")
@@ -110,12 +103,17 @@ class HouseRegisterViewModel @Inject constructor(
                 val roomId = roomLocalDataSource.getRoomId()
                     ?: throw Exception("Room ID not found")
 
-                val bitmap = _imageBitmap.value
-                    ?: throw Exception("이미지 없음: bitmap이 null입니다.")
+                val bitmaps: List<Bitmap> = imageBitmaps
+                if (bitmaps.isEmpty()) throw Exception("이미지 없음: 최소 한 장을 선택해주세요.")
 
-                val imageFile = convertBitmapToFile(bitmap)
+                //백엔드에서 1장만 받을 때, 첫 장만 업로드
+                val first = bitmaps.first()
+                val imageFile = convertBitmapToFile(first)
                 val uploadedImageUrl = imageUploadRepository.uploadImage(imageFile)
 
+                // 백엔드에서 여러 장 모두 업로드 가능하다면 아래 주석 해제. (루프 돌리기)
+                // val urls = bitmaps.map { convertBitmapToFile(it) }
+                //     .map { imageUploadRepository.uploadImage(it) }
 
                 val model = HouseRegisterModel(
                     room = roomId,
