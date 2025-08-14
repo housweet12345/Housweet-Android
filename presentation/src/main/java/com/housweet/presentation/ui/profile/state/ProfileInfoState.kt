@@ -3,6 +3,12 @@ package com.housweet.presentation.ui.profile.state
 import com.housweet.domain.model.profile.ProfileModel
 import java.util.Calendar
 
+// This ReportResult is not used anymore, it's moved to ProfileInfoViewModel
+// sealed class ReportResult {
+//     data class Success(val data: Boolean) : ReportResult()
+//     data class Error(val exception: Throwable) : ReportResult()
+// }
+
 sealed interface ProfileInfoState {
     data object Loading : ProfileInfoState
     data object EditSuccess : ProfileInfoState

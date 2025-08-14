@@ -1,6 +1,7 @@
 package com.housweet.app.di
 
 import android.content.Context
+import com.housweet.data.api.ReportApi
 import com.housweet.data.datasource.ImageUploadRemoteDataSourceImpl
 import com.housweet.data.local.AuthLocalDataSource
 import com.housweet.data.local.AuthLocalDataSourceImpl
@@ -20,9 +21,11 @@ import com.housweet.data.network.ImageUploadRemoteDataSource
 import com.housweet.data.network.KtorService
 import com.housweet.data.network.NotificationRemoteDataSource
 import com.housweet.data.network.NotificationRemoteDataSourceImpl
+import com.housweet.data.network.ReportRemoteDataSource
+import com.housweet.data.network.ReportRemoteDataSourceImpl
+import com.housweet.data.network.RoomPostingRepositoryImpl
 import com.housweet.data.network.RoomRemoteDataSource
 import com.housweet.data.network.RoomRemoteDataSourceImpl
-import com.housweet.data.network.RoomPostingRepositoryImpl
 import com.housweet.data.network.dto.AppSettingRemoteDataSourceImpl
 import com.housweet.data.repository.AccessRoomRepositoryImpl
 import com.housweet.data.repository.AppSettingRepositoryImpl
@@ -31,6 +34,8 @@ import com.housweet.data.repository.ChatRepositoryImpl
 import com.housweet.data.repository.CommunityRepositoryImpl
 import com.housweet.data.repository.HouseRegisterRepositoryImpl
 import com.housweet.data.repository.ImageUploadRepositoryImpl
+import com.housweet.data.repository.NotificationRepositoryImpl
+import com.housweet.data.repository.ReportRepositoryImpl
 import com.housweet.data.utils.CryptoManager
 import com.housweet.data.utils.NetworkConnectionManager
 import com.housweet.domain.event.AuthEventBus
@@ -43,7 +48,7 @@ import com.housweet.domain.repository.CommunityRepository
 import com.housweet.domain.repository.HouseRegisterRepository
 import com.housweet.domain.repository.ImageUploadRepository
 import com.housweet.domain.repository.NotificationRepository
-import com.housweet.data.repository.NotificationRepositoryImpl
+import com.housweet.domain.repository.ReportRepository
 import com.housweet.domain.repository.RoomPostingRepository
 import dagger.Binds
 import dagger.Module
@@ -175,6 +180,18 @@ abstract class Module {
         impl: NotificationRepositoryImpl
     ): NotificationRepository
 
+    @Binds
+    @Singleton
+    abstract fun bindReportRemoteDataSource(
+        impl: ReportRemoteDataSourceImpl
+    ): ReportRemoteDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindReportRepository(
+        impl: ReportRepositoryImpl
+    ): ReportRepository
+
 
     companion object {
         @Provides
@@ -198,6 +215,12 @@ abstract class Module {
             ktorService: KtorService
         ): HttpClient {
             return ktorService.createHttpClient()
+        }
+
+        @Provides
+        @Singleton
+        fun provideReportApi(httpClient: HttpClient): ReportApi {
+            return ReportApi(httpClient)
         }
 
         @Provides

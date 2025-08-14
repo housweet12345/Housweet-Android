@@ -34,14 +34,18 @@ fun ProfileScreen(
     profileInfo: ProfileInfo,
     onBackClick: () -> Unit = {},
     navigateEditProfile: () -> Unit = {},
-    navigateChatting: () -> Unit = {}
+    navigateChatting: () -> Unit = {},
+    onReportClick: (type: String, id: Int) -> Unit = { _, _ -> }
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
     var showBlockDialog by remember { mutableStateOf(false) }
 
     val menuItems = listOf(
         MenuItem(text = "차단하기") { showBlockDialog = true },
-        MenuItem(text = "신고하기") { /* TODO: 신고하기 */ }
+        MenuItem(text = "신고하기") {
+            onReportClick( "user", profileInfo.userId)
+            menuExpanded = false
+        }
     )
 
     Box(modifier = Modifier.fillMaxSize()) {
