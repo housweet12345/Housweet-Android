@@ -67,7 +67,7 @@ object UseCaseModule {
     fun provideUserRepository(
         ktorService: KtorService
     ): UserRepository {
-        val isFake = true
+        val isFake = false
         return if (isFake) {
             FakeUserRepositoryImpl()
         } else {
