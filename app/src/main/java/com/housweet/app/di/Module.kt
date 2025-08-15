@@ -18,6 +18,8 @@ import com.housweet.data.network.HouseRegisterRemoteDataSource
 import com.housweet.data.network.HouseRegisterRemoteDataSourceImpl
 import com.housweet.data.network.ImageUploadRemoteDataSource
 import com.housweet.data.network.KtorService
+import com.housweet.data.network.NoticeRemoteDataSource
+import com.housweet.data.network.NoticeRemoteDataSourceImpl
 import com.housweet.data.network.NotificationRemoteDataSource
 import com.housweet.data.network.NotificationRemoteDataSourceImpl
 import com.housweet.data.network.RoomRemoteDataSource
@@ -31,6 +33,7 @@ import com.housweet.data.repository.ChatRepositoryImpl
 import com.housweet.data.repository.CommunityRepositoryImpl
 import com.housweet.data.repository.HouseRegisterRepositoryImpl
 import com.housweet.data.repository.ImageUploadRepositoryImpl
+import com.housweet.data.repository.NoticeRepositoryImpl
 import com.housweet.data.utils.CryptoManager
 import com.housweet.data.utils.NetworkConnectionManager
 import com.housweet.domain.event.AuthEventBus
@@ -44,6 +47,7 @@ import com.housweet.domain.repository.HouseRegisterRepository
 import com.housweet.domain.repository.ImageUploadRepository
 import com.housweet.domain.repository.NotificationRepository
 import com.housweet.data.repository.NotificationRepositoryImpl
+import com.housweet.domain.repository.NoticeRepository
 import com.housweet.domain.repository.RoomPostingRepository
 import dagger.Binds
 import dagger.Module
@@ -175,6 +179,17 @@ abstract class Module {
         impl: NotificationRepositoryImpl
     ): NotificationRepository
 
+    @Binds
+    @Singleton
+    abstract fun bindNoticeRemoteDataSource(
+        impl: NoticeRemoteDataSourceImpl
+    ): NoticeRemoteDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindNoticeRepository(
+        impl: NoticeRepositoryImpl
+    ): NoticeRepository
 
     companion object {
         @Provides
