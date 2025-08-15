@@ -10,9 +10,10 @@ import javax.inject.Inject
 class ChatRepositoryImpl @Inject constructor(
     private val remote: ChatRemoteDataSource
 ) : ChatRepository {
-    override suspend fun getChatUsers(): List<ChatUser> {
-        return remote.getChatUsers().map {
-            ChatUser(it.id, it.username, it.email)
+    override suspend fun getChatUsers(senderId: Int): List<ChatUser> {
+        return remote.getChatUsers(senderId).map {
+//            ChatUser(it.id, it.username, it.email)
+            ChatUser(it.room_id, it.sender_id, it.receiver_id, it.created_at, it.updated_at, it.is_blocked, it.counterpart_id)
         }
     }
     override suspend fun sendMessage(senderId: Int, receiverId: Int, message: String): Boolean {
