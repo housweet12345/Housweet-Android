@@ -176,9 +176,13 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable<Route.StartPageRoute.LoginRoute.Login> {
+<<<<<<< Updated upstream
                         LoginScreen(
                             modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
                         ) { isTermsOfServiceAgreed, isBelongToRoom ->
+=======
+                        LoginScreen { isTermsOfServiceAgreed, isBelongToRoom ->
+>>>>>>> Stashed changes
                             when {
                                 !isTermsOfServiceAgreed -> {
                                     navigationManager.navigateOneWay(
@@ -202,12 +206,21 @@ class MainActivity : ComponentActivity() {
                         }
 
                         // ✅ 임시: 로그인 시 바로 AccessRoom으로 (테스트용)
+<<<<<<< Updated upstream
 //                         LoginScreen { _, _ ->
 //                             navigationManager.navigateOneWay(
 //                                 Route.StartPageRoute.LoginRoute.Login,
 //                                 Route.StartPageRoute.AccessRoomRoute.AccessRoom
 //                             )
 //                         }
+=======
+//                        LoginScreen { _, _ ->
+//                            navigationManager.navigateOneWay(
+//                                Route.StartPageRoute.LoginRoute.Login,
+//                                Route.StartPageRoute.AccessRoomRoute.AccessRoom
+//                            )
+//                        }
+>>>>>>> Stashed changes
 
                     }
 
@@ -395,7 +408,8 @@ class MainActivity : ComponentActivity() {
                         HomeRoute(
                             navigateToChat = { navController.navigate("chat_list") },
                             navigateToNotification = { /* TODO: 알림 화면 */ },
-                            navigateToProfile = { navController.navigate("profile/me") },
+//                            navigateToProfile = { navController.navigate("profile/me") },
+                            navigateToMyPage = { navController.navigate("mypage") },
                             navigateToNoticeDetail = { noticeId -> /* TODO: 공지사항 상세 */ },
                             navigateToTodoDetail = { /* TODO: 할일 상세 */ },
                             navigateToUserList = { navigationManager.navigateTo("roommate/userlist") },
@@ -604,22 +618,34 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-                    composable(
-                        "noticeDetail/{date}/{title}/{content}",
-                        arguments = listOf(
-                            navArgument("date") { type = NavType.StringType },
-                            navArgument("title") { type = NavType.StringType },
-                            navArgument("content") { type = NavType.StringType }
-                        )
-                    ) { backStackEntry ->
-                        val date = backStackEntry.arguments?.getString("date") ?: ""
-                        val title = backStackEntry.arguments?.getString("title") ?: ""
-                        val content = backStackEntry.arguments?.getString("content") ?: ""
+//                    composable(
+//                        "noticeDetail/{date}/{title}/{content}",
+//                        arguments = listOf(
+//                            navArgument("date") { type = NavType.StringType },
+//                            navArgument("title") { type = NavType.StringType },
+//                            navArgument("content") { type = NavType.StringType }
+//                        )
+//                    ) { backStackEntry ->
+//                        val date = backStackEntry.arguments?.getString("date") ?: ""
+//                        val title = backStackEntry.arguments?.getString("title") ?: ""
+//                        val content = backStackEntry.arguments?.getString("content") ?: ""
+//
+//                        NoticeDetailScreen(
+//                            date = date,
+//                            title = title,
+//                            content = content,
+//                            onBackClick = { navController.popBackStack() }
+//                        )
+//                    }
 
+                    // ✅ 추가
+                    composable(
+                        route = "notice_detail/{id}",
+                        arguments = listOf(navArgument("id") { type = NavType.IntType })
+                    ) { backStackEntry ->
+                        val id = backStackEntry.arguments?.getInt("id") ?: return@composable
                         NoticeDetailScreen(
-                            date = date,
-                            title = title,
-                            content = content,
+                            id = id,
                             onBackClick = { navController.popBackStack() }
                         )
                     }
