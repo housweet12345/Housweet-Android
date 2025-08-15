@@ -180,6 +180,7 @@ fun EditProfileSelectKeyWordScreen(
 
             // MBTI 섹션
             SectionTitle(title = "MBTI")
+            Spacer(modifier = Modifier.height(8.dp))
             MbtiSection(
                 initialMbti = mbtiState,
                 onMbtiChanged = { mbtiState = it }
@@ -227,7 +228,8 @@ private fun MbtiSection(
             option2 = "I",
             selectedOption = mbtiState.ei,
             onOptionSelected = { selected ->
-                updateMbti(mbtiState.copy(ei = selected))
+                val newSelection = if (mbtiState.ei == selected) "" else selected
+                updateMbti(mbtiState.copy(ei = newSelection))
             }
         )
 
@@ -237,7 +239,8 @@ private fun MbtiSection(
             option2 = "N",
             selectedOption = mbtiState.sn,
             onOptionSelected = { selected ->
-                updateMbti(mbtiState.copy(sn = selected))
+                val newSelection = if (mbtiState.sn == selected) "" else selected
+                updateMbti(mbtiState.copy(sn = newSelection))
             }
         )
 
@@ -247,7 +250,8 @@ private fun MbtiSection(
             option2 = "F",
             selectedOption = mbtiState.tf,
             onOptionSelected = { selected ->
-                updateMbti(mbtiState.copy(tf = selected))
+                val newSelection = if (mbtiState.tf == selected) "" else selected
+                updateMbti(mbtiState.copy(tf = newSelection))
             }
         )
 
@@ -257,31 +261,46 @@ private fun MbtiSection(
             option2 = "J",
             selectedOption = mbtiState.pj,
             onOptionSelected = { selected ->
-                updateMbti(mbtiState.copy(pj = selected))
+                val newSelection = if (mbtiState.pj == selected) "" else selected
+                updateMbti(mbtiState.copy(pj = newSelection))
             }
         )
     }
 }
 
 data class MbtiState(
-    val ei: String = "E",
-    val sn: String = "S",
-    val tf: String = "T",
-    val pj: String = "P"
+    val ei: String = "",
+    val sn: String = "",
+    val tf: String = "",
+    val pj: String = ""
 ) {
     fun getMbtiType(): String = "$ei$sn$tf$pj"
     companion object {
         fun fromString(mbti: String): MbtiState {
-            return if (mbti.length == 4) {
-                MbtiState(
-                    ei = mbti[0].toString(),
-                    sn = mbti[1].toString(),
-                    tf = mbti[2].toString(),
-                    pj = mbti[3].toString()
-                )
-            } else {
-                MbtiState() // 기본값
+            var ei = ""
+            var sn = ""
+            var tf = ""
+            var pj = ""
+            
+            mbti.forEach { char ->
+                when (char.uppercaseChar()) {
+                    'E' -> ei = "E"
+                    'I' -> ei = "I"
+                    'S' -> sn = "S"
+                    'N' -> sn = "N"
+                    'T' -> tf = "T"
+                    'F' -> tf = "F"
+                    'P' -> pj = "P"
+                    'J' -> pj = "J"
+                }
             }
+            
+            return MbtiState(
+                ei = ei,
+                sn = sn,
+                tf = tf,
+                pj = pj
+            )
         }
     }
 }
