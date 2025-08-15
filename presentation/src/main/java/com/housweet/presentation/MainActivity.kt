@@ -54,6 +54,8 @@ import com.housweet.presentation.ui.mypage.MyPostedRoomScreen
 import com.housweet.presentation.ui.mypage.NoticeDetailScreen
 import com.housweet.presentation.ui.mypage.NoticeScreen
 import com.housweet.presentation.ui.mypage.TermsConditionsPolicies
+import com.housweet.presentation.ui.mypage.TermsLocationInformationPolies
+import com.housweet.presentation.ui.mypage.TermsPrivacyPolicies
 import com.housweet.presentation.ui.navigation.BottomNavItem
 import com.housweet.presentation.ui.navigation.CoordinateType
 import com.housweet.presentation.ui.navigation.NavigationManager
@@ -174,7 +176,9 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable<Route.StartPageRoute.LoginRoute.Login> {
-                        LoginScreen { isTermsOfServiceAgreed, isBelongToRoom ->
+                        LoginScreen(
+                            modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
+                        ) { isTermsOfServiceAgreed, isBelongToRoom ->
                             when {
                                 !isTermsOfServiceAgreed -> {
                                     navigationManager.navigateOneWay(
@@ -233,19 +237,29 @@ class MainActivity : ComponentActivity() {
                         val isBelongToRoom = it.toRoute<Route.StartPageRoute.LoginRoute.TermsOfService>().isBelongToRoom
                         TermsOfServiceScreen(
                             modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
-                        ) {
-                            if (isBelongToRoom) {
-                                navigationManager.navigateOneWay(
-                                    Route.StartPageRoute.LoginRoute.TermsOfService(true),
-                                    BottomNavItem.Home.route
-                                )
-                            } else {
-                                navigationManager.navigateOneWay(
-                                    Route.StartPageRoute.LoginRoute.TermsOfService(false),
-                                    Route.StartPageRoute.AccessRoomRoute.AccessRoom
-                                )
+                            onNextScreen = {
+                                if (isBelongToRoom) {
+                                    navigationManager.navigateOneWay(
+                                        Route.StartPageRoute.LoginRoute.TermsOfService(true),
+                                        BottomNavItem.Home.route
+                                    )
+                                } else {
+                                    navigationManager.navigateOneWay(
+                                        Route.StartPageRoute.LoginRoute.TermsOfService(false),
+                                        Route.StartPageRoute.AccessRoomRoute.AccessRoom
+                                    )
+                                }
+                            },
+                            onDetailTermsConditionsPoliciesClick = {
+                                navigationManager.navigateTo("terms_conditions_policies")
+                            },
+                            onDetailTermsPrivacyPoliciesClick = {
+                                navigationManager.navigateTo("terms_privacy_policies")
+                            },
+                            onDetailTermsLocationInformationPoliesClick = {
+                                navigationManager.navigateTo("terms_location_information_policies")
                             }
-                        }
+                        )
                     }
 
                     composable<Route.StartPageRoute.AccessRoomRoute.AccessRoom> {
@@ -506,6 +520,18 @@ class MainActivity : ComponentActivity() {
 
                     composable("terms_conditions_policies") {
                         TermsConditionsPolicies(navController)
+                    }
+
+                    composable("terms_privacy_policies") {
+                        TermsPrivacyPolicies {
+                            navController.popBackStack()
+                        }
+                    }
+
+                    composable("terms_location_information_policies") {
+                        TermsLocationInformationPolies {
+                            navController.popBackStack()
+                        }
                     }
 
                     composable("notification") {
