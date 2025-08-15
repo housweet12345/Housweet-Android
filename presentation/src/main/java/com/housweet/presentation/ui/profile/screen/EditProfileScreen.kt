@@ -47,10 +47,29 @@ fun EditProfileScreen(
     var introductionState by remember { mutableStateOf(introduction) }
 
     var selectedOption by remember {
-        mutableIntStateOf(if (gender == "남자") 1 else 2)
+        mutableIntStateOf(
+            when (gender) {
+                "남성" -> 1
+                "여성" -> 2
+                "남자" -> 1
+                "여자" -> 2
+                else -> 1
+            }
+        )
     }
 
-    // 성별 상태 동기화
+    // gender 파라미터가 변경될 때 selectedOption 업데이트
+    LaunchedEffect(gender) {
+        selectedOption = when (gender) {
+            "남성" -> 1
+            "여성" -> 2
+            "남자" -> 1
+            "여자" -> 2
+            else -> 1
+        }
+    }
+
+    // 성별 상태 동기화 (UI용 "남자"/"여자"로 설정)
     LaunchedEffect(selectedOption) {
         genderState = if (selectedOption == 1) "남자" else "여자"
     }
@@ -119,13 +138,14 @@ fun EditProfileScreen(
             Row(
                 modifier = Modifier.fillMaxWidth().height(30.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 ProfileEditNameTextField(
                     modifier = Modifier.weight(1f),
                     hint = "태어난 년도를 선택해주세요.",
                     value = yearOfBirthState,
-                    onValueChange = { yearOfBirthState = it } // 상태 업데이트
+                    onValueChange = { yearOfBirthState = it }, // 상태 업데이트
+                    enabled = yearOfBirth.isEmpty() // 기존 값이 있으면 비활성화
                 )
                 Spacer(Modifier.width(10.dp))
                 ToggleButtonGroup(
@@ -133,7 +153,8 @@ fun EditProfileScreen(
                     option1 = "남자",
                     option2 = "여자",
                     selectedOption = selectedOption,
-                    onOptionSelected = { selectedOption = it }
+                    onOptionSelected = { selectedOption = it },
+                    enabled = gender.isEmpty() // 기존 값이 있으면 비활성화
                 )
             }
 
