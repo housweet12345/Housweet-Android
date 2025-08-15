@@ -8,10 +8,14 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,7 +25,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,8 +45,10 @@ import com.housweet.presentation.ui.theme.ColorGroup
 @Composable
 fun EditProfileSelectKeyWordScreen(
     currentProfile: ProfileInfo, // 현재 프로필 정보 추가
+    showSkipButton: Boolean = false, // 건너뛰기 버튼 표시 여부
     onBackClick: () -> Unit = {},
-    onNextClick: (ProfileUpdateModel) -> Unit = {}
+    onNextClick: (ProfileUpdateModel) -> Unit = {},
+    onSkipClick: () -> Unit = {}
 ) {
     // 각 섹션별 선택된 태그를 관리하는 상태
     var lifePatternTags by remember { mutableStateOf(setOf<String>()) }
@@ -78,10 +86,19 @@ fun EditProfileSelectKeyWordScreen(
     Scaffold(
         contentWindowInsets = WindowInsets(0.dp), // 상단 여백 제거
         bottomBar = {
-            BottomButton(
-                text = "완료",
-                onClick = handleNextClick
-            )
+            if (showSkipButton) {
+                DoubleBottomButtons(
+                    leftText = "완료",
+                    rightText = "건너뛰기",
+                    onLeftClick = handleNextClick,
+                    onRightClick = onSkipClick
+                )
+            } else {
+                BottomButton(
+                    text = "완료",
+                    onClick = handleNextClick
+                )
+            }
         }
     ) { paddingValues ->
         Column(
@@ -264,6 +281,58 @@ data class MbtiState(
                 )
             } else {
                 MbtiState() // 기본값
+            }
+        }
+    }
+}
+
+@Composable
+private fun DoubleBottomButtons(
+    leftText: String,
+    rightText: String,
+    onLeftClick: () -> Unit,
+    onRightClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier.windowInsetsPadding(WindowInsets.navigationBars)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Button(
+                onClick = onLeftClick,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(50.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = ColorGroup.Primary
+                ),
+                shape = RectangleShape
+            ) {
+                Text(
+                    text = leftText,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.White
+                )
+            }
+            
+            Button(
+                onClick = onRightClick,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(50.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = ColorGroup.White_F8F8F8
+                ),
+                shape = RectangleShape
+            ) {
+                Text(
+                    text = rightText,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = ColorGroup.Gray_7E7E7E
+                )
             }
         }
     }
