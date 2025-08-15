@@ -21,12 +21,12 @@ class ChatListViewModel @Inject constructor(
     val chatUsers: StateFlow<List<ChatUser>> = _chatUsers
 
     init {
-        fetchChatUsers()
+        fetchChatUsers(3) //임시 값. 내 아이디가 지금 3임.
     }
 
-    private fun fetchChatUsers() {
+    private fun fetchChatUsers(senderId: Int) {
         viewModelScope.launch {
-            _chatUsers.value = chatRepository.getChatUsers()
+            _chatUsers.value = chatRepository.getChatUsers(senderId)
         }
     }
 

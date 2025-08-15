@@ -202,12 +202,12 @@ class MainActivity : ComponentActivity() {
                         }
 
                         // ✅ 임시: 로그인 시 바로 AccessRoom으로 (테스트용)
-//                        LoginScreen { _, _ ->
-//                            navigationManager.navigateOneWay(
-//                                Route.StartPageRoute.LoginRoute.Login,
-//                                Route.StartPageRoute.AccessRoomRoute.AccessRoom
-//                            )
-//                        }
+//                         LoginScreen { _, _ ->
+//                             navigationManager.navigateOneWay(
+//                                 Route.StartPageRoute.LoginRoute.Login,
+//                                 Route.StartPageRoute.AccessRoomRoute.AccessRoom
+//                             )
+//                         }
 
                     }
 
