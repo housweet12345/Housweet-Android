@@ -79,63 +79,63 @@ fun HomeScreen(
             contentPadding = PaddingValues(start = 4.dp, end = 4.dp, bottom = 150.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-        // 상단 바 (오른쪽 3개 아이콘)
-        item {
-            TopAppBar(
-                windowInsets = WindowInsets(
-                    top = 0.dp,
-                    bottom = 0.dp
-                ),
-                title = { },
-                actions = {
-                    Row {
-                        IconButton(onClick = onChatClick) {
+            // 상단 바 (오른쪽 3개 아이콘)
+            item {
+                TopAppBar(
+                    windowInsets = WindowInsets(
+                        top = 0.dp,
+                        bottom = 0.dp
+                    ),
+                    title = { },
+                    actions = {
+                        Row {
+                            IconButton(onClick = onChatClick) {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_navigate_chat),
+                                    contentDescription = "채팅"
+                                )
+                            }
+                        }
+                        IconButton(onClick = onNotificationClick) {
                             Icon(
-                                painter = painterResource(R.drawable.ic_navigate_chat),
-                                contentDescription = "채팅"
+                                painter = painterResource(R.drawable.ic_navigate_notification),
+                                contentDescription = "알림"
                             )
                         }
-                    }
-                    IconButton(onClick = onNotificationClick) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_navigate_notification),
-                            contentDescription = "알림"
-                        )
-                    }
-                    IconButton(onClick = onProfileClick) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_navigate_profile),
-                            contentDescription = "프로필"
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White
+                        IconButton(onClick = onProfileClick) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_navigate_profile),
+                                contentDescription = "프로필"
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.White
+                    )
                 )
-            )
-        }
-
-        // 방 제목 섹션
-        item {
-            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                Spacer(modifier = Modifier.height(28.dp))
-                RoomTitleSection(homeInfo.roomName, homeInfo.daysLiving)
             }
-        }
 
-        // 공지사항 섹션
-        item {
-            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                NoticeSection(homeInfo.notices, onNoticeClick)
+            // 방 제목 섹션
+            item {
+                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                    RoomTitleSection(homeInfo.roomName, homeInfo.daysLiving)
+                    Spacer(modifier = Modifier.height(20.dp))
+                }
             }
-        }
 
-        // 룸메이트 기분 섹션
-        item {
-            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                RoommatesMoodSection(homeInfo.roommates, onMoodSelect, onMoodSectionClick)
+            // 공지사항 섹션
+            item {
+                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                    NoticeSection(homeInfo.notices, onNoticeClick)
+                }
             }
-        }
+
+            // 룸메이트 기분 섹션
+            item {
+                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                    RoommatesMoodSection(homeInfo.roommates, onMoodSelect, onMoodSectionClick)
+                }
+            }
 
             // 내가 할 일 섹션
             item {
@@ -282,7 +282,7 @@ fun RoommatesMoodSection(
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(10.dp))
         
         // 기분 이모지들
         Card(
@@ -291,7 +291,9 @@ fun RoommatesMoodSection(
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 val moods = listOf(
@@ -358,7 +360,8 @@ fun MyTodoSection(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                     contentDescription = "더보기",
                     tint = Color.Gray,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier
+                        .size(20.dp)
                         .clickable { onTodoClick() }
                 )
             }
@@ -468,7 +471,7 @@ fun MoodItem(
                     color = Color.Transparent,
                     shape = CircleShape
                 )
-                .clickable { 
+                .clickable {
                     val moodType = getMoodTypeFromName(mood.name)
                     moodType?.let { onMoodSelect(it) }
                 },
