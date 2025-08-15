@@ -1,6 +1,7 @@
 package com.housweet.presentation.ui.registerhouse
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,7 +18,9 @@ import androidx.compose.ui.unit.sp
 import com.housweet.presentation.ui.common.StepIndicator
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -36,7 +39,6 @@ fun HouseRegisterScreen1(
     mode: RegisterModel,
     onNextClick: () -> Unit,
     onBackClick: () -> Unit,
-//    viewModel: HouseRegisterViewModel = hiltViewModel()
     viewModel: HouseRegisterViewModelBase = hiltViewModel<HouseRegisterViewModel>()
 ) {
     LaunchedEffect(Unit) {
@@ -46,9 +48,8 @@ fun HouseRegisterScreen1(
     BackHandler {
         onBackClick()
     }
-    
-    val selectedTags = remember { mutableStateListOf<String>() }
 
+    // 1) 섹션 정의
     val sections = listOf(
         "교통" to listOf("버스정류장 인근", "역세권", "버스, 지하철 더블 역세권", "자차 추천", "교통 좋음",
             "교통 나쁘지 않음"),
@@ -56,6 +57,20 @@ fun HouseRegisterScreen1(
         "인프라" to listOf("마트", "편의점", "카페", "식당", "병원", "공원", "산책로", "숲세권", "약국", "전통시장", "헬스장", "대학가", "상권 많음"),
         "기타" to listOf("치안 좋음", "밤길 안전함", "전입신고 가능", "전입신고 불가능", "단기 거주 가능", "장기 거주 가능", "장기 거주 희망", "즉시 입주 가능", "입주일 상의 필요", "월세 및 보증금 협의 가능", "월세 및 보증금 협의 불가")
     )
+
+    // 2) 섹션별 선택 상태 저장
+    val selectedBySection = remember {
+        mutableStateMapOf<String, MutableSet<String>>().apply {
+            sections.forEach { (title, _) -> put(title, mutableSetOf()) }
+        }
+    }
+
+    // 3) 검증 & 다이얼로그 상태
+    var showDialog by remember { mutableStateOf(false) }
+    var missingSectionName by remember { mutableStateOf<String?>(null) }
+
+    fun firstMissingSectionOrNull(): String? =
+        sections.firstOrNull { (title, _) -> selectedBySection[title].isNullOrEmpty() }?.first
 
     val scrollState = rememberScrollState()
 
@@ -109,7 +124,7 @@ fun HouseRegisterScreen1(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     tags.forEach { tag ->
-                        val isSelected = tag in selectedTags
+                        val isSelected = selectedBySection[title]?.contains(tag) == true
                         Box(
                             modifier = Modifier
                                 .background(
@@ -117,8 +132,9 @@ fun HouseRegisterScreen1(
                                     shape = RoundedCornerShape(10.dp)
                                 )
                                 .clickable {
-                                    if (isSelected) selectedTags.remove(tag)
-                                    else selectedTags.add(tag)
+                                    val current = selectedBySection[title]?.toMutableSet() ?: mutableSetOf()
+                                    if (isSelected) current.remove(tag) else current.add(tag)
+                                    selectedBySection[title] = current
                                 }
                                 .border(
                                     width = 1.dp,
@@ -142,8 +158,17 @@ fun HouseRegisterScreen1(
 
         Button(
             onClick = {
-                viewModel.updateHouseTags(selectedTags)
-                onNextClick()},
+                val missing = firstMissingSectionOrNull()
+                if (missing == null) {
+                    // 섹션별로 모아진 선택값을 평탄화해서 VM에 전달
+                    val allSelected = selectedBySection.values.flatten()
+                    viewModel.updateHouseTags(allSelected)
+                    onNextClick()
+                } else {
+                    missingSectionName = missing
+                    showDialog = true
+                }
+                      },
             shape = RoundedCornerShape(6.dp),
             modifier = Modifier
                 .fillMaxWidth()
@@ -162,17 +187,33 @@ fun HouseRegisterScreen1(
 
         Spacer(modifier = Modifier.height(32.dp))
     }
-}
 
-@Composable
-fun HouseRegisterScreen1PreviewWrapper() {
-    val fakeViewModel = remember { PreviewHouseRegisterViewModel() }
-    HouseRegisterScreen1(
-        mode = RegisterModel.CREATE,
-        onNextClick = {},
-        onBackClick = {},
-        viewModel = fakeViewModel
-    )
+    if (showDialog) {
+        Dialog(onDismissRequest = { showDialog = false }) {
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = Color.White,
+                tonalElevation = 2.dp,
+                border = BorderStroke(1.dp, Color(0xFF665ED3))
+            ) {
+                Column(
+                    modifier = Modifier.padding(20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "${missingSectionName ?: "항목"} 을(를) 선택해주세요.",
+                        textAlign = TextAlign.Center,
+                        fontSize = 14.sp
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    TextButton(onClick = { showDialog = false }) {
+                        Text("확인")
+                    }
+                }
+            }
+        }
+    }
+
 }
 
 @Preview(showBackground = true)
@@ -189,15 +230,3 @@ fun HouseRegisterScreen1Preview() {
 }
 
 class PreviewHouseRegisterViewModel : HouseRegisterViewModelBase()
-
-//@Stable
-//open class HouseRegisterViewModelBase : ViewModel() {
-//    open var houseTags by mutableStateOf<List<String>>(emptyList())
-//        protected set
-//
-//    open fun updateHouseTags(tags: List<String>) {
-//        houseTags = tags
-//    }
-//
-//    open fun logRoomId() {}  // ViewModel에서 호출은 되지만 실제론 아무것도 안 해도 됨
-//}

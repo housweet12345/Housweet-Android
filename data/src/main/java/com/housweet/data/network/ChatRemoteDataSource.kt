@@ -5,7 +5,7 @@ import com.housweet.data.network.dto.ChatUserDto
 import com.housweet.domain.model.ChatMessage
 
 interface ChatRemoteDataSource {
-    suspend fun getChatUsers(): List<ChatUserDto>
+    suspend fun getChatUsers(senderId: Int): List<ChatUserDto>
 
     suspend fun sendMessage(senderId: Int, receiverId: Int, message: String): Boolean
 
