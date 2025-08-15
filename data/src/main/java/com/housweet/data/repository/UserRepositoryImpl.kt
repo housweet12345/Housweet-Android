@@ -1,5 +1,6 @@
 package com.housweet.data.repository
 
+import com.housweet.data.BuildConfig
 import com.housweet.data.dto.ProfileDto
 import com.housweet.data.dto.ProfileUpdateDto
 import com.housweet.data.mapper.toProfilePatchDto
@@ -28,7 +29,7 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun getOtherUserProfile(userId: String): Result<ProfileModel> {
         return runCatching {
-            val response: ProfileDto = client.get("/user/profile/$userId").body()
+            val response: ProfileDto = client.get("${BuildConfig.USER_BASE_URL}/profile/$userId").body()
             response.mapToProfileModel()
         }
     }

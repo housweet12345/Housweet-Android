@@ -1,7 +1,9 @@
 package com.housweet.data.dto
 
 import com.housweet.domain.model.profile.ProfileUpdateModel
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class ProfileUpdateDto(
     val gender: String,
     val introduce: String,

@@ -14,6 +14,7 @@ val properties = Properties().apply {
 
 //val baseUrl = properties["base_url"] ?: ""
 val baseUrl = properties["base_url"]?.let { "\"$it\"" } ?: "\"https://example.com\""
+val userBaseUrl = properties["user_base_url"]?.let { "\"$it\"" } ?: "\"https://example.com\""
 //val naverClientId = properties["naver_client_id"] ?: ""
 
 android {
@@ -28,6 +29,7 @@ android {
 
 //      buildConfigField("String", "BASE_URL", baseUrl.toString())
         buildConfigField("String", "BASE_URL", baseUrl)
+        buildConfigField("String", "USER_BASE_URL", userBaseUrl)
     }
 
     buildFeatures {
