@@ -604,27 +604,7 @@ class MainActivity : ComponentActivity() {
                             onBackClick = { navController.popBackStack() }
                         )
                     }
-
-//                    composable(
-//                        "noticeDetail/{date}/{title}/{content}",
-//                        arguments = listOf(
-//                            navArgument("date") { type = NavType.StringType },
-//                            navArgument("title") { type = NavType.StringType },
-//                            navArgument("content") { type = NavType.StringType }
-//                        )
-//                    ) { backStackEntry ->
-//                        val date = backStackEntry.arguments?.getString("date") ?: ""
-//                        val title = backStackEntry.arguments?.getString("title") ?: ""
-//                        val content = backStackEntry.arguments?.getString("content") ?: ""
-//
-//                        NoticeDetailScreen(
-//                            date = date,
-//                            title = title,
-//                            content = content,
-//                            onBackClick = { navController.popBackStack() }
-//                        )
-//                    }
-
+                    
                     // ✅ 추가
                     composable(
                         route = "notice_detail/{id}",
