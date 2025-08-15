@@ -15,14 +15,14 @@ class FakeUserRepositoryImpl : UserRepository {
         introduce = "안녕하세요! 테스트 사용자입니다.",
         profileImage = "https://example.com/profile.jpg",
         yearOfBirth = "1990",
-        gender = "남성",
+        gender = "남자",
         mbti = "ENFP",
         tags = listOf("개발자", "안드로이드", "코틀린"),
         isCheckedUser = true
     )
 
     private val fakeProfileUpdateModel = ProfileUpdateModel(
-        gender = "남성",
+        gender = "남자",
         introduce = "업데이트된 소개입니다.",
         mbti = "ENFP",
         nickname = "업데이트된닉네임",

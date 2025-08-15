@@ -1,5 +1,9 @@
 package com.housweet.presentation.ui.home
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -34,6 +38,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,6 +52,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.util.fastForEach
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -62,7 +71,6 @@ fun HomeScreen(
     homeInfo: HomeInfo = HomeInfo(),
     onChatClick: () -> Unit = {},
     onNotificationClick: () -> Unit = {},
-//    onProfileClick: () -> Unit = {},
     onMyPageClick: () -> Unit = {},
     onNoticeClick: (Int) -> Unit = {},
     onTodoClick: () -> Unit = {},
@@ -116,27 +124,27 @@ fun HomeScreen(
             )
         }
 
-        // 방 제목 섹션
-        item {
-            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                Spacer(modifier = Modifier.height(28.dp))
-                RoomTitleSection(homeInfo.roomName, homeInfo.daysLiving)
+            // 방 제목 섹션
+            item {
+                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                    RoomTitleSection(homeInfo.roomName, homeInfo.daysLiving)
+                    Spacer(modifier = Modifier.height(20.dp))
+                }
             }
-        }
 
-        // 공지사항 섹션
-        item {
-            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                NoticeSection(homeInfo.notices, onNoticeClick)
+            // 공지사항 섹션
+            item {
+                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                    NoticeSection(homeInfo.notices, onNoticeClick)
+                }
             }
-        }
 
-        // 룸메이트 기분 섹션
-        item {
-            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                RoommatesMoodSection(homeInfo.roommates, onMoodSelect, onMoodSectionClick)
+            // 룸메이트 기분 섹션
+            item {
+                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                    RoommatesMoodSection(homeInfo.roommates, onMoodSelect, onMoodSectionClick)
+                }
             }
-        }
 
             // 내가 할 일 섹션
             item {
@@ -241,10 +249,13 @@ fun RoommatesMoodSection(
     onMoodSelect: (MoodType) -> Unit,
     onMoodSectionClick: () -> Unit,
 ) {
+    var showMoodCard by remember { mutableStateOf(false) }
     Column {
         Card(
             onClick = onMoodSectionClick,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .zIndex(1f),
             colors = CardDefaults.cardColors(containerColor = Color.White),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         ) {
@@ -277,36 +288,54 @@ fun RoommatesMoodSection(
                     horizontalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
                     roommates.forEach { roommate ->
-                        RoommateProfile(roommate = roommate)
+                        RoommateProfile(
+                            roommate = roommate,
+                            onMoodIconClick = { showMoodCard = !showMoodCard }
+                        )
                     }
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        // 기분 이모지들
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F9FA)),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                val moods = listOf(
-                    MoodData(R.drawable.ic_happy, "행복"),
-                    MoodData(R.drawable.ic_good, "무난"),
-                    MoodData(R.drawable.ic_sad, "슬픔"),
-                    MoodData(R.drawable.ic_angry, "화남"),
-                    MoodData(R.drawable.ic_heart, "애정"),
-                    MoodData(R.drawable.ic_congratulation, "축하"),
-                    MoodData(R.drawable.ic_none, "외출")
-                )
+        Spacer(modifier = Modifier.height(10.dp))
 
-                moods.fastForEach {
-                    MoodItem(mood = it, onMoodSelect = onMoodSelect)
+        // 기분 이모지들 (애니메이션과 함께 조건부 표시)
+        AnimatedVisibility(
+            visible = showMoodCard,
+            enter = slideInVertically(
+                initialOffsetY = { -it },
+                animationSpec = tween(durationMillis = 300)
+            ),
+            exit = slideOutVertically(
+                targetOffsetY = { -it },
+                animationSpec = tween(durationMillis = 300)
+            ),
+            modifier = Modifier.zIndex(-1f)
+        ) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F9FA)),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    val moods = listOf(
+                        MoodData(R.drawable.ic_happy, "행복"),
+                        MoodData(R.drawable.ic_good, "무난"),
+                        MoodData(R.drawable.ic_sad, "슬픔"),
+                        MoodData(R.drawable.ic_angry, "화남"),
+                        MoodData(R.drawable.ic_heart, "애정"),
+                        MoodData(R.drawable.ic_congratulation, "축하"),
+                        MoodData(R.drawable.ic_none, "외출")
+                    )
+
+                    moods.fastForEach {
+                        MoodItem(mood = it, onMoodSelect = onMoodSelect)
+                    }
                 }
             }
         }
@@ -359,7 +388,8 @@ fun MyTodoSection(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                     contentDescription = "더보기",
                     tint = Color.Gray,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier
+                        .size(20.dp)
                         .clickable { onTodoClick() }
                 )
             }
@@ -408,7 +438,10 @@ fun MyTodoSection(
 }
 
 @Composable
-fun RoommateProfile(roommate: RoommateInfo) {
+fun RoommateProfile(
+    roommate: RoommateInfo,
+    onMoodIconClick: () -> Unit = {}
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -432,7 +465,8 @@ fun RoommateProfile(roommate: RoommateInfo) {
             Box(
                 modifier = Modifier
                     .size(30.dp)
-                    .align(Alignment.BottomEnd),
+                    .align(Alignment.BottomEnd)
+                    .clickable { onMoodIconClick() },
                 contentAlignment = Alignment.Center
             ) {
                 Image(
