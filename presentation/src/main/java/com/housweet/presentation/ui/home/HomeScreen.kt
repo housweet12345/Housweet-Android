@@ -418,9 +418,9 @@ fun MyTodoSection(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.ic_empty_todo),
+                        painter = painterResource(R.drawable.no_plan),
                         contentDescription = "할 일 없음",
-                        tint = Color.Gray,
+                        tint = Color.Unspecified,
                         modifier = Modifier.size(width = 135.dp, height = 103.dp)
                     )
 
