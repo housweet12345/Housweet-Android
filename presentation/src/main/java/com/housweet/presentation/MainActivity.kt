@@ -1,18 +1,10 @@
 package com.housweet.presentation
 
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.ImageDecoder
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
 import android.util.Base64
-import android.util.Log
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -21,10 +13,8 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavType
@@ -61,6 +51,7 @@ import com.housweet.presentation.ui.navigation.CoordinateType
 import com.housweet.presentation.ui.navigation.NavigationManager
 import com.housweet.presentation.ui.navigation.Route
 import com.housweet.presentation.ui.notification.NotificationScreen
+import com.housweet.presentation.ui.profile.route.EditProfileKeyWordRoute
 import com.housweet.presentation.ui.profile.route.EditProfileRoute
 import com.housweet.presentation.ui.profile.route.ProfileRoute
 import com.housweet.presentation.ui.registerhouse.HouseRegisterScreen1
@@ -246,7 +237,7 @@ class MainActivity : ComponentActivity() {
                                 } else {
                                     navigationManager.navigateOneWay(
                                         Route.StartPageRoute.LoginRoute.TermsOfService(false),
-                                        Route.StartPageRoute.AccessRoomRoute.AccessRoom
+                                        "profile/edit?fromTerms=true"
                                     )
                                 }
                             },
@@ -604,7 +595,7 @@ class MainActivity : ComponentActivity() {
                             onBackClick = { navController.popBackStack() }
                         )
                     }
-                    
+
                     // ✅ 추가
                     composable(
                         route = "notice_detail/{id}",
@@ -624,23 +615,70 @@ class MainActivity : ComponentActivity() {
                         val userId = it.arguments?.getString("userId")
                         ProfileRoute(
                             userId = userId,
-                            navigateEditProfile = { navController.navigate("profile/edit") },
+                            navigateEditProfile = { navController.navigate("profile/edit?fromTerms=false") },
                             onBackClick = { navController.popBackStack() },
                             navigateChatting = { }
                         )
                     }
 
-                    composable("profile/edit") {
+                    composable(
+                        route = "profile/edit?fromTerms={fromTerms}",
+                        arguments = listOf(navArgument("fromTerms") {
+                            type = NavType.BoolType
+                            defaultValue = false
+                        })
+                    ) { backStackEntry ->
+                        val fromTerms = backStackEntry.arguments?.getBoolean("fromTerms") ?: false
                         EditProfileRoute(
                             onBackClick = { navController.popBackStack() },
-                            navigateEditKeyword = { navController.navigate("profile/edit_keyword") }
+                            navigateEditKeyword = {
+                                navController.navigate("profile/edit_keyword?fromTerms=$fromTerms")
+                            }
                         )
                     }
 
-                    composable("profile/edit_keyword") { navBackStackEntry ->
+                    composable(
+                        route = "profile/edit_keyword?fromTerms={fromTerms}",
+                        arguments = listOf(navArgument("fromTerms") {
+                            type = NavType.BoolType
+                            defaultValue = false
+                        })
+                    ) { navBackStackEntry ->
+                        val fromTerms = navBackStackEntry.arguments?.getBoolean("fromTerms") ?: false
                         val parentEntry = remember(navBackStackEntry) {
-                            navController.getBackStackEntry("profile/edit")
+                            navController.getBackStackEntry("profile/edit?fromTerms=$fromTerms")
                         }
+                        EditProfileKeyWordRoute(
+                            onBackClick = { navController.popBackStack() },
+                            viewModel = hiltViewModel(parentEntry),
+                            showSkipButton = fromTerms,
+                            navigateNextPage = {
+                                if (fromTerms) {
+                                    navigationManager.navigateOneWay(
+                                        "profile/edit_keyword?fromTerms=$fromTerms",
+                                        Route.StartPageRoute.AccessRoomRoute.AccessRoom
+                                    )
+                                } else {
+                                    navigationManager.navigateOneWay(
+                                        "profile/edit_keyword?fromTerms=$fromTerms",
+                                        "profile/me"
+                                    )
+                                }
+                            },
+                            onSkipClick = {
+                                if (fromTerms) {
+                                    navigationManager.navigateOneWay(
+                                        "profile/edit_keyword?fromTerms=$fromTerms",
+                                        Route.StartPageRoute.AccessRoomRoute.AccessRoom
+                                    )
+                                } else {
+                                    navigationManager.navigateOneWay(
+                                        "profile/edit_keyword?fromTerms=$fromTerms",
+                                        "profile/me"
+                                    )
+                                }
+                            }
+                        )
                     }
 
                     composable("roommate/userlist") {
