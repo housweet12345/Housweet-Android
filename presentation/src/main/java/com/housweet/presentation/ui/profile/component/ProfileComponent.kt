@@ -154,6 +154,7 @@ fun ProfileInfoSection(
     age: String,
     gender: String,
     introduction: String,
+    imageUrl: String? = null,
 ) {
     Column(
         modifier = Modifier
@@ -165,7 +166,7 @@ fun ProfileInfoSection(
         Box(
             modifier = Modifier.fillMaxWidth()
         ) {
-            ProfileImage(size = 40)
+            ProfileImage(imageUrl = imageUrl, size = 40)
 
             // 상태 표시 버튼들
             Row(
@@ -404,6 +405,7 @@ private fun ProfileInfoSectionPreview() {
         gender = "남자",
         age = "20대",
         introduction = "안녕하세요, 잘부탁드립니다",
+        imageUrl = null
     )
 }
 
