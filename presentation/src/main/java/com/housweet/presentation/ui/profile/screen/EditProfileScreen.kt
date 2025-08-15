@@ -159,10 +159,12 @@ fun EditProfileScreen(
             }
 
             // 안내 메시지
-            InfoMessage(
-                message = "나이와 성별은 한 번 선택 후 변경이 불가능합니다.\n신중하게 선택해 주세요.",
-                modifier = Modifier.padding(top = 12.dp)
-            )
+            if (gender.isEmpty() && yearOfBirth.isEmpty()){
+                InfoMessage(
+                    message = "나이와 성별은 한 번 선택 후 변경이 불가능합니다.\n신중하게 선택해 주세요.",
+                    modifier = Modifier.padding(top = 12.dp)
+                )
+            }
 
             Spacer(Modifier.height(10.dp))
 
