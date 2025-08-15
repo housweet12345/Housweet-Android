@@ -2,6 +2,7 @@ package com.housweet.data.network
 
 import com.housweet.data.network.dto.ChatMessageResponse
 import com.housweet.data.network.dto.ChatUserDto
+import com.housweet.data.network.dto.ChatUsersEnvelope
 import com.housweet.data.network.dto.SendMessageResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -15,8 +16,10 @@ import javax.inject.Inject
 class ChatRemoteDataSourceImpl @Inject constructor(
     private val client: HttpClient
 ) : ChatRemoteDataSource {
-    override suspend fun getChatUsers(): List<ChatUserDto> {
-        return client.get("http://54.180.30.121:8000/chat/users/").body()
+    override suspend fun getChatUsers(senderId: Int): List<ChatUserDto> {
+//        return client.get("http://54.180.30.121:8000/chat/users/").body()
+        val envelope: ChatUsersEnvelope = client.get("http://54.180.30.121:8000/chat/view-room/$senderId/").body()
+        return envelope.results
     }
 
     override suspend fun sendMessage(senderId: Int, receiverId: Int, message: String): Boolean {

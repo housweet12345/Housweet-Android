@@ -10,8 +10,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -25,6 +28,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -38,6 +43,10 @@ import com.housweet.presentation.ui.startPage.BottomButton
 import com.housweet.presentation.ui.startPage.GuideText
 import com.housweet.presentation.ui.startPage.LoadingScreen
 import com.housweet.presentation.ui.theme.Black
+import com.housweet.presentation.ui.theme.Gray_7D7D7D
+import com.housweet.presentation.ui.theme.Gray_7E7E7E
+import com.housweet.presentation.ui.theme.Gray_CBCBCB
+import com.housweet.presentation.ui.theme.Gray_D9D9D9
 import com.housweet.presentation.ui.theme.Purple
 import com.housweet.presentation.ui.theme.White
 
@@ -46,7 +55,10 @@ import com.housweet.presentation.ui.theme.White
 fun TermsOfServiceScreen(
     modifier: Modifier,
     termsOfServiceViewModel: TermsOfServiceViewModel = hiltViewModel(),
-    onNextScreen: () -> Unit
+    onNextScreen: () -> Unit,
+    onDetailTermsConditionsPoliciesClick: () -> Unit,
+    onDetailTermsPrivacyPoliciesClick: () -> Unit,
+    onDetailTermsLocationInformationPoliesClick: () -> Unit
 ) {
     val uiState: TermsOfServiceState by termsOfServiceViewModel.uiState.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
@@ -104,7 +116,10 @@ fun TermsOfServiceScreen(
                     onTerm3CheckedChange = {
                         checkTerm3 = !checkTerm3
                         checkAll = checkTerm1 && checkTerm2 && checkTerm3
-                    }
+                    },
+                    onDetailTermsConditionsPoliciesClick = onDetailTermsConditionsPoliciesClick,
+                    onDetailTermsPrivacyPoliciesClick = onDetailTermsPrivacyPoliciesClick,
+                    onDetailTermsLocationInformationPoliesClick = onDetailTermsLocationInformationPoliesClick
                 )
             }
         }
@@ -125,8 +140,11 @@ private fun TermsOfServiceContent(
     onAllCheckedChange: () -> Unit,
     onTerm1CheckedChange: () -> Unit,
     onTerm2CheckedChange: () -> Unit,
-    onTerm3CheckedChange: () -> Unit
-    ) {
+    onTerm3CheckedChange: () -> Unit,
+    onDetailTermsConditionsPoliciesClick: () -> Unit,
+    onDetailTermsPrivacyPoliciesClick: () -> Unit,
+    onDetailTermsLocationInformationPoliesClick: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -162,17 +180,26 @@ private fun TermsOfServiceContent(
 
         Spacer(modifier = Modifier.height(height = 13.dp))
 
-        TermsOfServiceMenu(termName = "adada", checked = checkTerm1) {
-            onTerm1CheckedChange()
-        }
+        TermsOfServiceMenu(
+            termName = "개인정보처리방침",
+            checked = checkTerm1,
+            onCheckedChange = onTerm1CheckedChange,
+            onDetailClick = onDetailTermsPrivacyPoliciesClick
+        )
 
-        TermsOfServiceMenu(termName = "afsfs", checked = checkTerm2) {
-            onTerm2CheckedChange()
-        }
+        TermsOfServiceMenu(
+            termName = "서비스이용약관",
+            checked = checkTerm2,
+            onCheckedChange = onTerm2CheckedChange,
+            onDetailClick = onDetailTermsConditionsPoliciesClick
+        )
 
-        TermsOfServiceMenu(termName = "dadad", checked = checkTerm3) {
-            onTerm3CheckedChange()
-        }
+        TermsOfServiceMenu(
+            termName = "위치정보이용약관",
+            checked = checkTerm3,
+            onCheckedChange = onTerm3CheckedChange,
+            onDetailClick = onDetailTermsLocationInformationPoliesClick
+        )
 
         Spacer(modifier = Modifier.weight(weight = 1f))
 
@@ -213,9 +240,14 @@ private fun TermsOfServiceAllAgree(checked: Boolean, onCheckedChange: () -> Unit
 }
 
 @Composable
-private fun TermsOfServiceMenu(termName: String, checked: Boolean, onCheckedChange: () -> Unit) {
+private fun TermsOfServiceMenu(
+    termName: String,
+    checked: Boolean,
+    onCheckedChange: () -> Unit,
+    onDetailClick: () -> Unit
+) {
     Row(
-        modifier = Modifier.padding(start = 20.dp),
+        modifier = Modifier.padding(start = 20.dp, end = 10.dp),
         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
     ) {
         Image(
@@ -229,7 +261,19 @@ private fun TermsOfServiceMenu(termName: String, checked: Boolean, onCheckedChan
         )
 
         GuideText(
-            modifier = Modifier.padding(start = 7.dp),
+            modifier = Modifier
+                .padding(start = 7.dp)
+                .drawBehind {
+                    val strokeWidthPx = 0.5.dp.toPx()
+                    val verticalOffset = size.height
+                    drawLine(
+                        color = Black,
+                        strokeWidth = strokeWidthPx,
+                        start = Offset(0f, verticalOffset),
+                        end = Offset(size.width, verticalOffset)
+                    )
+                }
+                .clickable { onDetailClick() },
             color = Black,
             text = termName,
             fontWeight = FontWeight.Bold,
@@ -252,6 +296,9 @@ private fun TermsOfServicePreviewScreen() {
         onAllCheckedChange = {},
         onTerm1CheckedChange = {},
         onTerm2CheckedChange = {},
-        onTerm3CheckedChange = {}
+        onTerm3CheckedChange = {},
+        onDetailTermsConditionsPoliciesClick = {},
+        onDetailTermsPrivacyPoliciesClick = {},
+        onDetailTermsLocationInformationPoliesClick = {}
     )
 }

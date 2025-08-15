@@ -200,7 +200,10 @@ fun LoadingScreen() {
             }
             .build()
 
-        Column(modifier = Modifier.align(Alignment.Center)) {
+        Column(
+            modifier = Modifier.align(Alignment.Center),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Image(
                 painter = rememberAsyncImagePainter(
                     model = ImageRequest.Builder(context).data(data = R.drawable.loading_bar)
@@ -212,7 +215,7 @@ fun LoadingScreen() {
                     imageLoader = imageLoader
                 ),
                 contentDescription = "Loading Bar",
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.size(100.dp)
             )
 
             GuideText(
