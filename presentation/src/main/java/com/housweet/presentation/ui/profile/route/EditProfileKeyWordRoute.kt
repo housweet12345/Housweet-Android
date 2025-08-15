@@ -13,6 +13,8 @@ fun EditProfileKeyWordRoute(
     viewModel: EditProfileViewModel = hiltViewModel(),
     onBackClick: () -> Unit = {},
     navigateNextPage: () -> Unit = {},
+    showSkipButton: Boolean = false,
+    onSkipClick: () -> Unit = {},
 ) {
     val state = viewModel.profileState.collectAsStateWithLifecycle()
 
@@ -27,8 +29,10 @@ fun EditProfileKeyWordRoute(
             val profile = currentState.profileInfo
             EditProfileSelectKeyWordScreen(
                 currentProfile = profile, // 현재 프로필 정보 전달
+                showSkipButton = showSkipButton,
                 onBackClick = onBackClick,
                 onNextClick = viewModel::updateProfile,
+                onSkipClick = onSkipClick
             )
         }
         ProfileInfoState.Loading -> {

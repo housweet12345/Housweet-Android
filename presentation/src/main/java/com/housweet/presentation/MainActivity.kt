@@ -245,7 +245,7 @@ class MainActivity : ComponentActivity() {
                             } else {
                                 navigationManager.navigateOneWay(
                                     Route.StartPageRoute.LoginRoute.TermsOfService(false),
-                                    "profile/edit"
+                                    "profile/edit?fromTerms=true"
                                 )
                             }
                         }
@@ -610,27 +610,69 @@ class MainActivity : ComponentActivity() {
                         val userId = it.arguments?.getString("userId")
                         ProfileRoute(
                             userId = userId,
-                            navigateEditProfile = { navController.navigate("profile/edit") },
+                            navigateEditProfile = { navController.navigate("profile/edit?fromTerms=false") },
                             onBackClick = { navController.popBackStack() },
                             navigateChatting = { }
                         )
                     }
 
-                    composable("profile/edit") {
+                    composable(
+                        route = "profile/edit?fromTerms={fromTerms}",
+                        arguments = listOf(navArgument("fromTerms") { 
+                            type = NavType.BoolType
+                            defaultValue = false 
+                        })
+                    ) { backStackEntry ->
+                        val fromTerms = backStackEntry.arguments?.getBoolean("fromTerms") ?: false
                         EditProfileRoute(
                             onBackClick = { navController.popBackStack() },
-                            navigateEditKeyword = { navController.navigate("profile/edit_keyword") }
+                            navigateEditKeyword = { 
+                                navController.navigate("profile/edit_keyword?fromTerms=$fromTerms") 
+                            }
                         )
                     }
 
-                    composable("profile/edit_keyword") { navBackStackEntry ->
+                    composable(
+                        route = "profile/edit_keyword?fromTerms={fromTerms}",
+                        arguments = listOf(navArgument("fromTerms") { 
+                            type = NavType.BoolType
+                            defaultValue = false 
+                        })
+                    ) { navBackStackEntry ->
+                        val fromTerms = navBackStackEntry.arguments?.getBoolean("fromTerms") ?: false
                         val parentEntry = remember(navBackStackEntry) {
-                            navController.getBackStackEntry("profile/edit")
+                            navController.getBackStackEntry("profile/edit?fromTerms=$fromTerms")
                         }
                         EditProfileKeyWordRoute(
                             onBackClick = { navController.popBackStack() },
                             viewModel = hiltViewModel(parentEntry),
-                            navigateNextPage = { /*TODO 건너뛰기, 완료 기능 추가*/  }
+                            showSkipButton = fromTerms,
+                            navigateNextPage = { 
+                                if (fromTerms) {
+                                    navigationManager.navigateOneWay(
+                                        "profile/edit_keyword?fromTerms=$fromTerms",
+                                        Route.StartPageRoute.AccessRoomRoute.AccessRoom
+                                    )
+                                } else {
+                                    navigationManager.navigateOneWay(
+                                        "profile/edit_keyword?fromTerms=$fromTerms",
+                                        "profile/me"
+                                    )
+                                }
+                            },
+                            onSkipClick = {
+                                if (fromTerms) {
+                                    navigationManager.navigateOneWay(
+                                        "profile/edit_keyword?fromTerms=$fromTerms",
+                                        Route.StartPageRoute.AccessRoomRoute.AccessRoom
+                                    )
+                                } else {
+                                    navigationManager.navigateOneWay(
+                                        "profile/edit_keyword?fromTerms=$fromTerms",
+                                        "profile/me"
+                                    )
+                                }
+                            }
                         )
                     }
 
