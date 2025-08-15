@@ -7,7 +7,7 @@ sealed interface HomeState {
 }
 
 data class HomeInfo(
-    val roomName: String = "",
+    val roomName: String = "방이름",
     val daysLiving: Int = 0,
     val notices: List<NoticeItem> = emptyList(),
     val roommates: List<RoommateInfo> = emptyList(),
