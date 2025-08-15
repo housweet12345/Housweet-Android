@@ -176,13 +176,9 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable<Route.StartPageRoute.LoginRoute.Login> {
-<<<<<<< Updated upstream
                         LoginScreen(
                             modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
                         ) { isTermsOfServiceAgreed, isBelongToRoom ->
-=======
-                        LoginScreen { isTermsOfServiceAgreed, isBelongToRoom ->
->>>>>>> Stashed changes
                             when {
                                 !isTermsOfServiceAgreed -> {
                                     navigationManager.navigateOneWay(
@@ -206,21 +202,12 @@ class MainActivity : ComponentActivity() {
                         }
 
                         // ✅ 임시: 로그인 시 바로 AccessRoom으로 (테스트용)
-<<<<<<< Updated upstream
 //                         LoginScreen { _, _ ->
 //                             navigationManager.navigateOneWay(
 //                                 Route.StartPageRoute.LoginRoute.Login,
 //                                 Route.StartPageRoute.AccessRoomRoute.AccessRoom
 //                             )
 //                         }
-=======
-//                        LoginScreen { _, _ ->
-//                            navigationManager.navigateOneWay(
-//                                Route.StartPageRoute.LoginRoute.Login,
-//                                Route.StartPageRoute.AccessRoomRoute.AccessRoom
-//                            )
-//                        }
->>>>>>> Stashed changes
 
                     }
 
