@@ -65,6 +65,7 @@ fun ProfileScreen(
                 age = profileInfo.age,
                 gender = profileInfo.gender,
                 introduction = profileInfo.introduce,
+                imageUrl = profileInfo.profileImageUrl
             )
             Spacer(modifier = Modifier.height(16.dp))
             // 태그 섹션
