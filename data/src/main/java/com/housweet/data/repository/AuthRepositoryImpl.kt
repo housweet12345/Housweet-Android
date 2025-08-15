@@ -45,13 +45,6 @@ class AuthRepositoryImpl @Inject constructor(
 
             emit(Result.success(responseBody.isTermsOfServiceAgreed))
 
-            // accessToken 만료됐으면 refresh
-            if (authToken.isAccessTokenExpired()) {
-                val refreshed = authRemoteDataSource.refreshAccessToken(authToken.refreshToken)
-                val newToken = AuthToken(refreshed.accessToken, authToken.refreshToken)
-                authLocalDataSource.saveAuthToken(newToken)
-            }
-
             //로그인 하자마자 roomId 저장
             val roomId = roomRepository.getMyRoomId()
             roomLocalDataSource.saveRoomId(roomId)
