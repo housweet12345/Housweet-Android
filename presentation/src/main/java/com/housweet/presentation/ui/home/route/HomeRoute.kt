@@ -8,6 +8,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.housweet.presentation.ui.home.HomeScreen
 import com.housweet.presentation.ui.home.state.HomeState
@@ -19,7 +20,8 @@ fun HomeRoute(
     navController: NavController,
     navigateToChat: () -> Unit = {},
     navigateToNotification: () -> Unit = {},
-    navigateToProfile: () -> Unit = {},
+//    navigateToProfile: () -> Unit = {},
+    navigateToMyPage: () -> Unit = {},
     navigateToNoticeDetail: (Int) -> Unit = {},
     navigateToTodoDetail: () -> Unit = {},
     navigateToUserList: () -> Unit = {},
@@ -33,7 +35,8 @@ fun HomeRoute(
                 homeInfo = homeInfo,
                 onChatClick = navigateToChat,
                 onNotificationClick = navigateToNotification,
-                onProfileClick = navigateToProfile,
+//                onProfileClick = navigateToProfile,
+                onMyPageClick = navigateToMyPage,
                 onNoticeClick = navigateToNoticeDetail,
                 onTodoClick = navigateToTodoDetail,
                 onMoodSectionClick = navigateToUserList,

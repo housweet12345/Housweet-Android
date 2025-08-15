@@ -71,7 +71,7 @@ fun HomeScreen(
     homeInfo: HomeInfo = HomeInfo(),
     onChatClick: () -> Unit = {},
     onNotificationClick: () -> Unit = {},
-    onProfileClick: () -> Unit = {},
+    onMyPageClick: () -> Unit = {},
     onNoticeClick: (Int) -> Unit = {},
     onTodoClick: () -> Unit = {},
     onMoodSectionClick: () -> Unit = {},
@@ -88,41 +88,41 @@ fun HomeScreen(
             contentPadding = PaddingValues(start = 4.dp, end = 4.dp, bottom = 150.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            // 상단 바 (오른쪽 3개 아이콘)
-            item {
-                TopAppBar(
-                    windowInsets = WindowInsets(
-                        top = 0.dp,
-                        bottom = 0.dp
-                    ),
-                    title = { },
-                    actions = {
-                        Row {
-                            IconButton(onClick = onChatClick) {
-                                Icon(
-                                    painter = painterResource(R.drawable.ic_navigate_chat),
-                                    contentDescription = "채팅"
-                                )
-                            }
-                        }
-                        IconButton(onClick = onNotificationClick) {
+        // 상단 바 (오른쪽 3개 아이콘)
+        item {
+            TopAppBar(
+                windowInsets = WindowInsets(
+                    top = 0.dp,
+                    bottom = 0.dp
+                ),
+                title = { },
+                actions = {
+                    Row {
+                        IconButton(onClick = onChatClick) {
                             Icon(
-                                painter = painterResource(R.drawable.ic_navigate_notification),
-                                contentDescription = "알림"
+                                painter = painterResource(R.drawable.ic_navigate_chat),
+                                contentDescription = "채팅"
                             )
                         }
-                        IconButton(onClick = onProfileClick) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_navigate_profile),
-                                contentDescription = "프로필"
-                            )
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color.White
-                    )
+                    }
+                    IconButton(onClick = onNotificationClick) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_navigate_notification),
+                            contentDescription = "알림"
+                        )
+                    }
+                    IconButton(onClick = onMyPageClick) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_navigate_profile),
+                            contentDescription = "프로필"
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.White
                 )
-            }
+            )
+        }
 
             // 방 제목 섹션
             item {
@@ -503,7 +503,7 @@ fun MoodItem(
                     color = Color.Transparent,
                     shape = CircleShape
                 )
-                .clickable {
+                .clickable { 
                     val moodType = getMoodTypeFromName(mood.name)
                     moodType?.let { onMoodSelect(it) }
                 },
