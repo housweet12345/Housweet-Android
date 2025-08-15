@@ -22,7 +22,7 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun getMyProfile(): Result<ProfileModel> {
         return runCatching {
-            val response: ProfileDto = client.get("/user/profile/me").body()
+            val response: ProfileDto = client.get("${BuildConfig.USER_BASE_URL}/profile/me").body()
             response.mapToProfileModel()
         }
     }
@@ -37,7 +37,7 @@ class UserRepositoryImpl @Inject constructor(
     override suspend fun updateProfile(updatedProfile: ProfileUpdateModel): Result<ProfileUpdateModel> {
         return runCatching {
             val patchDto = updatedProfile.toProfilePatchDto()
-            val response: ProfileUpdateDto = client.patch("/user/profile/me") {
+            val response: ProfileUpdateDto = client.patch("${BuildConfig.USER_BASE_URL}/profile/me") {
                 setBody(patchDto)
             }.body()
             response.mapToProfileUpdateModel()
