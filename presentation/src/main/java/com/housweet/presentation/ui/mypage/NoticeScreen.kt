@@ -147,9 +147,9 @@ fun NoticeItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            imageVector = Icons.Default.VolumeUp,
+            painter = painterResource(id = R.drawable.ic_notice_inactive),
             contentDescription = "Notice",
-            tint = if (isLatest) Color(0xFF684FFF) else Color.Gray,
+            tint = if (isLatest) Color(0xFF665ED3) else Color(0xFFA5A5A5),
             modifier = Modifier
                 .size(20.dp)
                 .padding(end = 8.dp)
@@ -159,11 +159,11 @@ fun NoticeItem(
             Text(
                 text = notice.date,
                 color = Color.Gray,
-                fontSize = 14.sp
+                fontSize = 12.sp
             )
             Text(
                 text = notice.title,
-                fontSize = 16.sp,
+                fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis

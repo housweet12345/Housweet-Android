@@ -174,36 +174,36 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable<Route.StartPageRoute.LoginRoute.Login> {
-                        LoginScreen { isTermsOfServiceAgreed, isBelongToRoom ->
-                            when {
-                                !isTermsOfServiceAgreed -> {
-                                    navigationManager.navigateOneWay(
-                                        Route.StartPageRoute.LoginRoute.Login,
-                                        Route.StartPageRoute.LoginRoute.WelCome(isBelongToRoom)
-                                    )
-                                }
-                                isBelongToRoom -> {
-                                    navigationManager.navigateOneWay(
-                                        Route.StartPageRoute.LoginRoute.Login,
-                                        BottomNavItem.Home.route
-                                    )
-                                }
-                                else -> {
-                                    navigationManager.navigateOneWay(
-                                        Route.StartPageRoute.LoginRoute.Login,
-                                        Route.StartPageRoute.AccessRoomRoute.AccessRoom
-                                    )
-                                }
-                            }
-                        }
+//                        LoginScreen { isTermsOfServiceAgreed, isBelongToRoom ->
+//                            when {
+//                                !isTermsOfServiceAgreed -> {
+//                                    navigationManager.navigateOneWay(
+//                                        Route.StartPageRoute.LoginRoute.Login,
+//                                        Route.StartPageRoute.LoginRoute.WelCome(isBelongToRoom)
+//                                    )
+//                                }
+//                                isBelongToRoom -> {
+//                                    navigationManager.navigateOneWay(
+//                                        Route.StartPageRoute.LoginRoute.Login,
+//                                        BottomNavItem.Home.route
+//                                    )
+//                                }
+//                                else -> {
+//                                    navigationManager.navigateOneWay(
+//                                        Route.StartPageRoute.LoginRoute.Login,
+//                                        Route.StartPageRoute.AccessRoomRoute.AccessRoom
+//                                    )
+//                                }
+//                            }
+//                        }
 
                         // ✅ 임시: 로그인 시 바로 AccessRoom으로 (테스트용)
-//                        LoginScreen { _, _ ->
-//                            navigationManager.navigateOneWay(
-//                                Route.StartPageRoute.LoginRoute.Login,
-//                                Route.StartPageRoute.AccessRoomRoute.AccessRoom
-//                            )
-//                        }
+                        LoginScreen { _, _ ->
+                            navigationManager.navigateOneWay(
+                                Route.StartPageRoute.LoginRoute.Login,
+                                Route.StartPageRoute.AccessRoomRoute.AccessRoom
+                            )
+                        }
 
                     }
 
