@@ -12,7 +12,9 @@ import com.housweet.presentation.viewmodel.profile.EditProfileViewModel
 fun EditProfileKeyWordRoute(
     viewModel: EditProfileViewModel = hiltViewModel(),
     onBackClick: () -> Unit = {},
-    navigateMyProfile: () -> Unit = {},
+    navigateNextPage: () -> Unit = {},
+    showSkipButton: Boolean = false,
+    onSkipClick: () -> Unit = {},
 ) {
     val state = viewModel.profileState.collectAsStateWithLifecycle()
 
@@ -20,15 +22,17 @@ fun EditProfileKeyWordRoute(
         ProfileInfoState.EditSuccess -> {
             // 수정 성공 시 다음 화면으로 이동
             LaunchedEffect(Unit) {
-                navigateMyProfile()
+                navigateNextPage()
             }
         }
         is ProfileInfoState.Success -> {
             val profile = currentState.profileInfo
             EditProfileSelectKeyWordScreen(
                 currentProfile = profile, // 현재 프로필 정보 전달
+                showSkipButton = showSkipButton,
                 onBackClick = onBackClick,
                 onNextClick = viewModel::updateProfile,
+                onSkipClick = onSkipClick
             )
         }
         ProfileInfoState.Loading -> {
