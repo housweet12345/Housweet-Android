@@ -30,6 +30,7 @@ import com.housweet.presentation.ui.profile.component.ProfileEditNameTextField
 import com.housweet.presentation.ui.profile.component.ProfileImage
 import com.housweet.presentation.ui.profile.component.ProfileTopBar
 import com.housweet.presentation.ui.profile.component.ToggleButtonGroup
+import com.housweet.presentation.ui.profile.component.YearPickerDropdown
 
 @Composable
 fun EditProfileScreen(
@@ -140,12 +141,11 @@ fun EditProfileScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                ProfileEditNameTextField(
+                YearPickerDropdown(
                     modifier = Modifier.weight(1f),
-                    hint = "태어난 년도를 선택해주세요.",
-                    value = yearOfBirthState,
-                    onValueChange = { yearOfBirthState = it }, // 상태 업데이트
-                    enabled = yearOfBirth.isEmpty() // 기존 값이 있으면 비활성화
+                    selectedYear = yearOfBirthState,
+                    onYearSelected = { yearOfBirthState = it },
+                    enabled = yearOfBirth.isEmpty() // 기존 데이터가 없을 때만 활성화
                 )
                 Spacer(Modifier.width(10.dp))
                 ToggleButtonGroup(
