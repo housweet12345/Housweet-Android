@@ -45,6 +45,10 @@ fun MyHouseDetailScreen(
         containerColor = Color.White,
         topBar = {
             CenterAlignedTopAppBar(
+                windowInsets = WindowInsets(
+                    top = 0.dp,
+                    bottom = 0.dp
+                ),
                 title={
                     androidx.compose.material.Text(
                         text = "마이하우스",

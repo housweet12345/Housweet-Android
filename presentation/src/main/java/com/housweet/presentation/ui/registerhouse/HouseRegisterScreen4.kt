@@ -1,6 +1,7 @@
 package com.housweet.presentation.ui.registerhouse
 
 import android.util.Log
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,17 +18,25 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.housweet.presentation.model.RegisterModel
 import com.housweet.presentation.ui.common.StepIndicator
@@ -42,8 +51,7 @@ fun HouseRegisterScreen4(
     onCompleteClick: () -> Unit,
     viewModel: HouseRegisterViewModelBase
 ) {
-    val selectedTags = remember { mutableStateListOf<String>() }
-
+    // 1) 섹션 정의
     val sections = listOf(
         "생활 패턴" to listOf(
             "미흡연자", "저녁형", "조용한 환경 선호", "음악, 소음 OK", "전화를 자주함", "비흡연자",
@@ -55,6 +63,20 @@ fun HouseRegisterScreen4(
         ),
         "성격" to listOf("대화를 좋아함", "혼자있는 걸 좋아함")
     )
+
+    // 2) 섹션별 선택 상태 저장
+    val selectedBySection = remember {
+        mutableStateMapOf<String, MutableSet<String>>().apply {
+            sections.forEach { (title, _) -> put(title, mutableSetOf()) }
+        }
+    }
+
+    // 3) 검증 & 다이얼로그 상태
+    var showDialog by remember { mutableStateOf(false) }
+    var missingSectionName by remember { mutableStateOf<String?>(null) }
+
+    fun firstMissingSectionOrNull(): String? =
+        sections.firstOrNull { (title, _) -> selectedBySection[title].isNullOrEmpty() }?.first
 
     Column(
         modifier = Modifier
@@ -105,13 +127,14 @@ fun HouseRegisterScreen4(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         tags.forEach { tag ->
-                            val isSelected = selectedTags.contains(tag)
+                            val isSelected = selectedBySection[title]?.contains(tag) == true
 
                             Box(
                                 modifier = Modifier
                                     .clickable {
-                                        if (isSelected) selectedTags.remove(tag)
-                                        else selectedTags.add(tag)
+                                        val current = selectedBySection[title]?.toMutableSet() ?: mutableSetOf()
+                                        if (isSelected) current.remove(tag) else current.add(tag)
+                                        selectedBySection[title] = current
                                     }
                                     .border(
                                         width = 1.dp,
@@ -140,16 +163,23 @@ fun HouseRegisterScreen4(
 
         Button(
             onClick = {
-                viewModel.updatePreferredTags(selectedTags)
+                // 검증
+                val missing = firstMissingSectionOrNull()
+                if (missing != null) {
+                    missingSectionName = missing
+                    showDialog = true
+                    return@Button
+                }
+
+                // 통과: 선택값 평탄화 후 저장 + 제출
+                val preferredTags = selectedBySection.values.flatten()
+                viewModel.updatePreferredTags(preferredTags)
+
                 viewModel.submitHouseRegister(
-                    onSuccess = {
-                        // 등록 성공 시
-                        onCompleteClick()  // 👉 예: 등록 완료 후 화면 이동
-                    },
+                    onSuccess = { onCompleteClick() },
                     onError = { e ->
-                        // 등록 실패 시 로그 출력 또는 메시지 표시 등
                         Log.e("HouseRegisterScreen4", "등록 실패: ${e.message}")
-                        // 필요하면 Toast나 AlertDialog 띄우기
+                        // 필요 시 추가 안내(Toast/다이얼로그) 추가 가능
                     }
                 )
             },
@@ -170,6 +200,32 @@ fun HouseRegisterScreen4(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+    }
+
+    if (showDialog) {
+        Dialog(onDismissRequest = { showDialog = false }) {
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = Color.White,
+                tonalElevation = 2.dp,
+                border = BorderStroke(1.dp, Color(0xFF665ED3))
+            ) {
+                Column(
+                    modifier = Modifier.padding(20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "${missingSectionName ?: "항목"} 을(를) 선택해주세요.",
+                        textAlign = TextAlign.Center,
+                        fontSize = 14.sp
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    TextButton(onClick = { showDialog = false }) {
+                        Text("확인")
+                    }
+                }
+            }
+        }
     }
 }
 

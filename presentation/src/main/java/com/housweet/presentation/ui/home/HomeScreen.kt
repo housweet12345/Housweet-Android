@@ -62,7 +62,8 @@ fun HomeScreen(
     homeInfo: HomeInfo = HomeInfo(),
     onChatClick: () -> Unit = {},
     onNotificationClick: () -> Unit = {},
-    onProfileClick: () -> Unit = {},
+//    onProfileClick: () -> Unit = {},
+    onMyPageClick: () -> Unit = {},
     onNoticeClick: (Int) -> Unit = {},
     onTodoClick: () -> Unit = {},
     onMoodSectionClick: () -> Unit = {},
@@ -102,7 +103,7 @@ fun HomeScreen(
                             contentDescription = "알림"
                         )
                     }
-                    IconButton(onClick = onProfileClick) {
+                    IconButton(onClick = onMyPageClick) {
                         Icon(
                             painter = painterResource(R.drawable.ic_navigate_profile),
                             contentDescription = "프로필"
