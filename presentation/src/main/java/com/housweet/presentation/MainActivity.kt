@@ -109,28 +109,7 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             // ✅ 전역으로 ViewModel 생성
             val houseRegisterViewModel: HouseRegisterViewModel = hiltViewModel()
-            val context = LocalContext.current
-            val selectedImageBitmap = remember { mutableStateOf<Bitmap?>(null) }
             val navigationManager = NavigationManager(navController)
-
-            val launcher = rememberLauncherForActivityResult(
-                contract = ActivityResultContracts.GetContent()
-            ) { uri: Uri? ->
-                uri?.let {
-                    val bitmap = if (Build.VERSION.SDK_INT < 28) {
-                        MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
-                    } else {
-                        val source = ImageDecoder.createSource(context.contentResolver, uri)
-                        ImageDecoder.decodeBitmap(source)
-                    }
-                    selectedImageBitmap.value = bitmap
-
-                    // ✅ ViewModel에 Bitmap 전달
-                    houseRegisterViewModel.updateImageBitmap(bitmap)
-                    Log.d("ImagePicker", "선택된 이미지: $bitmap")
-                    Log.d("HouseRegister", "비트맵 감지됨, ViewModel에 업데이트")
-                }
-            }
 
             LaunchedEffect(Unit) {
                 if (isFailedRefreshToken) {
@@ -182,6 +161,16 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         }
+
+                        // ✅ 임시: 앱 진입 시 바로 AccessRoom으로 (테스트용)
+//                        SplashScreen(modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),)
+//                        { _, _, _ ->
+//                            navigationManager.navigateOneWay(
+//                                Route.StartPageRoute.Splash,
+//                                Route.StartPageRoute.AccessRoomRoute.AccessRoom
+//                            )
+//                        }
+
                     }
 
                     composable<Route.StartPageRoute.LoginRoute.Login> {
@@ -207,6 +196,15 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         }
+
+                        // ✅ 임시: 로그인 시 바로 AccessRoom으로 (테스트용)
+//                        LoginScreen { _, _ ->
+//                            navigationManager.navigateOneWay(
+//                                Route.StartPageRoute.LoginRoute.Login,
+//                                Route.StartPageRoute.AccessRoomRoute.AccessRoom
+//                            )
+//                        }
+
                     }
 
                     composable<Route.StartPageRoute.LoginRoute.WelCome> {
@@ -437,8 +435,6 @@ class MainActivity : ComponentActivity() {
                             mode = mode,
                             onNextClick = { navController.navigate(Route.HouseRegisterRoute.Step4(mode)) },
                             onBackClick = { navController.navigate(Route.HouseRegisterRoute.Step2(mode)) },
-                            onImagePickClick = { launcher.launch("image/*") },
-                            selectedImageBitmap = selectedImageBitmap.value,
                             viewModel = houseRegisterViewModel
                         )
                     }
