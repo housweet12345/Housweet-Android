@@ -7,6 +7,10 @@ import com.housweet.presentation.model.Region
 
 @Stable
 open class HouseRegisterViewModelBase : ViewModel() {
+    companion object {
+        const val MAX_IMAGES = 10
+    }
+
     // Step 1
     open var houseTags by mutableStateOf<List<String>>(emptyList())
         protected set
@@ -45,12 +49,17 @@ open class HouseRegisterViewModelBase : ViewModel() {
     }
 
     // Step 3 - 이미지 비트맵 처리
-    private val _imageBitmap = mutableStateOf<Bitmap?>(null)
-    val imageBitmap: Bitmap? get() = _imageBitmap.value
+    private val _imageBitmaps = mutableStateListOf<Bitmap>()
+    val imageBitmaps: List<Bitmap> get() = _imageBitmaps
 
-    open fun updateImageBitmap(bitmap: Bitmap) {
-        _imageBitmap.value = bitmap
+    open fun addImages(bitmaps: List<Bitmap>) {
+        if (bitmaps.isEmpty()) return
+        val roomLeft = MAX_IMAGES - _imageBitmaps.size
+        if (roomLeft <= 0) return
+        _imageBitmaps.addAll(bitmaps.take(roomLeft))
     }
+
+    open fun clearImages() = _imageBitmaps.clear()
 
 
 

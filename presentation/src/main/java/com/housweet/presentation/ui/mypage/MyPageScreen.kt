@@ -1,6 +1,7 @@
 package com.housweet.presentation.ui.mypage
 
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -25,17 +27,27 @@ import androidx.compose.material.Text
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.housweet.presentation.R
@@ -49,10 +61,17 @@ fun MyPageScreen(
     BackHandler {
         onBackClick()
     }
+
+    var showContactDialog by remember { mutableStateOf(false) }
+
     Scaffold (
         containerColor = Color.White,
         topBar = {
             CenterAlignedTopAppBar(
+                windowInsets = WindowInsets(
+                    top = 0.dp,
+                    bottom = 0.dp
+                ),
                 title={
                     Text(
                         text = "마이페이지",
@@ -74,6 +93,9 @@ fun MyPageScreen(
             )
         }
     ){ innerPadding ->
+        if (showContactDialog) {
+            ContactDialog(onDismiss = { showContactDialog = false })
+        }
         Column(
             modifier = Modifier
                 .padding(innerPadding)
@@ -103,7 +125,7 @@ fun MyPageScreen(
             }
 
             // Roommate Section
-            SectionTitle("룸메이트")
+            SectionTitle("하우스잇")
             MyPageMenuItem("북마크") {
                 navController.navigate("bookmark")
             }
@@ -113,11 +135,6 @@ fun MyPageScreen(
             MyPageMenuItem("마이하우스") {
                 navController.navigate("myhousedetail")
             }
-
-            Divider(color = Color(0xFFEEEEEE), thickness = 1.dp)
-
-            // Support Section
-            SectionTitle("고객 지원")
             MyPageMenuItem("앱 설정") {
                 Log.d("MyPage", "navigate to app_setting")
                 try {
@@ -126,6 +143,11 @@ fun MyPageScreen(
                     Log.e("MyPage", "Navigation error", e)
                 }
             }
+
+            Divider(color = Color(0xFFEEEEEE), thickness = 1.dp)
+
+            // Support Section
+            SectionTitle("고객 지원")
             MyPageMenuItem("공지사항") {
                 navController.navigate("notice") {
                     launchSingleTop = true
@@ -134,14 +156,20 @@ fun MyPageScreen(
             MyPageMenuItem("도움말") {
                 navController.navigate("help")
             }
-            MyPageMenuItem("약관 및 정책") {
+
+            MyPageMenuItem("개인정보처리방침") {}
+
+            MyPageMenuItem("서비스 이용약관") {
                 navController.navigate("terms_conditions_policies")
             }
+
+            MyPageMenuItem("위치정보 이용약관") {}
 
             Spacer(modifier = Modifier.height(24.dp))
             Box(
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
+                    .clickable { showContactDialog = true }
                     .fillMaxWidth()
                     .background(Color(0xFF6A5ACD), shape = RoundedCornerShape(10.dp))
                     .padding(16.dp)
@@ -184,6 +212,63 @@ fun MyPageMenuItem(text: String, onClick: () -> Unit = {}) {
             modifier = Modifier
                 .padding(start = 16.dp)
         )
+    }
+}
+
+@Composable
+private fun ContactDialog(onDismiss: () -> Unit) {
+    val context = LocalContext.current
+    val clipboard = LocalClipboardManager.current
+
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = RoundedCornerShape(16.dp),
+            shadowElevation = 8.dp,
+            color = Color.White
+        ) {
+            Column(
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 18.dp),
+                horizontalAlignment = Alignment.Start
+            ) {
+                Text(
+                    text = "소중한 의견은",
+                    fontSize = 15.sp,
+                    color = Color(0xFF333333)
+                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "snuoai@gmail.com",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        textDecoration = TextDecoration.Underline,
+                        color = Color(0xFF222222),
+                        modifier = Modifier.clickable {
+                            clipboard.setText(AnnotatedString("snuoai@gmail.com"))
+                            Toast.makeText(context, "이메일이 복사되었습니다.", Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                    Text(
+                        text = "으로",
+                        fontSize = 15.sp,
+                        color = Color(0xFF333333)
+                    )
+                }
+
+                Text(
+                    text = "전송부탁드립니다!",
+                    fontSize = 15.sp,
+                    color = Color(0xFF333333)
+                )
+
+                Spacer(Modifier.height(12.dp))
+
+                Text(
+                    text = "*이메일을 누르시면 자동 복사가 됩니다.",
+                    fontSize = 12.sp,
+                    color = Color(0xFF9E9E9E)
+                )
+            }
+        }
     }
 }
 

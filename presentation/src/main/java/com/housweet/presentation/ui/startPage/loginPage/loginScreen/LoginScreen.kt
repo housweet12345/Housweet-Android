@@ -56,9 +56,16 @@ import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
 
+data class Guide(
+    val guideImg: Int,
+    val guideTitle: String,
+    val guideContent: String
+)
+
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun LoginScreen(
+    modifier: Modifier,
     loginViewModel: LoginViewModel = hiltViewModel(),
     onNextScreen: (isTermsOfServiceAgreed: Boolean, isBelongToRoom: Boolean) -> Unit,
 ) {
@@ -92,7 +99,7 @@ fun LoginScreen(
 
         LoginUiState.Idle -> {
             Scaffold(
-                modifier = Modifier.fillMaxSize(),
+                modifier = modifier.fillMaxSize(),
                 snackbarHost = { SnackbarHost(hostState = snackBarHostState) }
             ) {
                 LoginContent {
@@ -108,20 +115,92 @@ fun LoginScreen(
 
 @Composable
 private fun LoginContent(onKakaoLoginClick: () -> Unit) {
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(White)
     ) {
-        Spacer(modifier = Modifier.height(height = 136.dp))
+        GuideImgAndTexts(
+            modifier = Modifier
+                .padding(bottom = 80.dp)
+                .align(Alignment.Center)
+        )
 
-        GuideImg()
+        KakaoLoginButton(
+            modifier = Modifier
+                .padding(bottom = 59.dp)
+                .align(Alignment.BottomCenter),
+            onKakaoLoginClick = onKakaoLoginClick
+        )
+    }
+}
 
-        Spacer(modifier = Modifier.height(height = 20.dp))
+@Composable
+private fun GuideImgAndTexts(
+    modifier: Modifier,
+) {
+    val pagerState = rememberPagerState(initialPage = 0, pageCount = { 3 })
+    val guideList = listOf(
+        Guide(
+            guideImg = R.drawable.guide_image1,
+            guideTitle = "룸메이트를 위한 하우스잇",
+            guideContent = "하우스잇은 룸메이트를 구하고\n" + "룸메이트와 함께 소통하는 앱이에요!"
+        ),
+        Guide(
+            guideImg = R.drawable.guide_image2,
+            guideTitle = "위치 기반 룸메이트 구하기",
+            guideContent = "지도를 보면서 룸메이트 구인\n" + "게시글을 쉽게 확인해요!"
+        ),
+        Guide(
+            guideImg = R.drawable.guide_image3,
+            guideTitle = "룸메이트와 함께 소통하는 공간",
+            guideContent = "룸메이트를 구했다면 마이하우스로\n" + "쉽고 편리하게 소통해요!"
+        )
+    )
+
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        GuideImgPagerIndicator(pagerState.pageCount, pagerState.currentPage)
+
+        Spacer(modifier = Modifier.height(height = 33.dp))
+
+        HorizontalPager(
+            state = pagerState
+        ) { page ->
+            GuideImgAndText(
+                guideImg = guideList[page].guideImg,
+                guideTitle = guideList[page].guideTitle,
+                guideContent = guideList[page].guideContent
+            )
+        }
+    }
+}
+
+@Composable
+private fun GuideImgAndText(
+    guideImg: Int,
+    guideTitle: String,
+    guideContent: String
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            painter = painterResource(id = guideImg),
+            contentDescription = "guideImg",
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 85.dp)
+                .height(height = 290.dp)
+        )
+
+        Spacer(modifier = Modifier.height(height = 22.dp))
 
         GuideText(
             modifier = Modifier.fillMaxWidth(),
-            text = "룸메이트를 위한 하우스잇",
+            text = guideTitle,
             color = Purple,
             fontWeight = FontWeight.W700,
             fontSize = 18.sp,
@@ -134,36 +213,11 @@ private fun LoginContent(onKakaoLoginClick: () -> Unit) {
         GuideText(
             modifier = Modifier.fillMaxWidth(),
             color = Black,
-            text = "하우스잇을 통해 룸메이트를 구하고\n룸메이트와 함께 집을 관리해요!",
+            text = guideContent,
             fontWeight = FontWeight.W500,
             fontSize = 15.sp,
             lineHeight = 20.sp,
             textAlign = TextAlign.Center
-        )
-
-        Spacer(modifier = Modifier.height(height = 30.dp))
-
-        KakaoLoginButton { onKakaoLoginClick() }
-    }
-}
-
-@Composable
-private fun GuideImg() {
-    val pagerState = rememberPagerState(initialPage = 0, pageCount = { 3 })
-    val guideImgList =
-        listOf(R.drawable.guide_image1, R.drawable.guide_image1, R.drawable.guide_image1)
-    GuideImgPagerIndicator(pagerState.pageCount, pagerState.currentPage)
-
-    Spacer(modifier = Modifier.height(height = 33.dp))
-
-    HorizontalPager(
-        state = pagerState,
-        modifier = Modifier.height(266.dp)
-    ) { page ->
-        Image(
-            painter = painterResource(id = guideImgList[page]),
-            contentDescription = "guideImg",
-            modifier = Modifier.fillMaxSize()
         )
     }
 }
@@ -201,11 +255,12 @@ private fun GuideImgPagerIndicator(pageCount: Int, currentPage: Int) {
 
 @Composable
 private fun KakaoLoginButton(
+    modifier: Modifier,
     onKakaoLoginClick: () -> Unit
 ) {
     Button(
         onClick = { onKakaoLoginClick() },
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(50.dp)
             .padding(horizontal = 20.dp),

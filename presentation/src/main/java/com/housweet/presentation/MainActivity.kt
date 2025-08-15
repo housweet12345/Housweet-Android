@@ -54,6 +54,8 @@ import com.housweet.presentation.ui.mypage.MyPostedRoomScreen
 import com.housweet.presentation.ui.mypage.NoticeDetailScreen
 import com.housweet.presentation.ui.mypage.NoticeScreen
 import com.housweet.presentation.ui.mypage.TermsConditionsPolicies
+import com.housweet.presentation.ui.mypage.TermsLocationInformationPolies
+import com.housweet.presentation.ui.mypage.TermsPrivacyPolicies
 import com.housweet.presentation.ui.navigation.BottomNavItem
 import com.housweet.presentation.ui.navigation.CoordinateType
 import com.housweet.presentation.ui.navigation.NavigationManager
@@ -109,28 +111,7 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             // ✅ 전역으로 ViewModel 생성
             val houseRegisterViewModel: HouseRegisterViewModel = hiltViewModel()
-            val context = LocalContext.current
-            val selectedImageBitmap = remember { mutableStateOf<Bitmap?>(null) }
             val navigationManager = NavigationManager(navController)
-
-            val launcher = rememberLauncherForActivityResult(
-                contract = ActivityResultContracts.GetContent()
-            ) { uri: Uri? ->
-                uri?.let {
-                    val bitmap = if (Build.VERSION.SDK_INT < 28) {
-                        MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
-                    } else {
-                        val source = ImageDecoder.createSource(context.contentResolver, uri)
-                        ImageDecoder.decodeBitmap(source)
-                    }
-                    selectedImageBitmap.value = bitmap
-
-                    // ✅ ViewModel에 Bitmap 전달
-                    houseRegisterViewModel.updateImageBitmap(bitmap)
-                    Log.d("ImagePicker", "선택된 이미지: $bitmap")
-                    Log.d("HouseRegister", "비트맵 감지됨, ViewModel에 업데이트")
-                }
-            }
 
             LaunchedEffect(Unit) {
                 if (isFailedRefreshToken) {
@@ -182,10 +163,22 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         }
+
+                        // ✅ 임시: 앱 진입 시 바로 AccessRoom으로 (테스트용)
+//                        SplashScreen(modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),)
+//                        { _, _, _ ->
+//                            navigationManager.navigateOneWay(
+//                                Route.StartPageRoute.Splash,
+//                                Route.StartPageRoute.AccessRoomRoute.AccessRoom
+//                            )
+//                        }
+
                     }
 
                     composable<Route.StartPageRoute.LoginRoute.Login> {
-                        LoginScreen { isTermsOfServiceAgreed, isBelongToRoom ->
+                        LoginScreen(
+                            modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
+                        ) { isTermsOfServiceAgreed, isBelongToRoom ->
                             when {
                                 !isTermsOfServiceAgreed -> {
                                     navigationManager.navigateOneWay(
@@ -207,6 +200,15 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         }
+
+                        // ✅ 임시: 로그인 시 바로 AccessRoom으로 (테스트용)
+//                         LoginScreen { _, _ ->
+//                             navigationManager.navigateOneWay(
+//                                 Route.StartPageRoute.LoginRoute.Login,
+//                                 Route.StartPageRoute.AccessRoomRoute.AccessRoom
+//                             )
+//                         }
+
                     }
 
                     composable<Route.StartPageRoute.LoginRoute.WelCome> {
@@ -235,19 +237,29 @@ class MainActivity : ComponentActivity() {
                         val isBelongToRoom = it.toRoute<Route.StartPageRoute.LoginRoute.TermsOfService>().isBelongToRoom
                         TermsOfServiceScreen(
                             modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
-                        ) {
-                            if (isBelongToRoom) {
-                                navigationManager.navigateOneWay(
-                                    Route.StartPageRoute.LoginRoute.TermsOfService(true),
-                                    BottomNavItem.Home.route
-                                )
-                            } else {
-                                navigationManager.navigateOneWay(
-                                    Route.StartPageRoute.LoginRoute.TermsOfService(false),
-                                    Route.StartPageRoute.AccessRoomRoute.AccessRoom
-                                )
+                            onNextScreen = {
+                                if (isBelongToRoom) {
+                                    navigationManager.navigateOneWay(
+                                        Route.StartPageRoute.LoginRoute.TermsOfService(true),
+                                        BottomNavItem.Home.route
+                                    )
+                                } else {
+                                    navigationManager.navigateOneWay(
+                                        Route.StartPageRoute.LoginRoute.TermsOfService(false),
+                                        Route.StartPageRoute.AccessRoomRoute.AccessRoom
+                                    )
+                                }
+                            },
+                            onDetailTermsConditionsPoliciesClick = {
+                                navigationManager.navigateTo("terms_conditions_policies")
+                            },
+                            onDetailTermsPrivacyPoliciesClick = {
+                                navigationManager.navigateTo("terms_privacy_policies")
+                            },
+                            onDetailTermsLocationInformationPoliesClick = {
+                                navigationManager.navigateTo("terms_location_information_policies")
                             }
-                        }
+                        )
                     }
 
                     composable<Route.StartPageRoute.AccessRoomRoute.AccessRoom> {
@@ -383,7 +395,8 @@ class MainActivity : ComponentActivity() {
                         HomeRoute(
                             navigateToChat = { navController.navigate("chat_list") },
                             navigateToNotification = { /* TODO: 알림 화면 */ },
-                            navigateToProfile = { navController.navigate("profile/me") },
+//                            navigateToProfile = { navController.navigate("profile/me") },
+                            navigateToMyPage = { navController.navigate("mypage") },
                             navigateToNoticeDetail = { noticeId -> /* TODO: 공지사항 상세 */ },
                             navigateToTodoDetail = { /* TODO: 할일 상세 */ },
                             navigateToUserList = { navigationManager.navigateTo("roommate/userlist") },
@@ -437,8 +450,6 @@ class MainActivity : ComponentActivity() {
                             mode = mode,
                             onNextClick = { navController.navigate(Route.HouseRegisterRoute.Step4(mode)) },
                             onBackClick = { navController.navigate(Route.HouseRegisterRoute.Step2(mode)) },
-                            onImagePickClick = { launcher.launch("image/*") },
-                            selectedImageBitmap = selectedImageBitmap.value,
                             viewModel = houseRegisterViewModel
                         )
                     }
@@ -512,6 +523,18 @@ class MainActivity : ComponentActivity() {
                         TermsConditionsPolicies(navController)
                     }
 
+                    composable("terms_privacy_policies") {
+                        TermsPrivacyPolicies {
+                            navController.popBackStack()
+                        }
+                    }
+
+                    composable("terms_location_information_policies") {
+                        TermsLocationInformationPolies {
+                            navController.popBackStack()
+                        }
+                    }
+
                     composable("notification") {
                         NotificationScreen(
                             navController
@@ -581,23 +604,15 @@ class MainActivity : ComponentActivity() {
                             onBackClick = { navController.popBackStack() }
                         )
                     }
-
+                    
+                    // ✅ 추가
                     composable(
-                        "noticeDetail/{date}/{title}/{content}",
-                        arguments = listOf(
-                            navArgument("date") { type = NavType.StringType },
-                            navArgument("title") { type = NavType.StringType },
-                            navArgument("content") { type = NavType.StringType }
-                        )
+                        route = "notice_detail/{id}",
+                        arguments = listOf(navArgument("id") { type = NavType.IntType })
                     ) { backStackEntry ->
-                        val date = backStackEntry.arguments?.getString("date") ?: ""
-                        val title = backStackEntry.arguments?.getString("title") ?: ""
-                        val content = backStackEntry.arguments?.getString("content") ?: ""
-
+                        val id = backStackEntry.arguments?.getInt("id") ?: return@composable
                         NoticeDetailScreen(
-                            date = date,
-                            title = title,
-                            content = content,
+                            id = id,
                             onBackClick = { navController.popBackStack() }
                         )
                     }
