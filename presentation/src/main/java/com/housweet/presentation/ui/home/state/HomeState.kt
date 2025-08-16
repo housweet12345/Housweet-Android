@@ -83,3 +83,15 @@ private fun mapStringToMoodType(feeling: String): MoodType {
         else -> MoodType.NORMAL // 기본값
     }
 }
+
+fun mapMoodTypeToString(moodType: MoodType): String {
+    return when (moodType) {
+        MoodType.HAPPY -> "happy"
+        MoodType.NORMAL -> "normal"
+        MoodType.SAD -> "sad"
+        MoodType.ANGRY -> "angry"
+        MoodType.LOVE -> "love"
+        MoodType.CONGRAT -> "congrat"
+        MoodType.OUTSIDE -> "outside"
+    }
+}
