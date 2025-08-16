@@ -291,7 +291,7 @@ fun RoommatesMoodSection(
                     roommates.forEach { roommate ->
                         RoommateProfile(
                             roommate = roommate,
-                            onMoodIconClick = { showMoodCard = !showMoodCard }
+                            onMoodIconClick = if (roommate.isMe) { { showMoodCard = !showMoodCard } } else { {} }
                         )
                     }
                 }
@@ -460,7 +460,13 @@ fun RoommateProfile(
                 modifier = Modifier
                     .size(30.dp)
                     .align(Alignment.BottomEnd)
-                    .clickable { onMoodIconClick() },
+                    .then(
+                        if (roommate.isMe) {
+                            Modifier.clickable { onMoodIconClick() }
+                        } else {
+                            Modifier
+                        }
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
