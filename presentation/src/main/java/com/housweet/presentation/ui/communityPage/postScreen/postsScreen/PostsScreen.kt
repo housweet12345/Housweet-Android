@@ -1,5 +1,6 @@
 package com.housweet.presentation.ui.communityPage.postScreen.postsScreen
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -50,9 +51,10 @@ import com.housweet.presentation.ui.theme.White
 
 @Composable
 fun PostsScreen(
+    updatePostId: Int?,
     postsViewModel: PostsViewModel = hiltViewModel(),
     onPostClick: (postId: Int) -> Unit,
-    onBackBtnClick: () -> Unit
+    onBackBtnClick: () -> Unit,
 ) {
     val uiState by postsViewModel.uiState.collectAsState()
     val posts by postsViewModel.posts.collectAsState()
@@ -60,6 +62,10 @@ fun PostsScreen(
 
     BackHandler {
         onBackBtnClick()
+    }
+
+    LaunchedEffect(updatePostId) {
+        postsViewModel.updatePostBookmark(updatePostId ?: return@LaunchedEffect)
     }
 
     LaunchedEffect(Unit) {
