@@ -543,7 +543,7 @@ private fun BottomBar(
                 GuideText(
                     modifier = Modifier.padding(top = 4.dp),
                     color = Black,
-                    text = "보증금 ${roomPostDetail.deposit} 월세 ${roomPostDetail.rent} 관리비 ${roomPostDetail.managementFee}",
+                    text = "보증금 ${roomPostDetail.deposit}만 월세 ${roomPostDetail.rent}만 관리비 ${roomPostDetail.managementFee}만",
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 12.sp,
                     lineHeight = 12.sp,
