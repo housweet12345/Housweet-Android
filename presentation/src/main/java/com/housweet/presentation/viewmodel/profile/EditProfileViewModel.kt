@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.housweet.domain.model.profile.ProfileUpdateModel
 import com.housweet.domain.usecase.profile.GetMyProfileUseCase
-import com.housweet.domain.usecase.profile.GetOtherUserProfileUseCase
 import com.housweet.domain.usecase.profile.UpdateProfileUseCase
 import com.housweet.presentation.ui.profile.state.ProfileInfoState
 import com.housweet.presentation.ui.profile.state.toProfileInfo
@@ -68,9 +67,13 @@ class EditProfileViewModel @Inject constructor(
             _profileState.value = ProfileInfoState.Loading
             val result = updateProfileUseCase(userId, request)
 
-            result.onSuccess {
-                _profileState.value = ProfileInfoState.EditSuccess
-                _tempProfileData.value = null
+            result.onSuccess { response ->
+                if (response.isSuccess) {
+                    _profileState.value = ProfileInfoState.EditSuccess
+                    _tempProfileData.value = null
+                } else {
+                    _profileState.value = ProfileInfoState.Error("프로필 수정에 실패했습니다")
+                }
             }.onFailure { error ->
                 _profileState.value = ProfileInfoState.Error(
                     error.message ?: "프로필 수정에 실패했습니다"
