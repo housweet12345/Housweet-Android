@@ -232,27 +232,25 @@ fun MultiSelectableTagSection(
 ) {
     FlowRow(
         modifier = modifier,
-        horizontalArrangement = Arrangement.Start,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.Center,
         maxItemsInEachRow = Int.MAX_VALUE,
-        content = {
-            tags.forEach { tag ->
-                SelectableTagChip(
-                    text = tag,
-                    isSelected = selectedTags.contains(tag),
-                    onClick = {
-                        val updatedSelection = if (selectedTags.contains(tag)) {
-                            selectedTags.minus(tag)
-                        } else {
-                            selectedTags.plus(tag)
-                        }
-                        onSelectionChanged(updatedSelection)
+    ) {
+        tags.forEach { tag ->
+            SelectableTagChip(
+                text = tag,
+                isSelected = selectedTags.contains(tag),
+                onClick = {
+                    val updatedSelection = if (selectedTags.contains(tag)) {
+                        selectedTags.minus(tag)
+                    } else {
+                        selectedTags.plus(tag)
                     }
-                )
-                Spacer(modifier = Modifier.padding(end = 8.dp))
-            }
+                    onSelectionChanged(updatedSelection)
+                }
+            )
         }
-    )
+    }
 }
 
 @Composable
@@ -263,16 +261,14 @@ fun TagSection(
 ) {
     FlowRow(
         modifier = modifier,
-        horizontalArrangement = Arrangement.Start,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.Center,
         maxItemsInEachRow = Int.MAX_VALUE,
-        content = {
-            tags.forEachIndexed { index, tag ->
-                TagChip(text = tag, isMbti = (mbti == tags[0] && index == 0))
-                Spacer(modifier = Modifier.padding(end = 8.dp))
-            }
+    ) {
+        tags.forEachIndexed { index, tag ->
+            TagChip(text = tag, isMbti = (mbti == tags[0] && index == 0))
         }
-    )
+    }
 }
 @Composable
 fun TagChip(
