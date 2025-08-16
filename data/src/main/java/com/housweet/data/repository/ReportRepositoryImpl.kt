@@ -2,7 +2,6 @@ package com.housweet.data.repository
 
 import com.housweet.data.network.ReportRemoteDataSource
 import com.housweet.data.network.dto.ReportRequest
-import com.housweet.data.mapper.toDomain
 import com.housweet.domain.model.Report
 import com.housweet.domain.repository.ReportRepository
 import javax.inject.Inject

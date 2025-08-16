@@ -1,5 +1,6 @@
 package com.housweet.data.network.dto
 
+import com.housweet.domain.model.Report
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -13,7 +14,18 @@ data class ReportResponse(
     val metaData: ReportMetaData,
     @SerialName("created_at")
     val createdAt: String
-)
+){
+    fun toDomain(): Report {
+        return Report(
+            id = id,
+            type = type,
+            metaData = com.housweet.domain.model.ReportMetaData(
+                roomPostingId = metaData.roomPostingId
+            ),
+            createdAt = createdAt
+        )
+    }
+}
 
 @Serializable
 data class ReportMetaData(

@@ -1,4 +1,4 @@
-package com.housweet.data.dto
+package com.housweet.data.network.dto
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
