@@ -1,5 +1,8 @@
 package com.housweet.presentation.ui.profile.screen
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,14 +41,27 @@ fun EditProfileScreen(
     yearOfBirth: String = "",
     gender: String = "",
     introduction: String = "",
+    profileImageUrl: String? = null,
     onBackClick: () -> Unit = {},
-    onNextClick: (String, String, String, String) -> Unit = { _, _, _, _ -> }
+    onNextClick: (String, String, String, String) -> Unit = { _, _, _, _ -> },
+    onImageSelected: (Uri) -> Unit = {}
 ) {
     // 상태 관리 추가
     var nameState by remember { mutableStateOf(name) }
     var yearOfBirthState by remember { mutableStateOf(yearOfBirth) }
     var genderState by remember { mutableStateOf(gender) }
     var introductionState by remember { mutableStateOf(introduction) }
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+
+    // 이미지 선택을 위한 launcher
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            selectedImageUri = it
+            onImageSelected(it)
+        }
+    }
 
     var selectedOption by remember {
         mutableIntStateOf(
@@ -125,7 +141,13 @@ fun EditProfileScreen(
                     .padding(top = 16.dp, bottom = 24.dp),
                 contentAlignment = Alignment.Center
             ) {
-                ProfileImage()
+                ProfileImage(
+                    imageUrl = selectedImageUri?.toString() ?: profileImageUrl,
+                    showCameraIcon = true,
+                    onCameraClick = {
+                        imagePickerLauncher.launch("image/*")
+                    }
+                )
             }
 
             ProfileEditNameTextField(

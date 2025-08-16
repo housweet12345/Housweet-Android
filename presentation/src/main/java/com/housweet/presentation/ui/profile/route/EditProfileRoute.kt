@@ -18,6 +18,7 @@ fun EditProfileRoute(
     navigateEditKeyword: () -> Unit = {},
 ) {
     val state = viewModel.profileState.collectAsStateWithLifecycle()
+    val tempData = viewModel.tempProfileData.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
     LaunchedEffect(state.value) {
@@ -38,16 +39,20 @@ fun EditProfileRoute(
     when(state.value) {
         is ProfileInfoState.Success -> {
             val profile = (state.value as ProfileInfoState.Success).profileInfo
+            val currentTemp = tempData.value
+            
             EditProfileScreen(
-                name = profile.nickname,
-                yearOfBirth = profile.yearOfBirth,
-                gender = profile.gender,
-                introduction = profile.introduce,
+                name = currentTemp?.nickname ?: profile.nickname,
+                yearOfBirth = currentTemp?.yearOfBirth ?: profile.yearOfBirth,
+                gender = currentTemp?.gender ?: profile.gender,
+                introduction = currentTemp?.introduce ?: profile.introduce,
+                profileImageUrl = currentTemp?.profileImageUri?.toString() ?: "",
                 onBackClick = onBackClick,
                 onNextClick = { nickname, yearOfBirth, gender, introduce ->
                     viewModel.saveBasicProfileData(nickname, yearOfBirth, gender, introduce)
                     navigateEditKeyword()
-                }
+                },
+                onImageSelected = viewModel::onImageSelected
             )
         }
         else -> {}

@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -88,62 +89,90 @@ fun ProfileTopBar(
 fun ProfileImage(
     imageUrl: String? = null,
     size: Int = 120,
+    showCameraIcon: Boolean = false,
+    onCameraClick: () -> Unit = {}
 ) {
     Box(
-        modifier = Modifier
-            .size(size.dp)
-            .clip(CircleShape),
+        modifier = Modifier.size(size.dp),
         contentAlignment = Alignment.Center
     ) {
-        if (imageUrl.isNullOrEmpty()) {
-            // 기본 프로필 이미지 표시
+        // 프로필 이미지 (원형으로 클립)
+        Box(
+            modifier = Modifier
+                .size(size.dp)
+                .clip(CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            if (imageUrl.isNullOrEmpty()) {
+                // 기본 프로필 이미지 표시
+                Box(
+                    modifier = Modifier
+                        .size(size.dp)
+                        .clip(CircleShape)
+                        .border(1.dp, ColorGroup.Gray_CBCBCB, CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painter = painterResource(id = android.R.drawable.ic_menu_gallery), // 프로필 기본 아이콘
+                        contentDescription = "기본 프로필",
+                        modifier = Modifier.size((size / 2).dp),
+                        tint = ColorGroup.Gray_CBCBCB
+                    )
+                }
+            } else {
+                // Coil을 사용하여 서버에서 이미지 로드
+                SubcomposeAsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(imageUrl)
+                        .build(),
+                    contentDescription = "프로필 이미지",
+                    modifier = Modifier
+                        .size(size.dp)
+                        .clip(CircleShape)
+                        .border(1.dp, ColorGroup.Gray_CBCBCB, CircleShape),
+                    contentScale = ContentScale.Crop,
+                    loading = {
+                        //로딩 처리 필요시 코드 추가
+                    },
+                    error = {
+                        // 이미지 로드 실패 시 기본 이미지 표시
+                        Box(
+                            modifier = Modifier
+                                .size(size.dp)
+                                .clip(CircleShape)
+                                .border(1.dp, ColorGroup.Gray_CBCBCB, CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                painter = painterResource(id = android.R.drawable.ic_menu_gallery),
+                                contentDescription = "이미지 로드 실패",
+                                modifier = Modifier.size((size / 2).dp),
+                                tint = ColorGroup.Gray_CBCBCB
+                            )
+                        }
+                    }
+                )
+            }
+        }
+        
+        // 카메라 아이콘 (오른쪽 아래)
+        if (showCameraIcon) {
             Box(
                 modifier = Modifier
-                    .size(size.dp)
-                    .clip(CircleShape)
-                    .border(1.dp, ColorGroup.Gray_CBCBCB, CircleShape),
+                    .size(32.dp)
+                    .align(Alignment.BottomEnd)
+                    .background(ColorGroup.Primary, CircleShape)
+                    .border(2.dp, Color.White, CircleShape)
+                    .clickable { onCameraClick() },
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    painter = painterResource(id = android.R.drawable.ic_menu_gallery), // 프로필 기본 아이콘
-                    contentDescription = "기본 프로필",
-                    modifier = Modifier.size((size / 2).dp),
-                    tint = ColorGroup.Gray_CBCBCB
+                    imageVector = Icons.Default.CameraAlt,
+                    contentDescription = "사진 변경",
+                    tint = Color.White,
+                    modifier = Modifier.size(16.dp)
                 )
             }
-        } else {
-            // Coil을 사용하여 서버에서 이미지 로드
-            SubcomposeAsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(imageUrl)
-                    .build(),
-                contentDescription = "프로필 이미지",
-                modifier = Modifier
-                    .size(size.dp)
-                    .clip(CircleShape)
-                    .border(1.dp, ColorGroup.Gray_CBCBCB, CircleShape),
-                contentScale = ContentScale.Crop,
-                loading = {
-                    //로딩 처리 필요시 코드 추가
-                },
-                error = {
-                    // 이미지 로드 실패 시 기본 이미지 표시
-                    Box(
-                        modifier = Modifier
-                            .size(size.dp)
-                            .clip(CircleShape)
-                            .border(1.dp, ColorGroup.Gray_CBCBCB, CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            painter = painterResource(id = android.R.drawable.ic_menu_gallery),
-                            contentDescription = "이미지 로드 실패",
-                            modifier = Modifier.size((size / 2).dp),
-                            tint = ColorGroup.Gray_CBCBCB
-                        )
-                    }
-                }
-            )
         }
     }
 }

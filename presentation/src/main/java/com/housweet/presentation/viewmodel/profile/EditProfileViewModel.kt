@@ -1,5 +1,7 @@
 package com.housweet.presentation.viewmodel.profile
 
+import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.housweet.domain.model.profile.ProfileUpdateModel
@@ -8,6 +10,7 @@ import com.housweet.domain.usecase.profile.UpdateProfileUseCase
 import com.housweet.presentation.ui.profile.state.ProfileInfoState
 import com.housweet.presentation.ui.profile.state.toProfileInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,6 +21,7 @@ import javax.inject.Inject
 class EditProfileViewModel @Inject constructor(
     private val myProfileUseCase: GetMyProfileUseCase,
     private val updateProfileUseCase: UpdateProfileUseCase,
+    @ApplicationContext private val context: Context
 ): ViewModel() {
     private val _profileState: MutableStateFlow<ProfileInfoState> = MutableStateFlow(ProfileInfoState.Loading)
     val profileState: StateFlow<ProfileInfoState> = _profileState.asStateFlow()
@@ -30,19 +34,56 @@ class EditProfileViewModel @Inject constructor(
         loadProfile()
     }
 
-    // 첫 번째 화면에서 입력된 데이터 저장
+    // 첫 번째 화면에서 입력된 데이터 저장 (이미지 정보 보존)
     fun saveBasicProfileData(
         nickname: String,
         yearOfBirth: String,
         gender: String,
         introduce: String
     ) {
-        _tempProfileData.value = TempProfileData(
+        val currentTemp = _tempProfileData.value
+        _tempProfileData.value = currentTemp?.copy(
+            nickname = nickname,
+            yearOfBirth = yearOfBirth,
+            gender = gender,
+            introduce = introduce
+        ) ?: TempProfileData(
             nickname = nickname,
             yearOfBirth = yearOfBirth,
             gender = gender,
             introduce = introduce
         )
+    }
+
+    // 이미지 선택 처리
+    fun onImageSelected(uri: Uri) {
+        viewModelScope.launch {
+            try {
+                val inputStream = context.contentResolver.openInputStream(uri)
+                val imageData = inputStream?.readBytes()
+                val mimeType = context.contentResolver.getType(uri)
+                
+                val currentTemp = _tempProfileData.value
+                _tempProfileData.value = currentTemp?.copy(
+                    profileImageUri = uri,
+                    profileImageData = imageData,
+                    profileImageMimeType = mimeType
+                ) ?: TempProfileData(
+                    nickname = "",
+                    yearOfBirth = "",
+                    gender = "",
+                    introduce = "",
+                    profileImageUri = uri,
+                    profileImageData = imageData,
+                    profileImageMimeType = mimeType
+                )
+                
+                inputStream?.close()
+            } catch (e: Exception) {
+                // 이미지 로드 실패 처리
+                _profileState.value = ProfileInfoState.Error("이미지 로드에 실패했습니다")
+            }
+        }
     }
 
     fun updateProfile(profileUpdateModel: ProfileUpdateModel) {
@@ -62,6 +103,8 @@ class EditProfileViewModel @Inject constructor(
                 introduce = tempData.introduce,
                 nickname = tempData.nickname,
                 yearOfBirth = tempData.yearOfBirth,
+                profileImageData = tempData.profileImageData,
+                profileImageMimeType = tempData.profileImageMimeType
             )
 
             _profileState.value = ProfileInfoState.Loading
@@ -99,10 +142,3 @@ class EditProfileViewModel @Inject constructor(
     }
 }
 
-// 임시 프로필 데이터 클래스
-data class TempProfileData(
-    val nickname: String,
-    val yearOfBirth: String,
-    val gender: String,
-    val introduce: String
-)
