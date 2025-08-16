@@ -2,12 +2,10 @@ package com.housweet.presentation.viewmodel.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.housweet.presentation.ui.home.state.HomeInfo
+import com.housweet.domain.usecase.home.GetRoomHomeUseCase
 import com.housweet.presentation.ui.home.state.HomeState
 import com.housweet.presentation.ui.home.state.MoodType
-import com.housweet.presentation.ui.home.state.NoticeItem
-import com.housweet.presentation.ui.home.state.RoommateInfo
-import com.housweet.presentation.ui.home.state.TodoInfo
+import com.housweet.presentation.ui.home.state.toHomeInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,6 +15,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
+    private val getRoomHomeUseCase: GetRoomHomeUseCase
 ) : ViewModel() {
     
     private val _homeState: MutableStateFlow<HomeState> = MutableStateFlow(HomeState.Loading)
@@ -29,26 +28,14 @@ class HomeViewModel @Inject constructor(
     fun loadHomeData() {
         viewModelScope.launch {
             _homeState.value = HomeState.Loading
-            
-            try {
-                // TODO: UseCase를 통해 실제 데이터를 가져오도록 수정 필요
-                val homeInfo = HomeInfo(
-                    roomName = "곰돌이방",
-                    daysLiving = 1,
-                    notices = listOf(
-                        NoticeItem(1, "23일 집에 일찍 돌아오기", "중요한 공지사항입니다.", "2024-01-23")
-                    ),
-                    roommates = listOf(
-                        RoommateInfo(1, "김지안", "", MoodType.NORMAL),
-                        RoommateInfo(2, "김지안", "", MoodType.NORMAL)
-                    ),
-                    todos = emptyList()
-                )
-                
+            val result = getRoomHomeUseCase()
+
+            result.onSuccess { roomHomeModel ->
+                val homeInfo = roomHomeModel.toHomeInfo()
                 _homeState.value = HomeState.Success(homeInfo)
-            } catch (e: Exception) {
+            }.onFailure { error ->
                 _homeState.value = HomeState.Error(
-                    e.message ?: "홈 데이터 로딩에 실패했습니다"
+                    error.message ?: "홈 정보를 불러오는데 실패했습니다"
                 )
             }
         }

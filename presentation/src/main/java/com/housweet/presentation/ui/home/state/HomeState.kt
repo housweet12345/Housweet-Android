@@ -1,5 +1,8 @@
 package com.housweet.presentation.ui.home.state
 
+import com.housweet.domain.model.home.RoomHomeModel
+import com.housweet.domain.model.home.RoomMemberModel
+
 sealed interface HomeState {
     data object Loading : HomeState
     data class Success(val homeInfo: HomeInfo) : HomeState
@@ -7,10 +10,11 @@ sealed interface HomeState {
 }
 
 data class HomeInfo(
+    val roomId: Int = 0,
     val roomName: String = "방이름",
-    val daysLiving: Int = 0,
+    val daysTogether: Int = 0,
+    val members: List<RoommateInfo> = emptyList(),
     val notices: List<NoticeItem> = emptyList(),
-    val roommates: List<RoommateInfo> = emptyList(),
     val todos: List<TodoInfo> = emptyList()
 )
 
@@ -22,9 +26,10 @@ data class NoticeItem(
 )
 
 data class RoommateInfo(
+    val id: Int,
     val userId: Int,
     val nickname: String,
-    val profileImageUrl: String,
+    val profileImageUrl: String?,
     val mood: MoodType
 )
 
@@ -43,4 +48,36 @@ enum class MoodType(val displayName: String) {
     LOVE("애정"),
     CONGRAT("축하"),
     OUTSIDE("외출")
+}
+
+fun RoomHomeModel.toHomeInfo(): HomeInfo {
+    return HomeInfo(
+        roomId = roomId,
+        roomName = roomName,
+        daysTogether = daysTogether,
+        members = members.map { it.toRoommateInfo() }
+    )
+}
+
+fun RoomMemberModel.toRoommateInfo(): RoommateInfo {
+    return RoommateInfo(
+        id = id,
+        userId = userId,
+        nickname = nickname,
+        profileImageUrl = profileImageUrl,
+        mood = mapStringToMoodType(feeling)
+    )
+}
+
+private fun mapStringToMoodType(feeling: String): MoodType {
+    return when (feeling.lowercase()) {
+        "happy" -> MoodType.HAPPY
+        "normal" -> MoodType.NORMAL
+        "sad" -> MoodType.SAD
+        "angry" -> MoodType.ANGRY
+        "love" -> MoodType.LOVE
+        "congrat" -> MoodType.CONGRAT
+        "outside" -> MoodType.OUTSIDE
+        else -> MoodType.NORMAL // 기본값
+    }
 }
