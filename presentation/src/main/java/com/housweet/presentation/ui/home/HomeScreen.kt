@@ -64,6 +64,7 @@ import com.housweet.presentation.ui.home.state.RoommateInfo
 import com.housweet.presentation.ui.home.state.TodoInfo
 import com.housweet.presentation.ui.navigation.BottomNavigation
 import com.housweet.presentation.ui.theme.ColorGroup
+import com.housweet.presentation.ui.profile.component.ProfileImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -448,18 +449,11 @@ fun RoommateProfile(
         Box(
             modifier = Modifier.size(70.dp)
         ) {
-            // 프로필 사진 영역 (배경)
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        color = Color(0xFFEAA8A8), // 연한 분홍색 (프로필 사진 자리)
-                        shape = CircleShape
-                    )
-            ) {
-                // 여기에 실제 프로필 이미지가 들어갈 예정
-                // Image(painter = painterResource(profileImageRes), contentDescription = ...)
-            }
+            // 프로필 사진 영역
+            ProfileImage(
+                imageUrl = roommate.profileImageUrl,
+                size = 70
+            )
 
             // 기분 아이콘 (오른쪽 아래 뱃지)
             Box(
