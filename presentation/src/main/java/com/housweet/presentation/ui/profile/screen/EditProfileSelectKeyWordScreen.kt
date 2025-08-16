@@ -274,7 +274,10 @@ data class MbtiState(
     val tf: String = "",
     val pj: String = ""
 ) {
-    fun getMbtiType(): String = "$ei$sn$tf$pj"
+    fun getMbtiType(): String {
+        val result = "${ei.ifEmpty { "X" }}${sn.ifEmpty { "X" }}${tf.ifEmpty { "X" }}${pj.ifEmpty { "X" }}"
+        return result
+    }
     companion object {
         fun fromString(mbti: String): MbtiState {
             var ei = ""
