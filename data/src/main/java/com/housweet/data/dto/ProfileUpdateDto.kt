@@ -1,6 +1,5 @@
 package com.housweet.data.dto
 
-import com.housweet.domain.model.profile.ProfileUpdateModel
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -14,15 +13,4 @@ data class ProfileUpdateDto(
     val tags: List<String>,
     @SerialName("year_of_birth")
     val yearOfBirth: String
-) {
-    fun mapToProfileUpdateModel(): ProfileUpdateModel {
-        return ProfileUpdateModel(
-            gender = gender,
-            introduce = introduce,
-            mbti = mbti,
-            nickname = nickname,
-            tags = tags,
-            yearOfBirth = yearOfBirth
-        )
-    }
-}
+)
