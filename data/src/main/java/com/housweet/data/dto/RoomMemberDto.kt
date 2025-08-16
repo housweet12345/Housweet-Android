@@ -12,7 +12,9 @@ data class RoomMemberDto(
     val nickname: String,
     @SerialName("profile_image_url")
     val profileImageUrl: String?,
-    val feeling: String
+    val feeling: String,
+    @SerialName("joined_at")
+    val joinedAt: String? = null
 ) {
     fun mapToRoomMemberModel(): RoomMemberModel {
         return RoomMemberModel(

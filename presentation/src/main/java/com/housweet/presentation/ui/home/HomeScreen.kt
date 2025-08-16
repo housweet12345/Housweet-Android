@@ -335,7 +335,13 @@ fun RoommatesMoodSection(
                     )
 
                     moods.fastForEach {
-                        MoodItem(mood = it, onMoodSelect = onMoodSelect)
+                        MoodItem(
+                            mood = it,
+                            onMoodSelect = { moodType ->
+                                onMoodSelect(moodType)
+                                showMoodCard = false
+                            }
+                        )
                     }
                 }
             }
