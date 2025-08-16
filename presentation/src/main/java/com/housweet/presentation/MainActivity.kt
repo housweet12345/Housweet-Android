@@ -684,7 +684,8 @@ class MainActivity : ComponentActivity() {
                     composable("roommate/userlist") {
                         UserListRoute(
                             onBackClick = { navController.popBackStack() },
-                            navigateToProfile = { navController.navigate("profile/$it") }
+                            navigateToProfile = { navController.navigate("profile/$it") },
+                            onWorkspaceInvite = { navController.navigate(Route.CommunityPageRoute.Map()) }
                         )
                     }
                 }
