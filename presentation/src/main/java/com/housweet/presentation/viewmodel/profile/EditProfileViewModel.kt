@@ -48,8 +48,16 @@ class EditProfileViewModel @Inject constructor(
 
     fun updateProfile(profileUpdateModel: ProfileUpdateModel) {
         val tempData = _tempProfileData.value ?: return
+        val currentState = _profileState.value
+        
+        // 현재 프로필 상태에서 userId 가져오기
+        val userId = if (currentState is ProfileInfoState.Success) {
+            currentState.profileInfo.userId.toString()
+        } else {
+            "me" // fallback으로 "me" 사용
+        }
+        
         viewModelScope.launch {
-
             val request = profileUpdateModel.copy(
                 gender = tempData.gender,
                 introduce = tempData.introduce,
@@ -58,7 +66,7 @@ class EditProfileViewModel @Inject constructor(
             )
 
             _profileState.value = ProfileInfoState.Loading
-            val result = updateProfileUseCase(request)
+            val result = updateProfileUseCase(userId, request)
 
             result.onSuccess {
                 _profileState.value = ProfileInfoState.EditSuccess

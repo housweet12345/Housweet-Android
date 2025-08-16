@@ -7,4 +7,4 @@ fun interface GetMyProfileUseCase: suspend () -> Result<ProfileModel>
 
 fun interface GetOtherUserProfileUseCase: suspend (String) -> Result<ProfileModel>
 
-fun interface UpdateProfileUseCase: suspend (ProfileUpdateModel) -> Result<ProfileUpdateModel>
+fun interface UpdateProfileUseCase: suspend (String, ProfileUpdateModel) -> Result<ProfileUpdateModel>
