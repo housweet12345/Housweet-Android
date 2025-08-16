@@ -2,12 +2,13 @@ package com.housweet.presentation.viewmodel.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.housweet.presentation.ui.home.state.HomeInfo
+import com.housweet.domain.usecase.auth.GetCurrentUserIdUseCase
+import com.housweet.domain.usecase.home.GetRoomHomeUseCase
+import com.housweet.domain.usecase.home.UpdateMoodUseCase
 import com.housweet.presentation.ui.home.state.HomeState
 import com.housweet.presentation.ui.home.state.MoodType
-import com.housweet.presentation.ui.home.state.NoticeItem
-import com.housweet.presentation.ui.home.state.RoommateInfo
-import com.housweet.presentation.ui.home.state.TodoInfo
+import com.housweet.presentation.ui.home.state.mapMoodTypeToString
+import com.housweet.presentation.ui.home.state.toHomeInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,6 +18,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
+    private val getRoomHomeUseCase: GetRoomHomeUseCase,
+    private val getCurrentUserIdUseCase: GetCurrentUserIdUseCase,
+    private val updateMoodUseCase: UpdateMoodUseCase
 ) : ViewModel() {
     
     private val _homeState: MutableStateFlow<HomeState> = MutableStateFlow(HomeState.Loading)
@@ -26,29 +30,20 @@ class HomeViewModel @Inject constructor(
         loadHomeData()
     }
 
-    fun loadHomeData() {
+    fun loadHomeData(showLoading: Boolean = true) {
         viewModelScope.launch {
-            _homeState.value = HomeState.Loading
-            
-            try {
-                // TODO: UseCase를 통해 실제 데이터를 가져오도록 수정 필요
-                val homeInfo = HomeInfo(
-                    roomName = "곰돌이방",
-                    daysLiving = 1,
-                    notices = listOf(
-                        NoticeItem(1, "23일 집에 일찍 돌아오기", "중요한 공지사항입니다.", "2024-01-23")
-                    ),
-                    roommates = listOf(
-                        RoommateInfo(1, "김지안", "", MoodType.NORMAL),
-                        RoommateInfo(2, "김지안", "", MoodType.NORMAL)
-                    ),
-                    todos = emptyList()
-                )
-                
+            if (showLoading) {
+                _homeState.value = HomeState.Loading
+            }
+            val result = getRoomHomeUseCase()
+
+            result.onSuccess { roomHomeModel ->
+                val currentUserId = getCurrentUserIdUseCase()
+                val homeInfo = roomHomeModel.toHomeInfo(currentUserId)
                 _homeState.value = HomeState.Success(homeInfo)
-            } catch (e: Exception) {
+            }.onFailure { error ->
                 _homeState.value = HomeState.Error(
-                    e.message ?: "홈 데이터 로딩에 실패했습니다"
+                    error.message ?: "홈 정보를 불러오는데 실패했습니다"
                 )
             }
         }
@@ -71,13 +66,28 @@ class HomeViewModel @Inject constructor(
     }
 
     fun updateMood(moodType: MoodType) {
-        // TODO: 사용자 기분 업데이트 로직 구현
         viewModelScope.launch {
             try {
-                // API 호출로 기분 업데이트
-                // updateMoodUseCase(moodType)
-                loadHomeData() // 데이터 새로고침
+                val currentState = _homeState.value
+                if (currentState is HomeState.Success) {
+                    val roomId = currentState.homeInfo.roomId
+                    val feelingString = mapMoodTypeToString(moodType)
+                    
+                    val result = updateMoodUseCase(roomId, feelingString)
+                    result.onSuccess {
+                        // 기분 업데이트 성공 후 홈 데이터 새로고침 (Loading 없이)
+                        loadHomeData(showLoading = false)
+                    }.onFailure { error ->
+                        // 실패 시에도 홈 데이터를 새로고침하여 원래 상태로 복원 (Loading 없이)
+                        loadHomeData(showLoading = false)
+                        _homeState.value = HomeState.Error(
+                            error.message ?: "기분 업데이트에 실패했습니다"
+                        )
+                    }
+                }
             } catch (e: Exception) {
+                // 예외 발생 시에도 홈 데이터를 새로고침하여 원래 상태로 복원 (Loading 없이)
+                loadHomeData(showLoading = false)
                 _homeState.value = HomeState.Error(
                     e.message ?: "기분 업데이트에 실패했습니다"
                 )
