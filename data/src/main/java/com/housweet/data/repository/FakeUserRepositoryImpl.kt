@@ -52,9 +52,9 @@ class FakeUserRepositoryImpl : UserRepository {
         )
     }
 
-    override suspend fun updateProfile(updatedProfile: ProfileUpdateModel): Result<ProfileUpdateModel> {
+    override suspend fun updateProfile(userId: String, updatedProfile: ProfileUpdateModel): Result<ProfileUpdateModel> {
         delay(800)
-        Log.i("updateProfile", "updatedProfile: $updatedProfile")
+        Log.i("updateProfile", "userId: $userId, updatedProfile: $updatedProfile")
         return Result.success(fakeProfileUpdateModel)
     }
 }

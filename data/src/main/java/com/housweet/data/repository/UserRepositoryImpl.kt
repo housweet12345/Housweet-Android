@@ -34,10 +34,10 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun updateProfile(updatedProfile: ProfileUpdateModel): Result<ProfileUpdateModel> {
+    override suspend fun updateProfile(userId: String, updatedProfile: ProfileUpdateModel): Result<ProfileUpdateModel> {
         return runCatching {
             val patchDto = updatedProfile.toProfilePatchDto()
-            val response: ProfileUpdateDto = client.patch("${BuildConfig.USER_BASE_URL}/profile/me") {
+            val response: ProfileUpdateDto = client.patch("${BuildConfig.USER_BASE_URL}/profile/$userId/update") {
                 setBody(patchDto)
             }.body()
             response.mapToProfileUpdateModel()
