@@ -1,4 +1,4 @@
-package com.housweet.data.dto
+package com.housweet.data.network.dto
 
 import com.housweet.domain.model.profile.ProfileUpdateResponseModel
 import kotlinx.serialization.Serializable

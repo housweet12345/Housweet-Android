@@ -1,9 +1,9 @@
 package com.housweet.data.repository
 
 import com.housweet.data.BuildConfig
-import com.housweet.data.dto.ProfileDto
-import com.housweet.data.dto.ProfileUpdateDto
-import com.housweet.data.dto.ProfileUpdateResponseDto
+import com.housweet.data.network.dto.ProfileDto
+import com.housweet.data.network.dto.ProfileUpdateDto
+import com.housweet.data.network.dto.ProfileUpdateResponseDto
 import com.housweet.data.mapper.toProfilePatchDto
 import com.housweet.data.network.KtorService
 import com.housweet.domain.model.profile.ProfileModel
