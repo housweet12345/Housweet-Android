@@ -47,8 +47,8 @@ enum class MoodType(val displayName: String) {
     SAD("슬픔"),
     ANGRY("화남"),
     LOVE("애정"),
-    CONGRAT("축하"),
-    OUTSIDE("외출")
+    CELEBRATE("축하"),
+    AWAY("외출")
 }
 
 fun RoomHomeModel.toHomeInfo(currentUserId: Int? = null): HomeInfo {
@@ -78,8 +78,8 @@ private fun mapStringToMoodType(feeling: String): MoodType {
         "sad" -> MoodType.SAD
         "angry" -> MoodType.ANGRY
         "love" -> MoodType.LOVE
-        "congrat" -> MoodType.CONGRAT
-        "outside" -> MoodType.OUTSIDE
+        "celebrate" -> MoodType.CELEBRATE
+        "away" -> MoodType.AWAY
         else -> MoodType.NORMAL // 기본값
     }
 }
@@ -91,7 +91,7 @@ fun mapMoodTypeToString(moodType: MoodType): String {
         MoodType.SAD -> "sad"
         MoodType.ANGRY -> "angry"
         MoodType.LOVE -> "love"
-        MoodType.CONGRAT -> "congrat"
-        MoodType.OUTSIDE -> "outside"
+        MoodType.CELEBRATE -> "celebrate"
+        MoodType.AWAY -> "away"
     }
 }

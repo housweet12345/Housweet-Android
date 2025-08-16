@@ -330,8 +330,8 @@ fun RoommatesMoodSection(
                         MoodData(R.drawable.ic_sad, "슬픔"),
                         MoodData(R.drawable.ic_angry, "화남"),
                         MoodData(R.drawable.ic_heart, "애정"),
-                        MoodData(R.drawable.ic_congratulation, "축하"),
-                        MoodData(R.drawable.ic_none, "외출")
+                        MoodData(R.drawable.ic_celebrate, "축하"),
+                        MoodData(R.drawable.ic_away, "외출")
                     )
 
                     moods.fastForEach {
@@ -574,8 +574,8 @@ fun getMoodIconRes(moodType: MoodType): Int {
         MoodType.SAD -> R.drawable.ic_sad
         MoodType.ANGRY -> R.drawable.ic_angry
         MoodType.LOVE -> R.drawable.ic_heart
-        MoodType.CONGRAT -> R.drawable.ic_congratulation
-        MoodType.OUTSIDE -> R.drawable.ic_none
+        MoodType.CELEBRATE -> R.drawable.ic_celebrate
+        MoodType.AWAY -> R.drawable.ic_away
     }
 }
 
@@ -586,8 +586,8 @@ fun getMoodTypeFromName(name: String): MoodType? {
         "슬픔" -> MoodType.SAD
         "화남" -> MoodType.ANGRY
         "애정" -> MoodType.LOVE
-        "축하" -> MoodType.CONGRAT
-        "외출" -> MoodType.OUTSIDE
+        "축하" -> MoodType.CELEBRATE
+        "외출" -> MoodType.AWAY
         else -> null
     }
 }
