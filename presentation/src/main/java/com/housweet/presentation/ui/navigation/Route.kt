@@ -46,7 +46,7 @@ sealed interface Route {
             data class DetailPost(val postId: Int? = null) : PostRoute
 
             @Serializable
-            data class Posts(val postRegions: String? = null): PostRoute
+            data class Posts(val postRegions: String? = null, val updatePostId: Int? = null): PostRoute
         }
     }
 

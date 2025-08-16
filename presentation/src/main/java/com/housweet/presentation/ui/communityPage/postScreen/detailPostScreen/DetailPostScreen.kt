@@ -1,8 +1,8 @@
 package com.housweet.presentation.ui.communityPage.postScreen.detailPostScreen
 
-import android.annotation.SuppressLint
 import android.content.Context
-import android.widget.Toast
+import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -74,7 +74,7 @@ fun DetailPostScreen(
     modifier: Modifier,
     onChatScreen: (userId: Int) -> Unit,
     onProfileScreen: (userId: Int) -> Unit,
-    onBackBtnClick: () -> Unit,
+    onBackBtnClick: (isBookmarkChanged: Boolean) -> Unit,
     detailPostViewModel: DetailPostViewModel = hiltViewModel()
 ) {
     val uiState by detailPostViewModel.uiState.collectAsState()
@@ -82,12 +82,25 @@ fun DetailPostScreen(
     val snackBarHostState = remember { SnackbarHostState() }
     var isMenuExpanded by remember { mutableStateOf(false) }
 
+    BackHandler {
+        val isBookmarkChanged = detailPostViewModel.originalBookMarkState != roomPostDetail.isBookmarked
+        onBackBtnClick(isBookmarkChanged)
+    }
+
     LaunchedEffect(Unit) {
         detailPostViewModel.event.collect { event ->
             when (event) {
                 DetailPostEvent.Error -> {
                     snackBarHostState.showSnackbar(
                         message = "방 정보를 제대로 불러오지 못했어요.",
+                        actionLabel = "닫기",
+                        duration = SnackbarDuration.Short
+                    )
+                }
+
+                DetailPostEvent.BookMarkError -> {
+                    snackBarHostState.showSnackbar(
+                        message = "북마크를 제대로 설정하지 못했어요.",
                         actionLabel = "닫기",
                         duration = SnackbarDuration.Short
                     )
@@ -113,7 +126,10 @@ fun DetailPostScreen(
                 isMenuExpanded = isMenuExpanded,
                 onChatScreen = onChatScreen,
                 onProfileScreen = onProfileScreen,
-                onBackBtnClick = onBackBtnClick,
+                onBackBtnClick = {
+                    val isBookmarkChanged = detailPostViewModel.originalBookMarkState != roomPostDetail.isBookmarked
+                    onBackBtnClick(isBookmarkChanged)
+                },
                 onMenuClick = {
                     isMenuExpanded = !isMenuExpanded
                 },
@@ -123,6 +139,9 @@ fun DetailPostScreen(
                 onReportClick = {
                     isMenuExpanded = false
                     detailPostViewModel.reportRoom()
+                },
+                onToggleLike = {
+                    detailPostViewModel.toggleLike()
                 }
             )
         }
@@ -133,7 +152,6 @@ fun DetailPostScreen(
     }
 }
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 private fun DetailPostContent(
     modifier: Modifier,
@@ -145,7 +163,8 @@ private fun DetailPostContent(
     onBackBtnClick: () -> Unit,
     onMenuClick: () -> Unit,
     onScreenClick: () -> Unit,
-    onReportClick: () -> Unit
+    onReportClick: () -> Unit,
+    onToggleLike: () -> Unit
 ) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
@@ -172,54 +191,70 @@ private fun DetailPostContent(
         },
         snackbarHost = { SnackbarHost(snackBarHostState) },
         containerColor = White
-    ) {
-        Column(
+    ) { innerPadding ->
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(scrollState)
+                .padding(innerPadding)
         ) {
-            AsyncImage(
-                model = ImageRequest
-                    .Builder(context)
-                    .data(roomPostDetail.imageUri)
-                    .error(R.drawable.small_house)
-                    .build(),
-                contentDescription = "RoomImage",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(1f)
-            )
-
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
+                modifier = Modifier.verticalScroll(scrollState)
             ) {
-                UserProfile(
-                    roomPostDetail = roomPostDetail,
-                    context = context,
-                    onProfileScreen = onProfileScreen
+                AsyncImage(
+                    model = ImageRequest
+                        .Builder(context)
+                        .data(roomPostDetail.imageUri)
+                        .error(R.drawable.small_house)
+                        .build(),
+                    contentDescription = "RoomImage",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(1f)
                 )
 
-                DetailContent(
-                    roomPostDetail = roomPostDetail
-                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
+                ) {
+                    UserProfile(
+                        roomPostDetail = roomPostDetail,
+                        context = context,
+                        onProfileScreen = onProfileScreen
+                    )
 
-                Spacer(modifier = Modifier.height(20.dp))
+                    DetailContent(
+                        roomPostDetail = roomPostDetail
+                    )
 
-                HouseFeatures(
-                    roomPostDetail = roomPostDetail
-                )
+                    Spacer(modifier = Modifier.height(20.dp))
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    HouseFeatures(
+                        roomPostDetail = roomPostDetail
+                    )
 
-                PreferredFeatures(
-                    roomPostDetail = roomPostDetail
-                )
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                Spacer(modifier = Modifier.height(101.dp))
+                    PreferredFeatures(
+                        roomPostDetail = roomPostDetail
+                    )
+
+                    Spacer(modifier = Modifier.height(101.dp))
+                }
             }
+
+            Icon(
+                painter = painterResource(id = if (roomPostDetail.isBookmarked) R.drawable.like else R.drawable.unlike),
+                contentDescription = "favorite",
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(top = 10.dp, end = 10.dp)
+                    .size(32.dp)
+                    .clip(CircleShape)
+                    .clickable { onToggleLike() },
+                tint = if (roomPostDetail.isBookmarked) Purple else White
+            )
         }
     }
 
@@ -591,6 +626,7 @@ private fun DetailPostScreenPreview() {
         isMenuExpanded = isMenuExpanded,
         onMenuClick = { isMenuExpanded = !isMenuExpanded },
         onScreenClick = { isMenuExpanded = false },
-        onReportClick = {}
+        onReportClick = {},
+        onToggleLike = {}
     )
 }

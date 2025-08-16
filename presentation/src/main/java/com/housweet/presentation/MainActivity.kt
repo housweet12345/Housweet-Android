@@ -3,6 +3,7 @@ package com.housweet.presentation
 import android.content.Intent
 import android.os.Bundle
 import android.util.Base64
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -354,30 +355,43 @@ class MainActivity : ComponentActivity() {
 
                     composable<Route.CommunityPageRoute.PostRoute.Posts> {
                         val postRegions = it.toRoute<Route.CommunityPageRoute.PostRoute.Posts>().postRegions
+                        val updatePostId = it.toRoute<Route.CommunityPageRoute.PostRoute.Posts>().updatePostId
                         PostsScreen(
+                            updatePostId = updatePostId,
                             onPostClick = { id ->
                                 navigationManager.navigateTo(Route.CommunityPageRoute.PostRoute.DetailPost(id))
                             },
                             onBackBtnClick = {
                                 navigationManager.navigateOneWay(
-                                    Route.CommunityPageRoute.PostRoute.Posts(postRegions),
+                                    Route.CommunityPageRoute.PostRoute.Posts(postRegions, updatePostId),
                                     Route.CommunityPageRoute.Map()
                                 )
-                            }
+                            },
                         )
                     }
 
                     composable<Route.CommunityPageRoute.PostRoute.DetailPost> {
+                        val postId = it.toRoute<Route.CommunityPageRoute.PostRoute.DetailPost>().postId
                         DetailPostScreen(
                             modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
-                            onChatScreen = {
-                                navigationManager.navigateTo("chat_detail/${it}")
+                            onChatScreen = { userId ->
+                                navigationManager.navigateTo("chat_detail/${userId}")
                             },
                             onProfileScreen = {
                                 navigationManager.navigateTo("profile/me")
                             },
-                            onBackBtnClick = {
-                                navController.popBackStack()
+                            onBackBtnClick = { isBookmarkChanged ->
+                                if (isBookmarkChanged) {
+                                    navigationManager.navigateOneWay(
+                                        Route.CommunityPageRoute.PostRoute.DetailPost(postId),
+                                        Route.CommunityPageRoute.PostRoute.Posts(updatePostId = postId)
+                                    )
+                                } else {
+                                    navigationManager.navigateOneWay(
+                                        Route.CommunityPageRoute.PostRoute.DetailPost(postId),
+                                        Route.CommunityPageRoute.PostRoute.Posts()
+                                    )
+                                }
                             }
                         )
                     }
