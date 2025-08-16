@@ -2,6 +2,7 @@ package com.housweet.presentation.viewmodel.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.housweet.domain.usecase.auth.GetCurrentUserIdUseCase
 import com.housweet.domain.usecase.home.GetRoomHomeUseCase
 import com.housweet.presentation.ui.home.state.HomeState
 import com.housweet.presentation.ui.home.state.MoodType
@@ -15,7 +16,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val getRoomHomeUseCase: GetRoomHomeUseCase
+    private val getRoomHomeUseCase: GetRoomHomeUseCase,
+    private val getCurrentUserIdUseCase: GetCurrentUserIdUseCase
 ) : ViewModel() {
     
     private val _homeState: MutableStateFlow<HomeState> = MutableStateFlow(HomeState.Loading)
@@ -31,7 +33,8 @@ class HomeViewModel @Inject constructor(
             val result = getRoomHomeUseCase()
 
             result.onSuccess { roomHomeModel ->
-                val homeInfo = roomHomeModel.toHomeInfo()
+                val currentUserId = getCurrentUserIdUseCase()
+                val homeInfo = roomHomeModel.toHomeInfo(currentUserId)
                 _homeState.value = HomeState.Success(homeInfo)
             }.onFailure { error ->
                 _homeState.value = HomeState.Error(

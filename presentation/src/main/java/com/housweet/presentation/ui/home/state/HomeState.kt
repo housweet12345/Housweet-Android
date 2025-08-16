@@ -30,7 +30,8 @@ data class RoommateInfo(
     val userId: Int,
     val nickname: String,
     val profileImageUrl: String?,
-    val mood: MoodType
+    val mood: MoodType,
+    val isMe: Boolean = false
 )
 
 data class TodoInfo(
@@ -50,22 +51,23 @@ enum class MoodType(val displayName: String) {
     OUTSIDE("외출")
 }
 
-fun RoomHomeModel.toHomeInfo(): HomeInfo {
+fun RoomHomeModel.toHomeInfo(currentUserId: Int? = null): HomeInfo {
     return HomeInfo(
         roomId = roomId,
         roomName = roomName,
         daysTogether = daysTogether,
-        members = members.map { it.toRoommateInfo() }
+        members = members.map { it.toRoommateInfo(currentUserId) }
     )
 }
 
-fun RoomMemberModel.toRoommateInfo(): RoommateInfo {
+fun RoomMemberModel.toRoommateInfo(currentUserId: Int? = null): RoommateInfo {
     return RoommateInfo(
         id = id,
         userId = userId,
         nickname = nickname,
         profileImageUrl = profileImageUrl,
-        mood = mapStringToMoodType(feeling)
+        mood = mapStringToMoodType(feeling),
+        isMe = currentUserId?.let { it == userId } ?: false
     )
 }
 

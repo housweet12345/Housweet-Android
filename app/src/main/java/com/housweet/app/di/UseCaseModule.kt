@@ -23,6 +23,7 @@ import com.housweet.domain.usecase.home.GetRoomMembersUseCase
 import com.housweet.domain.usecase.profile.GetMyProfileUseCase
 import com.housweet.domain.usecase.profile.GetOtherUserProfileUseCase
 import com.housweet.domain.usecase.profile.UpdateProfileUseCase
+import com.housweet.domain.usecase.auth.GetCurrentUserIdUseCase
 import com.housweet.domain.usecase.start.AccessRoomWithInviteCodeUseCase
 import com.housweet.domain.usecase.start.AgreeTermsOfServiceUseCase
 import com.housweet.domain.usecase.start.CheckLoginUseCase
@@ -111,5 +112,10 @@ object UseCaseModule {
     fun provideGetRoomMembersUseCase(
         repository: RoomRepository
     ): GetRoomMembersUseCase = GetRoomMembersUseCase(repository::getRoomMembers)
+
+    @Provides
+    fun provideGetCurrentUserIdUseCase(
+        repository: AuthRepository
+    ): GetCurrentUserIdUseCase = GetCurrentUserIdUseCase(repository)
 
 }
