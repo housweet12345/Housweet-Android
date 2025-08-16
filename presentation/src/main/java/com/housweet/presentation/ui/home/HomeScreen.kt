@@ -127,7 +127,7 @@ fun HomeScreen(
             // 방 제목 섹션
             item {
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                    RoomTitleSection(homeInfo.roomName, homeInfo.daysLiving)
+                    RoomTitleSection(homeInfo.roomName, homeInfo.daysTogether)
                     Spacer(modifier = Modifier.height(20.dp))
                 }
             }
@@ -142,7 +142,7 @@ fun HomeScreen(
             // 룸메이트 기분 섹션
             item {
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                    RoommatesMoodSection(homeInfo.roommates, onMoodSelect, onMoodSectionClick)
+                    RoommatesMoodSection(homeInfo.members, onMoodSelect, onMoodSectionClick)
                 }
             }
 
