@@ -416,10 +416,15 @@ class MainActivity : ComponentActivity() {
                             mode = mode,
                             onNextClick = { navController.navigate(Route.HouseRegisterRoute.Step2(mode)) },
                             onBackClick = {
-                                navigationManager.navigateOneWay(
-                                    Route.HouseRegisterRoute.Step1(mode),
-                                    Route.CommunityPageRoute.Map()
-                                )
+                                val previousRoute = navController.previousBackStackEntry?.destination?.route
+                                if (previousRoute?.contains("CommunityPageRoute.Map") == true) {
+                                    navigationManager.navigateOneWay(
+                                        Route.HouseRegisterRoute.Step1(mode),
+                                        Route.CommunityPageRoute.Map()
+                                    )
+                                } else {
+                                    navController.popBackStack()
+                                }
                             }
                         )
                     }
@@ -684,7 +689,8 @@ class MainActivity : ComponentActivity() {
                     composable("roommate/userlist") {
                         UserListRoute(
                             onBackClick = { navController.popBackStack() },
-                            navigateToProfile = { navController.navigate("profile/$it") }
+                            navigateToProfile = { navController.navigate("profile/$it") },
+                            onWorkspaceInvite = { navController.navigate(Route.CommunityPageRoute.Map()) }
                         )
                     }
                 }
