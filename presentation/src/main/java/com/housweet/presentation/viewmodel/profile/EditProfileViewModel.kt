@@ -5,7 +5,9 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.housweet.domain.model.profile.ProfileUpdateModel
+import com.housweet.domain.usecase.auth.GetCurrentUserIdUseCase
 import com.housweet.domain.usecase.profile.GetMyProfileUseCase
+import com.housweet.domain.usecase.profile.GetOtherUserProfileUseCase
 import com.housweet.domain.usecase.profile.UpdateProfileUseCase
 import com.housweet.presentation.ui.profile.state.ProfileInfoState
 import com.housweet.presentation.ui.profile.state.toProfileInfo
@@ -20,7 +22,9 @@ import javax.inject.Inject
 @HiltViewModel
 class EditProfileViewModel @Inject constructor(
     private val myProfileUseCase: GetMyProfileUseCase,
+    private val otherUserProfileUseCase: GetOtherUserProfileUseCase,
     private val updateProfileUseCase: UpdateProfileUseCase,
+    private val getCurrentUserIdUseCase: GetCurrentUserIdUseCase,
     @ApplicationContext private val context: Context
 ): ViewModel() {
     private val _profileState: MutableStateFlow<ProfileInfoState> = MutableStateFlow(ProfileInfoState.Loading)
@@ -134,10 +138,34 @@ class EditProfileViewModel @Inject constructor(
                 val profileInfo = profileModel.toProfileInfo(isMyProfile = true)
                 _profileState.value = ProfileInfoState.Success(profileInfo)
             }.onFailure { error ->
-                _profileState.value = ProfileInfoState.Error(
-                    error.message ?: "프로필 조회에 실패했습니다"
-                )
+                // /me 실패시 getCurrentUserIdUseCase로 fallback 시도
+                tryLoadMyProfileWithCurrentUserId()
             }
+        }
+    }
+
+    private suspend fun tryLoadMyProfileWithCurrentUserId() {
+        try {
+            val currentUserId = getCurrentUserIdUseCase()
+
+            if (currentUserId != null) {
+                val fallbackResult = otherUserProfileUseCase(currentUserId.toString())
+                
+                fallbackResult.onSuccess { profileModel ->
+                    val profileInfo = profileModel.toProfileInfo(isMyProfile = true)
+                    _profileState.value = ProfileInfoState.Success(profileInfo)
+                }.onFailure { error ->
+                    _profileState.value = ProfileInfoState.Error(
+                        error.message ?: "프로필 조회에 실패했습니다"
+                    )
+                }
+            } else {
+                _profileState.value = ProfileInfoState.Error("사용자 정보를 찾을 수 없습니다")
+            }
+        } catch (e: Exception) {
+            _profileState.value = ProfileInfoState.Error(
+                e.message ?: "프로필 조회에 실패했습니다"
+            )
         }
     }
 }

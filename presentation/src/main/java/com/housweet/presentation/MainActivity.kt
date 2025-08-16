@@ -677,7 +677,7 @@ class MainActivity : ComponentActivity() {
                                         launchSingleTop = true
                                     }
                                 } else {
-                                    navController.navigate("profile/1") {
+                                    navController.navigate("profile/me") {
                                         popUpTo("profile/edit?fromTerms=$fromTerms") { inclusive = true }
                                         launchSingleTop = true
                                     }
@@ -692,7 +692,7 @@ class MainActivity : ComponentActivity() {
                                 } else {
                                     navigationManager.navigateOneWay(
                                         "profile/edit_keyword?fromTerms=$fromTerms",
-                                        "profile/1"
+                                        "profile/me"
                                     )
                                 }
                             }
