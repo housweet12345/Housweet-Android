@@ -212,7 +212,7 @@ private fun PostItem(
             model = ImageRequest
                 .Builder(context)
                 .data(postInfo.imageUri)
-                .error(R.drawable.small_house)
+                .error(R.drawable.post_image_null)
                 .build(),
             contentDescription = "RoomImage",
             contentScale = ContentScale.Crop,
