@@ -19,6 +19,7 @@ import com.housweet.domain.usecase.community.GetRoomPostsByLocationUsaCase
 import com.housweet.domain.usecase.community.ReportRoomPostUseCase
 import com.housweet.domain.usecase.community.UnClickBookMarkUseCase
 import com.housweet.domain.usecase.home.GetRoomHomeUseCase
+import com.housweet.domain.usecase.home.GetRoomMembersUseCase
 import com.housweet.domain.usecase.profile.GetMyProfileUseCase
 import com.housweet.domain.usecase.profile.GetOtherUserProfileUseCase
 import com.housweet.domain.usecase.profile.UpdateProfileUseCase
@@ -105,5 +106,10 @@ object UseCaseModule {
     fun provideGetRoomHomeUseCase(
         repository: RoomRepository
     ): GetRoomHomeUseCase = GetRoomHomeUseCase(repository::getRoomHome)
+
+    @Provides
+    fun provideGetRoomMembersUseCase(
+        repository: RoomRepository
+    ): GetRoomMembersUseCase = GetRoomMembersUseCase(repository::getRoomMembers)
 
 }

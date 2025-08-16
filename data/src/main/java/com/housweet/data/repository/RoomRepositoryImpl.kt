@@ -2,8 +2,10 @@ package com.housweet.data.repository
 
 import com.housweet.data.BuildConfig
 import com.housweet.data.dto.RoomHomeResponseDto
+import com.housweet.data.dto.RoomMemberDto
 import com.housweet.data.network.KtorService
 import com.housweet.domain.model.home.RoomHomeModel
+import com.housweet.domain.model.home.RoomMemberModel
 import com.housweet.domain.repository.RoomRepository
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -19,6 +21,13 @@ class RoomRepositoryImpl @Inject constructor(
         return runCatching {
             val response: RoomHomeResponseDto = client.get("${BuildConfig.BASE_URL}/room/home/").body()
             response.mapToRoomHomeModel()
+        }
+    }
+
+    override suspend fun getRoomMembers(roomId: Int): Result<List<RoomMemberModel>> {
+        return runCatching {
+            val response: List<RoomMemberDto> = client.get("${BuildConfig.BASE_URL}/room/rooms/$roomId/members").body()
+            response.map { it.mapToRoomMemberModel() }
         }
     }
 }

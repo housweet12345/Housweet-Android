@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.theme.ColorGroup
 import com.housweet.presentation.ui.userlist.state.UserItem
+import com.housweet.presentation.ui.home.state.MoodType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -198,14 +199,18 @@ fun UserListScreenPreview() {
     val mockUserItems = listOf(
         UserItem(
             id = "1",
+            userId = 123,
             name = "홍길동",
             profileImageUrl = null,
+            mood = MoodType.NORMAL,
             isHost = false
         ),
         UserItem(
             id = "2",
+            userId = 456,
             name = "홍길동",
             profileImageUrl = null,
+            mood = MoodType.HAPPY,
             isHost = true // 방장
         )
     )
@@ -223,8 +228,10 @@ fun UserListScreenPreview() {
 fun UserListItemPreview() {
     val mockUserItem = UserItem(
         id = "1",
+        userId = 123,
         name = "홍길동",
         profileImageUrl = null,
+        mood = MoodType.HAPPY,
         isHost = false
     )
 
