@@ -8,10 +8,14 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,7 +25,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,8 +45,10 @@ import com.housweet.presentation.ui.theme.ColorGroup
 @Composable
 fun EditProfileSelectKeyWordScreen(
     currentProfile: ProfileInfo, // 현재 프로필 정보 추가
+    showSkipButton: Boolean = false, // 건너뛰기 버튼 표시 여부
     onBackClick: () -> Unit = {},
-    onNextClick: (ProfileUpdateModel) -> Unit = {}
+    onNextClick: (ProfileUpdateModel) -> Unit = {},
+    onSkipClick: () -> Unit = {}
 ) {
     // 각 섹션별 선택된 태그를 관리하는 상태
     var lifePatternTags by remember { mutableStateOf(setOf<String>()) }
@@ -78,10 +86,19 @@ fun EditProfileSelectKeyWordScreen(
     Scaffold(
         contentWindowInsets = WindowInsets(0.dp), // 상단 여백 제거
         bottomBar = {
-            BottomButton(
-                text = "완료",
-                onClick = handleNextClick
-            )
+            if (showSkipButton) {
+                DoubleBottomButtons(
+                    leftText = "완료",
+                    rightText = "건너뛰기",
+                    onLeftClick = handleNextClick,
+                    onRightClick = onSkipClick
+                )
+            } else {
+                BottomButton(
+                    text = "완료",
+                    onClick = handleNextClick
+                )
+            }
         }
     ) { paddingValues ->
         Column(
@@ -163,6 +180,7 @@ fun EditProfileSelectKeyWordScreen(
 
             // MBTI 섹션
             SectionTitle(title = "MBTI")
+            Spacer(modifier = Modifier.height(8.dp))
             MbtiSection(
                 initialMbti = mbtiState,
                 onMbtiChanged = { mbtiState = it }
@@ -210,7 +228,8 @@ private fun MbtiSection(
             option2 = "I",
             selectedOption = mbtiState.ei,
             onOptionSelected = { selected ->
-                updateMbti(mbtiState.copy(ei = selected))
+                val newSelection = if (mbtiState.ei == selected) "" else selected
+                updateMbti(mbtiState.copy(ei = newSelection))
             }
         )
 
@@ -220,7 +239,8 @@ private fun MbtiSection(
             option2 = "N",
             selectedOption = mbtiState.sn,
             onOptionSelected = { selected ->
-                updateMbti(mbtiState.copy(sn = selected))
+                val newSelection = if (mbtiState.sn == selected) "" else selected
+                updateMbti(mbtiState.copy(sn = newSelection))
             }
         )
 
@@ -230,7 +250,8 @@ private fun MbtiSection(
             option2 = "F",
             selectedOption = mbtiState.tf,
             onOptionSelected = { selected ->
-                updateMbti(mbtiState.copy(tf = selected))
+                val newSelection = if (mbtiState.tf == selected) "" else selected
+                updateMbti(mbtiState.copy(tf = newSelection))
             }
         )
 
@@ -240,30 +261,97 @@ private fun MbtiSection(
             option2 = "J",
             selectedOption = mbtiState.pj,
             onOptionSelected = { selected ->
-                updateMbti(mbtiState.copy(pj = selected))
+                val newSelection = if (mbtiState.pj == selected) "" else selected
+                updateMbti(mbtiState.copy(pj = newSelection))
             }
         )
     }
 }
 
 data class MbtiState(
-    val ei: String = "E",
-    val sn: String = "S",
-    val tf: String = "T",
-    val pj: String = "P"
+    val ei: String = "",
+    val sn: String = "",
+    val tf: String = "",
+    val pj: String = ""
 ) {
     fun getMbtiType(): String = "$ei$sn$tf$pj"
     companion object {
         fun fromString(mbti: String): MbtiState {
-            return if (mbti.length == 4) {
-                MbtiState(
-                    ei = mbti[0].toString(),
-                    sn = mbti[1].toString(),
-                    tf = mbti[2].toString(),
-                    pj = mbti[3].toString()
+            var ei = ""
+            var sn = ""
+            var tf = ""
+            var pj = ""
+            
+            mbti.forEach { char ->
+                when (char.uppercaseChar()) {
+                    'E' -> ei = "E"
+                    'I' -> ei = "I"
+                    'S' -> sn = "S"
+                    'N' -> sn = "N"
+                    'T' -> tf = "T"
+                    'F' -> tf = "F"
+                    'P' -> pj = "P"
+                    'J' -> pj = "J"
+                }
+            }
+            
+            return MbtiState(
+                ei = ei,
+                sn = sn,
+                tf = tf,
+                pj = pj
+            )
+        }
+    }
+}
+
+@Composable
+private fun DoubleBottomButtons(
+    leftText: String,
+    rightText: String,
+    onLeftClick: () -> Unit,
+    onRightClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier.windowInsetsPadding(WindowInsets.navigationBars)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Button(
+                onClick = onLeftClick,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(50.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = ColorGroup.Primary
+                ),
+                shape = RectangleShape
+            ) {
+                Text(
+                    text = leftText,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.White
                 )
-            } else {
-                MbtiState() // 기본값
+            }
+            
+            Button(
+                onClick = onRightClick,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(50.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = ColorGroup.White_F8F8F8
+                ),
+                shape = RectangleShape
+            ) {
+                Text(
+                    text = rightText,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = ColorGroup.Gray_7E7E7E
+                )
             }
         }
     }
