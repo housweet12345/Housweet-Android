@@ -19,7 +19,8 @@ import com.housweet.presentation.viewmodel.userlist.UserListViewModel
 fun UserListRoute(
     viewModel: UserListViewModel = hiltViewModel(),
     onBackClick: () -> Unit = {},
-    navigateToProfile: (String) -> Unit = {}
+    navigateToProfile: (String) -> Unit = {},
+    onWorkspaceInvite: () -> Unit = {}
 ) {
     val state = viewModel.userListState.collectAsStateWithLifecycle()
     
@@ -33,7 +34,8 @@ fun UserListRoute(
             UserListScreen(
                 userItems = users,
                 onBackClick = onBackClick,
-                navigateToProfile = navigateToProfile
+                navigateToProfile = navigateToProfile,
+                onWorkspaceInvite = onWorkspaceInvite
             )
         }
         is UserListState.Loading -> {
