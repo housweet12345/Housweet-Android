@@ -6,6 +6,9 @@ import android.util.Base64
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -14,6 +17,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.lifecycleScope
@@ -29,6 +33,7 @@ import com.housweet.domain.model.Coordinate
 import com.housweet.presentation.model.RegisterModel
 import com.housweet.presentation.ui.chat.ChatScreen
 import com.housweet.presentation.ui.chatlist.ChatListScreen
+import com.housweet.presentation.ui.common.ComingSoonScreen
 import com.housweet.presentation.ui.communityPage.mapScreen.MapScreen
 import com.housweet.presentation.ui.communityPage.postScreen.detailPostScreen.DetailPostScreen
 import com.housweet.presentation.ui.communityPage.postScreen.postsScreen.PostsScreen
@@ -47,6 +52,7 @@ import com.housweet.presentation.ui.mypage.TermsConditionsPolicies
 import com.housweet.presentation.ui.mypage.TermsLocationInformationPolies
 import com.housweet.presentation.ui.mypage.TermsPrivacyPolicies
 import com.housweet.presentation.ui.navigation.BottomNavItem
+import com.housweet.presentation.ui.navigation.BottomNavigation
 import com.housweet.presentation.ui.navigation.CoordinateType
 import com.housweet.presentation.ui.navigation.NavigationManager
 import com.housweet.presentation.ui.navigation.Route
@@ -396,12 +402,25 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable(BottomNavItem.Calendar.route) {
-                        //캘린더 화면
-                        Text("캘린더")
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            ComingSoonScreen(
+                                modifier = Modifier.weight(1f)
+                            )
+                            BottomNavigation(
+                                navController = navController
+                            )
+                        }
                     }
                     composable(BottomNavItem.FinanceLedger.route) {
                         //가계부 화면
-                        Text("가계부")
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            ComingSoonScreen(
+                                modifier = Modifier.weight(1f)
+                            )
+                            BottomNavigation(
+                                navController = navController
+                            )
+                        }
                     }
                     composable(BottomNavItem.Notice.route) {
                         //공지사항 화면
