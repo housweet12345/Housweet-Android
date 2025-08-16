@@ -30,9 +30,11 @@ data class ProfileDto(
     }
     private fun genderToKorean(gender: String): String {
         return when (gender) {
-            "MALE", "male" -> "남성"
-            "FEMALE", "female" -> "여성"
-            else -> ""
+            "MALE", "male", "M" -> "남성"
+            "FEMALE", "female", "F" -> "여성"
+            "남자", "남성" -> "남성"
+            "여자", "여성" -> "여성"
+            else -> gender
         }
     }
 }
