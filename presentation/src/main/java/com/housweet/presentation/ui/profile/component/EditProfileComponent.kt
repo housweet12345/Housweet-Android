@@ -317,6 +317,7 @@ fun InfoMessage(
 @Composable
 fun BottomButton(
     text: String = "다음",
+    enabled: Boolean = true,
     onClick: () -> Unit = {}
 ) {
     Column(
@@ -324,11 +325,13 @@ fun BottomButton(
     ) {
         Button(
             onClick = onClick,
+            enabled = enabled,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = ColorGroup.Primary
+                containerColor = if (enabled) ColorGroup.Primary else ColorGroup.Gray_CBCBCB,
+                disabledContainerColor = ColorGroup.Gray_CBCBCB
             ),
             shape = RectangleShape
         ) {
@@ -336,7 +339,7 @@ fun BottomButton(
                 text = text,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Medium,
-                color = Color.White
+                color = if (enabled) Color.White else ColorGroup.Gray_7E7E7E
             )
         }
     }

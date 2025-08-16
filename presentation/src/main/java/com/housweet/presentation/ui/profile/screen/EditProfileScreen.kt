@@ -91,11 +91,17 @@ fun EditProfileScreen(
         genderState = if (selectedOption == 1) "남자" else "여자"
     }
 
+    // 유효성 검사 - 필수 필드가 모두 입력되었는지 확인
+    val isFormValid = nameState.isNotBlank() && 
+                     yearOfBirthState.isNotBlank() && 
+                     genderState.isNotBlank()
+
     Scaffold(
         contentWindowInsets = WindowInsets(0.dp), // 상단 여백 제거
         bottomBar = {
             BottomButton(
                 text = "다음",
+                enabled = isFormValid,
                 onClick = {
                     onNextClick(nameState, yearOfBirthState, genderState, introductionState)
                 }
