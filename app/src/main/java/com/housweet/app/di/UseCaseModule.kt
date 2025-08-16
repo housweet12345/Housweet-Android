@@ -2,10 +2,12 @@ package com.housweet.app.di
 
 import com.housweet.data.network.KtorService
 import com.housweet.data.repository.FakeUserRepositoryImpl
+import com.housweet.data.repository.RoomRepositoryImpl
 import com.housweet.data.repository.UserRepositoryImpl
 import com.housweet.domain.repository.AccessRoomRepository
 import com.housweet.domain.repository.AuthRepository
 import com.housweet.domain.repository.CommunityRepository
+import com.housweet.domain.repository.RoomRepository
 import com.housweet.domain.repository.UserRepository
 import com.housweet.domain.usecase.GetBookmarkedPostingsUseCase
 import com.housweet.domain.usecase.LogoutUseCase
@@ -16,9 +18,13 @@ import com.housweet.domain.usecase.community.GetRoomPostDetailUseCase
 import com.housweet.domain.usecase.community.GetRoomPostsByLocationUsaCase
 import com.housweet.domain.usecase.community.ReportRoomPostUseCase
 import com.housweet.domain.usecase.community.UnClickBookMarkUseCase
+import com.housweet.domain.usecase.home.GetRoomHomeUseCase
+import com.housweet.domain.usecase.home.GetRoomMembersUseCase
+import com.housweet.domain.usecase.home.UpdateMoodUseCase
 import com.housweet.domain.usecase.profile.GetMyProfileUseCase
 import com.housweet.domain.usecase.profile.GetOtherUserProfileUseCase
 import com.housweet.domain.usecase.profile.UpdateProfileUseCase
+import com.housweet.domain.usecase.auth.GetCurrentUserIdUseCase
 import com.housweet.domain.usecase.start.AccessRoomWithInviteCodeUseCase
 import com.housweet.domain.usecase.start.AgreeTermsOfServiceUseCase
 import com.housweet.domain.usecase.start.CheckLoginUseCase
@@ -89,5 +95,33 @@ object UseCaseModule {
     fun provideUpdateProfileUseCase(
         repository: UserRepository
     ): UpdateProfileUseCase = UpdateProfileUseCase(repository::updateProfile)
+
+    @Provides
+    @Singleton
+    fun provideRoomRepository(
+        ktorService: KtorService
+    ): RoomRepository {
+        return RoomRepositoryImpl(ktorService)
+    }
+
+    @Provides
+    fun provideGetRoomHomeUseCase(
+        repository: RoomRepository
+    ): GetRoomHomeUseCase = GetRoomHomeUseCase(repository::getRoomHome)
+
+    @Provides
+    fun provideGetRoomMembersUseCase(
+        repository: RoomRepository
+    ): GetRoomMembersUseCase = GetRoomMembersUseCase(repository::getRoomMembers)
+
+    @Provides
+    fun provideGetCurrentUserIdUseCase(
+        repository: AuthRepository
+    ): GetCurrentUserIdUseCase = GetCurrentUserIdUseCase(repository)
+
+    @Provides
+    fun provideUpdateMoodUseCase(
+        repository: RoomRepository
+    ): UpdateMoodUseCase = UpdateMoodUseCase(repository)
 
 }
