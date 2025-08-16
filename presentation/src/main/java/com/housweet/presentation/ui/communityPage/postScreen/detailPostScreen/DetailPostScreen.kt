@@ -204,7 +204,7 @@ private fun DetailPostContent(
                     model = ImageRequest
                         .Builder(context)
                         .data(roomPostDetail.imageUri)
-                        .error(R.drawable.small_house)
+                        .error(R.drawable.post_image_null)
                         .build(),
                     contentDescription = "RoomImage",
                     contentScale = ContentScale.Crop,
