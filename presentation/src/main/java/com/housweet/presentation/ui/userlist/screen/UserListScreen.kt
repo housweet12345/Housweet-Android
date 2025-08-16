@@ -92,7 +92,7 @@ fun UserListScreen(
                 val user = userItems[index]
                 UserListItem(
                     userItem = user,
-                    onClick = { navigateToProfile(user.id) }
+                    onClick = { navigateToProfile("${user.userId}") }
                 )
                 if (index < userItems.size - 1) {
                     HorizontalDivider(

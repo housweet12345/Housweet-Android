@@ -10,7 +10,7 @@ data class ProfileDto(
     val introduce: String,
     val mbti: String,
     val nickname: String,
-    @SerialName("profile_image") val profileImage: String,
+    @SerialName("profile_image") val profileImage: String?,
     val tag: List<String>?,
     @SerialName("user_id") val userId: Int,
     @SerialName("year_of_birth") val yearOfBirth: Int
@@ -20,7 +20,7 @@ data class ProfileDto(
             userId = userId,
             nickname = nickname,
             introduce = introduce,
-            profileImage = profileImage,
+            profileImage = profileImage ?: "",
             yearOfBirth = yearOfBirth.toString(),
             gender = genderToKorean(gender),
             mbti = mbti,
