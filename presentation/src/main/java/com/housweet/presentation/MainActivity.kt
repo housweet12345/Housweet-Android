@@ -636,6 +636,19 @@ class MainActivity : ComponentActivity() {
                         val fromTerms = backStackEntry.arguments?.getBoolean("fromTerms") ?: false
                         EditProfileRoute(
                             onBackClick = { navController.popBackStack() },
+                            onSuccessNavigateBack = {
+                                if (fromTerms) {
+                                    navController.navigate(Route.StartPageRoute.AccessRoomRoute.AccessRoom) {
+                                        popUpTo("profile/edit?fromTerms=$fromTerms") { inclusive = true }
+                                        launchSingleTop = true
+                                    }
+                                } else {
+                                    navController.navigate("profile/1") {
+                                        popUpTo("profile/edit?fromTerms=$fromTerms") { inclusive = true }
+                                        launchSingleTop = true
+                                    }
+                                }
+                            },
                             navigateEditKeyword = {
                                 navController.navigate("profile/edit_keyword?fromTerms=$fromTerms")
                             }
@@ -657,17 +670,17 @@ class MainActivity : ComponentActivity() {
                             onBackClick = { navController.popBackStack() },
                             viewModel = hiltViewModel(parentEntry),
                             showSkipButton = fromTerms,
-                            navigateNextPage = {
+                            onSuccessNavigateBack = {
                                 if (fromTerms) {
-                                    navigationManager.navigateOneWay(
-                                        "profile/edit_keyword?fromTerms=$fromTerms",
-                                        Route.StartPageRoute.AccessRoomRoute.AccessRoom
-                                    )
+                                    navController.navigate(Route.StartPageRoute.AccessRoomRoute.AccessRoom) {
+                                        popUpTo("profile/edit?fromTerms=$fromTerms") { inclusive = true }
+                                        launchSingleTop = true
+                                    }
                                 } else {
-                                    navigationManager.navigateOneWay(
-                                        "profile/edit_keyword?fromTerms=$fromTerms",
-                                        "profile/me"
-                                    )
+                                    navController.navigate("profile/1") {
+                                        popUpTo("profile/edit?fromTerms=$fromTerms") { inclusive = true }
+                                        launchSingleTop = true
+                                    }
                                 }
                             },
                             onSkipClick = {
@@ -679,7 +692,7 @@ class MainActivity : ComponentActivity() {
                                 } else {
                                     navigationManager.navigateOneWay(
                                         "profile/edit_keyword?fromTerms=$fromTerms",
-                                        "profile/me"
+                                        "profile/1"
                                     )
                                 }
                             }
