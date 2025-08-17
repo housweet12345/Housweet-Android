@@ -47,6 +47,7 @@ import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModelB
 @Composable
 fun HouseRegisterScreen4(
     mode: RegisterModel,
+    postingId: Int?,
     onBackClick: () -> Unit,
     onCompleteClick: () -> Unit,
     viewModel: HouseRegisterViewModelBase
@@ -161,28 +162,19 @@ fun HouseRegisterScreen4(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(
-            onClick = {
-                // 검증
-                val missing = firstMissingSectionOrNull()
-                if (missing != null) {
-                    missingSectionName = missing
-                    showDialog = true
-                    return@Button
-                }
-
-                // 통과: 선택값 평탄화 후 저장 + 제출
-                val preferredTags = selectedBySection.values.flatten()
-                viewModel.updatePreferredTags(preferredTags)
-
-                viewModel.submitHouseRegister(
-                    onSuccess = { onCompleteClick() },
-                    onError = { e ->
-                        Log.e("HouseRegisterScreen4", "등록 실패: ${e.message}")
-                        // 필요 시 추가 안내(Toast/다이얼로그) 추가 가능
-                    }
+        Button(onClick = {
+            if (mode == RegisterModel.EDIT) {
+                viewModel.submitEdit(
+                    onSuccess = onCompleteClick,
+                    onError = { /* 스낵바/토스트 */ }
                 )
-            },
+            } else {
+                viewModel.submitHouseRegister(
+                    onSuccess = onCompleteClick,
+                    onError = { /* 스낵바/토스트 */ }
+                )
+            }
+        },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
@@ -236,6 +228,7 @@ fun HouseRegisterScreen4Preview() {
 
     HouseRegisterScreen4(
         mode = RegisterModel.CREATE,
+        postingId = 1,
         onBackClick = {},
         onCompleteClick = {},
         viewModel = fakeViewModel

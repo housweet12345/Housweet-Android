@@ -41,9 +41,10 @@ import java.io.InputStreamReader
 @Composable
 fun HouseRegisterScreen2(
     mode: RegisterModel,
+    postingId: Int?,
     onNextClick: () -> Unit,
     onBackClick: () -> Unit,
-    viewModel: HouseRegisterViewModelBase = hiltViewModel<HouseRegisterViewModel>()
+    viewModel: HouseRegisterViewModelBase
 ) {
     var region by remember { mutableStateOf("") }
     var inputTitle by remember { mutableStateOf("") }
@@ -73,6 +74,22 @@ fun HouseRegisterScreen2(
             managementFee.isBlank() -> "관리비"
             moveInDate.isBlank() -> "입주 가능일"
             else -> null
+        }
+    }
+
+    LaunchedEffect(mode, postingId, regionBundle) {
+        if (mode == RegisterModel.EDIT && selectedRegion == null) {
+            val vmRegion = viewModel.region
+            if (vmRegion != null) {
+                val siName = regionBundle.siCodeToName[vmRegion.sidoCode].orEmpty()
+                val guName = regionBundle.guCodeToName[vmRegion.sigunguCode].orEmpty()
+                val dongName = regionBundle.dongCodeToName[vmRegion.dongCode].orEmpty()
+                selectedRegion = vmRegion.copy(
+                    sido = siName,
+                    sigungu = guName,
+                    dong = dongName
+                )
+            }
         }
     }
 
@@ -417,25 +434,54 @@ fun HouseRegisterScreen2(
 
 }
 
+private fun norm(s: String?): String =
+    s?.replace("\uFEFF", "")?.trim().orEmpty()
+
 fun readCsv(context: Context, fileName: String): List<Map<String, String>> {
-    val inputStream = context.assets.open(fileName)
-    val reader = BufferedReader(InputStreamReader(inputStream))
-    val headers = reader.readLine()?.split(",") ?: return emptyList()
-    return reader.lineSequence().mapNotNull { line ->
-        val values = line.split(",")
-        if (values.size == headers.size) {
-            headers.zip(values).toMap()
-        } else null
-    }.toList()
+//    val inputStream = context.assets.open(fileName)
+//    val reader = BufferedReader(InputStreamReader(inputStream))
+//    val headers = reader.readLine()?.split(",") ?: return emptyList()
+//    return reader.lineSequence().mapNotNull { line ->
+//        val values = line.split(",")
+//        if (values.size == headers.size) {
+//            headers.zip(values).toMap()
+//        } else null
+//    }.toList()
+    context.assets.open(fileName).use { inputStream ->
+        BufferedReader(InputStreamReader(inputStream, Charsets.UTF_8)).use { reader ->
+            val rawHeader = reader.readLine() ?: return emptyList()
+            val headers = rawHeader.split(",").map { norm(it) }
+
+            return reader.lineSequence()
+                .filter { it.isNotBlank() }
+                .map { line ->
+                    val cols = line.split(",").map { norm(it) }
+                    // 컬럼 개수가 모자라도 안전하게 매핑
+                    headers.zip(cols + List((headers.size - cols.size).coerceAtLeast(0)) { "" })
+                        .toMap()
+                }
+                .toList()
+        }
+    }
 }
 
 data class RegionDataBundle(
     val cities: List<String>,
     val districtMap: Map<String, List<String>>,
     val neighborhoodMap: Map<Pair<String, String>, List<String>>,
+
+    //원본 리스트
     val siList: List<Map<String, String>>,
     val guList: List<Map<String, String>>,
-    val dongList: List<Map<String, String>>
+    val dongList: List<Map<String, String>>,
+
+    // 코드 -> 이름 매핑 추가
+//    val siCodeToName: Map<Int, String>,
+//    val guCodeToName: Map<Int, String>,
+//    val dongCodeToName: Map<Long, String>
+    val siCodeToName: Map<String, String>,
+    val guCodeToName: Map<String, String>,
+    val dongCodeToName: Map<String, String>
 )
 
 
@@ -456,13 +502,34 @@ fun loadRegionDataBundle(context: Context): RegionDataBundle {
         valueTransform = { it["name"] ?: "" }
     ).mapValues { it.value.filter { it.isNotEmpty() } }
 
+    val siCodeToName = siList.mapNotNull {
+        val code = norm(it["code"]).takeIf { it.isNotEmpty() } ?: return@mapNotNull null
+        val name = norm(it["name"]).takeIf { it.isNotEmpty() } ?: return@mapNotNull null
+        code to name
+    }.toMap()
+
+    val guCodeToName = guList.mapNotNull {
+        val code = norm(it["code"]).takeIf { it.isNotEmpty() } ?: return@mapNotNull null
+        val name = norm(it["name"]).takeIf { it.isNotEmpty() } ?: return@mapNotNull null
+        code to name
+    }.toMap()
+
+    val dongCodeToName = dongList.mapNotNull {
+        val code = norm(it["code"]).takeIf { it.isNotEmpty() } ?: return@mapNotNull null
+        val name = norm(it["name"]).takeIf { it.isNotEmpty() } ?: return@mapNotNull null
+        code to name
+    }.toMap()
+
     return RegionDataBundle(
         cities = cities,
         districtMap = districtMap,
         neighborhoodMap = neighborhoodMap,
         siList = siList,
         guList = guList,
-        dongList = dongList
+        dongList = dongList,
+        siCodeToName = siCodeToName,
+        guCodeToName = guCodeToName,
+        dongCodeToName = dongCodeToName
     )
 }
 
@@ -473,6 +540,7 @@ fun HouseRegisterScreen2Preview() {
 
     HouseRegisterScreen2(
         mode = RegisterModel.CREATE,
+        postingId = 1,
         onNextClick = {},
         onBackClick = {},
         viewModel = fakeViewModel

@@ -1,6 +1,8 @@
 package com.housweet.presentation.viewmodel.registerhouse
 
+import android.content.Context
 import android.graphics.Bitmap
+import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.*
 import androidx.lifecycle.viewModelScope
@@ -15,7 +17,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.io.File
-import java.io.FileOutputStream
 import javax.inject.Inject
 
 @HiltViewModel
@@ -24,6 +25,8 @@ class HouseRegisterViewModel @Inject constructor(
     private val roomLocalDataSource: RoomLocalDataSource,
     private val imageUploadRepository: ImageUploadRepository
 ) : HouseRegisterViewModelBase() {
+
+    override var currentPostingId by mutableStateOf<Int?>(null)
 
     // Room ID 로깅용 함수
     override fun logRoomId() {
@@ -77,14 +80,37 @@ class HouseRegisterViewModel @Inject constructor(
         Log.d("HouseRegister", "📌 moveInDate: $moveInDate")
     }
 
-    // Step 3: Bitmap → File 변환 (data URI 형식 포함)
-    private suspend fun convertBitmapToFile(bitmap: Bitmap): File = withContext(Dispatchers.IO) {
-        val file = File.createTempFile("house_image", ".jpg")
-        FileOutputStream(file).use { out ->
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
+    // Step 3
+    override suspend fun uploadUris(context: Context, uris: List<Uri>): String? {
+        if (uris.isEmpty()) return null
+        return withContext(Dispatchers.IO) {
+            try {
+                val uri = uris.first()
+                val mime: String = context.contentResolver.getType(uri) ?: "application/octet-stream"
+                val ext: String = when {
+                    mime.endsWith("jpeg") || mime.endsWith("jpg") -> ".jpg"
+                    mime.endsWith("png") -> ".png"
+                    else -> ".jpg"
+                }
+                val tmp: File = File.createTempFile("house_image_", ext)
+                context.contentResolver.openInputStream(uri).use { input ->
+                    tmp.outputStream().use { output -> input?.copyTo(output) }
+                }
+                imageUploadRepository.uploadImage(tmp)
+            } catch (e: Exception) {
+                Log.e("ImageUpload", "upload failed: ${uris.first()}", e)
+                null
+            }
         }
-        file
     }
+
+    //JPEG 저장이 필요할 때만 사용
+    private suspend fun convertBitmapToFile(bitmap: Bitmap, quality: Int = 95): File =
+        withContext(Dispatchers.IO) {
+            val file = File.createTempFile("house_image", ".jpg")
+            file.outputStream().use { out -> bitmap.compress(Bitmap.CompressFormat.JPEG, quality, out) }
+            file
+        }
 
     // Step 4: 선호 태그
     override var preferredTags by mutableStateOf<List<String>>(emptyList())
@@ -103,17 +129,14 @@ class HouseRegisterViewModel @Inject constructor(
                 val roomId = roomLocalDataSource.getRoomId()
                     ?: throw Exception("Room ID not found")
 
-                val bitmaps: List<Bitmap> = imageBitmaps
-                if (bitmaps.isEmpty()) throw Exception("이미지 없음: 최소 한 장을 선택해주세요.")
+                val bitmap: Bitmap = imageBitmap ?: throw Exception("이미지 없음: 최소 한 장을 선택해주세요.")
 
-                //백엔드에서 1장만 받을 때, 첫 장만 업로드
-                val first = bitmaps.first()
-                val imageFile = convertBitmapToFile(first)
+                // 업로드
+                val imageFile = convertBitmapToFile(bitmap)
                 val uploadedImageUrl = imageUploadRepository.uploadImage(imageFile)
+                setImageUrl(uploadedImageUrl)
 
-                // 백엔드에서 여러 장 모두 업로드 가능하다면 아래 주석 해제. (루프 돌리기)
-                // val urls = bitmaps.map { convertBitmapToFile(it) }
-                //     .map { imageUploadRepository.uploadImage(it) }
+                val url = imageUrl ?: throw Exception("이미지 URL이 없습니다. 이미지를 첨부해 주세요.")
 
                 val model = HouseRegisterModel(
                     room = roomId,
@@ -122,7 +145,8 @@ class HouseRegisterViewModel @Inject constructor(
                     dong = region?.dongCode ?: throw Exception("동 정보 누락"),
                     title = title.ifBlank { throw Exception("제목 누락") },
                     content = description.ifBlank { throw Exception("설명 누락") },
-                    imageUri = uploadedImageUrl,
+                    imageUri = url,
+//                    images = urls,
                     trafficTags = houseTags, // 용도에 따라 분리 필요하면 분기
                     sizeOfHouseTags = emptyList(),
                     infraTags = emptyList(),
@@ -151,4 +175,87 @@ class HouseRegisterViewModel @Inject constructor(
             }
         }
     }
+
+    // 편집용 상세 불러오기
+    override suspend fun loadForEdit(postingId: Int) {
+        currentPostingId = postingId
+        val detail = houseRegisterRepository.getPostingDetail(postingId) // 아래 3) 참고
+
+        // 서버 응답을 ViewModel 상태에 프리필
+        // (응답 예시를 기반으로 매핑)
+        region = Region(
+            sidoCode = detail.si ?: "",
+            sigunguCode = detail.gu ?: "",
+            dongCode = detail.dong ?: "",
+            sido = "",
+            sigungu = "",
+            dong = "",
+            // 나머지 Region 필드는 내부 정의에 맞게 보정
+        )
+        title = detail.title.orEmpty()
+        description = detail.content.orEmpty()
+        deposit = detail.deposit?.toString().orEmpty()
+        monthlyRent = detail.rent?.toString().orEmpty()
+        managementFee = detail.managementFee?.toString().orEmpty()
+        moveInDate = detail.availableFrom.orEmpty()
+
+        // 태그: 서버 스키마에 맞춰 합치거나 분리
+        houseTags = (detail.trafficTags ?: emptyList()) +
+                (detail.infraTags ?: emptyList())
+        preferredTags = (detail.personalityTags ?: emptyList())
+
+        //단일 필드만 있으면 리스트로 변환해서 보여주기(서버가 배열 지원 전까지 임시)
+        val existing = detail.imageUri
+//        val existing = detail.images
+        if (!existing.isNullOrBlank()) {
+            clearImages()
+            setImageUrl(existing)
+        }
+    }
+
+    // 편집 PATCH
+    override fun submitEdit(onSuccess: () -> Unit, onError: (Throwable) -> Unit) {
+        viewModelScope.launch {
+            try {
+                val postingId = currentPostingId ?: throw IllegalStateException("postingId 없음")
+
+                val finalUrl: String = if (imageBitmap != null) {
+                    val file = convertBitmapToFile(imageBitmap!!)
+                    imageUploadRepository.uploadImage(file)
+                } else {
+                    imageUrl ?: houseRegisterRepository.getPostingDetail(postingId).imageUri
+                    ?: throw Exception("편집에 사용할 이미지 URL이 없습니다.")
+                }
+
+                val model = buildModel(finalUrl)
+                houseRegisterRepository.updateHouse(postingId, model)
+
+                onSuccess()
+            } catch (e: Exception) {
+                onError(e)
+            }
+        }
+    }
+
+    private fun buildModel(url: String) = HouseRegisterModel(
+        room = currentPostingId ?: 0, // 서버 스펙에 맞게 조정 필요
+        si = region?.sidoCode ?: "",
+        gu = region?.sigunguCode ?: "",
+        dong = region?.dongCode ?: "",
+        title = title,
+        content = description,
+        imageUri = url,     // ✅ 배열
+//        images = urls,
+
+        trafficTags = houseTags,
+        sizeOfHouseTags = emptyList(),
+        infraTags = emptyList(),
+        lifePatternTags = emptyList(),
+        tidyingUpHabitTags = emptyList(),
+        personalityTags = preferredTags,
+        rent = monthlyRent.toIntOrNull() ?: 0,
+        deposit = deposit.toIntOrNull() ?: 0,
+        managementFee = managementFee.toIntOrNull() ?: 0,
+        availableFrom = moveInDate
+    )
 }
