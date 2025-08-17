@@ -52,16 +52,28 @@ sealed interface Route {
 
     sealed interface HouseRegisterRoute : Route {
         @Serializable
-        data class Step1(val mode: RegisterModel = RegisterModel.CREATE) : HouseRegisterRoute
+        data class Step1(
+            val mode: RegisterModel = RegisterModel.CREATE,
+            val postingId: Int? = null
+        ) : HouseRegisterRoute
 
         @Serializable
-        data class Step2(val mode: RegisterModel = RegisterModel.CREATE) : HouseRegisterRoute
+        data class Step2(
+            val mode: RegisterModel = RegisterModel.CREATE,
+            val postingId: Int? = null
+        ) : HouseRegisterRoute
 
         @Serializable
-        data class Step3(val mode: RegisterModel = RegisterModel.CREATE) : HouseRegisterRoute
+        data class Step3(
+            val mode: RegisterModel = RegisterModel.CREATE,
+            val postingId: Int? = null
+        ) : HouseRegisterRoute
 
         @Serializable
-        data class Step4(val mode: RegisterModel = RegisterModel.CREATE) : HouseRegisterRoute
+        data class Step4(
+            val mode: RegisterModel = RegisterModel.CREATE,
+            val postingId: Int? = null
+        ) : HouseRegisterRoute
     }
 
     sealed interface ChatRoute : Route {

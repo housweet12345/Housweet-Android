@@ -26,10 +26,22 @@ fun RegionBottomSheet(
     var selectedCity by remember { mutableStateOf<String?>(null) }
     var selectedDistrict by remember { mutableStateOf<String?>(null) }
 
-    val districtList = selectedCity?.let { districtMap[it] } ?: emptyList()
+    fun norm(s: String?) = s?.replace("\uFEFF", "")?.trim().orEmpty()
+
+//    val districtList = selectedCity?.let { districtMap[it] } ?: emptyList()
+//    val neighborhoodList = selectedCity?.let { city ->
+//        selectedDistrict?.let { district ->
+//            neighborhoodMap[city to district]
+//        }
+//    } ?: emptyList()
+
+    val districtList = selectedCity?.let { city ->
+        districtMap[norm(city)] ?: emptyList()
+    } ?: emptyList()
+
     val neighborhoodList = selectedCity?.let { city ->
         selectedDistrict?.let { district ->
-            neighborhoodMap[city to district]
+            neighborhoodMap[norm(city) to norm(district)]
         }
     } ?: emptyList()
 
@@ -75,6 +87,7 @@ fun RegionBottomSheet(
                                     .fillMaxWidth()
                                     .clickable {
                                         selectedCity = city
+                                        selectedDistrict = null
                                         currentStep = 2
                                     }
                                     .padding(8.dp)
@@ -83,7 +96,8 @@ fun RegionBottomSheet(
                     }
 
                     2 -> {
-                        items(districtList) { district ->
+                        items(districtList) { rawDistrict ->
+                            val district = norm(rawDistrict)
                             Text(
                                 text = district,
                                 modifier = Modifier
@@ -98,31 +112,61 @@ fun RegionBottomSheet(
                     }
 
                     3 -> {
-                        items(neighborhoodList) { neighborhood ->
+                        items(neighborhoodList ?: emptyList()) { rawNeighborhood ->
+                            val neighborhood = norm(rawNeighborhood)
                             Text(
                                 text = neighborhood,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {
-                                        selectedCity?.let { city ->
-                                            selectedDistrict?.let { district ->
-                                                onRegionSelected(
-                                                    Region(
-                                                        sido = city,
-                                                        sigungu = district,
-                                                        dong = neighborhood,
-                                                        sidoCode = citiesWithCodes.find { it["name"] == city }?.get("code") ?: "",
-                                                        sigunguCode = districtsWithCodes.find {
-                                                            it["si__name"] == city && it["name"] == district
-                                                        }?.get("code") ?: "",
-                                                        dongCode = neighborhoodsWithCodes.find {
-                                                            it["si__name"] == city && it["gu__name"] == district && it["name"] == neighborhood
-                                                        }?.get("code") ?: ""
-                                                    )
-                                                )
+                                        val city = norm(selectedCity)
+                                        val district = norm(selectedDistrict)
 
-                                            }
-                                        }
+                                        // 이름 → 코드(Int) 매핑
+                                        val siCode = citiesWithCodes.firstOrNull {
+                                            norm(it["name"]) == city
+                                        }?.let { norm(it["code"]).toIntOrNull() } ?: return@clickable
+
+                                        val guCode = districtsWithCodes.firstOrNull {
+                                            norm(it["si__name"]) == city && norm(it["name"]) == district
+                                        }?.let { norm(it["code"]).toIntOrNull() } ?: return@clickable
+
+                                        val dongCode = neighborhoodsWithCodes.firstOrNull {
+                                            norm(it["si__name"]) == city &&
+                                                    norm(it["gu__name"]) == district &&
+                                                    norm(it["name"]) == neighborhood
+                                        }?.let { norm(it["code"]).toLongOrNull() } ?: return@clickable
+
+                                        // Region 조립 (코드는 Int)
+                                        onRegionSelected(
+                                            Region(
+                                                sido = city,
+                                                sigungu = district,
+                                                dong = neighborhood,
+                                                sidoCode = siCode,
+                                                sigunguCode = guCode,
+                                                dongCode = dongCode
+                                            )
+                                        )
+//                                        selectedCity?.let { city ->
+//                                            selectedDistrict?.let { district ->
+//                                                onRegionSelected(
+//                                                    Region(
+//                                                        sido = city,
+//                                                        sigungu = district,
+//                                                        dong = neighborhood,
+//                                                        sidoCode = citiesWithCodes.find { it["name"] == city }?.get("code") ?: "",
+//                                                        sigunguCode = districtsWithCodes.find {
+//                                                            it["si__name"] == city && it["name"] == district
+//                                                        }?.get("code") ?: "",
+//                                                        dongCode = neighborhoodsWithCodes.find {
+//                                                            it["si__name"] == city && it["gu__name"] == district && it["name"] == neighborhood
+//                                                        }?.get("code") ?: ""
+//                                                    )
+//                                                )
+//
+//                                            }
+//                                        }
                                     }
                                     .padding(8.dp)
                             )

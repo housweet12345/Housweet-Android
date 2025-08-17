@@ -1,15 +1,16 @@
-package com.housweet.presentation.ui.mypage
+package com.housweet.presentation.viewmodel.mypage
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.housweet.domain.usecase.UseCases
+import com.housweet.presentation.ui.mypage.BookmarkUiItem
+import com.housweet.presentation.ui.mypage.toUi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.collections.toMutableList
 
 @HiltViewModel
 class BookmarkViewModel @Inject constructor(

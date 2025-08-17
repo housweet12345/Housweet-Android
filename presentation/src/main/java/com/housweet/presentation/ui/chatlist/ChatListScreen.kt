@@ -104,7 +104,7 @@ fun ChatListContent(
                     val formatted = dateTime.format(formatter)
                     ChatListItem(
                             chat = ChatPreview(
-                            name = user.receiver_id.toString(),
+                            name = user.receiver_nickname.toString(),
                             lastMessage = "",
 //                            lastMessage = "",
                             time = formatted,
@@ -114,7 +114,7 @@ fun ChatListContent(
                         ),
                         onClick = {
                             val encodedName = Base64.encodeToString(
-                                user.receiver_id.toString().toByteArray(),
+                                user.receiver_nickname.toString().toByteArray(),
                                 Base64.URL_SAFE or Base64.NO_WRAP
                             )
                             navController.navigate("chat_detail/${user.sender_id}/$encodedName")
@@ -138,7 +138,10 @@ fun ChatListScreenPreview() {
             created_at = "2025-08-15T09:38:19",
             updated_at = "2025-08-15T09:38:19",
             is_blocked = false,
-            counterpart_id = 5,
+            counterpart_id = 1,
+            sender_nickname = "테스트3",
+            receiver_nickname = "테스트1",
+            counterpart_nickname = "테스트1",
         ),
         ChatUser(
             room_id = 1,
@@ -147,7 +150,10 @@ fun ChatListScreenPreview() {
             created_at = "2025-08-15T09:38:19",
             updated_at = "2025-08-15T09:38:19",
             is_blocked = false,
-            counterpart_id = 5,
+            counterpart_id = 2,
+            sender_nickname = "테스트3",
+            receiver_nickname = "테스트2",
+            counterpart_nickname = "테스트2",
         ),
         ChatUser(
             room_id = 1,
@@ -156,7 +162,10 @@ fun ChatListScreenPreview() {
             created_at = "2025-08-15T09:38:19",
             updated_at = "2025-08-15T09:38:19",
             is_blocked = false,
-            counterpart_id = 5,
+            counterpart_id = 4,
+            sender_nickname = "테스트3",
+            receiver_nickname = "테스트4",
+            counterpart_nickname = "테스트4",
         )
     )
 

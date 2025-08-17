@@ -11,7 +11,7 @@ data class ImageUploadResponse(
 
 interface ImageUploadApiService {
     @Multipart
-    @POST("upload-image")
+    @POST("upload-image/")
     suspend fun uploadImage(
         @Part image: MultipartBody.Part
     ): ImageUploadResponse
