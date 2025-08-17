@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.housweet.domain.model.Report
 import com.housweet.domain.usecase.ReportUseCase
 import com.housweet.domain.usecase.auth.GetCurrentUserIdUseCase
+import com.housweet.domain.usecase.profile.BlockUserUseCase
 import com.housweet.domain.usecase.profile.GetMyProfileUseCase
 import com.housweet.domain.usecase.profile.GetOtherUserProfileUseCase
 import com.housweet.presentation.ui.profile.state.ProfileInfoState
@@ -21,6 +22,7 @@ class ProfileInfoViewModel @Inject constructor(
     private val myProfileUseCase: GetMyProfileUseCase,
     private val otherProfileUseCase: GetOtherUserProfileUseCase,
     private val reportUseCase: ReportUseCase,
+    private val blockUserUseCase: BlockUserUseCase,
     private val getCurrentUserIdUseCase: GetCurrentUserIdUseCase
 ): ViewModel() {
     private val _profileState: MutableStateFlow<ProfileInfoState> = MutableStateFlow(ProfileInfoState.Loading)
@@ -28,6 +30,9 @@ class ProfileInfoViewModel @Inject constructor(
 
     private val _reportResult = MutableStateFlow<ReportResult?>(null)
     val reportResult: StateFlow<ReportResult?> = _reportResult.asStateFlow()
+
+    private val _blockResult = MutableStateFlow<BlockResult?>(null)
+    val blockResult: StateFlow<BlockResult?> = _blockResult.asStateFlow()
 
     fun loadProfile(userId: String? = null) {
         viewModelScope.launch {
@@ -99,9 +104,35 @@ class ProfileInfoViewModel @Inject constructor(
         }
     }
 
+    fun blockUser(blockedUserId: Int) {
+        viewModelScope.launch {
+            _blockResult.value = BlockResult.Loading
+            try {
+                val result = blockUserUseCase(blockedUserId)
+                result.onSuccess { success ->
+                    if (success) {
+                        _blockResult.value = BlockResult.Success
+                    } else {
+                        _blockResult.value = BlockResult.Error(Exception("차단에 실패했습니다"))
+                    }
+                }.onFailure { exception ->
+                    _blockResult.value = BlockResult.Error(exception)
+                }
+            } catch (e: Exception) {
+                _blockResult.value = BlockResult.Error(e)
+            }
+        }
+    }
+
     sealed class ReportResult {
         data object Loading : ReportResult()
         data class Success(val data: Report) : ReportResult()
         data class Error(val exception: Throwable) : ReportResult()
+    }
+
+    sealed class BlockResult {
+        data object Loading : BlockResult()
+        data object Success : BlockResult()
+        data class Error(val exception: Throwable) : BlockResult()
     }
 }
