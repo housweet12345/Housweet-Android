@@ -88,25 +88,37 @@ private fun SelectionButton(
     text: String,
     isSelected: Boolean,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
+    enabled: Boolean = true
 ) {
     Box(
         modifier = modifier
             .fillMaxWidth()
             .height(36.dp) // 원하는 정확한 높이 지정
             .clip(RoundedCornerShape(6.dp))
-            .background(if (isSelected) ColorGroup.Primary else ColorGroup.White_F8F8F8)
+            .background(
+                when {
+                    isSelected && !enabled -> ColorGroup.Primary_Disabled
+                    isSelected && enabled -> ColorGroup.Primary
+                    else -> ColorGroup.White_F8F8F8
+                }
+            )
             .border(
                 width = 0.2.dp,
                 color = ColorGroup.Gray_CBCBCB,
                 shape = RoundedCornerShape(6.dp)
             )
-            .clickable(onClick = onClick),
+            .let { if (enabled) it.clickable(onClick = onClick) else it },
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = text,
-            color = if (isSelected) Color.White else ColorGroup.Gray_7E7E7E,
+            color = when {
+                isSelected && !enabled -> Color.White
+                isSelected && enabled -> Color.White
+                !enabled -> ColorGroup.Gray_CBCBCB
+                else -> ColorGroup.Gray_7E7E7E
+            },
             fontSize = 12.sp,
             maxLines = 1 // 한 줄로 제한
         )
@@ -186,7 +198,8 @@ fun ToggleButtonGroup(
     option2: String,
     selectedOption: Int,
     modifier: Modifier = Modifier,
-    onOptionSelected: (Int) -> Unit
+    onOptionSelected: (Int) -> Unit,
+    enabled: Boolean = true
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -196,14 +209,16 @@ fun ToggleButtonGroup(
             text = option1,
             isSelected = selectedOption == 1,
             modifier = Modifier.weight(1f),
-            onClick = { onOptionSelected(1) }
+            onClick = { if (enabled) onOptionSelected(1) },
+            enabled = enabled
         )
 
         SelectionButton(
             text = option2,
             isSelected = selectedOption == 2,
             modifier = Modifier.weight(1f),
-            onClick = { onOptionSelected(2) }
+            onClick = { if (enabled) onOptionSelected(2) },
+            enabled = enabled
         )
     }
 }
@@ -216,10 +231,12 @@ fun ProfileEditNameTextField(
     modifier: Modifier = Modifier,
     contentAlignment: Alignment = Alignment.CenterStart,
     keyboardType: KeyboardType = KeyboardType.Text,
-    imeAction: ImeAction = ImeAction.Done
+    imeAction: ImeAction = ImeAction.Done,
+    enabled: Boolean = true
 ) {
     BasicTextField(
         value = value,
+        enabled = enabled,
         onValueChange = onValueChange,
         modifier = modifier
             .fillMaxWidth()
@@ -233,10 +250,10 @@ fun ProfileEditNameTextField(
                 color = ColorGroup.Gray_CBCBCB,
                 shape = RoundedCornerShape(6.dp)
             )
-            .background(Color.White),
+            .background(if (enabled) Color.White else ColorGroup.White_F8F8F8),
         textStyle = TextStyle(
             fontSize = 14.sp,
-            color = Color.Black
+            color = if (enabled) Color.Black else ColorGroup.Gray_7E7E7E
         ),
         keyboardOptions = KeyboardOptions(
             keyboardType = keyboardType,
@@ -300,6 +317,7 @@ fun InfoMessage(
 @Composable
 fun BottomButton(
     text: String = "다음",
+    enabled: Boolean = true,
     onClick: () -> Unit = {}
 ) {
     Column(
@@ -307,11 +325,13 @@ fun BottomButton(
     ) {
         Button(
             onClick = onClick,
+            enabled = enabled,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = ColorGroup.Primary
+                containerColor = if (enabled) ColorGroup.Primary else ColorGroup.Gray_CBCBCB,
+                disabledContainerColor = ColorGroup.Gray_CBCBCB
             ),
             shape = RectangleShape
         ) {
@@ -319,7 +339,7 @@ fun BottomButton(
                 text = text,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Medium,
-                color = Color.White
+                color = if (enabled) Color.White else ColorGroup.Gray_7E7E7E
             )
         }
     }
