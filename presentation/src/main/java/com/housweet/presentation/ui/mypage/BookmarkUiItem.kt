@@ -7,6 +7,7 @@ data class BookmarkUiItem(
     val title: String,
     val thumbnailUrl: String?,
     val price: String,           // "보증금 294 / 월세 47"
+    val areaText : String,
     val ageGender: String,
     val bookmarked: Boolean = true
 )
@@ -18,6 +19,7 @@ fun BookmarkItem.toUi(): BookmarkUiItem {
         title = title,
         thumbnailUrl = imageUri,
         price = "보증금 ${deposit.toManwon()} / 월세 ${rent.toManwon()}",
+        areaText = areaText,
         ageGender = ageRangeAndGender,
         bookmarked = true
     )
