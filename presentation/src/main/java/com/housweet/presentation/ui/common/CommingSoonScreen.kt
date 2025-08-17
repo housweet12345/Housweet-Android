@@ -25,9 +25,11 @@ import com.housweet.presentation.R
 import com.housweet.presentation.ui.theme.ColorGroup
 
 @Composable
-fun ComingSoonScreen() {
+fun ComingSoonScreen(
+    modifier: Modifier = Modifier
+) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(Color(0xFFF5F5F5)),
         contentAlignment = Alignment.Center

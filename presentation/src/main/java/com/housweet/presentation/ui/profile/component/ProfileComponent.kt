@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -40,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
+import com.housweet.presentation.R
 import com.housweet.presentation.ui.theme.ColorGroup
 
 
@@ -87,63 +89,85 @@ fun ProfileTopBar(
 @Composable
 fun ProfileImage(
     imageUrl: String? = null,
-    size: Int = 120,
+    size: Int = 100,
+    showCameraIcon: Boolean = false,
+    onCameraClick: () -> Unit = {}
 ) {
     Box(
-        modifier = Modifier
-            .size(size.dp)
-            .clip(CircleShape),
+        modifier = Modifier.size(size.dp),
         contentAlignment = Alignment.Center
     ) {
-        if (imageUrl.isNullOrEmpty()) {
-            // 기본 프로필 이미지 표시
-            Box(
-                modifier = Modifier
-                    .size(size.dp)
-                    .clip(CircleShape)
-                    .border(1.dp, ColorGroup.Gray_CBCBCB, CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    painter = painterResource(id = android.R.drawable.ic_menu_gallery), // 프로필 기본 아이콘
-                    contentDescription = "기본 프로필",
-                    modifier = Modifier.size((size / 2).dp),
-                    tint = ColorGroup.Gray_CBCBCB
+        // 프로필 이미지 (원형으로 클립)
+        Box(
+            modifier = Modifier
+                .size(size.dp)
+                .clip(CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            if (imageUrl.isNullOrEmpty()) {
+                // 기본 프로필 이미지 표시
+                SubcomposeAsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(R.drawable.default_profile_img)
+                        .build(),
+                    contentDescription = "기본 프로필 이미지",
+                    modifier = Modifier
+                        .size(size.dp),
+                    contentScale = ContentScale.Crop
                 )
-            }
-        } else {
-            // Coil을 사용하여 서버에서 이미지 로드
-            SubcomposeAsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(imageUrl)
-                    .build(),
-                contentDescription = "프로필 이미지",
-                modifier = Modifier
-                    .size(size.dp)
-                    .clip(CircleShape)
-                    .border(1.dp, ColorGroup.Gray_CBCBCB, CircleShape),
-                contentScale = ContentScale.Crop,
-                loading = {
-                    //로딩 처리 필요시 코드 추가
-                },
-                error = {
-                    // 이미지 로드 실패 시 기본 이미지 표시
-                    Box(
-                        modifier = Modifier
-                            .size(size.dp)
-                            .clip(CircleShape)
-                            .border(1.dp, ColorGroup.Gray_CBCBCB, CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            painter = painterResource(id = android.R.drawable.ic_menu_gallery),
-                            contentDescription = "이미지 로드 실패",
-                            modifier = Modifier.size((size / 2).dp),
-                            tint = ColorGroup.Gray_CBCBCB
+            } else {
+                // Coil을 사용하여 서버에서 이미지 로드
+                SubcomposeAsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(imageUrl)
+                        .build(),
+                    contentDescription = "프로필 이미지",
+                    modifier = Modifier
+                        .size(size.dp)
+                        .clip(CircleShape)
+                        .border(1.dp, ColorGroup.Gray_CBCBCB, CircleShape),
+                    contentScale = ContentScale.Crop,
+                    loading = {
+                        //로딩 처리 필요시 코드 추가
+                    },
+                    error = {
+                        // 이미지 로드 실패 시 기본 이미지 표시
+                        SubcomposeAsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(R.drawable.default_profile_img)
+                                .build(),
+                            contentDescription = "기본 프로필 이미지",
+                            modifier = Modifier
+                                .size(size.dp)
+                                .clip(CircleShape)
+                                .border(1.dp, ColorGroup.Gray_CBCBCB, CircleShape),
+                            contentScale = ContentScale.Crop
                         )
                     }
+                )
+            }
+        }
+        
+        // 카메라 아이콘 (오른쪽 아래)
+        if (showCameraIcon) {
+            Box(
+                modifier = Modifier
+                    .size(32.dp)
+                    .align(Alignment.BottomEnd),
+                contentAlignment = Alignment.Center
+            ) {
+                IconButton(
+                    modifier = Modifier.size(25.dp),
+                    onClick = onCameraClick,
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_camera),
+                        contentDescription = "사진 변경",
+                        tint = Color.Unspecified,
+                        modifier = Modifier.size(25.dp)
+                    )
                 }
-            )
+            }
         }
     }
 }
@@ -154,6 +178,7 @@ fun ProfileInfoSection(
     age: String,
     gender: String,
     introduction: String,
+    imageUrl: String? = null,
 ) {
     Column(
         modifier = Modifier
@@ -165,7 +190,7 @@ fun ProfileInfoSection(
         Box(
             modifier = Modifier.fillMaxWidth()
         ) {
-            ProfileImage(size = 40)
+            ProfileImage(imageUrl = imageUrl, size = 40)
 
             // 상태 표시 버튼들
             Row(
@@ -400,6 +425,7 @@ private fun ProfileInfoSectionPreview() {
         gender = "남자",
         age = "20대",
         introduction = "안녕하세요, 잘부탁드립니다",
+        imageUrl = null
     )
 }
 
