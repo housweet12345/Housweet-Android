@@ -22,8 +22,8 @@ data class RoomPostingDetail(
     val roadAddress: String? = null,
     val detailedAddress: String? = null,
 
-    val si: Int = 0,
-    val gu: Int = 0,
-    val dong: Long = 0,
+    val si: String? = null,
+    val gu: String? = null,
+    val dong: String? = null,
     val isVisible: Boolean = true
 )
