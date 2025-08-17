@@ -28,8 +28,7 @@ fun ProfileRoute(
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        val id = if (userId == "me") null else userId
-        viewModel.loadProfile(id)
+        viewModel.loadProfile(userId)
     }
 
     LaunchedEffect(key1 = reportResult.value) {

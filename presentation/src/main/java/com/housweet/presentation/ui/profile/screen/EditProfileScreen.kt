@@ -173,7 +173,7 @@ fun EditProfileScreen(
                     modifier = Modifier.weight(1f),
                     selectedYear = yearOfBirthState,
                     onYearSelected = { yearOfBirthState = it },
-                    enabled = yearOfBirth.isEmpty() // 기존 데이터가 없을 때만 활성화
+                    enabled = yearOfBirth.isEmpty() && yearOfBirthState.isEmpty() // 기존 데이터와 현재 상태 모두 비어있을 때만 활성화
                 )
                 Spacer(Modifier.width(10.dp))
                 ToggleButtonGroup(
@@ -182,12 +182,12 @@ fun EditProfileScreen(
                     option2 = "여자",
                     selectedOption = selectedOption,
                     onOptionSelected = { selectedOption = it },
-                    enabled = gender.isEmpty() // 기존 값이 있으면 비활성화
+                    enabled = gender.isEmpty() && genderState.isEmpty() // 기존 값과 현재 상태 모두 비어있을 때만 활성화
                 )
             }
 
             // 안내 메시지
-            if (gender.isEmpty() && yearOfBirth.isEmpty()){
+            if (gender.isEmpty() && yearOfBirth.isEmpty() && genderState.isEmpty() && yearOfBirthState.isEmpty()){
                 InfoMessage(
                     message = "나이와 성별은 한 번 선택 후 변경이 불가능합니다.\n신중하게 선택해 주세요.",
                     modifier = Modifier.padding(top = 12.dp)
