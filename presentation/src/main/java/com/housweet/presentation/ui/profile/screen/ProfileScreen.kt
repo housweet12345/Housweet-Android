@@ -41,16 +41,26 @@ fun ProfileScreen(
     var menuExpanded by remember { mutableStateOf(false) }
     var showBlockDialog by remember { mutableStateOf(false) }
 
-    val menuItems = listOf(
-        MenuItem(text = "차단하기") { 
-            showBlockDialog = true
-            menuExpanded = false
-        },
-        MenuItem(text = "신고하기") {
+    val menuItems = buildList {
+        // 차단 관련 메뉴 아이템
+        if (profileInfo.isBlockedUser == true) {
+            add(MenuItem(text = "차단해지") {
+                showBlockDialog = true
+                menuExpanded = false
+            })
+        } else {
+            add(MenuItem(text = "차단하기") { 
+                showBlockDialog = true
+                menuExpanded = false
+            })
+        }
+        
+        // 신고하기 메뉴 아이템
+        add(MenuItem(text = "신고하기") {
             onReportClick( "user", profileInfo.userId)
             menuExpanded = false
-        }
-    )
+        })
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -106,7 +116,7 @@ fun ProfileScreen(
                     menuExpanded = false
                     onBlockClick(profileInfo.userId)
                 },
-                dialogText = "차단하시겠습니까?"
+                dialogText = if (profileInfo.isBlockedUser == true) "차단 해지하시겠습니까?" else "차단하시겠습니까?"
             )
         }
     }

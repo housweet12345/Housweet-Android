@@ -19,7 +19,8 @@ class FakeUserRepositoryImpl : UserRepository {
         gender = "남자",
         mbti = "ENFP",
         tags = listOf("개발자", "안드로이드", "코틀린"),
-        isCheckedUser = true
+        isCheckedUser = true,
+        isBlockedUser = false
     )
 
     private val fakeProfileUpdateResponseModel = ProfileUpdateResponseModel(
