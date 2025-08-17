@@ -128,7 +128,10 @@ class MainActivity : ComponentActivity() {
             ) { paddingValues ->
                 NavHost(
                     navController = navController,
-                    startDestination = if (!isFailedRefreshToken) Route.StartPageRoute.Splash else Route.StartPageRoute.LoginRoute.Login,
+//                    startDestination = if (!isFailedRefreshToken) Route.StartPageRoute.Splash else Route.StartPageRoute.LoginRoute.Login,
+
+                    //access_token Log 확인 테스트용
+                    startDestination = Route.StartPageRoute.LoginRoute.Login,
                     modifier = Modifier.padding(top = paddingValues.calculateTopPadding())
                 ) {
                     composable<Route.StartPageRoute.Splash> {
@@ -420,34 +423,42 @@ class MainActivity : ComponentActivity() {
                     composable<Route.HouseRegisterRoute.Step1> {
                         val route = it.toRoute<Route.HouseRegisterRoute.Step1>()
                         val mode = route.mode
+                        val postingId = route.postingId
 
                         HouseRegisterScreen1(
                             mode = mode,
+                            postingId = postingId,
                             onNextClick = { navController.navigate(Route.HouseRegisterRoute.Step2(mode)) },
                             onBackClick = {
                                 navigationManager.navigateOneWay(
                                     Route.HouseRegisterRoute.Step1(mode),
                                     Route.CommunityPageRoute.Map()
                                 )
-                            }
+                            },
+                            viewModel = houseRegisterViewModel
                         )
                     }
                     composable<Route.HouseRegisterRoute.Step2> {
                         val route = it.toRoute<Route.HouseRegisterRoute.Step2>()
                         val mode = route.mode
+                        val postingId = route.postingId
 
                         HouseRegisterScreen2(
                             mode = mode,
+                            postingId = postingId,
                             onNextClick = { navController.navigate(Route.HouseRegisterRoute.Step3(mode)) },
-                            onBackClick = { navController.navigate(Route.HouseRegisterRoute.Step1(mode)) }
+                            onBackClick = { navController.navigate(Route.HouseRegisterRoute.Step1(mode)) },
+                            viewModel = houseRegisterViewModel
                         )
                     }
                     composable<Route.HouseRegisterRoute.Step3> {
                         val route = it.toRoute<Route.HouseRegisterRoute.Step3>()
                         val mode = route.mode
+                        val postingId = route.postingId
 
                         HouseRegisterScreen3(
                             mode = mode,
+                            postingId = postingId,
                             onNextClick = { navController.navigate(Route.HouseRegisterRoute.Step4(mode)) },
                             onBackClick = { navController.navigate(Route.HouseRegisterRoute.Step2(mode)) },
                             viewModel = houseRegisterViewModel
@@ -456,9 +467,11 @@ class MainActivity : ComponentActivity() {
                     composable<Route.HouseRegisterRoute.Step4> {
                         val route = it.toRoute<Route.HouseRegisterRoute.Step4>()
                         val mode = route.mode
+                        val postingId = route.postingId
 
                         HouseRegisterScreen4(
                             mode = mode,
+                            postingId = postingId,
                             onBackClick = { navController.navigate(Route.HouseRegisterRoute.Step3(mode)) },
                             onCompleteClick = {},
                             viewModel = houseRegisterViewModel
@@ -604,7 +617,7 @@ class MainActivity : ComponentActivity() {
                             onBackClick = { navController.popBackStack() }
                         )
                     }
-                    
+
                     // ✅ 추가
                     composable(
                         route = "notice_detail/{id}",

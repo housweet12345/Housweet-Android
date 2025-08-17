@@ -27,6 +27,7 @@ import com.housweet.presentation.R
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.housweet.domain.model.BookmarkItem
+import com.housweet.presentation.viewmodel.mypage.BookmarkViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -148,6 +149,8 @@ fun BookmarkCard(
                 modifier = Modifier.padding(top = 4.dp)
             )
             Row(modifier = Modifier.padding(top = 2.dp)) {
+                Text(text = item.areaText, fontSize = 10.sp)
+                Spacer(modifier = Modifier.width(6.dp))
                 Text(text = item.ageGender, fontSize = 10.sp, color = Color.Gray)
             }
         }
@@ -171,8 +174,8 @@ fun BookmarkCard(
 @Composable
 fun BookmarkScreenPreview() {
     val previewItems = listOf(
-        BookmarkUiItem(1, "프리뷰용 북마크 1입니다", null, "보증금 100 / 월세 30", "20대 여성", true),
-        BookmarkUiItem(2, "프리뷰용 북마크 2입니다", null, "보증금 200 / 월세 40", "30대 남성", true)
+        BookmarkUiItem(1, "프리뷰용 북마크 1입니다", null, "보증금 100 / 월세 30", "강원특별자치도 춘천시", "20대 여성", true),
+        BookmarkUiItem(2, "프리뷰용 북마크 2입니다", null, "보증금 200 / 월세 40", "강원특별자치도 춘천시", "30대 남성", true)
     )
 
     BookmarkContent(
