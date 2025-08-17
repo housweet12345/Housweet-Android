@@ -59,7 +59,7 @@ fun HouseRegisterScreen1(
             "교통 나쁘지 않음"),
         "집 상태" to listOf("쾌적함", "채광 좋음", "뷰가 좋음", "환기 잘 됨", "리모델링함", "관리 잘 됨", "방음 잘 됨", "층간 소음 없음", "풀옵션", "냉난방 잘 됨", "저층", "고층", "엘레베이터", "벌레 없음"),
         "인프라" to listOf("마트", "편의점", "카페", "식당", "병원", "공원", "산책로", "숲세권", "약국", "전통시장", "헬스장", "대학가", "상권 많음"),
-        "기타" to listOf("치안 좋음", "밤길 안전함", "전입신고 가능", "전입신고 불가능", "단기 거주 가능", "장기 거주 가능", "장기 거주 희망", "즉시 입주 가능", "입주일 상의 필요", "월세 및 보증금 협의 가능", "월세 및 보증금 협의 불가")
+//        "기타" to listOf("치안 좋음", "밤길 안전함", "전입신고 가능", "전입신고 불가능", "단기 거주 가능", "장기 거주 가능", "장기 거주 희망", "즉시 입주 가능", "입주일 상의 필요", "월세 및 보증금 협의 가능", "월세 및 보증금 협의 불가")
     )
 
     // 2) 섹션별 선택 상태 저장
@@ -164,9 +164,13 @@ fun HouseRegisterScreen1(
             onClick = {
                 val missing = firstMissingSectionOrNull()
                 if (missing == null) {
-                    // 섹션별로 모아진 선택값을 평탄화해서 VM에 전달
-                    val allSelected = selectedBySection.values.flatten()
-                    viewModel.updateHouseTags(allSelected)
+                    val traffic = selectedBySection["교통"]?.toList() ?: emptyList()
+                    val size    = selectedBySection["집 상태"]?.toList() ?: emptyList()
+                    val infra   = selectedBySection["인프라"]?.toList() ?: emptyList()
+
+                    viewModel.updateHouseTags(traffic)          // ✅ 교통 → traffic_tags
+                    viewModel.updateSizeOfHouseTags(size)       // ✅ 집 상태 → size_of_house_tags
+                    viewModel.updateInfraTags(infra)            // ✅ 인프라 → infra_tags
                     onNextClick()
                 } else {
                     missingSectionName = missing
