@@ -1,10 +1,8 @@
 package com.housweet.presentation.ui.startPage.loginPage.loginScreen
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.housweet.domain.usecase.UseCases
-import com.housweet.presentation.ui.startPage.splashPage.SplashEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -32,7 +30,7 @@ class LoginViewModel @Inject constructor(
                 email = email
             ).collect {
                 it.onSuccess { isTermsOfServiceAgreed ->
-                    isBelongToRoom(isTermsOfServiceAgreed)
+                    isSetProfile(isTermsOfServiceAgreed)
                 }
                 it.onFailure {
                     loginFail()
@@ -41,14 +39,28 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    private suspend fun isBelongToRoom(isTermsOfServiceAgreed: Boolean) {
-        useCases.isBelongToRoomUseCase().collect {
-            it.onSuccess { isBelongToRoom ->
-                loginSuccess(isTermsOfServiceAgreed, isBelongToRoom)
+    private suspend fun isSetProfile(isTermsOfServiceAgreed: Boolean) {
+        useCases.isSetProfileUseCase().collect {
+            it.onSuccess { isSetProfile ->
+                isBelongToRoom(isSetProfile, isTermsOfServiceAgreed)
             }
 
             it.onFailure { e ->
                 e.printStackTrace()
+                loginFail()
+            }
+        }
+    }
+
+    private suspend fun isBelongToRoom(isSetProfile: Boolean, isTermsOfServiceAgreed: Boolean) {
+        useCases.isBelongToRoomUseCase().collect {
+            it.onSuccess { isBelongToRoom ->
+                loginSuccess(isTermsOfServiceAgreed, isSetProfile, isBelongToRoom)
+            }
+
+            it.onFailure { e ->
+                e.printStackTrace()
+                loginFail()
             }
         }
     }
@@ -68,7 +80,7 @@ class LoginViewModel @Inject constructor(
         _uiState.value = LoginUiState.Idle
     }
 
-    private suspend fun loginSuccess(isTermsOfServiceAgreed: Boolean ,isBelongToRoom: Boolean) {
-        _event.emit(LoginEvent.LoginSuccess(isTermsOfServiceAgreed, isBelongToRoom))
+    private suspend fun loginSuccess(isTermsOfServiceAgreed: Boolean, isSetProfile: Boolean, isBelongToRoom: Boolean) {
+        _event.emit(LoginEvent.LoginSuccess(isTermsOfServiceAgreed, isSetProfile, isBelongToRoom))
     }
 }

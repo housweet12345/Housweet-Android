@@ -88,6 +88,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val isFailedRefreshToken = intent.getBooleanExtra("isFailedRefreshToken", false)
+        val isLogout = intent.getBooleanExtra("isLogout", false)
+        val isDeleteAccount = intent.getBooleanExtra("isDeleteAccount", false)
 
         lifecycleScope.launch {
             authEventBus.events.collect { event ->
@@ -123,16 +125,16 @@ class MainActivity : ComponentActivity() {
             ) { paddingValues ->
                 NavHost(
                     navController = navController,
-                    startDestination = if (!isFailedRefreshToken) Route.StartPageRoute.Splash else Route.StartPageRoute.LoginRoute.Login,
+                    startDestination = if (!isFailedRefreshToken && !isLogout && !isDeleteAccount) Route.StartPageRoute.Splash else Route.StartPageRoute.LoginRoute.Login,
 
-                    //access_token Log 확인 테스트용
+                    // access_token Log 확인 테스트용
                     // startDestination = Route.StartPageRoute.LoginRoute.Login,
                     modifier = Modifier.padding(top = paddingValues.calculateTopPadding())
                 ) {
                     composable<Route.StartPageRoute.Splash> {
                         SplashScreen(
                             modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
-                        ) { isAutoLogin, isAgreeTermsOfService, isBelongToRoom ->
+                        ) { isAutoLogin, isAgreeTermsOfService, isSetProfile, isBelongToRoom ->
                             when {
                                 !isAutoLogin -> {
                                     navigationManager.navigateOneWay(
@@ -140,23 +142,36 @@ class MainActivity : ComponentActivity() {
                                         Route.StartPageRoute.LoginRoute.Login
                                     )
                                 }
+
                                 isAgreeTermsOfService -> {
-                                    if (isBelongToRoom) {
+                                    if (!isSetProfile) {
                                         navigationManager.navigateOneWay(
                                             Route.StartPageRoute.Splash,
-                                            BottomNavItem.Home.route
+                                            "profile/edit?fromTerms=true"
                                         )
-                                    } else {
+
+                                        return@SplashScreen
+                                    }
+
+                                    if (!isBelongToRoom) {
                                         navigationManager.navigateOneWay(
                                             Route.StartPageRoute.Splash,
                                             Route.StartPageRoute.AccessRoomRoute.AccessRoom
                                         )
+
+                                        return@SplashScreen
                                     }
+
+                                    navigationManager.navigateOneWay(
+                                        Route.StartPageRoute.Splash,
+                                        BottomNavItem.Home.route
+                                    )
                                 }
+
                                 else -> {
                                     navigationManager.navigateOneWay(
                                         Route.StartPageRoute.Splash,
-                                        Route.StartPageRoute.LoginRoute.WelCome(isBelongToRoom)
+                                        Route.StartPageRoute.LoginRoute.WelCome(isSetProfile, isBelongToRoom)
                                     )
                                 }
                             }
@@ -176,20 +191,29 @@ class MainActivity : ComponentActivity() {
                     composable<Route.StartPageRoute.LoginRoute.Login> {
                         LoginScreen(
                             modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
-                        ) { isTermsOfServiceAgreed, isBelongToRoom ->
+                        ) { isTermsOfServiceAgreed, isSetProfile ,isBelongToRoom ->
                             when {
                                 !isTermsOfServiceAgreed -> {
                                     navigationManager.navigateOneWay(
                                         Route.StartPageRoute.LoginRoute.Login,
-                                        Route.StartPageRoute.LoginRoute.WelCome(isBelongToRoom)
+                                        Route.StartPageRoute.LoginRoute.WelCome(isBelongToRoom, false)
                                     )
                                 }
+
+                                !isSetProfile -> {
+                                    navigationManager.navigateOneWay(
+                                        Route.StartPageRoute.LoginRoute.Login,
+                                        "profile/edit?fromTerms=true"
+                                    )
+                                }
+
                                 isBelongToRoom -> {
                                     navigationManager.navigateOneWay(
                                         Route.StartPageRoute.LoginRoute.Login,
                                         BottomNavItem.Home.route
                                     )
                                 }
+
                                 else -> {
                                     navigationManager.navigateOneWay(
                                         Route.StartPageRoute.LoginRoute.Login,
@@ -211,42 +235,61 @@ class MainActivity : ComponentActivity() {
 
                     composable<Route.StartPageRoute.LoginRoute.WelCome> {
                         val isBelongToRoom = it.toRoute<Route.StartPageRoute.LoginRoute.WelCome>().isBelongToRoom
+                        val isSetProfile = it.toRoute<Route.StartPageRoute.LoginRoute.WelCome>().isSetProfile
                         WelcomeScreen {
                             navigationManager.navigateOneWay(
-                                Route.StartPageRoute.LoginRoute.WelCome(isBelongToRoom),
-                                Route.StartPageRoute.LoginRoute.PermissionGuide(isBelongToRoom)
+                                Route.StartPageRoute.LoginRoute.WelCome(isSetProfile, isBelongToRoom),
+                                Route.StartPageRoute.LoginRoute.PermissionGuide(isSetProfile, isBelongToRoom)
                             )
                         }
                     }
 
                     composable<Route.StartPageRoute.LoginRoute.PermissionGuide> {
                         val isBelongToRoom = it.toRoute<Route.StartPageRoute.LoginRoute.PermissionGuide>().isBelongToRoom
+                        val isSetProfile = it.toRoute<Route.StartPageRoute.LoginRoute.PermissionGuide>().isSetProfile
                         PermissionGuideScreen(
                             modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
                         ) {
                             navigationManager.navigateOneWay(
-                                Route.StartPageRoute.LoginRoute.PermissionGuide(isBelongToRoom),
-                                Route.StartPageRoute.LoginRoute.TermsOfService(isBelongToRoom)
+                                Route.StartPageRoute.LoginRoute.PermissionGuide(isSetProfile, isBelongToRoom),
+                                Route.StartPageRoute.LoginRoute.TermsOfService(isSetProfile,isBelongToRoom)
                             )
                         }
                     }
 
                     composable<Route.StartPageRoute.LoginRoute.TermsOfService> {
                         val isBelongToRoom = it.toRoute<Route.StartPageRoute.LoginRoute.TermsOfService>().isBelongToRoom
+                        val isSetProfile = it.toRoute<Route.StartPageRoute.LoginRoute.TermsOfService>().isSetProfile
                         TermsOfServiceScreen(
                             modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
                             onNextScreen = {
-                                if (isBelongToRoom) {
+                                if (!isSetProfile) {
                                     navigationManager.navigateOneWay(
-                                        Route.StartPageRoute.LoginRoute.TermsOfService(true),
-                                        BottomNavItem.Home.route
-                                    )
-                                } else {
-                                    navigationManager.navigateOneWay(
-                                        Route.StartPageRoute.LoginRoute.TermsOfService(false),
+                                        Route.StartPageRoute.LoginRoute.TermsOfService(
+                                            false,
+                                            isBelongToRoom
+                                        ),
                                         "profile/edit?fromTerms=true"
                                     )
+
+                                    return@TermsOfServiceScreen
                                 }
+
+                                if (!isBelongToRoom) {
+                                    navigationManager.navigateOneWay(
+                                        Route.StartPageRoute.LoginRoute.TermsOfService(
+                                            isSetProfile = true,
+                                            isBelongToRoom = false
+                                        ),
+                                        Route.StartPageRoute.AccessRoomRoute.AccessRoom
+                                    )
+
+                                    return@TermsOfServiceScreen
+                                }
+                                navigationManager.navigateOneWay(
+                                    Route.StartPageRoute.LoginRoute.TermsOfService(isSetProfile = true, isBelongToRoom = true),
+                                    BottomNavItem.Home.route
+                                )
                             },
                             onDetailTermsConditionsPoliciesClick = {
                                 navigationManager.navigateTo("terms_conditions_policies")
@@ -384,7 +427,7 @@ class MainActivity : ComponentActivity() {
                                 navigationManager.navigateTo("chat_detail/${userId}")
                             },
                             onProfileScreen = {
-                                navigationManager.navigateTo("profile/me")
+                                navigationManager.navigateTo("profile/${it}")
                             },
                             onBackBtnClick = { isBookmarkChanged ->
                                 if (isBookmarkChanged) {
@@ -757,6 +800,22 @@ class MainActivity : ComponentActivity() {
     private fun handleTokenRefreshFailure() {
         val intent = Intent(this, MainActivity::class.java)
         intent.putExtra("isFailedRefreshToken", true)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
+    }
+
+    private fun handleLogout() {
+        val intent = Intent(this, MainActivity::class.java)
+        intent.putExtra("isLogout", true)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
+    }
+
+    private fun handleDeleteAccount() {
+        val intent = Intent(this, MainActivity::class.java)
+        intent.putExtra("isDeleteAccount", true)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
         finish()
