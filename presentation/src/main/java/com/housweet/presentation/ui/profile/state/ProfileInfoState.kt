@@ -28,6 +28,7 @@ data class ProfileInfo(
     val myProfile: Boolean = false,
     val yearOfBirth: String = "",
     val age: String = "",
+    val isBlockedUser: Boolean? = null
 )
 
 fun ProfileModel.toProfileInfo(isMyProfile: Boolean): ProfileInfo {
@@ -42,7 +43,8 @@ fun ProfileModel.toProfileInfo(isMyProfile: Boolean): ProfileInfo {
         tags = listOf(mbti) + tags,
         myProfile = isMyProfile,
         yearOfBirth = yearOfBirth,
-        age = getAgeGroupFromBirthYear(yearOfBirth)
+        age = getAgeGroupFromBirthYear(yearOfBirth),
+        isBlockedUser = isBlockedUser
     )
 }
 
