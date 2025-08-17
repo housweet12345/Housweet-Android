@@ -7,6 +7,9 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -15,6 +18,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.lifecycleScope
@@ -30,6 +34,7 @@ import com.housweet.domain.model.Coordinate
 import com.housweet.presentation.model.RegisterModel
 import com.housweet.presentation.ui.chat.ChatScreen
 import com.housweet.presentation.ui.chatlist.ChatListScreen
+import com.housweet.presentation.ui.common.ComingSoonScreen
 import com.housweet.presentation.ui.communityPage.mapScreen.MapScreen
 import com.housweet.presentation.ui.communityPage.postScreen.detailPostScreen.DetailPostScreen
 import com.housweet.presentation.ui.communityPage.postScreen.postsScreen.PostsScreen
@@ -48,6 +53,7 @@ import com.housweet.presentation.ui.mypage.TermsConditionsPolicies
 import com.housweet.presentation.ui.mypage.TermsLocationInformationPolies
 import com.housweet.presentation.ui.mypage.TermsPrivacyPolicies
 import com.housweet.presentation.ui.navigation.BottomNavItem
+import com.housweet.presentation.ui.navigation.BottomNavigation
 import com.housweet.presentation.ui.navigation.CoordinateType
 import com.housweet.presentation.ui.navigation.NavigationManager
 import com.housweet.presentation.ui.navigation.Route
@@ -403,19 +409,32 @@ class MainActivity : ComponentActivity() {
 //                            navigateToProfile = { navController.navigate("profile/me") },
                             navigateToMyPage = { navController.navigate("mypage") },
                             navigateToNoticeDetail = { noticeId -> /* TODO: 공지사항 상세 */ },
-                            navigateToTodoDetail = { /* TODO: 할일 상세 */ },
+                            navigateToTodoDetail = { navController.navigate(BottomNavItem.Calendar.route) },
                             navigateToUserList = { navigationManager.navigateTo("roommate/userlist") },
                             navController = navController
                         )
                     }
 
                     composable(BottomNavItem.Calendar.route) {
-                        //캘린더 화면
-                        Text("캘린더")
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            ComingSoonScreen(
+                                modifier = Modifier.weight(1f)
+                            )
+                            BottomNavigation(
+                                navController = navController
+                            )
+                        }
                     }
                     composable(BottomNavItem.FinanceLedger.route) {
                         //가계부 화면
-                        Text("가계부")
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            ComingSoonScreen(
+                                modifier = Modifier.weight(1f)
+                            )
+                            BottomNavigation(
+                                navController = navController
+                            )
+                        }
                     }
                     composable(BottomNavItem.Notice.route) {
                         //공지사항 화면
@@ -430,10 +449,15 @@ class MainActivity : ComponentActivity() {
                             mode = mode,
                             onNextClick = { navController.navigate(Route.HouseRegisterRoute.Step2(mode)) },
                             onBackClick = {
-                                navigationManager.navigateOneWay(
-                                    Route.HouseRegisterRoute.Step1(mode),
-                                    Route.CommunityPageRoute.Map()
-                                )
+                                val previousRoute = navController.previousBackStackEntry?.destination?.route
+                                if (previousRoute?.contains("CommunityPageRoute.Map") == true) {
+                                    navigationManager.navigateOneWay(
+                                        Route.HouseRegisterRoute.Step1(mode),
+                                        Route.CommunityPageRoute.Map()
+                                    )
+                                } else {
+                                    navController.popBackStack()
+                                }
                             }
                         )
                     }
@@ -645,6 +669,19 @@ class MainActivity : ComponentActivity() {
                         val fromTerms = backStackEntry.arguments?.getBoolean("fromTerms") ?: false
                         EditProfileRoute(
                             onBackClick = { navController.popBackStack() },
+                            onSuccessNavigateBack = {
+                                if (fromTerms) {
+                                    navController.navigate(Route.StartPageRoute.AccessRoomRoute.AccessRoom) {
+                                        popUpTo("profile/edit?fromTerms=$fromTerms") { inclusive = true }
+                                        launchSingleTop = true
+                                    }
+                                } else {
+                                    navController.navigate("profile/1") {
+                                        popUpTo("profile/edit?fromTerms=$fromTerms") { inclusive = true }
+                                        launchSingleTop = true
+                                    }
+                                }
+                            },
                             navigateEditKeyword = {
                                 navController.navigate("profile/edit_keyword?fromTerms=$fromTerms")
                             }
@@ -666,17 +703,17 @@ class MainActivity : ComponentActivity() {
                             onBackClick = { navController.popBackStack() },
                             viewModel = hiltViewModel(parentEntry),
                             showSkipButton = fromTerms,
-                            navigateNextPage = {
+                            onSuccessNavigateBack = {
                                 if (fromTerms) {
-                                    navigationManager.navigateOneWay(
-                                        "profile/edit_keyword?fromTerms=$fromTerms",
-                                        Route.StartPageRoute.AccessRoomRoute.AccessRoom
-                                    )
+                                    navController.navigate(Route.StartPageRoute.AccessRoomRoute.AccessRoom) {
+                                        popUpTo("profile/edit?fromTerms=$fromTerms") { inclusive = true }
+                                        launchSingleTop = true
+                                    }
                                 } else {
-                                    navigationManager.navigateOneWay(
-                                        "profile/edit_keyword?fromTerms=$fromTerms",
-                                        "profile/me"
-                                    )
+                                    navController.navigate("profile/me") {
+                                        popUpTo("profile/edit?fromTerms=$fromTerms") { inclusive = true }
+                                        launchSingleTop = true
+                                    }
                                 }
                             },
                             onSkipClick = {

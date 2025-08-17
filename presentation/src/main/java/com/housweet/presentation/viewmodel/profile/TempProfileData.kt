@@ -1,12 +1,14 @@
-package com.housweet.domain.model.profile
+package com.housweet.presentation.viewmodel.profile
 
-data class ProfileUpdateModel(
+import android.net.Uri
+
+// 임시 프로필 데이터 클래스
+data class TempProfileData(
+    val nickname: String,
+    val yearOfBirth: String,
     val gender: String,
     val introduce: String,
-    val mbti: String,
-    val nickname: String,
-    val tags: List<String>,
-    val yearOfBirth: String,
+    val profileImageUri: Uri? = null,
     val profileImageData: ByteArray? = null,
     val profileImageMimeType: String? = null
 ) {
@@ -14,14 +16,13 @@ data class ProfileUpdateModel(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as ProfileUpdateModel
+        other as TempProfileData
 
+        if (nickname != other.nickname) return false
+        if (yearOfBirth != other.yearOfBirth) return false
         if (gender != other.gender) return false
         if (introduce != other.introduce) return false
-        if (mbti != other.mbti) return false
-        if (nickname != other.nickname) return false
-        if (tags != other.tags) return false
-        if (yearOfBirth != other.yearOfBirth) return false
+        if (profileImageUri != other.profileImageUri) return false
         if (profileImageData != null) {
             if (other.profileImageData == null) return false
             if (!profileImageData.contentEquals(other.profileImageData)) return false
@@ -32,12 +33,11 @@ data class ProfileUpdateModel(
     }
 
     override fun hashCode(): Int {
-        var result = gender.hashCode()
-        result = 31 * result + introduce.hashCode()
-        result = 31 * result + mbti.hashCode()
-        result = 31 * result + nickname.hashCode()
-        result = 31 * result + tags.hashCode()
+        var result = nickname.hashCode()
         result = 31 * result + yearOfBirth.hashCode()
+        result = 31 * result + gender.hashCode()
+        result = 31 * result + introduce.hashCode()
+        result = 31 * result + (profileImageUri?.hashCode() ?: 0)
         result = 31 * result + (profileImageData?.contentHashCode() ?: 0)
         result = 31 * result + (profileImageMimeType?.hashCode() ?: 0)
         return result

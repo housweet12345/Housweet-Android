@@ -8,6 +8,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,6 +38,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -64,6 +66,7 @@ import com.housweet.presentation.ui.home.state.RoommateInfo
 import com.housweet.presentation.ui.home.state.TodoInfo
 import com.housweet.presentation.ui.navigation.BottomNavigation
 import com.housweet.presentation.ui.theme.ColorGroup
+import com.housweet.presentation.ui.profile.component.ProfileImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -127,7 +130,7 @@ fun HomeScreen(
             // 방 제목 섹션
             item {
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                    RoomTitleSection(homeInfo.roomName, homeInfo.daysLiving)
+                    RoomTitleSection(homeInfo.roomName, homeInfo.daysTogether)
                     Spacer(modifier = Modifier.height(20.dp))
                 }
             }
@@ -142,7 +145,7 @@ fun HomeScreen(
             // 룸메이트 기분 섹션
             item {
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                    RoommatesMoodSection(homeInfo.roommates, onMoodSelect, onMoodSectionClick)
+                    RoommatesMoodSection(homeInfo.members, onMoodSelect, onMoodSectionClick)
                 }
             }
 
@@ -290,7 +293,7 @@ fun RoommatesMoodSection(
                     roommates.forEach { roommate ->
                         RoommateProfile(
                             roommate = roommate,
-                            onMoodIconClick = { showMoodCard = !showMoodCard }
+                            onMoodIconClick = if (roommate.isMe) { { showMoodCard = !showMoodCard } } else { {} }
                         )
                     }
                 }
@@ -329,12 +332,18 @@ fun RoommatesMoodSection(
                         MoodData(R.drawable.ic_sad, "슬픔"),
                         MoodData(R.drawable.ic_angry, "화남"),
                         MoodData(R.drawable.ic_heart, "애정"),
-                        MoodData(R.drawable.ic_congratulation, "축하"),
-                        MoodData(R.drawable.ic_none, "외출")
+                        MoodData(R.drawable.ic_celebrate, "축하"),
+                        MoodData(R.drawable.ic_away, "외출")
                     )
 
                     moods.fastForEach {
-                        MoodItem(mood = it, onMoodSelect = onMoodSelect)
+                        MoodItem(
+                            mood = it,
+                            onMoodSelect = { moodType ->
+                                onMoodSelect(moodType)
+                                showMoodCard = false
+                            }
+                        )
                     }
                 }
             }
@@ -350,7 +359,12 @@ fun MyTodoSection(
 ) {
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = ripple()
+            ) { onTodoClick() },
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
@@ -448,25 +462,24 @@ fun RoommateProfile(
         Box(
             modifier = Modifier.size(70.dp)
         ) {
-            // 프로필 사진 영역 (배경)
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        color = Color(0xFFEAA8A8), // 연한 분홍색 (프로필 사진 자리)
-                        shape = CircleShape
-                    )
-            ) {
-                // 여기에 실제 프로필 이미지가 들어갈 예정
-                // Image(painter = painterResource(profileImageRes), contentDescription = ...)
-            }
+            // 프로필 사진 영역
+            ProfileImage(
+                imageUrl = roommate.profileImageUrl,
+                size = 70
+            )
 
             // 기분 아이콘 (오른쪽 아래 뱃지)
             Box(
                 modifier = Modifier
                     .size(30.dp)
                     .align(Alignment.BottomEnd)
-                    .clickable { onMoodIconClick() },
+                    .then(
+                        if (roommate.isMe) {
+                            Modifier.clickable { onMoodIconClick() }
+                        } else {
+                            Modifier
+                        }
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
@@ -568,8 +581,8 @@ fun getMoodIconRes(moodType: MoodType): Int {
         MoodType.SAD -> R.drawable.ic_sad
         MoodType.ANGRY -> R.drawable.ic_angry
         MoodType.LOVE -> R.drawable.ic_heart
-        MoodType.CONGRAT -> R.drawable.ic_congratulation
-        MoodType.OUTSIDE -> R.drawable.ic_none
+        MoodType.CELEBRATE -> R.drawable.ic_celebrate
+        MoodType.AWAY -> R.drawable.ic_away
     }
 }
 
@@ -580,8 +593,8 @@ fun getMoodTypeFromName(name: String): MoodType? {
         "슬픔" -> MoodType.SAD
         "화남" -> MoodType.ANGRY
         "애정" -> MoodType.LOVE
-        "축하" -> MoodType.CONGRAT
-        "외출" -> MoodType.OUTSIDE
+        "축하" -> MoodType.CELEBRATE
+        "외출" -> MoodType.AWAY
         else -> null
     }
 }
