@@ -21,5 +21,7 @@ data class RoomPostDetailDataModel(
     val lifePatternTags: List<String> = listOf(),
     val tidyingUpHabitTags: List<String> = listOf(),
     val personalityTags: List<String> = listOf(),
-    val nickName: String = "오류"
+    val nickName: String = "오류",
+    val profileImageUrl: String = "",
+    val createdAtKst: String = ""
 )
