@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
+import com.housweet.presentation.R
 import com.housweet.presentation.ui.theme.ColorGroup
 
 
@@ -88,7 +89,7 @@ fun ProfileTopBar(
 @Composable
 fun ProfileImage(
     imageUrl: String? = null,
-    size: Int = 120,
+    size: Int = 100,
     showCameraIcon: Boolean = false,
     onCameraClick: () -> Unit = {}
 ) {
@@ -160,18 +161,20 @@ fun ProfileImage(
             Box(
                 modifier = Modifier
                     .size(32.dp)
-                    .align(Alignment.BottomEnd)
-                    .background(ColorGroup.Primary, CircleShape)
-                    .border(2.dp, Color.White, CircleShape)
-                    .clickable { onCameraClick() },
+                    .align(Alignment.BottomEnd),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    imageVector = Icons.Default.CameraAlt,
-                    contentDescription = "사진 변경",
-                    tint = Color.White,
-                    modifier = Modifier.size(16.dp)
-                )
+                IconButton(
+                    modifier = Modifier.size(25.dp),
+                    onClick = onCameraClick,
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_camera),
+                        contentDescription = "사진 변경",
+                        tint = Color.Unspecified,
+                        modifier = Modifier.size(25.dp)
+                    )
+                }
             }
         }
     }
