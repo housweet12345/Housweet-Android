@@ -10,18 +10,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,15 +34,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.startPage.BottomButton
 import com.housweet.presentation.ui.startPage.GuideText
 import com.housweet.presentation.ui.startPage.LoadingScreen
 import com.housweet.presentation.ui.theme.Black
-import com.housweet.presentation.ui.theme.Gray_7D7D7D
-import com.housweet.presentation.ui.theme.Gray_7E7E7E
-import com.housweet.presentation.ui.theme.Gray_CBCBCB
-import com.housweet.presentation.ui.theme.Gray_D9D9D9
 import com.housweet.presentation.ui.theme.Purple
 import com.housweet.presentation.ui.theme.White
 
@@ -60,7 +56,8 @@ fun TermsOfServiceScreen(
     onDetailTermsPrivacyPoliciesClick: () -> Unit,
     onDetailTermsLocationInformationPoliesClick: () -> Unit
 ) {
-    val uiState: TermsOfServiceState by termsOfServiceViewModel.uiState.collectAsState()
+    val uiState: TermsOfServiceState by termsOfServiceViewModel.uiState.collectAsStateWithLifecycle()
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
     val snackBarHostState = remember { SnackbarHostState() }
     var checkAll by remember { mutableStateOf(false) }
     var checkTerm1 by remember { mutableStateOf(false) }
@@ -68,18 +65,20 @@ fun TermsOfServiceScreen(
     var checkTerm3 by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        termsOfServiceViewModel.event.collect { event ->
-            when (event) {
-                TermsOfServiceEvent.Success -> {
-                    onNextScreen()
-                }
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            termsOfServiceViewModel.event.collect { event ->
+                when (event) {
+                    TermsOfServiceEvent.Success -> {
+                        onNextScreen()
+                    }
 
-                TermsOfServiceEvent.Error -> {
-                    snackBarHostState.showSnackbar(
-                        message = "오류가 발생했습니다.",
-                        actionLabel = "닫기",
-                        duration = SnackbarDuration.Short
-                    )
+                    TermsOfServiceEvent.Error -> {
+                        snackBarHostState.showSnackbar(
+                            message = "오류가 발생했습니다.",
+                            actionLabel = "닫기",
+                            duration = SnackbarDuration.Short
+                        )
+                    }
                 }
             }
         }

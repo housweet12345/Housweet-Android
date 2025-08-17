@@ -107,6 +107,16 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun isSetProfile(): Flow<Result<Boolean>> = flow {
+        try {
+            val isSetProfile = authRemoteDataSource.isSetProfile()
+            emit(Result.success(isSetProfile))
+        } catch (e: Exception) {
+            if (e.message.toString().contains("Text: \"<!DOCTYPE html>")) emit(Result.success(false))
+            emit(Result.failure(e))
+        }
+    }
+
     override suspend fun isBelongToRoom(): Flow<Result<Boolean>> = flow {
         try {
             val isBelongToRoom = authRemoteDataSource.isBelongToRoom()

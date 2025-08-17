@@ -13,13 +13,13 @@ sealed interface Route {
             data object Login : LoginRoute
 
             @Serializable
-            data class WelCome(val isBelongToRoom: Boolean) : LoginRoute
+            data class WelCome(val isSetProfile: Boolean, val isBelongToRoom: Boolean) : LoginRoute
 
             @Serializable
-            data class PermissionGuide(val isBelongToRoom: Boolean) : LoginRoute
+            data class PermissionGuide(val isSetProfile: Boolean, val isBelongToRoom: Boolean) : LoginRoute
 
             @Serializable
-            data class TermsOfService(val isBelongToRoom: Boolean) : LoginRoute
+            data class TermsOfService(val isSetProfile: Boolean, val isBelongToRoom: Boolean) : LoginRoute
         }
 
         sealed interface AccessRoomRoute : StartPageRoute {
