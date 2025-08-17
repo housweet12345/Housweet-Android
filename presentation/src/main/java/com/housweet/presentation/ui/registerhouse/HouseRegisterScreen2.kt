@@ -438,15 +438,6 @@ private fun norm(s: String?): String =
     s?.replace("\uFEFF", "")?.trim().orEmpty()
 
 fun readCsv(context: Context, fileName: String): List<Map<String, String>> {
-//    val inputStream = context.assets.open(fileName)
-//    val reader = BufferedReader(InputStreamReader(inputStream))
-//    val headers = reader.readLine()?.split(",") ?: return emptyList()
-//    return reader.lineSequence().mapNotNull { line ->
-//        val values = line.split(",")
-//        if (values.size == headers.size) {
-//            headers.zip(values).toMap()
-//        } else null
-//    }.toList()
     context.assets.open(fileName).use { inputStream ->
         BufferedReader(InputStreamReader(inputStream, Charsets.UTF_8)).use { reader ->
             val rawHeader = reader.readLine() ?: return emptyList()
@@ -476,9 +467,6 @@ data class RegionDataBundle(
     val dongList: List<Map<String, String>>,
 
     // 코드 -> 이름 매핑 추가
-//    val siCodeToName: Map<Int, String>,
-//    val guCodeToName: Map<Int, String>,
-//    val dongCodeToName: Map<Long, String>
     val siCodeToName: Map<String, String>,
     val guCodeToName: Map<String, String>,
     val dongCodeToName: Map<String, String>
