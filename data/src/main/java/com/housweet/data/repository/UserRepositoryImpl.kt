@@ -1,6 +1,8 @@
 package com.housweet.data.repository
 
 import com.housweet.data.BuildConfig
+import com.housweet.data.dto.BlockUserRequestDto
+import com.housweet.data.dto.BlockUserResponseDto
 import com.housweet.data.network.dto.ProfileDto
 import com.housweet.data.network.dto.ProfileUpdateDto
 import com.housweet.data.network.dto.ProfileUpdateResponseDto
@@ -16,6 +18,7 @@ import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.get
 import io.ktor.client.request.patch
+import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import javax.inject.Inject
 
@@ -58,6 +61,16 @@ class UserRepositoryImpl @Inject constructor(
                 }.body()
             }
             response.mapToProfileUpdateResponseModel()
+        }
+    }
+
+    override suspend fun blockUser(blockedUserId: Int): Result<Boolean> {
+        return runCatching {
+            val requestDto = BlockUserRequestDto(blockedUserId = blockedUserId)
+            val response: BlockUserResponseDto = client.post("${BuildConfig.BASE_URL}/room/room-postings/block/") {
+                setBody(requestDto)
+            }.body()
+            response.detail.contains("successfully", ignoreCase = true)
         }
     }
 }

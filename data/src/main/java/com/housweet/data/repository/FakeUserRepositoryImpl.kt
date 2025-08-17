@@ -53,4 +53,10 @@ class FakeUserRepositoryImpl : UserRepository {
         Log.i("updateProfile", "userId: $userId, updatedProfile: $updatedProfile")
         return Result.success(fakeProfileUpdateResponseModel)
     }
+
+    override suspend fun blockUser(blockedUserId: Int): Result<Boolean> {
+        delay(500)
+        Log.i("blockUser", "blockedUserId: $blockedUserId")
+        return Result.success(true)
+    }
 }

@@ -35,13 +35,17 @@ fun ProfileScreen(
     onBackClick: () -> Unit = {},
     navigateEditProfile: () -> Unit = {},
     navigateChatting: () -> Unit = {},
-    onReportClick: (type: String, id: Int) -> Unit = { _, _ -> }
+    onReportClick: (type: String, id: Int) -> Unit = { _, _ -> },
+    onBlockClick: (Int) -> Unit = {}
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
     var showBlockDialog by remember { mutableStateOf(false) }
 
     val menuItems = listOf(
-        MenuItem(text = "차단하기") { showBlockDialog = true },
+        MenuItem(text = "차단하기") { 
+            showBlockDialog = true
+            menuExpanded = false
+        },
         MenuItem(text = "신고하기") {
             onReportClick( "user", profileInfo.userId)
             menuExpanded = false
@@ -99,7 +103,8 @@ fun ProfileScreen(
                 onDismissRequest = { showBlockDialog = false },
                 onConfirmation = {
                     showBlockDialog = false
-                    // TODO: 차단 로직 구현
+                    menuExpanded = false
+                    onBlockClick(profileInfo.userId)
                 },
                 dialogText = "차단하시겠습니까?"
             )
