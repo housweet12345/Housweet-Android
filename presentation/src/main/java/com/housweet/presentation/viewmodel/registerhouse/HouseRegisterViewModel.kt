@@ -37,11 +37,17 @@ class HouseRegisterViewModel @Inject constructor(
     }
 
     // Step 1: 교통/인프라 등 태그
-    override var houseTags by mutableStateOf<List<String>>(emptyList())
-        set
-    override fun updateHouseTags(tags: List<String>) {
-        houseTags = tags
-    }
+    override var houseTags by mutableStateOf<List<String>>(emptyList())        // = trafficTags
+        protected set
+    override var sizeOfHouseTags by mutableStateOf<List<String>>(emptyList())
+        protected set
+    override var infraTags by mutableStateOf<List<String>>(emptyList())
+        protected set
+
+    override fun updateHouseTags(tags: List<String>) { houseTags = tags }          // 교통
+    override fun updateSizeOfHouseTags(tags: List<String>) { sizeOfHouseTags = tags } // 집 상태
+    override fun updateInfraTags(tags: List<String>) { infraTags = tags }          // 인프라
+
 
     // Step 2: 주소, 제목, 설명, 금액 등
     override var region: Region? by mutableStateOf(null)
@@ -113,11 +119,16 @@ class HouseRegisterViewModel @Inject constructor(
         }
 
     // Step 4: 선호 태그
-    override var preferredTags by mutableStateOf<List<String>>(emptyList())
-        set
-    override fun updatePreferredTags(tags: List<String>) {
-        preferredTags = tags
-    }
+    override var lifePatternTags by mutableStateOf<List<String>>(emptyList())
+        protected set
+    override var tidyingUpHabitTags by mutableStateOf<List<String>>(emptyList())
+        protected set
+    override var preferredTags by mutableStateOf<List<String>>(emptyList()) // 성격
+        protected set
+
+    override fun updateLifePatternTags(tags: List<String>) { lifePatternTags = tags }
+    override fun updateTidyingUpHabitTags(tags: List<String>) { tidyingUpHabitTags = tags }
+    override fun updatePreferredTags(tags: List<String>) { preferredTags = tags }
 
     // 등록 요청
     override fun submitHouseRegister(
@@ -148,14 +159,14 @@ class HouseRegisterViewModel @Inject constructor(
                     imageUri = url,
 //                    images = urls,
                     trafficTags = houseTags, // 용도에 따라 분리 필요하면 분기
-                    sizeOfHouseTags = emptyList(),
-                    infraTags = emptyList(),
-                    lifePatternTags = emptyList(),
-                    tidyingUpHabitTags = emptyList(),
+                    sizeOfHouseTags = sizeOfHouseTags,
+                    infraTags = infraTags,
+                    lifePatternTags = lifePatternTags,
+                    tidyingUpHabitTags = tidyingUpHabitTags,
                     personalityTags = preferredTags,
-                    rent = monthlyRent.toIntOrNull() ?: 0,
-                    deposit = deposit.toIntOrNull() ?: 0,
-                    managementFee = managementFee.toIntOrNull() ?: 0,
+                    rent = monthlyRent.toWonOrZero() ?: 0,
+                    deposit = deposit.toWonOrZero() ?: 0,
+                    managementFee = managementFee.toWonOrZero() ?: 0,
                     availableFrom = moveInDate
                 )
                 Log.d("HouseRegister", "🚀 submit 직전 title: $title")
@@ -253,9 +264,21 @@ class HouseRegisterViewModel @Inject constructor(
         lifePatternTags = emptyList(),
         tidyingUpHabitTags = emptyList(),
         personalityTags = preferredTags,
-        rent = monthlyRent.toIntOrNull() ?: 0,
-        deposit = deposit.toIntOrNull() ?: 0,
-        managementFee = managementFee.toIntOrNull() ?: 0,
+        rent = monthlyRent.toWonOrZero() ?: 0,
+        deposit = deposit.toWonOrZero() ?: 0,
+        managementFee = managementFee.toWonOrZero() ?: 0,
         availableFrom = moveInDate
     )
+
+    private fun String.toWonOrZero(): Int {
+        val cleaned = this.replace(",", "").trim()
+        val man = cleaned.toLongOrNull() ?: return 0
+        val won = man * 10_000L
+        // 도메인 모델이 Int이면 범위 방어
+        return when {
+            won > Int.MAX_VALUE -> Int.MAX_VALUE
+            won < Int.MIN_VALUE -> Int.MIN_VALUE
+            else -> won.toInt()
+        }
+    }
 }
