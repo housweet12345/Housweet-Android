@@ -3,6 +3,7 @@ package com.housweet.presentation
 import android.content.Intent
 import android.os.Bundle
 import android.util.Base64
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -16,6 +17,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.lifecycleScope
@@ -425,11 +427,12 @@ class MainActivity : ComponentActivity() {
                         val postId = it.toRoute<Route.CommunityPageRoute.PostRoute.DetailPost>().postId
                         DetailPostScreen(
                             modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
-                            onChatScreen = { userId ->
-                                navigationManager.navigateTo("chat_detail/${userId}")
+                            onChatScreen = { userId, nickName ->
+                                Log.d("savepoint", "onChatScreen: $userId, $nickName")
+                                navigationManager.navigateTo("chat_detail/${userId}/${nickName}")
                             },
-                            onProfileScreen = {
-                                navigationManager.navigateTo("profile/${it}")
+                            onProfileScreen = { userId ->
+                                navigationManager.navigateTo("profile/${userId}")
                             },
                             onBackBtnClick = { isBookmarkChanged ->
                                 if (isBookmarkChanged) {

@@ -70,11 +70,16 @@ import com.housweet.presentation.ui.theme.Gray_CBCBCB
 import com.housweet.presentation.ui.theme.Purple
 import com.housweet.presentation.ui.theme.White
 import com.housweet.presentation.ui.theme.White_F8F8F8
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
+import kotlin.time.Duration
 
 @Composable
 fun DetailPostScreen(
     modifier: Modifier,
-    onChatScreen: (userId: Int) -> Unit,
+    onChatScreen: (userId: Int, nickName: String) -> Unit,
     onProfileScreen: (userId: Int) -> Unit,
     onBackBtnClick: (isBookmarkChanged: Boolean) -> Unit,
     detailPostViewModel: DetailPostViewModel = hiltViewModel()
@@ -163,7 +168,7 @@ private fun DetailPostContent(
     roomPostDetail: RoomPostDetailDataModel,
     snackBarHostState: SnackbarHostState,
     isMenuExpanded: Boolean,
-    onChatScreen: (userId: Int) -> Unit,
+    onChatScreen: (userId: Int, nickName: String) -> Unit,
     onProfileScreen: (userId: Int) -> Unit,
     onBackBtnClick: () -> Unit,
     onMenuClick: () -> Unit,
@@ -368,7 +373,8 @@ private fun UserProfile(
         AsyncImage(
             model = ImageRequest
                 .Builder(context)
-                .data("https://picsum.photos/300/300")
+                .data(roomPostDetail.profileImageUrl)
+                .error(R.drawable.default_profile_img)
                 .build(),
             contentDescription = "RoomImage",
             modifier = Modifier
@@ -404,7 +410,7 @@ private fun UserProfile(
 
                 GuideText(
                     color = Gray_7E7E7E,
-                    text = "1시간 전",
+                    text = getRelativeTime(roomPostDetail.createdAtKst),
                     fontWeight = FontWeight.Normal,
                     fontSize = 10.sp,
                     lineHeight = 10.sp,
@@ -548,7 +554,7 @@ private fun FeatureBox(
 @Composable
 private fun BottomBar(
     roomPostDetail: RoomPostDetailDataModel,
-    onChatScreen: (userId: Int) -> Unit
+    onChatScreen: (userId: Int, nickName: String) -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -594,7 +600,7 @@ private fun BottomBar(
             Spacer(modifier = Modifier.weight(1f))
 
             Button(
-                onClick = { onChatScreen(roomPostDetail.userId) },
+                onClick = { onChatScreen(roomPostDetail.userId, roomPostDetail.nickName) },
                 modifier = Modifier
                     .width(68.dp)
                     .height(30.dp),
@@ -617,6 +623,25 @@ private fun BottomBar(
     }
 }
 
+fun getRelativeTime(dateTimeString: String): String {
+    if (dateTimeString.isEmpty()) return "오류"
+    val pastInstant = Instant.parse(dateTimeString)
+    val now = Instant.now()
+
+    val hours = ChronoUnit.HOURS.between(pastInstant, now)
+    val minutes = ChronoUnit.MINUTES.between(pastInstant, now)
+
+    return when {
+        hours >= 24 -> {
+            val formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH시 mm분")
+            pastInstant.atZone(ZoneId.systemDefault()).format(formatter)
+        }
+        hours >= 1 -> "${hours}시간 전"
+        minutes >= 1 -> "${minutes}분 전"
+        else -> "방금 전"
+    }
+}
+
 @Preview
 @Composable
 private fun DetailPostScreenPreview() {
@@ -625,7 +650,7 @@ private fun DetailPostScreenPreview() {
         modifier = Modifier,
         roomPostDetail = RoomPostDetailDataModel(),
         snackBarHostState = remember { SnackbarHostState() },
-        onChatScreen = {},
+        onChatScreen = { _, _ -> },
         onProfileScreen = {},
         onBackBtnClick = {},
         isMenuExpanded = isMenuExpanded,
