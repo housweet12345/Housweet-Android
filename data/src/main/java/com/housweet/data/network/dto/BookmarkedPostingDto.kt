@@ -11,6 +11,7 @@ data class BookmarkedPostingDto(
     val rent: Int,
     val deposit: Int,
     @SerialName("age_range_and_gender") val ageRangeAndGender: String,
+    @SerialName("area_text") val areaText: String,
     @SerialName("bookmarked_at") val bookmarkedAt: String
 )
 
@@ -27,6 +28,7 @@ fun BookmarkedPostingDto.toDomain(): com.housweet.domain.model.BookmarkItem {
         rent = rent,
         deposit = deposit,
         ageRangeAndGender = ageRangeAndGender,
+        areaText = areaText,
         bookmarkedAt = bookmarkedAt
     )
 }

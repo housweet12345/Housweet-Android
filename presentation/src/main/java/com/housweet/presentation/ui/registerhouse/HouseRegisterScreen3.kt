@@ -12,12 +12,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,43 +35,55 @@ import com.housweet.presentation.ui.common.StepIndicator
 import com.housweet.presentation.ui.common.TopBarWithBackButton
 import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModelBase
 import androidx.core.graphics.createBitmap
-import kotlin.collections.mapNotNull
+import kotlinx.coroutines.launch
 
 @Composable
 fun HouseRegisterScreen3(
     mode: RegisterModel,
+    postingId: Int?,
     onNextClick: () -> Unit,
     onBackClick: () -> Unit,
     viewModel: HouseRegisterViewModelBase
 ) {
 
     val context = LocalContext.current
-    val images = viewModel.imageBitmaps
-    val max = HouseRegisterViewModelBase.MAX_IMAGES
+    val scope = rememberCoroutineScope()
+
+    val selectedBitmap = viewModel.imageBitmap
 
     BackHandler {
-        if (images.isNotEmpty()) viewModel.clearImages()
+        if (selectedBitmap != null) viewModel.clearImages()
         onBackClick()
     }
 
+    //단일 이미지 선택 런처
+    val singlePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        if (uri == null) return@rememberLauncherForActivityResult
 
-    // 멀티 이미지 선택 런처
-    val multiPicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetMultipleContents()
-    ) { uris: List<Uri> ->
-        val bitmaps = uris.mapNotNull { uri ->
-            runCatching {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    val src = ImageDecoder.createSource(context.contentResolver, uri)
-                    ImageDecoder.decodeBitmap(src)
-                } else {
-                    @Suppress("DEPRECATION")
-                    MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
-                }
-            }.getOrNull()
+        // 비트맵 디코드
+        val decoded = runCatching {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                val src = ImageDecoder.createSource(context.contentResolver, uri)
+                ImageDecoder.decodeBitmap(src)
+            } else {
+                @Suppress("DEPRECATION")
+                MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
+            }
+        }.getOrNull()
+
+        // 기존 선택 초기화 후 설정
+        viewModel.clearImages()
+        decoded?.let { viewModel.setImageBitmap(it) }
+
+        // 서버 업로드 → URL 저장(단일)
+        scope.launch {
+            val url: String? = viewModel.uploadUris(context, listOf(uri))
+            if (url != null) viewModel.setImageUrl(url)
         }
-        viewModel.addImages(bitmaps)
     }
+
 
     Column(
         modifier = Modifier
@@ -83,7 +94,7 @@ fun HouseRegisterScreen3(
         TopBarWithBackButton(
             title = if (mode == RegisterModel.EDIT) "글 수정하기" else "하우스 올리기",
             onBackClick = {
-                if (images.isNotEmpty()) viewModel.clearImages()
+                if (selectedBitmap != null) viewModel.clearImages()
                 onBackClick()
             }
         )
@@ -121,40 +132,25 @@ fun HouseRegisterScreen3(
                 .height(120.dp)
                 .clip(RoundedCornerShape(10.dp))
                 .border(1.dp, Color(0xFFCBCDD2), shape = RoundedCornerShape(12.dp))
-                .clickable(enabled = images.size < max) {
-                    multiPicker.launch("image/*")
+                .clickable{
+                    singlePicker.launch("image/*")
                 },
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                painter = painterResource(id = R.drawable.camera_icon_gray),
-                contentDescription = "사진 선택",
-                tint = Color.Gray,
-                modifier = Modifier.size(48.dp)
-            )
-        }
-
-        // ▼▼ 박스 하단 썸네일 영역 ▼▼
-        if (images.isNotEmpty() || images.size < max) {
-            Spacer(Modifier.height(12.dp))
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                itemsIndexed(images) { index, bmp ->
-                    Box(
-                        modifier = Modifier
-                            .size(88.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                    ) {
-                        Image(
-                            bitmap = bmp.asImageBitmap(),
-                            contentDescription = "선택 이미지 $index",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.matchParentSize()
-                        )
-                    }
-                }
+            if (selectedBitmap == null) {
+                Icon(
+                    painter = painterResource(id = R.drawable.camera_icon_gray),
+                    contentDescription = "사진 선택",
+                    tint = Color.Gray,
+                    modifier = Modifier.size(48.dp)
+                )
+            } else {
+                Image(
+                    bitmap = selectedBitmap.asImageBitmap(),
+                    contentDescription = "선택 이미지",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.matchParentSize()
+                )
             }
         }
 
@@ -200,6 +196,7 @@ fun HouseRegisterScreen3Preview() {
 
     HouseRegisterScreen3(
         mode = RegisterModel.CREATE,
+        postingId = 1,
         onNextClick = {},
         onBackClick = {},
         viewModel = fakeViewModel

@@ -37,12 +37,16 @@ import java.io.File
 @Composable
 fun HouseRegisterScreen1(
     mode: RegisterModel,
+    postingId: Int?,
     onNextClick: () -> Unit,
     onBackClick: () -> Unit,
-    viewModel: HouseRegisterViewModelBase = hiltViewModel<HouseRegisterViewModel>()
+    viewModel: HouseRegisterViewModelBase
 ) {
-    LaunchedEffect(Unit) {
+    LaunchedEffect(mode, postingId) {
         viewModel.logRoomId()
+        if(mode == RegisterModel.EDIT && postingId != null) {
+            viewModel.loadForEdit(postingId) // 프리필 로딩
+        }
     }
 
     BackHandler {
@@ -223,6 +227,7 @@ fun HouseRegisterScreen1Preview() {
 
     HouseRegisterScreen1(
         mode = RegisterModel.CREATE,
+        postingId = 1,
         onNextClick = {},
         onBackClick = {},
         viewModel = fakeViewModel

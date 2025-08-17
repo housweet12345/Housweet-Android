@@ -15,7 +15,10 @@ data class RoomPostingDto(
     val content: String = "",
 
     @SerialName("image_uri")
-    val imageUri: String? = null,
+    val imageUri: String? = "",
+
+//    @SerialName("images")
+//    val images: List<String> = emptyList(),
 
     val rent: Int = 0,
     val deposit: Int = 0,

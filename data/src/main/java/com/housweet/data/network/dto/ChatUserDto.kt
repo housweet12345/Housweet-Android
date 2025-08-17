@@ -11,7 +11,10 @@ data class ChatUserDto(
     val created_at : String,
     val updated_at : String,
     val is_blocked : Boolean,
-    val counterpart_id : Int
+    val counterpart_id : Int,
+    val sender_nickname : String,
+    val receiver_nickname : String,
+    val counterpart_nickname : String,
 )
 
 @Serializable
