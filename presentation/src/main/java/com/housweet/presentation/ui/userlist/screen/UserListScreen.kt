@@ -39,6 +39,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.housweet.presentation.R
+import com.housweet.presentation.ui.profile.component.ProfileImage
 import com.housweet.presentation.ui.theme.ColorGroup
 import com.housweet.presentation.ui.userlist.state.UserItem
 import com.housweet.presentation.ui.home.state.MoodType
@@ -145,17 +146,11 @@ fun UserListItem(
             .padding(horizontal = 16.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // TODO 프로필 이미지
-        Box(
-            modifier = Modifier
-                .size(48.dp)
-                .clip(CircleShape)
-                .background(Color(0xFFFFB3BA)),
-            contentAlignment = Alignment.Center
-        ) {
-            // 실제 이미지가 있다면 AsyncImage 사용
-            // AsyncImage(...)
-        }
+        // 프로필 이미지
+        ProfileImage(
+            imageUrl = userItem.profileImageUrl,
+            size = 48
+        )
 
         Spacer(modifier = Modifier.width(16.dp))
 
