@@ -278,7 +278,7 @@ private fun PostItem(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                Icon(
+                /* Icon(
                     painter = painterResource(id = R.drawable.like_count),
                     contentDescription = "favoriteCount",
                     modifier = Modifier.padding(start = 25.1.dp),
@@ -293,7 +293,7 @@ private fun PostItem(
                     fontSize = 10.sp,
                     lineHeight = 10.sp,
                     textAlign = TextAlign.Start
-                )
+                ) */
             }
         }
     }

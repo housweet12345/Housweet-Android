@@ -12,7 +12,6 @@ import javax.inject.Inject
 class StartViewModel @Inject constructor(
     private val useCases: UseCases
 ): ViewModel() {
-
     fun logout(
         onLogout: () -> Unit
     ) {

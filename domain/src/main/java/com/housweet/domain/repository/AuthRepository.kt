@@ -16,4 +16,5 @@ interface AuthRepository {
     suspend fun agreeTermsOfService(): Flow<Result<Boolean>>
     suspend fun isTermsOfServiceAgreed(): Flow<Result<Boolean>>
     suspend fun isBelongToRoom(): Flow<Result<Boolean>>
+    suspend fun getCurrentUserId(): Int?
 }

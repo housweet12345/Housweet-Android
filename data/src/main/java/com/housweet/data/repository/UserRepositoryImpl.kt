@@ -1,13 +1,19 @@
 package com.housweet.data.repository
 
-import com.housweet.data.dto.ProfileDto
-import com.housweet.data.dto.ProfileUpdateDto
+import com.housweet.data.BuildConfig
+import com.housweet.data.network.dto.ProfileDto
+import com.housweet.data.network.dto.ProfileUpdateDto
+import com.housweet.data.network.dto.ProfileUpdateResponseDto
 import com.housweet.data.mapper.toProfilePatchDto
 import com.housweet.data.network.KtorService
+import com.housweet.data.utils.appendProfileData
 import com.housweet.domain.model.profile.ProfileModel
 import com.housweet.domain.model.profile.ProfileUpdateModel
+import com.housweet.domain.model.profile.ProfileUpdateResponseModel
 import com.housweet.domain.repository.UserRepository
 import io.ktor.client.call.body
+import io.ktor.client.request.forms.MultiPartFormDataContent
+import io.ktor.client.request.forms.formData
 import io.ktor.client.request.get
 import io.ktor.client.request.patch
 import io.ktor.client.request.setBody
@@ -21,25 +27,37 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun getMyProfile(): Result<ProfileModel> {
         return runCatching {
-            val response: ProfileDto = client.get("/user/profile/me").body()
+            val response: ProfileDto = client.get("${BuildConfig.USER_BASE_URL}/profile/me").body()
             response.mapToProfileModel()
         }
     }
 
     override suspend fun getOtherUserProfile(userId: String): Result<ProfileModel> {
         return runCatching {
-            val response: ProfileDto = client.get("/user/profile/$userId").body()
+            val response: ProfileDto = client.get("${BuildConfig.USER_BASE_URL}/profile/$userId").body()
             response.mapToProfileModel()
         }
     }
 
-    override suspend fun updateProfile(updatedProfile: ProfileUpdateModel): Result<ProfileUpdateModel> {
+    override suspend fun updateProfile(userId: String, updatedProfile: ProfileUpdateModel): Result<ProfileUpdateResponseModel> {
         return runCatching {
-            val patchDto = updatedProfile.toProfilePatchDto()
-            val response: ProfileUpdateDto = client.patch("/user/profile/me") {
-                setBody(patchDto)
-            }.body()
-            response.mapToProfileUpdateModel()
+            val response: ProfileUpdateResponseDto = if (updatedProfile.profileImageData != null) {
+                // 이미지가 있으면 멀티파트로 전송
+                val formData = formData {
+                    appendProfileData(updatedProfile)
+                }
+                
+                client.patch("${BuildConfig.USER_BASE_URL}/profile/$userId/update/") {
+                    setBody(MultiPartFormDataContent(formData))
+                }.body()
+            } else {
+                // 이미지가 없으면 일반 JSON으로 전송
+                val patchDto: ProfileUpdateDto = updatedProfile.toProfilePatchDto()
+                client.patch("${BuildConfig.USER_BASE_URL}/profile/$userId/update/") {
+                    setBody(patchDto)
+                }.body()
+            }
+            response.mapToProfileUpdateResponseModel()
         }
     }
 }

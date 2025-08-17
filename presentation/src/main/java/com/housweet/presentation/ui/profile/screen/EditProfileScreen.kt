@@ -1,5 +1,8 @@
 package com.housweet.presentation.ui.profile.screen
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,6 +33,7 @@ import com.housweet.presentation.ui.profile.component.ProfileEditNameTextField
 import com.housweet.presentation.ui.profile.component.ProfileImage
 import com.housweet.presentation.ui.profile.component.ProfileTopBar
 import com.housweet.presentation.ui.profile.component.ToggleButtonGroup
+import com.housweet.presentation.ui.profile.component.YearPickerDropdown
 
 @Composable
 fun EditProfileScreen(
@@ -37,29 +41,67 @@ fun EditProfileScreen(
     yearOfBirth: String = "",
     gender: String = "",
     introduction: String = "",
+    profileImageUrl: String? = null,
     onBackClick: () -> Unit = {},
-    onNextClick: (String, String, String, String) -> Unit = { _, _, _, _ -> }
+    onNextClick: (String, String, String, String) -> Unit = { _, _, _, _ -> },
+    onImageSelected: (Uri) -> Unit = {}
 ) {
     // 상태 관리 추가
     var nameState by remember { mutableStateOf(name) }
     var yearOfBirthState by remember { mutableStateOf(yearOfBirth) }
     var genderState by remember { mutableStateOf(gender) }
     var introductionState by remember { mutableStateOf(introduction) }
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
 
-    var selectedOption by remember {
-        mutableIntStateOf(if (gender == "남자") 1 else 2)
+    // 이미지 선택을 위한 launcher
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            selectedImageUri = it
+            onImageSelected(it)
+        }
     }
 
-    // 성별 상태 동기화
+    var selectedOption by remember {
+        mutableIntStateOf(
+            when (gender) {
+                "남성" -> 1
+                "여성" -> 2
+                "남자" -> 1
+                "여자" -> 2
+                else -> 1
+            }
+        )
+    }
+
+    // gender 파라미터가 변경될 때 selectedOption 업데이트
+    LaunchedEffect(gender) {
+        selectedOption = when (gender) {
+            "남성" -> 1
+            "여성" -> 2
+            "남자" -> 1
+            "여자" -> 2
+            else -> 1
+        }
+    }
+
+    // 성별 상태 동기화 (UI용 "남자"/"여자"로 설정)
     LaunchedEffect(selectedOption) {
         genderState = if (selectedOption == 1) "남자" else "여자"
     }
+
+    // 유효성 검사 - 필수 필드가 모두 입력되었는지 확인
+    val isFormValid = nameState.isNotBlank() && 
+                     yearOfBirthState.isNotBlank() && 
+                     genderState.isNotBlank()
 
     Scaffold(
         contentWindowInsets = WindowInsets(0.dp), // 상단 여백 제거
         bottomBar = {
             BottomButton(
                 text = "다음",
+                enabled = isFormValid,
                 onClick = {
                     onNextClick(nameState, yearOfBirthState, genderState, introductionState)
                 }
@@ -105,7 +147,13 @@ fun EditProfileScreen(
                     .padding(top = 16.dp, bottom = 24.dp),
                 contentAlignment = Alignment.Center
             ) {
-                ProfileImage()
+                ProfileImage(
+                    imageUrl = selectedImageUri?.toString() ?: profileImageUrl,
+                    showCameraIcon = true,
+                    onCameraClick = {
+                        imagePickerLauncher.launch("image/*")
+                    }
+                )
             }
 
             ProfileEditNameTextField(
@@ -119,13 +167,13 @@ fun EditProfileScreen(
             Row(
                 modifier = Modifier.fillMaxWidth().height(30.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                ProfileEditNameTextField(
+                YearPickerDropdown(
                     modifier = Modifier.weight(1f),
-                    hint = "태어난 년도를 선택해주세요.",
-                    value = yearOfBirthState,
-                    onValueChange = { yearOfBirthState = it } // 상태 업데이트
+                    selectedYear = yearOfBirthState,
+                    onYearSelected = { yearOfBirthState = it },
+                    enabled = yearOfBirth.isEmpty() && yearOfBirthState.isEmpty() // 기존 데이터와 현재 상태 모두 비어있을 때만 활성화
                 )
                 Spacer(Modifier.width(10.dp))
                 ToggleButtonGroup(
@@ -133,15 +181,18 @@ fun EditProfileScreen(
                     option1 = "남자",
                     option2 = "여자",
                     selectedOption = selectedOption,
-                    onOptionSelected = { selectedOption = it }
+                    onOptionSelected = { selectedOption = it },
+                    enabled = gender.isEmpty() && genderState.isEmpty() // 기존 값과 현재 상태 모두 비어있을 때만 활성화
                 )
             }
 
             // 안내 메시지
-            InfoMessage(
-                message = "나이와 성별은 한 번 선택 후 변경이 불가능합니다.\n신중하게 선택해 주세요.",
-                modifier = Modifier.padding(top = 12.dp)
-            )
+            if (gender.isEmpty() && yearOfBirth.isEmpty() && genderState.isEmpty() && yearOfBirthState.isEmpty()){
+                InfoMessage(
+                    message = "나이와 성별은 한 번 선택 후 변경이 불가능합니다.\n신중하게 선택해 주세요.",
+                    modifier = Modifier.padding(top = 12.dp)
+                )
+            }
 
             Spacer(Modifier.height(10.dp))
 
