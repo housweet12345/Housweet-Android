@@ -395,7 +395,7 @@ class MainActivity : ComponentActivity() {
 //                            navigateToProfile = { navController.navigate("profile/me") },
                             navigateToMyPage = { navController.navigate("mypage") },
                             navigateToNoticeDetail = { noticeId -> /* TODO: 공지사항 상세 */ },
-                            navigateToTodoDetail = { /* TODO: 할일 상세 */ },
+                            navigateToTodoDetail = { navController.navigate(BottomNavItem.Calendar.route) },
                             navigateToUserList = { navigationManager.navigateTo("roommate/userlist") },
                             navController = navController
                         )
