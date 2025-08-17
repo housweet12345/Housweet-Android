@@ -83,18 +83,21 @@ fun ProfileScreen(
                 age = profileInfo.age,
                 gender = profileInfo.gender,
                 introduction = profileInfo.introduce,
-                imageUrl = profileInfo.profileImageUrl
+                imageUrl = profileInfo.profileImageUrl,
+                isBlockedUser = profileInfo.isBlockedUser == true
             )
-            Spacer(modifier = Modifier.height(16.dp))
-            // 태그 섹션
-            TagSection(mbti = profileInfo.mbti, tags = profileInfo.tags)
-            Spacer(modifier = Modifier.height(24.dp))
-            // 하단 버튼
-            EditProfileButton(
-                isMyProfile = profileInfo.myProfile,
-                editButtonOnClick = navigateEditProfile,
-                chatButtonOnClick = navigateChatting
-            )
+            if (profileInfo.isBlockedUser != true) {
+                Spacer(modifier = Modifier.height(16.dp))
+                // 태그 섹션
+                TagSection(mbti = profileInfo.mbti, tags = profileInfo.tags)
+                Spacer(modifier = Modifier.height(24.dp))
+                // 하단 버튼
+                EditProfileButton(
+                    isMyProfile = profileInfo.myProfile,
+                    editButtonOnClick = navigateEditProfile,
+                    chatButtonOnClick = navigateChatting
+                )
+            }
         }
 
         if (menuExpanded) {
