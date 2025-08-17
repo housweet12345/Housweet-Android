@@ -3,6 +3,7 @@ package com.housweet.data.repository
 import android.util.Log
 import com.housweet.domain.model.profile.ProfileModel
 import com.housweet.domain.model.profile.ProfileUpdateModel
+import com.housweet.domain.model.profile.ProfileUpdateResponseModel
 import com.housweet.domain.repository.UserRepository
 import kotlinx.coroutines.delay
 
@@ -15,19 +16,14 @@ class FakeUserRepositoryImpl : UserRepository {
         introduce = "안녕하세요! 테스트 사용자입니다.",
         profileImage = "https://example.com/profile.jpg",
         yearOfBirth = "1990",
-        gender = "남성",
+        gender = "남자",
         mbti = "ENFP",
         tags = listOf("개발자", "안드로이드", "코틀린"),
         isCheckedUser = true
     )
 
-    private val fakeProfileUpdateModel = ProfileUpdateModel(
-        gender = "남성",
-        introduce = "업데이트된 소개입니다.",
-        mbti = "ENFP",
-        nickname = "업데이트된닉네임",
-        tags = listOf("개발자", "테스트"),
-        yearOfBirth = "1990"
+    private val fakeProfileUpdateResponseModel = ProfileUpdateResponseModel(
+        isSuccess = true
     )
 
     override suspend fun getMyProfile(): Result<ProfileModel> {
@@ -52,9 +48,9 @@ class FakeUserRepositoryImpl : UserRepository {
         )
     }
 
-    override suspend fun updateProfile(updatedProfile: ProfileUpdateModel): Result<ProfileUpdateModel> {
+    override suspend fun updateProfile(userId: String, updatedProfile: ProfileUpdateModel): Result<ProfileUpdateResponseModel> {
         delay(800)
-        Log.i("updateProfile", "updatedProfile: $updatedProfile")
-        return Result.success(fakeProfileUpdateModel)
+        Log.i("updateProfile", "userId: $userId, updatedProfile: $updatedProfile")
+        return Result.success(fakeProfileUpdateResponseModel)
     }
 }
