@@ -123,19 +123,39 @@ fun RegionBottomSheet(
                                         val district = norm(selectedDistrict)
 
                                         // 이름 → 코드(Int) 매핑
-                                        val siCode = citiesWithCodes.firstOrNull {
+//                                        val siCode = citiesWithCodes.firstOrNull {
+//                                            norm(it["name"]) == city
+//                                        }?.let { norm(it["code"]).toIntOrNull() } ?: return@clickable
+//
+//                                        val guCode = districtsWithCodes.firstOrNull {
+//                                            norm(it["si__name"]) == city && norm(it["name"]) == district
+//                                        }?.let { norm(it["code"]).toIntOrNull() } ?: return@clickable
+//
+//                                        val dongCode = neighborhoodsWithCodes.firstOrNull {
+//                                            norm(it["si__name"]) == city &&
+//                                                    norm(it["gu__name"]) == district &&
+//                                                    norm(it["name"]) == neighborhood
+//                                        }?.let { norm(it["code"]).toLongOrNull() } ?: return@clickable
+
+                                        val siCode: String = citiesWithCodes.firstOrNull {
                                             norm(it["name"]) == city
-                                        }?.let { norm(it["code"]).toIntOrNull() } ?: return@clickable
+                                        }?.let { norm(it["code"]) }
+                                            ?.takeIf { it.isNotEmpty() }
+                                            ?: return@clickable
 
-                                        val guCode = districtsWithCodes.firstOrNull {
+                                        val guCode: String = districtsWithCodes.firstOrNull {
                                             norm(it["si__name"]) == city && norm(it["name"]) == district
-                                        }?.let { norm(it["code"]).toIntOrNull() } ?: return@clickable
+                                        }?.let { norm(it["code"]) }
+                                            ?.takeIf { it.isNotEmpty() }
+                                            ?: return@clickable
 
-                                        val dongCode = neighborhoodsWithCodes.firstOrNull {
+                                        val dongCode: String = neighborhoodsWithCodes.firstOrNull {
                                             norm(it["si__name"]) == city &&
                                                     norm(it["gu__name"]) == district &&
                                                     norm(it["name"]) == neighborhood
-                                        }?.let { norm(it["code"]).toLongOrNull() } ?: return@clickable
+                                        }?.let { norm(it["code"]) }
+                                            ?.takeIf { it.isNotEmpty() }
+                                            ?: return@clickable
 
                                         // Region 조립 (코드는 Int)
                                         onRegionSelected(

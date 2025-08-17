@@ -6,9 +6,12 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class UpdateHouseRequest(
     val room: Int,
-    val si: Int,
-    val gu: Int,
-    val dong: Long,
+//    val si: Int,
+//    val gu: Int,
+//    val dong: Long,
+    val si: String,
+    val gu: String,
+    val dong: String,
     val title: String,
     val content: String,
     val image_uri: String,

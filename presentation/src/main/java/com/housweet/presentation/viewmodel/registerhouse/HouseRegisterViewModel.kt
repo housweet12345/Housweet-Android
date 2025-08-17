@@ -184,9 +184,9 @@ class HouseRegisterViewModel @Inject constructor(
         // 서버 응답을 ViewModel 상태에 프리필
         // (응답 예시를 기반으로 매핑)
         region = Region(
-            sidoCode = detail.si,
-            sigunguCode = detail.gu,
-            dongCode = detail.dong,
+            sidoCode = detail.si ?: "",
+            sigunguCode = detail.gu ?: "",
+            dongCode = detail.dong ?: "",
             sido = "",
             sigungu = "",
             dong = "",
@@ -239,9 +239,9 @@ class HouseRegisterViewModel @Inject constructor(
 
     private fun buildModel(url: String) = HouseRegisterModel(
         room = currentPostingId ?: 0, // 서버 스펙에 맞게 조정 필요
-        si = region?.sidoCode ?: 0,
-        gu = region?.sigunguCode ?: 0,
-        dong = region?.dongCode ?: 0,
+        si = region?.sidoCode ?: "",
+        gu = region?.sigunguCode ?: "",
+        dong = region?.dongCode ?: "",
         title = title,
         content = description,
         imageUri = url,     // ✅ 배열

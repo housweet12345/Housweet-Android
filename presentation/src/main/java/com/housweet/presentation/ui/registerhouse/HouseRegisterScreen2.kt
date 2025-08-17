@@ -402,17 +402,6 @@ fun HouseRegisterScreen2(
                 selectedRegion = region
                 showBottomSheet = false
             },
-//            onRegionSelected = { siCode: Int, siName: String, guCode: Int, guName: String, dongCode: Int, dongName: String ->
-//                selectedRegion = Region(
-//                    sido = siName,
-//                    sigungu = guName,
-//                    dong = dongName,
-//                    sidoCode = siCode,
-//                    sigunguCode = guCode,
-//                    dongCode = dongCode
-//                )
-//                showBottomSheet = false
-//            },
             onDismissRequest = {
                 showBottomSheet = false
             }
@@ -487,9 +476,12 @@ data class RegionDataBundle(
     val dongList: List<Map<String, String>>,
 
     // 코드 -> 이름 매핑 추가
-    val siCodeToName: Map<Int, String>,
-    val guCodeToName: Map<Int, String>,
-    val dongCodeToName: Map<Long, String>
+//    val siCodeToName: Map<Int, String>,
+//    val guCodeToName: Map<Int, String>,
+//    val dongCodeToName: Map<Long, String>
+    val siCodeToName: Map<String, String>,
+    val guCodeToName: Map<String, String>,
+    val dongCodeToName: Map<String, String>
 )
 
 
@@ -511,20 +503,20 @@ fun loadRegionDataBundle(context: Context): RegionDataBundle {
     ).mapValues { it.value.filter { it.isNotEmpty() } }
 
     val siCodeToName = siList.mapNotNull {
-        val code = it["code"]?.toIntOrNull() ?: return@mapNotNull null
-        val name = it["name"] ?: return@mapNotNull null
+        val code = norm(it["code"]).takeIf { it.isNotEmpty() } ?: return@mapNotNull null
+        val name = norm(it["name"]).takeIf { it.isNotEmpty() } ?: return@mapNotNull null
         code to name
     }.toMap()
 
     val guCodeToName = guList.mapNotNull {
-        val code = it["code"]?.toIntOrNull() ?: return@mapNotNull null
-        val name = it["name"] ?: return@mapNotNull null
+        val code = norm(it["code"]).takeIf { it.isNotEmpty() } ?: return@mapNotNull null
+        val name = norm(it["name"]).takeIf { it.isNotEmpty() } ?: return@mapNotNull null
         code to name
     }.toMap()
 
     val dongCodeToName = dongList.mapNotNull {
-        val code = it["code"]?.toLongOrNull() ?: return@mapNotNull null
-        val name = it["name"] ?: return@mapNotNull null
+        val code = norm(it["code"]).takeIf { it.isNotEmpty() } ?: return@mapNotNull null
+        val name = norm(it["name"]).takeIf { it.isNotEmpty() } ?: return@mapNotNull null
         code to name
     }.toMap()
 
