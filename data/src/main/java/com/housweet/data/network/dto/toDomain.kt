@@ -26,8 +26,8 @@ fun PostingDetailDto.toDomain(): RoomPostingDetail =
         roadAddress = roadAddress,
         detailedAddress = detailedAddress,
 
-        si = si ?: 0,
-        gu = gu ?: 0,
-        dong = dong ?: 0,
+        si = si ?: "",
+        gu = gu ?: "",
+        dong = dong ?: "",
         isVisible = isVisible ?: true
     )
