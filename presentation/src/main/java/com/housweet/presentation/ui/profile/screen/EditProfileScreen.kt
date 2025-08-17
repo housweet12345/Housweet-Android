@@ -1,5 +1,8 @@
 package com.housweet.presentation.ui.profile.screen
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,14 +41,27 @@ fun EditProfileScreen(
     yearOfBirth: String = "",
     gender: String = "",
     introduction: String = "",
+    profileImageUrl: String? = null,
     onBackClick: () -> Unit = {},
-    onNextClick: (String, String, String, String) -> Unit = { _, _, _, _ -> }
+    onNextClick: (String, String, String, String) -> Unit = { _, _, _, _ -> },
+    onImageSelected: (Uri) -> Unit = {}
 ) {
     // 상태 관리 추가
     var nameState by remember { mutableStateOf(name) }
     var yearOfBirthState by remember { mutableStateOf(yearOfBirth) }
     var genderState by remember { mutableStateOf(gender) }
     var introductionState by remember { mutableStateOf(introduction) }
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+
+    // 이미지 선택을 위한 launcher
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            selectedImageUri = it
+            onImageSelected(it)
+        }
+    }
 
     var selectedOption by remember {
         mutableIntStateOf(
@@ -75,11 +91,17 @@ fun EditProfileScreen(
         genderState = if (selectedOption == 1) "남자" else "여자"
     }
 
+    // 유효성 검사 - 필수 필드가 모두 입력되었는지 확인
+    val isFormValid = nameState.isNotBlank() && 
+                     yearOfBirthState.isNotBlank() && 
+                     genderState.isNotBlank()
+
     Scaffold(
         contentWindowInsets = WindowInsets(0.dp), // 상단 여백 제거
         bottomBar = {
             BottomButton(
                 text = "다음",
+                enabled = isFormValid,
                 onClick = {
                     onNextClick(nameState, yearOfBirthState, genderState, introductionState)
                 }
@@ -125,7 +147,13 @@ fun EditProfileScreen(
                     .padding(top = 16.dp, bottom = 24.dp),
                 contentAlignment = Alignment.Center
             ) {
-                ProfileImage()
+                ProfileImage(
+                    imageUrl = selectedImageUri?.toString() ?: profileImageUrl,
+                    showCameraIcon = true,
+                    onCameraClick = {
+                        imagePickerLauncher.launch("image/*")
+                    }
+                )
             }
 
             ProfileEditNameTextField(
@@ -145,7 +173,7 @@ fun EditProfileScreen(
                     modifier = Modifier.weight(1f),
                     selectedYear = yearOfBirthState,
                     onYearSelected = { yearOfBirthState = it },
-                    enabled = yearOfBirth.isEmpty() // 기존 데이터가 없을 때만 활성화
+                    enabled = yearOfBirth.isEmpty() && yearOfBirthState.isEmpty() // 기존 데이터와 현재 상태 모두 비어있을 때만 활성화
                 )
                 Spacer(Modifier.width(10.dp))
                 ToggleButtonGroup(
@@ -154,12 +182,12 @@ fun EditProfileScreen(
                     option2 = "여자",
                     selectedOption = selectedOption,
                     onOptionSelected = { selectedOption = it },
-                    enabled = gender.isEmpty() // 기존 값이 있으면 비활성화
+                    enabled = gender.isEmpty() && genderState.isEmpty() // 기존 값과 현재 상태 모두 비어있을 때만 활성화
                 )
             }
 
             // 안내 메시지
-            if (gender.isEmpty() && yearOfBirth.isEmpty()){
+            if (gender.isEmpty() && yearOfBirth.isEmpty() && genderState.isEmpty() && yearOfBirthState.isEmpty()){
                 InfoMessage(
                     message = "나이와 성별은 한 번 선택 후 변경이 불가능합니다.\n신중하게 선택해 주세요.",
                     modifier = Modifier.padding(top = 12.dp)
