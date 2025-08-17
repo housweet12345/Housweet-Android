@@ -13,7 +13,7 @@ class ChatRepositoryImpl @Inject constructor(
     override suspend fun getChatUsers(senderId: Int): List<ChatUser> {
         return remote.getChatUsers(senderId).map {
 //            ChatUser(it.id, it.username, it.email)
-            ChatUser(it.room_id, it.sender_id, it.receiver_id, it.created_at, it.updated_at, it.is_blocked, it.counterpart_id)
+            ChatUser(it.room_id, it.sender_id, it.receiver_id, it.created_at, it.updated_at, it.is_blocked, it.counterpart_id, it.sender_nickname, it.receiver_nickname, it.counterpart_nickname)
         }
     }
     override suspend fun sendMessage(senderId: Int, receiverId: Int, message: String): Boolean {

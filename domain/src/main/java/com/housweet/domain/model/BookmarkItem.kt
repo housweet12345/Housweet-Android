@@ -7,5 +7,6 @@ data class BookmarkItem(
     val rent: Int,                  // 원 단위
     val deposit: Int,               // 원 단위
     val ageRangeAndGender: String,  // "age_range_and_gender"
-    val bookmarkedAt: String,        // ISO 시간 문자열
+    val areaText : String,          // "area_text"
+    val bookmarkedAt: String,       // ISO 시간 문자열
 )

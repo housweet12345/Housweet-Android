@@ -157,7 +157,10 @@ fun MyPostedRoomScreen(
                         onEditClick = {
                             if (!room.isHidden) {
                                 navController.navigate(
-                                    Route.HouseRegisterRoute.Step1(mode = RegisterModel.EDIT)
+                                    Route.HouseRegisterRoute.Step1(
+                                        mode = RegisterModel.EDIT,
+                                        postingId = room.id
+                                    )
                                 )
                             } else {
                                 // 숨김 상태에서 "글 수정하기"를 누르면 우선 해제하고 게시중 탭으로
@@ -244,7 +247,13 @@ fun MyPostedRoomScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
-                                    navController.navigate(Route.HouseRegisterRoute.Step1(mode = RegisterModel.EDIT))
+                                    val id = selectedPost?.id ?: return@clickable
+                                    navController.navigate(
+                                        Route.HouseRegisterRoute.Step1(
+                                            mode = RegisterModel.EDIT,
+                                            postingId = id
+                                        )
+                                    )
                                     showSheet = false
                                 }
                                 .padding(vertical = 10.dp),
