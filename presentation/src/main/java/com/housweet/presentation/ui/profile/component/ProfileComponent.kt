@@ -106,20 +106,15 @@ fun ProfileImage(
         ) {
             if (imageUrl.isNullOrEmpty()) {
                 // 기본 프로필 이미지 표시
-                Box(
+                SubcomposeAsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(R.drawable.default_profile_img)
+                        .build(),
+                    contentDescription = "기본 프로필 이미지",
                     modifier = Modifier
-                        .size(size.dp)
-                        .clip(CircleShape)
-                        .border(1.dp, ColorGroup.Gray_CBCBCB, CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        painter = painterResource(id = android.R.drawable.ic_menu_gallery), // 프로필 기본 아이콘
-                        contentDescription = "기본 프로필",
-                        modifier = Modifier.size((size / 2).dp),
-                        tint = ColorGroup.Gray_CBCBCB
-                    )
-                }
+                        .size(size.dp),
+                    contentScale = ContentScale.Crop
+                )
             } else {
                 // Coil을 사용하여 서버에서 이미지 로드
                 SubcomposeAsyncImage(
@@ -137,20 +132,17 @@ fun ProfileImage(
                     },
                     error = {
                         // 이미지 로드 실패 시 기본 이미지 표시
-                        Box(
+                        SubcomposeAsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(R.drawable.default_profile_img)
+                                .build(),
+                            contentDescription = "기본 프로필 이미지",
                             modifier = Modifier
                                 .size(size.dp)
                                 .clip(CircleShape)
                                 .border(1.dp, ColorGroup.Gray_CBCBCB, CircleShape),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                painter = painterResource(id = android.R.drawable.ic_menu_gallery),
-                                contentDescription = "이미지 로드 실패",
-                                modifier = Modifier.size((size / 2).dp),
-                                tint = ColorGroup.Gray_CBCBCB
-                            )
-                        }
+                            contentScale = ContentScale.Crop
+                        )
                     }
                 )
             }
