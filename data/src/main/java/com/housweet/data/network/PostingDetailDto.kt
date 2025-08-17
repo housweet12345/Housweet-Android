@@ -26,9 +26,13 @@ data class PostingDetailDto(
     @SerialName("road_address") val roadAddress: String? = null,
     @SerialName("detailed_address") val detailedAddress: String? = null,
 
-    val si: Int? = null,
-    val gu: Int? = null,
-    val dong: Long? = null,
+//    val si: Int? = null,
+//    val gu: Int? = null,
+//    val dong: Long? = null,
+
+    val si: String? = null,
+    val gu: String? = null,
+    val dong: String? = null,
 
     @SerialName("is_visible") val isVisible: Boolean? = null
 )
