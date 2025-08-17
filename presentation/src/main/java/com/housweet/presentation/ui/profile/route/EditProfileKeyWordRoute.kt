@@ -1,7 +1,9 @@
 package com.housweet.presentation.ui.profile.route
 
+import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.housweet.presentation.ui.profile.screen.EditProfileSelectKeyWordScreen
@@ -12,30 +14,40 @@ import com.housweet.presentation.viewmodel.profile.EditProfileViewModel
 fun EditProfileKeyWordRoute(
     viewModel: EditProfileViewModel = hiltViewModel(),
     onBackClick: () -> Unit = {},
-    navigateMyProfile: () -> Unit = {},
+    onSuccessNavigateBack: () -> Unit = {},
+    showSkipButton: Boolean = false,
+    onSkipClick: () -> Unit = {},
 ) {
     val state = viewModel.profileState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+
+    LaunchedEffect(state.value) {
+        when (val currentState = state.value) {
+            is ProfileInfoState.EditSuccess -> {
+                onSuccessNavigateBack()
+            }
+            is ProfileInfoState.Error -> {
+                Toast.makeText(context, currentState.message, Toast.LENGTH_SHORT).show()
+                onSuccessNavigateBack()
+            }
+            else -> {}
+        }
+    }
 
     when(val currentState = state.value) {
-        ProfileInfoState.EditSuccess -> {
-            // 수정 성공 시 다음 화면으로 이동
-            LaunchedEffect(Unit) {
-                navigateMyProfile()
-            }
-        }
         is ProfileInfoState.Success -> {
             val profile = currentState.profileInfo
             EditProfileSelectKeyWordScreen(
-                currentProfile = profile, // 현재 프로필 정보 전달
+                currentProfile = profile,
+                showSkipButton = showSkipButton,
                 onBackClick = onBackClick,
                 onNextClick = viewModel::updateProfile,
+                onSkipClick = onSkipClick
             )
         }
         ProfileInfoState.Loading -> {
             // 로딩
         }
-        is ProfileInfoState.Error -> {
-            // 에러
-        }
+        else -> {}
     }
 }

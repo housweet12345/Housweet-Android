@@ -8,9 +8,9 @@ import com.housweet.data.network.dto.LoginResponseDto
 import com.housweet.data.network.dto.toAuthToken
 import com.housweet.data.utils.NetworkConnectionManager
 import com.housweet.data.utils.NoInternetException
+import com.housweet.data.utils.TokenUtils
 import com.housweet.domain.local.RoomLocalDataSource
 import com.housweet.domain.model.AuthToken
-import com.housweet.domain.model.isAccessTokenExpired
 import com.housweet.domain.repository.AuthRepository
 import io.ktor.client.call.body
 import kotlinx.coroutines.flow.Flow
@@ -114,6 +114,18 @@ class AuthRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             if (e.message.toString().contains("Room not found")) emit(Result.success(false))
             emit(Result.failure(e))
+        }
+    }
+
+    override suspend fun getCurrentUserId(): Int? {
+        return try {
+            val authToken = authLocalDataSource.getAuthToken()
+            authToken?.let { token ->
+                TokenUtils.getUserIdFromToken(token.accessToken)
+            }
+        } catch (e: Exception) {
+            Log.e("AuthRepository", "Failed to get current user ID", e)
+            null
         }
     }
 }

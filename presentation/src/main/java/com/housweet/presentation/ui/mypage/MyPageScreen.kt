@@ -157,13 +157,17 @@ fun MyPageScreen(
                 navController.navigate("help")
             }
 
-            MyPageMenuItem("개인정보처리방침") {}
+            MyPageMenuItem("개인정보처리방침") {
+                navController.navigate("terms_privacy_policies")
+            }
 
             MyPageMenuItem("서비스 이용약관") {
                 navController.navigate("terms_conditions_policies")
             }
 
-            MyPageMenuItem("위치정보 이용약관") {}
+            MyPageMenuItem("위치정보 이용약관") {
+                navController.navigate("terms_location_information_policies")
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
             Box(
