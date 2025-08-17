@@ -15,6 +15,6 @@ interface AuthRemoteDataSource {
     ): RefreshResponseDto
     suspend fun agreeTermsOfService(): Boolean
     suspend fun isTermsOfServiceAgreed(): IsTermsOfServiceAgreedResponseDto
-    suspend fun isSetProfile(): Boolean
+    suspend fun isSetProfile(userId: Int): Boolean
     suspend fun isBelongToRoom(): Boolean
 }

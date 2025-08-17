@@ -109,7 +109,8 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun isSetProfile(): Flow<Result<Boolean>> = flow {
         try {
-            val isSetProfile = authRemoteDataSource.isSetProfile()
+            val userId = getCurrentUserId() ?: throw Exception("User ID not found")
+            val isSetProfile = authRemoteDataSource.isSetProfile(userId)
             emit(Result.success(isSetProfile))
         } catch (e: Exception) {
             if (e.message.toString().contains("Text: \"<!DOCTYPE html>")) emit(Result.success(false))
