@@ -17,7 +17,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,6 +28,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import com.housweet.presentation.ui.startPage.BottomButton
 import com.housweet.presentation.ui.startPage.GuideText
 import com.housweet.presentation.ui.startPage.LoadingScreen
@@ -44,22 +47,25 @@ fun CreateRoomScreen(
     createRoomViewModel: CreateRoomViewModel = hiltViewModel(),
     onSuccessCreateRoom: () -> Unit
 ) {
-    val uiState: CreateRoomState by createRoomViewModel.uiState.collectAsState()
+    val uiState: CreateRoomState by createRoomViewModel.uiState.collectAsStateWithLifecycle()
     val snackBarHostState = remember { SnackbarHostState() }
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
 
     LaunchedEffect(Unit) {
-        createRoomViewModel.event.collect { event ->
-            when (event) {
-                CreateRoomEvent.Error -> {
-                    snackBarHostState.showSnackbar(
-                        message = "방을 만드는 데 실패했습니다.",
-                        actionLabel = "닫기",
-                        duration = SnackbarDuration.Short
-                    )
-                }
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            createRoomViewModel.event.collect { event ->
+                when (event) {
+                    CreateRoomEvent.Error -> {
+                        snackBarHostState.showSnackbar(
+                            message = "방을 만드는 데 실패했습니다.",
+                            actionLabel = "닫기",
+                            duration = SnackbarDuration.Short
+                        )
+                    }
 
-                CreateRoomEvent.Success -> {
-                    onSuccessCreateRoom()
+                    CreateRoomEvent.Success -> {
+                        onSuccessCreateRoom()
+                    }
                 }
             }
         }
