@@ -1,7 +1,6 @@
 package com.housweet.presentation.ui.communityPage.postScreen.detailPostScreen
 
 import android.content.Context
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -36,7 +35,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,6 +53,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.housweet.domain.model.RoomPostDetailDataModel
@@ -77,8 +79,9 @@ fun DetailPostScreen(
     onBackBtnClick: (isBookmarkChanged: Boolean) -> Unit,
     detailPostViewModel: DetailPostViewModel = hiltViewModel()
 ) {
-    val uiState by detailPostViewModel.uiState.collectAsState()
-    val roomPostDetail by detailPostViewModel.roomPostDetail.collectAsState()
+    val uiState by detailPostViewModel.uiState.collectAsStateWithLifecycle()
+    val roomPostDetail by detailPostViewModel.roomPostDetail.collectAsStateWithLifecycle()
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
     val snackBarHostState = remember { SnackbarHostState() }
     var isMenuExpanded by remember { mutableStateOf(false) }
 
@@ -88,30 +91,32 @@ fun DetailPostScreen(
     }
 
     LaunchedEffect(Unit) {
-        detailPostViewModel.event.collect { event ->
-            when (event) {
-                DetailPostEvent.Error -> {
-                    snackBarHostState.showSnackbar(
-                        message = "방 정보를 제대로 불러오지 못했어요.",
-                        actionLabel = "닫기",
-                        duration = SnackbarDuration.Short
-                    )
-                }
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            detailPostViewModel.event.collect { event ->
+                when (event) {
+                    DetailPostEvent.Error -> {
+                        snackBarHostState.showSnackbar(
+                            message = "방 정보를 제대로 불러오지 못했어요.",
+                            actionLabel = "닫기",
+                            duration = SnackbarDuration.Short
+                        )
+                    }
 
-                DetailPostEvent.BookMarkError -> {
-                    snackBarHostState.showSnackbar(
-                        message = "북마크를 제대로 설정하지 못했어요.",
-                        actionLabel = "닫기",
-                        duration = SnackbarDuration.Short
-                    )
-                }
+                    DetailPostEvent.BookMarkError -> {
+                        snackBarHostState.showSnackbar(
+                            message = "북마크를 제대로 설정하지 못했어요.",
+                            actionLabel = "닫기",
+                            duration = SnackbarDuration.Short
+                        )
+                    }
 
-                is DetailPostEvent.ReportRoom -> {
-                    snackBarHostState.showSnackbar(
-                        message = event.message,
-                        actionLabel = "닫기",
-                        duration = SnackbarDuration.Short
-                    )
+                    is DetailPostEvent.ReportRoom -> {
+                        snackBarHostState.showSnackbar(
+                            message = event.message,
+                            actionLabel = "닫기",
+                            duration = SnackbarDuration.Short
+                        )
+                    }
                 }
             }
         }
