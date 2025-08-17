@@ -23,7 +23,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,11 +36,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.housweet.presentation.model.RegisterModel
 import com.housweet.presentation.ui.common.StepIndicator
 import com.housweet.presentation.ui.common.TopBarWithBackButton
-import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModel
 import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModelBase
 
 @Composable
@@ -50,7 +47,8 @@ fun HouseRegisterScreen4(
     postingId: Int?,
     onBackClick: () -> Unit,
     onCompleteClick: () -> Unit,
-    viewModel: HouseRegisterViewModelBase
+    viewModel: HouseRegisterViewModelBase,
+    onShowSnackbar: (String) -> Unit = {}
 ) {
     // 1) 섹션 정의
     val sections = listOf(
@@ -76,8 +74,8 @@ fun HouseRegisterScreen4(
     var showDialog by remember { mutableStateOf(false) }
     var missingSectionName by remember { mutableStateOf<String?>(null) }
 
-    fun firstMissingSectionOrNull(): String? =
-        sections.firstOrNull { (title, _) -> selectedBySection[title].isNullOrEmpty() }?.first
+    // 실패 알림 메세지
+    var resultMessage by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -163,15 +161,35 @@ fun HouseRegisterScreen4(
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = {
+            val life   = selectedBySection["생활 패턴"]?.toList() ?: emptyList()
+            val tidy   = selectedBySection["정리 습관"]?.toList() ?: emptyList()
+            val person = selectedBySection["성격"]?.toList() ?: emptyList()
+
+            // 2) ViewModel에 반영
+            viewModel.updateLifePatternTags(life)
+            viewModel.updateTidyingUpHabitTags(tidy)
+            viewModel.updatePreferredTags(person)
+
+            val onSuccessWrapped = {
+                Log.d("HouseRegister4", "✅ onSuccess 호출됨")
+                onCompleteClick()
+            }
+            val onErrorWrapped: (Throwable) -> Unit = { e ->
+                Log.e("HouseRegister4", "❌ submit 실패: ${e.message}", e)
+                // 모드별 안내문구
+                resultMessage = if (mode == RegisterModel.EDIT) "방 수정에 실패했습니다" else "방 생성에 실패했습니다"
+                onShowSnackbar(resultMessage)
+            }
+
             if (mode == RegisterModel.EDIT) {
                 viewModel.submitEdit(
-                    onSuccess = onCompleteClick,
-                    onError = { /* 스낵바/토스트 */ }
+                    onSuccess = onSuccessWrapped,
+                    onError = onErrorWrapped
                 )
             } else {
                 viewModel.submitHouseRegister(
-                    onSuccess = onCompleteClick,
-                    onError = { /* 스낵바/토스트 */ }
+                    onSuccess = onSuccessWrapped,
+                    onError = onErrorWrapped
                 )
             }
         },
