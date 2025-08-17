@@ -381,7 +381,7 @@ private fun UserProfile(
         ) {
             GuideText(
                 color = Black,
-                text = "김지안",
+                text = roomPostDetail.nickName,
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 12.sp,
                 lineHeight = 12.sp,
