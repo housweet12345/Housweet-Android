@@ -17,6 +17,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -110,6 +111,8 @@ class MainActivity : ComponentActivity() {
             val houseRegisterViewModel: HouseRegisterViewModel = hiltViewModel()
             val navigationManager = NavigationManager(navController)
 
+            val scope = rememberCoroutineScope()
+
             LaunchedEffect(Unit) {
                 if (isFailedRefreshToken) {
                     snackBarHostState.showSnackbar(
@@ -125,10 +128,10 @@ class MainActivity : ComponentActivity() {
             ) { paddingValues ->
                 NavHost(
                     navController = navController,
-//                    startDestination = if (!isFailedRefreshToken) Route.StartPageRoute.Splash else Route.StartPageRoute.LoginRoute.Login,
+                    startDestination = if (!isFailedRefreshToken) Route.StartPageRoute.Splash else Route.StartPageRoute.LoginRoute.Login,
 
                     //access_token Log 확인 테스트용
-                    startDestination = Route.StartPageRoute.LoginRoute.Login,
+//                    startDestination = Route.StartPageRoute.LoginRoute.Login,
                     modifier = Modifier.padding(top = paddingValues.calculateTopPadding())
                 ) {
                     composable<Route.StartPageRoute.Splash> {
@@ -488,8 +491,42 @@ class MainActivity : ComponentActivity() {
                             mode = mode,
                             postingId = postingId,
                             onBackClick = { navController.navigate(Route.HouseRegisterRoute.Step3(mode)) },
-                            onCompleteClick = {},
-                            viewModel = houseRegisterViewModel
+                            onCompleteClick = {
+                                scope.launch {
+                                    if (mode == RegisterModel.EDIT) {
+                                        // 알림
+                                        snackBarHostState.showSnackbar(
+                                            message = "방 수정이 완료 되었습니다.",
+                                            duration = SnackbarDuration.Short
+                                        )
+                                        // 이동: 올린 방 관리
+                                        navigationManager.navigateOneWay(
+                                            Route.HouseRegisterRoute.Step4(mode),
+                                            "posted_my_room"
+                                        )
+                                    } else {
+                                        // 알림
+                                        snackBarHostState.showSnackbar(
+                                            message = "방 생성이 완료 되었습니다.",
+                                            duration = SnackbarDuration.Short
+                                        )
+                                        // 이동: 지도 화면
+                                        navigationManager.navigateOneWay(
+                                            Route.HouseRegisterRoute.Step4(mode),
+                                            Route.CommunityPageRoute.Map()
+                                        )
+                                    }
+                                }
+                            },
+                            viewModel = houseRegisterViewModel,
+                            onShowSnackbar = { msg ->
+                                scope.launch {
+                                    snackBarHostState.showSnackbar(
+                                        message = msg,
+                                        duration = SnackbarDuration.Short
+                                    )
+                                }
+                            }
                         )
                     }
 
