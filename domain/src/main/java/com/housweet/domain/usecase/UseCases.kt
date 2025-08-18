@@ -18,6 +18,7 @@ import com.housweet.domain.usecase.start.LoginWithKakaoUseCase
 data class UseCases (
     val loginWithKakaoUseCase: LoginWithKakaoUseCase,
     val logoutUseCase: LogoutUseCase,
+    val deleteAccountUseCase: DeleteAccountUseCase,
     val checkLoginUseCase: CheckLoginUseCase,
     val createRoomUseCase: CreateRoomUseCase,
     val getNearbyPostCountUseCase: GetNearbyPostCountUseCase,

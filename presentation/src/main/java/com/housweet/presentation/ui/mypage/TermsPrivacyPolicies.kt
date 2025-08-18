@@ -3,7 +3,6 @@ package com.housweet.presentation.ui.mypage
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -32,11 +31,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.housweet.presentation.R
-import com.housweet.presentation.ui.startPage.GuideText
+import com.housweet.presentation.ui.common.GuideText
 import com.housweet.presentation.ui.theme.Black
 
 @OptIn(ExperimentalMaterial3Api::class)

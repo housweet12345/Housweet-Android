@@ -80,4 +80,9 @@ class AuthRemoteDataSourceImpl @Inject constructor(
         val response = httpClient.get("$BASE_URL/room/rooms/me/")
         return response.status.value == 200
     }
+
+    override suspend fun deleteAccount(): Boolean {
+        val response = httpClient.post("$BASE_URL/auth/withdraw/")
+        return response.status.value == 200
+    }
 }
