@@ -3,6 +3,7 @@ package com.housweet.presentation
 import android.content.Intent
 import android.os.Bundle
 import android.util.Base64
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -132,7 +133,8 @@ class MainActivity : ComponentActivity() {
                     startDestination = if (!isFailedRefreshToken && !isLogout && !isDeleteAccount) Route.StartPageRoute.Splash else Route.StartPageRoute.LoginRoute.Login,
 
                     // access_token Log 확인 테스트용
-//                     startDestination = Route.StartPageRoute.LoginRoute.Login,
+//                    startDestination = Route.StartPageRoute.LoginRoute.Login,
+//                    startDestination= "mypage",
                     modifier = Modifier.padding(top = paddingValues.calculateTopPadding())
                 ) {
                     composable<Route.StartPageRoute.Splash> {
