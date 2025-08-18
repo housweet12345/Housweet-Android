@@ -17,4 +17,5 @@ interface AuthRepository {
     suspend fun isSetProfile(): Flow<Result<Boolean>>
     suspend fun isBelongToRoom(): Flow<Result<Boolean>>
     suspend fun getCurrentUserId(): Int?
+    suspend fun deleteAccount(): Flow<Result<Boolean>>
 }
