@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -74,142 +75,159 @@ fun HouseRegisterScreen4(
     var showDialog by remember { mutableStateOf(false) }
     var missingSectionName by remember { mutableStateOf<String?>(null) }
 
+    fun firstMissingSectionOrNull(): String? =
+        sections.firstOrNull { (title, _) ->
+            selectedBySection[title].isNullOrEmpty()
+        }?.first
+
     // 실패 알림 메세지
     var resultMessage by remember { mutableStateOf("") }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .padding(horizontal = 16.dp)
-    ) {
-        TopBarWithBackButton(
-            title = if (mode == RegisterModel.EDIT) "글 수정하기" else "하우스 올리기",
-            onBackClick = onBackClick
-        )
-
-        StepIndicator(currentStep = 4)
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text(
-                text = "선호하는 사람에 대한 키워드를 선택해주세요.",
-                color = Color(0xFF6C4DFF),
-                fontSize = 12.sp,
-                modifier = Modifier.padding(vertical = 8.dp)
+    Scaffold (
+        topBar = {
+            TopBarWithBackButton(
+                title = if (mode == RegisterModel.EDIT) "글 수정하기" else "하우스 올리기",
+                currentStep = 4,
+                onBackClick = onBackClick
             )
         }
-        Spacer(modifier = Modifier.height(12.dp))
-
-        LazyColumn(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+    ){ innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White)
+                .padding(horizontal = 16.dp)
+                .padding(innerPadding)
         ) {
-            sections.forEach { (title, tags) ->
-                item {
-                    Text(
-                        text = title,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 12.sp,
-                        modifier = Modifier.padding(vertical = 4.dp)
-                    )
-                }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    text = "선호하는 사람에 대한 키워드를 선택해주세요.",
+                    color = Color(0xFF6C4DFF),
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(vertical = 16.dp)
+                )
+            }
 
-                item {
-                    FlowRow(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        tags.forEach { tag ->
-                            val isSelected = selectedBySection[title]?.contains(tag) == true
+            Spacer(modifier = Modifier.height(12.dp))
 
-                            Box(
-                                modifier = Modifier
-                                    .clickable {
-                                        val current = selectedBySection[title]?.toMutableSet() ?: mutableSetOf()
-                                        if (isSelected) current.remove(tag) else current.add(tag)
-                                        selectedBySection[title] = current
-                                    }
-                                    .border(
-                                        width = 1.dp,
-                                        color = Color(0xFF665ED3),
-                                        shape = RoundedCornerShape(12.dp)
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                sections.forEach { (title, tags) ->
+                    item {
+                        Text(
+                            text = title,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        )
+                    }
+
+                    item {
+                        FlowRow(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            tags.forEach { tag ->
+                                val isSelected = selectedBySection[title]?.contains(tag) == true
+
+                                Box(
+                                    modifier = Modifier
+                                        .clickable {
+                                            val current = selectedBySection[title]?.toMutableSet() ?: mutableSetOf()
+                                            if (isSelected) current.remove(tag) else current.add(tag)
+                                            selectedBySection[title] = current
+                                        }
+                                        .border(
+                                            width = 1.dp,
+                                            color = Color(0xFF665ED3),
+                                            shape = RoundedCornerShape(12.dp)
+                                        )
+                                        .background(
+                                            color = if (isSelected) Color(0xFF665ED3) else Color.White,
+                                            shape = RoundedCornerShape(12.dp)
+                                        )
+                                        .padding(horizontal = 12.dp, vertical = 8.dp)
+                                ) {
+                                    Text(
+                                        text = tag,
+                                        fontSize = 12.sp,
+                                        color = if (isSelected) Color.White else Color.Black
                                     )
-                                    .background(
-                                        color = if (isSelected) Color(0xFF665ED3) else Color.White,
-                                        shape = RoundedCornerShape(12.dp)
-                                    )
-                                    .padding(horizontal = 12.dp, vertical = 8.dp)
-                            ) {
-                                Text(
-                                    text = tag,
-                                    fontSize = 12.sp,
-                                    color = if (isSelected) Color.White else Color.Black
-                                )
+                                }
                             }
                         }
                     }
                 }
             }
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        Button(onClick = {
-            val life   = selectedBySection["생활 패턴"]?.toList() ?: emptyList()
-            val tidy   = selectedBySection["정리 습관"]?.toList() ?: emptyList()
-            val person = selectedBySection["성격"]?.toList() ?: emptyList()
+            Button(onClick = {
+                val missing = firstMissingSectionOrNull()
+                if (missing != null) {
+                    missingSectionName = missing
+                    showDialog = true
+                    return@Button
+                }
 
-            // 2) ViewModel에 반영
-            viewModel.updateLifePatternTags(life)
-            viewModel.updateTidyingUpHabitTags(tidy)
-            viewModel.updatePreferredTags(person)
+                val life   = selectedBySection["생활 패턴"]?.toList() ?: emptyList()
+                val tidy   = selectedBySection["정리 습관"]?.toList() ?: emptyList()
+                val person = selectedBySection["성격"]?.toList() ?: emptyList()
 
-            val onSuccessWrapped = {
-                Log.d("HouseRegister4", "✅ onSuccess 호출됨")
-                onCompleteClick()
-            }
-            val onErrorWrapped: (Throwable) -> Unit = { e ->
-                Log.e("HouseRegister4", "❌ submit 실패: ${e.message}", e)
-                // 모드별 안내문구
-                resultMessage = if (mode == RegisterModel.EDIT) "방 수정에 실패했습니다" else "방 생성에 실패했습니다"
-                onShowSnackbar(resultMessage)
-            }
+                // 2) ViewModel에 반영
+                viewModel.updateLifePatternTags(life)
+                viewModel.updateTidyingUpHabitTags(tidy)
+                viewModel.updatePreferredTags(person)
 
-            if (mode == RegisterModel.EDIT) {
-                viewModel.submitEdit(
-                    onSuccess = onSuccessWrapped,
-                    onError = onErrorWrapped
+                val onSuccessWrapped = {
+                    Log.d("HouseRegister4", "✅ onSuccess 호출됨")
+                    onCompleteClick()
+                }
+                val onErrorWrapped: (Throwable) -> Unit = { e ->
+                    Log.e("HouseRegister4", "❌ submit 실패: ${e.message}", e)
+                    // 모드별 안내문구
+                    resultMessage = if (mode == RegisterModel.EDIT) "방 수정에 실패했습니다" else "방 생성에 실패했습니다"
+                    onShowSnackbar(resultMessage)
+                }
+
+                if (mode == RegisterModel.EDIT) {
+                    viewModel.submitEdit(
+                        onSuccess = onSuccessWrapped,
+                        onError = onErrorWrapped
+                    )
+                } else {
+                    viewModel.submitHouseRegister(
+                        onSuccess = onSuccessWrapped,
+                        onError = onErrorWrapped
+                    )
+                }
+            },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                shape = RoundedCornerShape(6.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF665ED3),
+                    contentColor = Color.White
                 )
-            } else {
-                viewModel.submitHouseRegister(
-                    onSuccess = onSuccessWrapped,
-                    onError = onErrorWrapped
+            ) {
+                Text(
+                    text = "완료",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold
                 )
             }
-        },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            shape = RoundedCornerShape(6.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF665ED3),
-                contentColor = Color.White
-            )
-        ) {
-            Text(
-                text = "완료",
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+        }
     }
 
     if (showDialog) {

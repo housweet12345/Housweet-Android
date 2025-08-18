@@ -68,17 +68,17 @@ import kotlinx.coroutines.delay
 fun ChatScreen(
     chatName: String,
     navController: NavController,
-    receiverId: Int
+    receiverId: Int,
+    roomId: Int
 ) {
     RequestGalleryPermission()
-    val context = LocalContext.current
     val viewModel = hiltViewModel<ChatListViewModel>()
     val chatItems = remember { mutableStateListOf<ChatItem>() }
-    val galleryImages = remember { mutableStateListOf<Uri>() }
-    var showGallery by remember { mutableStateOf(false) }
 
     var expanded by remember { mutableStateOf(false) }
     val senderId = 3
+    var showDeleteConfirm by remember { mutableStateOf(false) }
+    var showReportConfirm by remember { mutableStateOf(false) }
     val listState = rememberLazyListState()
 
     // 채팅 메시지 polling
@@ -90,6 +90,10 @@ fun ChatScreen(
             }
             delay(3000)
         }
+    }
+
+    LaunchedEffect(receiverId) {
+        Log.d("Chat", "OPEN chat with senderId=$senderId receiverId=$receiverId")
     }
 
     // 최신 메시지로 스크롤
@@ -121,8 +125,15 @@ fun ChatScreen(
                         Icon(painter=painterResource(id = R.drawable.ic_more_vert), contentDescription = "메뉴")
                     }
                     DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                        DropdownMenuItem(onClick = { expanded = false }) { Text("채팅방 삭제하기", fontSize = 12.sp) }
-                        DropdownMenuItem(onClick = { expanded = false }) { Text("신고하기", fontSize = 12.sp) }
+                        DropdownMenuItem(onClick = {
+                            expanded = false
+                            showDeleteConfirm = true
+                        }) { Text("채팅방 삭제하기", fontSize = 12.sp) }
+
+                        DropdownMenuItem(onClick = {
+                            expanded = false
+                            showReportConfirm = true
+                        }) { Text("신고하기", fontSize = 12.sp) }
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.White)
@@ -141,61 +152,7 @@ fun ChatScreen(
                             }
                         }
                     },
-                    onAddImageClick = {
-                        showGallery = !showGallery
-                        if (showGallery && galleryImages.isEmpty()) {
-                            val images = GetGalleryImages(context)
-                            galleryImages.addAll(images)
-                        }
-                    }
                 )
-
-                if (showGallery) {
-                    // 갤러리 미리보기
-                    if (galleryImages.isEmpty()) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(216.dp)
-                                .background(Color.White),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text("갤러리 사진이 없습니다.", color = Color(0xFF6F3DD2))
-                        }
-                    } else {
-                        LazyVerticalGrid(
-                            columns = GridCells.Fixed(3),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(216.dp)
-                                .background(Color(0xFFF0F0F0))
-                                .padding(8.dp),
-                            horizontalArrangement = Arrangement.spacedBy(2.dp),
-                            verticalArrangement = Arrangement.spacedBy(2.dp)
-                        ) {
-                            items(galleryImages) { uri ->
-                                Image(
-                                    painter = rememberAsyncImagePainter(uri),
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .size(108.dp)
-                                        .clip(RoundedCornerShape(8.dp))
-                                        .clickable {
-                                            val bitmap = if (Build.VERSION.SDK_INT < 28) {
-                                                MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
-                                            } else {
-                                                val source = ImageDecoder.createSource(context.contentResolver, uri)
-                                                ImageDecoder.decodeBitmap(source)
-                                            }
-                                            chatItems.add(ChatItem.ImageMessage(bitmap, true))
-                                            showGallery = false
-                                        },
-                                    contentScale = ContentScale.Crop
-                                )
-                            }
-                        }
-                    }
-                }
             }
         },
         containerColor = Color.White
@@ -209,6 +166,47 @@ fun ChatScreen(
             navController = navController,
             chatName = "채팅 미리보기"
         )
+
+        // ✅ 삭제 확인 다이얼로그
+        if (showDeleteConfirm) {
+            ConfirmDialog(
+                title = "채팅방 삭제",
+                message = "이 채팅방을 삭제할까요?",
+                onConfirm = {
+                    showDeleteConfirm = false
+                    viewModel.deleteChatRoom(roomId) { ok, err ->
+                        if (ok) {
+                            // 스낵바/토스트 노출 후 리스트로 이동
+                            navController.popBackStack()
+                        } else {
+                            // 에러 메시지 노출
+                            Log.e("Chat", "삭제 실패: $err")
+                        }
+                    }
+                },
+                onDismiss = { showDeleteConfirm = false }
+            )
+        }
+
+        // ✅ 신고 확인 다이얼로그
+        if (showReportConfirm) {
+            ConfirmDialog(
+                title = "신고하기",
+                message = "이 채팅방을 신고(차단)할까요?",
+                onConfirm = {
+                    showReportConfirm = false
+                    viewModel.reportChatRoom(roomId) { ok, err ->
+                        if (ok) {
+                            viewModel.refreshChatUsers(senderId = 3)         // ✅ 신고 후 새로고침
+                            navController.popBackStack()
+                        } else {
+                            Log.e("Chat", "신고 실패: $err")
+                        }
+                    }
+                },
+                onDismiss = { showReportConfirm = false }
+            )
+        }
     }
 }
 
@@ -281,6 +279,33 @@ private fun WarningBanner() {
     }
 }
 
+@Composable
+fun ConfirmDialog(
+    title: String,
+    message: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    androidx.compose.ui.window.Dialog(onDismissRequest = onDismiss) {
+        androidx.compose.material3.Surface(
+            shape = RoundedCornerShape(12.dp),
+            color = Color.White
+        ) {
+            Column(Modifier.padding(20.dp)) {
+                Text(title, fontSize = 16.sp, color = Color.Black)
+                Text(message, fontSize = 13.sp, color = Color.Gray, modifier = Modifier.padding(top = 8.dp))
+                androidx.compose.foundation.layout.Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    androidx.compose.material3.TextButton(onClick = onDismiss) { Text("취소") }
+                    androidx.compose.material3.TextButton(onClick = onConfirm) { Text("확인") }
+                }
+            }
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
@@ -312,8 +337,7 @@ fun ChatScreenPreview() {
             ChatInput(
                 senderId = 1,
                 receiverId = 2,
-                onSendMessage = { _, _, _ -> },
-                onAddImageClick = {}
+                onSendMessage = { _, _, _ -> }
             )
         },
         containerColor = Color.White
