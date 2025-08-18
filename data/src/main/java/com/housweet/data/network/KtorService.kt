@@ -82,7 +82,7 @@ class KtorService @Inject constructor(
                 }
             }
 
-            expectSuccess = true
+            expectSuccess = false
 
             install(ContentNegotiation) {
                 json(json)
