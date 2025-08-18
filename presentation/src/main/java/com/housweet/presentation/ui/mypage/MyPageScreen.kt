@@ -30,6 +30,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,10 +50,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.common.CustomAlertDialog
+import com.housweet.presentation.ui.profile.state.ProfileInfoState.Success
+import com.housweet.presentation.viewmodel.mypage.MyHouseViewModel
+import com.housweet.presentation.viewmodel.profile.ProfileInfoViewModel
+import com.housweet.presentation.ui.profile.state.ProfileInfoState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,12 +69,21 @@ fun MyPageScreen(
     onLogoutClick: () -> Unit,
     onDeleteAccountClick: () -> Unit
 ) {
+    val viewModel: ProfileInfoViewModel = hiltViewModel()
+
     BackHandler {
         onBackClick()
     }
 
     var showContactDialog by remember { mutableStateOf(false) }
     var showLogoutDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        viewModel.loadProfile("me")
+    }
+
+    val profileState = viewModel.profileState.collectAsState().value
+    var lastProfile: Any? by remember { mutableStateOf(null) }
 
     Scaffold (
         containerColor = Color.White,
@@ -134,9 +151,50 @@ fun MyPageScreen(
                         .background(Color(0xFFE0E0E0))
                 )
                 Spacer(modifier = Modifier.width(16.dp))
-                Column {
-                    Text(text = "김지안", fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                    Text(text = "20대 남자", fontSize = 12.sp, color = Color.Gray)
+//                Column {
+//                    Text(text = "김지안", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+//                    Text(text = "20대 남자", fontSize = 12.sp, color = Color.Gray)
+//                }
+                // 상태에 따라 출력
+                when (val s = profileState) {
+                    is ProfileInfoState.Loading -> {
+                        Column {
+                            Text("불러오는 중...", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                            Text(" ", fontSize = 12.sp, color = Color.Gray)
+                        }
+                    }
+
+                    is ProfileInfoState.Error -> {
+                        Column {
+                            Text("프로필 로드 실패", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFFD32F2F))
+                            Spacer(Modifier.height(4.dp))
+                            Text(s.message, fontSize = 12.sp, color = Color.Gray)
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                text = "다시 시도",
+                                fontSize = 12.sp,
+                                color = Color(0xFF6A5ACD),
+                                modifier = Modifier.clickable { viewModel.loadProfile("me") }
+                            )
+                        }
+                    }
+
+                    is ProfileInfoState.Success -> {
+                        lastProfile = s.profileInfo                 // ✅ 직전 성공값 캐시
+                        ProfileHeaderContent(s.profileInfo)
+                    }
+
+                    is ProfileInfoState.EditSuccess -> {            // ✅ 이 상태엔 profileInfo 없음
+                        LaunchedEffect(s) { viewModel.loadProfile("me") } // 수정 후 최신 정보 재로딩
+                        lastProfile?.let {                          // 캐시가 있으면 임시로 보여주기
+                            ProfileHeaderContent(it)
+                        } ?: run {
+                            Column {
+                                Text("업데이트 완료", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                                Text("새 프로필 불러오는 중...", fontSize = 12.sp, color = Color.Gray)
+                            }
+                        }
+                    }
                 }
             }
 
@@ -313,4 +371,45 @@ fun MyPageScreenPreview() {
         onLogoutClick = {},
         onDeleteAccountClick = {}
     )
+}
+
+@Composable
+private fun ProfileHeaderContent(p: Any) {
+    Column {
+        Text(text = safeGet(p, "nickname"), fontSize = 14.sp, fontWeight = FontWeight.Bold)
+
+        val subtitle = when {
+            // 이미 ageGroupKor / genderKor가 있으면 그걸 쓰기
+            safeHas(p, "ageGroupKor") && safeHas(p, "genderKor") ->
+                "${safeGet(p, "ageGroupKor")} ${safeGet(p, "genderKor")}"
+            else ->
+                ageGenderLabel(
+                    yearOfBirth = safeGet(p, "yearOfBirth"),
+                    genderRaw   = safeGet(p, "gender")
+                )
+        }
+        Text(text = subtitle, fontSize = 12.sp, color = Color.Gray)
+    }
+}
+
+private fun safeHas(obj: Any, field: String): Boolean =
+    try { obj::class.members.any { it.name == field } } catch (_: Exception) { false }
+
+private fun safeGet(obj: Any, field: String): String =
+    try {
+        val m = obj::class.members.firstOrNull { it.name == field } ?: return ""
+        val v = m.call(obj)
+        when (v) { null -> ""; is String -> v; else -> v.toString() }
+    } catch (_: Exception) { "" }
+
+private fun ageGenderLabel(yearOfBirth: String?, genderRaw: String?): String {
+    val nowYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)
+    val age = yearOfBirth?.toIntOrNull()?.let { (nowYear - it).coerceAtLeast(0) }
+    val decade = age?.let { (it / 10) * 10 }?.takeIf { it in 10..90 }?.toString()?.plus("대") ?: "연령정보없음"
+    val gender = when (genderRaw?.lowercase()) {
+        "m", "male", "man" -> "남자"
+        "f", "female", "woman" -> "여자"
+        else -> "성별정보없음"
+    }
+    return "$decade $gender"
 }
