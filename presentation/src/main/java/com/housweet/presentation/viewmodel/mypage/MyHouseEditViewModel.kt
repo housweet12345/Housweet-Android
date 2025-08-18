@@ -103,4 +103,47 @@ class MyHouseEditViewModel @Inject constructor(
                 }
         }
     }
+
+    // 초대코드 갱신
+    fun refreshInviteCode() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            runCatching { repo.refreshInviteCode() }
+                .onSuccess { updated ->
+                    _uiState.value = _uiState.value.copy(
+                        roomId = updated.id,
+                        name = updated.name,
+                        startDate = updated.dateOfJoined,
+                        inviteCode = updated.inviteCode,
+                        isLoading = false
+                    )
+                    _effect.tryEmit(MyHouseEditEffect.ShowMessage("초대 코드를 갱신했어요."))
+                }
+                .onFailure { e ->
+                    _uiState.value = _uiState.value.copy(isLoading = false)
+                    _effect.tryEmit(MyHouseEditEffect.ShowMessage(e.message ?: "코드 갱신 실패"))
+                }
+        }
+    }
+
+    // 하우스 삭제
+    fun deleteMyHouse() {
+        val id = _uiState.value.roomId ?: run {
+            _effect.tryEmit(MyHouseEditEffect.ShowMessage("방 정보를 불러오는 중입니다."))
+            return
+        }
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            runCatching { repo.deleteMyHouse(id) }
+                .onSuccess {
+                    _uiState.value = _uiState.value.copy(isLoading = false)
+                    _effect.tryEmit(MyHouseEditEffect.ShowMessage("하우스를 삭제했어요."))
+                    _effect.tryEmit(MyHouseEditEffect.CloseWithRefresh)
+                }
+                .onFailure { e ->
+                    _uiState.value = _uiState.value.copy(isLoading = false)
+                    _effect.tryEmit(MyHouseEditEffect.ShowMessage(e.message ?: "삭제 실패"))
+                }
+        }
+    }
 }
