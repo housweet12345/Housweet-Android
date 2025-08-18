@@ -1,5 +1,6 @@
 package com.housweet.presentation.ui.mypage.deleteAccount
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -60,9 +61,9 @@ import com.housweet.presentation.ui.theme.nanumSquareFontFamily
 fun DeleteAccountScreen(
     onBackClick: () -> Unit,
     onSuccessDeleteAccount: () -> Unit,
-    deleteAccountEvent: DeleteAccountViewModel = hiltViewModel()
+    deleteAccountViewModel: DeleteAccountViewModel = hiltViewModel()
 ) {
-    val uiState: DeleteAccountUiState by deleteAccountEvent.uiState.collectAsStateWithLifecycle()
+    val uiState: DeleteAccountUiState by deleteAccountViewModel.uiState.collectAsStateWithLifecycle()
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val snackBarHostState = remember { SnackbarHostState() }
     var isBelongToRoom by remember { mutableStateOf(false) }
@@ -72,7 +73,7 @@ fun DeleteAccountScreen(
 
     LaunchedEffect(Unit) {
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            deleteAccountEvent.event.collect { event ->
+            deleteAccountViewModel.event.collect { event ->
                 when (event) {
                     is DeleteAccountEvent.IsBelongToRoom -> {
                         isBelongToRoom = event.isBelongToRoom
@@ -108,7 +109,7 @@ fun DeleteAccountScreen(
                 onDeleteAccountClick = { if (isChecked) showDeleteAccountDialog = true },
                 onDismissDialog = { showDeleteAccountDialog = false },
                 onConfirmDialog = {
-                    isSuccessful = true
+                    deleteAccountViewModel.deleteAccount()
                     showDeleteAccountDialog = false
                 },
                 onSuccessDeleteAccount = onSuccessDeleteAccount

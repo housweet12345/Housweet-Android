@@ -51,6 +51,9 @@ fun HouseRegisterScreen3(
     onBackClick: () -> Unit,
     viewModel: HouseRegisterViewModelBase
 ) {
+    BackHandler {
+        onBackClick()
+    }
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()

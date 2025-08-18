@@ -1,6 +1,7 @@
 package com.housweet.presentation.ui.registerhouse
 
 import android.content.Context
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -46,6 +47,10 @@ fun HouseRegisterScreen2(
     onBackClick: () -> Unit,
     viewModel: HouseRegisterViewModelBase
 ) {
+    BackHandler {
+        onBackClick()
+    }
+
     var region by remember { mutableStateOf("") }
     var inputTitle by remember { mutableStateOf("") }
     var inputDescription by remember { mutableStateOf("") }

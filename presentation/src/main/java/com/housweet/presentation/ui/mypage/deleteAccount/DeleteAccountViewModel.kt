@@ -1,5 +1,6 @@
 package com.housweet.presentation.ui.mypage.deleteAccount
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.housweet.domain.usecase.UseCases
@@ -47,6 +48,7 @@ class DeleteAccountViewModel @Inject constructor(
         _uiState.value = DeleteAccountUiState.IsLoading
         UserApiClient.instance.unlink { error ->
             if (error != null) {
+                _uiState.value = DeleteAccountUiState.Idle
                 viewModelScope.launch { _event.emit(DeleteAccountEvent.Error("회원 탙퇴에 실패했어요.")) }
                 return@unlink
             }

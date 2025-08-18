@@ -18,4 +18,5 @@ interface AuthRemoteDataSource {
     suspend fun isSetProfile(userId: Int): Boolean
     suspend fun isBelongToRoom(): Boolean
     suspend fun deleteAccount(): Boolean
+    fun recreateHttpClient()
 }

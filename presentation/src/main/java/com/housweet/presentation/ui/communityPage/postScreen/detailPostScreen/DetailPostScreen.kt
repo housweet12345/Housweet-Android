@@ -78,7 +78,7 @@ import java.time.temporal.ChronoUnit
 @Composable
 fun DetailPostScreen(
     modifier: Modifier,
-    onChatScreen: (userId: Int, nickName: String) -> Unit,
+    onChatScreen: (myUserId: Int, userId: Int, nickName: String) -> Unit,
     onProfileScreen: (userId: Int) -> Unit,
     onBackBtnClick: (isBookmarkChanged: Boolean) -> Unit,
     detailPostViewModel: DetailPostViewModel = hiltViewModel()
@@ -133,7 +133,10 @@ fun DetailPostScreen(
                 roomPostDetail = roomPostDetail,
                 snackBarHostState = snackBarHostState,
                 isMenuExpanded = isMenuExpanded,
-                onChatScreen = onChatScreen,
+                onChatScreen = { userId, nickName ->
+                    val myUserId = detailPostViewModel.myUserId
+                    myUserId?.let { onChatScreen(it, userId, nickName) }
+                },
                 onProfileScreen = onProfileScreen,
                 onBackBtnClick = {
                     val isBookmarkChanged = detailPostViewModel.originalBookMarkState != roomPostDetail.isBookmarked
