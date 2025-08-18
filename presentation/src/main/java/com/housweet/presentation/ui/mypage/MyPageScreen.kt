@@ -51,18 +51,22 @@ import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.housweet.presentation.R
+import com.housweet.presentation.ui.common.CustomAlertDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyPageScreen(
     navController: NavController,
     onBackClick: () -> Unit,
+    onLogoutClick: () -> Unit,
+    onDeleteAccountClick: () -> Unit
 ) {
     BackHandler {
         onBackClick()
     }
 
     var showContactDialog by remember { mutableStateOf(false) }
+    var showLogoutDialog by remember { mutableStateOf(false) }
 
     Scaffold (
         containerColor = Color.White,
@@ -96,6 +100,18 @@ fun MyPageScreen(
         if (showContactDialog) {
             ContactDialog(onDismiss = { showContactDialog = false })
         }
+
+        if (showLogoutDialog) {
+            CustomAlertDialog(
+                onDismissRequest = { showLogoutDialog = false },
+                onConfirmation = {
+                    showLogoutDialog = false
+                    onLogoutClick()
+                },
+                dialogText = "로그아웃 하시겠습니까?"
+            )
+        }
+
         Column(
             modifier = Modifier
                 .padding(innerPadding)
@@ -168,6 +184,17 @@ fun MyPageScreen(
             MyPageMenuItem("위치정보 이용약관") {
                 navController.navigate("terms_location_information_policies")
             }
+
+            Divider(color = Color(0xFFEEEEEE), thickness = 1.dp)
+
+            MyPageMenuItem("로그아웃") {
+                showLogoutDialog = true
+            }
+
+            MyPageMenuItem("탈퇴하기") {
+                onDeleteAccountClick()
+            }
+
 
             Spacer(modifier = Modifier.height(24.dp))
             Box(
@@ -282,6 +309,8 @@ fun MyPageScreenPreview() {
     val navController = rememberNavController()
     MyPageScreen(
         navController = navController,
-        onBackClick = {}
+        onBackClick = {},
+        onLogoutClick = {},
+        onDeleteAccountClick = {}
     )
 }

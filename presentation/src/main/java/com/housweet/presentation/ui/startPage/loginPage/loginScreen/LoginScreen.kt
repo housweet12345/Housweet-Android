@@ -45,9 +45,9 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import com.housweet.presentation.R
-import com.housweet.presentation.ui.startPage.BackOnPressed
-import com.housweet.presentation.ui.startPage.GuideText
-import com.housweet.presentation.ui.startPage.LoadingScreen
+import com.housweet.presentation.ui.common.BackOnPressed
+import com.housweet.presentation.ui.common.GuideText
+import com.housweet.presentation.ui.common.LoadingScreen
 import com.housweet.presentation.ui.theme.Black
 import com.housweet.presentation.ui.theme.Brown
 import com.housweet.presentation.ui.theme.Gray_E7E7E7

@@ -33,7 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.housweet.presentation.R
-import com.housweet.presentation.ui.startPage.GuideText
+import com.housweet.presentation.ui.common.GuideText
 import com.housweet.presentation.ui.theme.Black
 
 @OptIn(ExperimentalMaterial3Api::class)

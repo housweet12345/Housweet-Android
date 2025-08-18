@@ -139,4 +139,17 @@ class AuthRepositoryImpl @Inject constructor(
             null
         }
     }
+
+    override suspend fun deleteAccount(): Flow<Result<Boolean>> = flow {
+        try {
+            val successDeleteAccount = authRemoteDataSource.deleteAccount()
+            if (successDeleteAccount) {
+                authLocalDataSource.clearAuthToken()
+            }
+
+            emit(Result.success(successDeleteAccount))
+        } catch (e: Exception) {
+            emit(Result.failure(e))
+        }
+    }
 }

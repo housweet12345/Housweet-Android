@@ -42,7 +42,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import com.housweet.domain.model.Coordinate
 import com.housweet.presentation.R
-import com.housweet.presentation.ui.startPage.GuideText
+import com.housweet.presentation.ui.common.GuideText
 import com.housweet.presentation.ui.theme.Black
 import com.housweet.presentation.ui.theme.Gray_CBCBCB
 import com.housweet.presentation.ui.theme.Purple
