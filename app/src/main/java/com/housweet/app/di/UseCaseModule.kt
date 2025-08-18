@@ -9,6 +9,7 @@ import com.housweet.domain.repository.AuthRepository
 import com.housweet.domain.repository.CommunityRepository
 import com.housweet.domain.repository.RoomRepository
 import com.housweet.domain.repository.UserRepository
+import com.housweet.domain.usecase.DeleteAccountUseCase
 import com.housweet.domain.usecase.GetBookmarkedPostingsUseCase
 import com.housweet.domain.usecase.LogoutUseCase
 import com.housweet.domain.usecase.UseCases
@@ -54,6 +55,7 @@ object UseCaseModule {
         return UseCases(
             loginWithKakaoUseCase = LoginWithKakaoUseCase(authRepository),
             logoutUseCase = LogoutUseCase(authRepository),
+            deleteAccountUseCase = DeleteAccountUseCase(authRepository),
             checkLoginUseCase = CheckLoginUseCase(authRepository),
             createRoomUseCase = CreateRoomUseCase(accessRoomRepository),
             getNearbyPostCountUseCase = GetNearbyPostCountUseCase(communityRepository),

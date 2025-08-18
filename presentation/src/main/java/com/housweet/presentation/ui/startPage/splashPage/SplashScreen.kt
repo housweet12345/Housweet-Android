@@ -30,7 +30,7 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
-import com.housweet.presentation.ui.startPage.GuideText
+import com.housweet.presentation.ui.common.GuideText
 import com.housweet.presentation.ui.theme.Purple_4B3AAC
 import com.housweet.presentation.ui.theme.White
 
