@@ -57,6 +57,19 @@ class PostsViewModel @Inject constructor(
         }
     }
 
+    fun updatePostBookmark(updatedPostId: Int) {
+        val updatedPosts = _posts.value.mapValues { (_, postList) ->
+            postList.map { post ->
+                if (post.id == updatedPostId) {
+                    post.copy(isBookmarked = !post.isBookmarked)
+                } else {
+                    post
+                }
+            }
+        }
+        _posts.value = updatedPosts
+    }
+
     fun toggleLike(postRegion: String, postIndex: Int) {
         val originalPost = _posts.value[postRegion]?.get(postIndex) ?: return
         val isBookmarked = !originalPost.isBookmarked

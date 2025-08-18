@@ -1,7 +1,6 @@
 package com.housweet.domain.repository
 
 import com.housweet.domain.model.AuthToken
-import com.housweet.domain.model.Coordinate
 import kotlinx.coroutines.flow.Flow
 
 interface AuthRepository {
@@ -15,6 +14,7 @@ interface AuthRepository {
     suspend fun checkLogin(): Flow<Result<Boolean>>
     suspend fun agreeTermsOfService(): Flow<Result<Boolean>>
     suspend fun isTermsOfServiceAgreed(): Flow<Result<Boolean>>
+    suspend fun isSetProfile(): Flow<Result<Boolean>>
     suspend fun isBelongToRoom(): Flow<Result<Boolean>>
     suspend fun getCurrentUserId(): Int?
 }

@@ -16,10 +16,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,6 +36,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import com.housweet.domain.model.Coordinate
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.startPage.GuideText
@@ -53,7 +55,8 @@ fun SearchRegionScreen(
     onMapScreen: (Coordinate) -> Unit,
     onBackBtnClick: () -> Unit
 ) {
-    val uiState: SearchRegionUiState by searchRegionViewModel.uiState.collectAsState(initial = SearchRegionUiState.Idle)
+    val uiState: SearchRegionUiState by searchRegionViewModel.uiState.collectAsStateWithLifecycle()
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
     val snackBarHostState = remember { SnackbarHostState() }
     var inputTextValue by remember { mutableStateOf(TextFieldValue(text = "", selection = TextRange.Zero)) }
     var autoCompleteTextList by remember { mutableStateOf(listOf<String>()) }
@@ -63,29 +66,31 @@ fun SearchRegionScreen(
     }
 
     LaunchedEffect(Unit) {
-        searchRegionViewModel.event.collect { event ->
-            when (event) {
-                SearchRegionEvent.Error -> {
-                    snackBarHostState.showSnackbar(
-                        message = "지역명을 정확히 입력해주세요.",
-                        actionLabel = "닫기",
-                        duration = SnackbarDuration.Short
-                    )
-                }
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            searchRegionViewModel.event.collect { event ->
+                when (event) {
+                    SearchRegionEvent.Error -> {
+                        snackBarHostState.showSnackbar(
+                            message = "지역명을 정확히 입력해주세요.",
+                            actionLabel = "닫기",
+                            duration = SnackbarDuration.Short
+                        )
+                    }
 
-                is SearchRegionEvent.AutoCompleteSuccess -> {
-                    autoCompleteTextList = event.addressList
-                }
+                    is SearchRegionEvent.AutoCompleteSuccess -> {
+                        autoCompleteTextList = event.addressList
+                    }
 
-                is SearchRegionEvent.GeoCodingSuccess -> {
-                    onMapScreen(Coordinate(event.latLng.longitude, event.latLng.latitude))
-                }
+                    is SearchRegionEvent.GeoCodingSuccess -> {
+                        onMapScreen(Coordinate(event.latLng.longitude, event.latLng.latitude))
+                    }
 
-                is SearchRegionEvent.IsValidAddress -> {
-                    if (event.isValid) {
-                        searchRegionViewModel.geoCoding(inputTextValue.text.trim())
-                    } else {
-                        searchRegionViewModel.error()
+                    is SearchRegionEvent.IsValidAddress -> {
+                        if (event.isValid) {
+                            searchRegionViewModel.geoCoding(inputTextValue.text.trim())
+                        } else {
+                            searchRegionViewModel.error()
+                        }
                     }
                 }
             }
