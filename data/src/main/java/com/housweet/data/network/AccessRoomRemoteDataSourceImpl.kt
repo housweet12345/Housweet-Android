@@ -12,13 +12,13 @@ import javax.inject.Singleton
 
 @Singleton
 class AccessRoomRemoteDataSourceImpl @Inject constructor(
-    private val ktorClient: KtorService
+    private val ktorService: KtorService
 ) : AccessRoomRemoteDataSource {
     companion object {
         private const val BASE_URL = BuildConfig.BASE_URL
     }
 
-    private val httpClient by lazy { ktorClient.createHttpClient() }
+    private val httpClient by lazy { ktorService.createHttpClient() }
 
     override suspend fun createRoom(name: String): Boolean {
         val response = httpClient.post("$BASE_URL/room/rooms/") {

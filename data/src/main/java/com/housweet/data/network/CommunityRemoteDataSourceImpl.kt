@@ -18,13 +18,13 @@ import javax.inject.Singleton
 
 @Singleton
 class CommunityRemoteDataSourceImpl @Inject constructor(
-    private val ktorClient: KtorService
+    private val ktorService: KtorService
 ): CommunityRemoteDataSource {
     companion object {
         private const val BASE_URL = BuildConfig.BASE_URL
     }
 
-    private val httpClient by lazy { ktorClient.createHttpClient() }
+    private val httpClient by lazy { ktorService.createHttpClient() }
 
     override suspend fun getNearbyPostCount(
         latitude: Double,
