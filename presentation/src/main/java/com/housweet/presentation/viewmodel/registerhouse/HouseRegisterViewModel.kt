@@ -157,7 +157,6 @@ class HouseRegisterViewModel @Inject constructor(
                     title = title.ifBlank { throw Exception("제목 누락") },
                     content = description.ifBlank { throw Exception("설명 누락") },
                     imageUri = url,
-//                    images = urls,
                     trafficTags = houseTags, // 용도에 따라 분리 필요하면 분기
                     sizeOfHouseTags = sizeOfHouseTags,
                     infraTags = infraTags,
@@ -256,7 +255,6 @@ class HouseRegisterViewModel @Inject constructor(
         title = title,
         content = description,
         imageUri = url,     // ✅ 배열
-//        images = urls,
 
         trafficTags = houseTags,
         sizeOfHouseTags = emptyList(),
