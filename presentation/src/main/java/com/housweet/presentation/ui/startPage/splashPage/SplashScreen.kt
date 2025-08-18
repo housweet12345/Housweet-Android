@@ -13,7 +13,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -23,6 +22,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
@@ -35,31 +38,41 @@ import com.housweet.presentation.ui.theme.White
 fun SplashScreen(
     modifier: Modifier,
     splashViewModel: SplashViewModel = hiltViewModel(),
-    onNextScreen: (isAutoLogin: Boolean, isAgreeTermsOfService: Boolean, isBelongToRoom: Boolean) -> Unit,
+    onNextScreen: (isAutoLogin: Boolean, isAgreeTermsOfService: Boolean, isSetProfile: Boolean, isBelongToRoom: Boolean) -> Unit,
 ) {
-    val uiState: SplashState by splashViewModel.uiState.collectAsState()
+    val uiState: SplashState by splashViewModel.uiState.collectAsStateWithLifecycle()
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
     val snackBarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
-        splashViewModel.event.collect { event ->
-            when (event) {
-                is SplashEvent.IsAutoLogin -> {
-                    onNextScreen(true, event.isAgreeTermsOfService, event.isBelongToRoom)
-                }
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            splashViewModel.event.collect { event ->
+                when (event) {
+                    is SplashEvent.IsAutoLogin -> {
+                        onNextScreen(
+                            true,
+                            event.isAgreeTermsOfService,
+                            event.isSetProfile,
+                            event.isBelongToRoom
+                        )
+                    }
 
-                is SplashEvent.IsNotAutoLogin -> {
-                    onNextScreen(false, false, false)
-                }
+                    is SplashEvent.IsNotAutoLogin -> {
+                        onNextScreen(false, false, false, false)
+                    }
 
-                SplashEvent.Error -> {
-                    val snackBarResult = snackBarHostState.showSnackbar(
-                        message = "오류가 발생했습니다.",
-                        actionLabel = "재시도"
-                    )
+                    SplashEvent.Error -> {
+                        val snackBarResult = snackBarHostState.showSnackbar(
+                            message = "오류가 발생했습니다.",
+                            actionLabel = "재시도"
+                        )
 
-                    when (snackBarResult) {
-                        SnackbarResult.Dismissed -> { }
-                        SnackbarResult.ActionPerformed -> { splashViewModel.checkLogin() }
+                        when (snackBarResult) {
+                            SnackbarResult.Dismissed -> {}
+                            SnackbarResult.ActionPerformed -> {
+                                splashViewModel.checkLogin()
+                            }
+                        }
                     }
                 }
             }

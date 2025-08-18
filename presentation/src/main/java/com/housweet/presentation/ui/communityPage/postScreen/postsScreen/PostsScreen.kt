@@ -23,7 +23,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -38,6 +37,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.housweet.domain.model.RoomPostsByLocationDataModel
@@ -50,19 +53,26 @@ import com.housweet.presentation.ui.theme.White
 
 @Composable
 fun PostsScreen(
+    updatePostId: Int?,
     postsViewModel: PostsViewModel = hiltViewModel(),
     onPostClick: (postId: Int) -> Unit,
-    onBackBtnClick: () -> Unit
+    onBackBtnClick: () -> Unit,
 ) {
-    val uiState by postsViewModel.uiState.collectAsState()
-    val posts by postsViewModel.posts.collectAsState()
+    val uiState by postsViewModel.uiState.collectAsStateWithLifecycle()
+    val posts by postsViewModel.posts.collectAsStateWithLifecycle()
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
     val snackBarHostState = remember { SnackbarHostState() }
 
     BackHandler {
         onBackBtnClick()
     }
 
+    LaunchedEffect(updatePostId) {
+        postsViewModel.updatePostBookmark(updatePostId ?: return@LaunchedEffect)
+    }
+
     LaunchedEffect(Unit) {
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
         postsViewModel.event.collect { event ->
             when (event) {
                 PostsEvent.Error -> {
@@ -83,6 +93,7 @@ fun PostsScreen(
             }
         }
     }
+        }
 
     when(uiState) {
         PostsState.Idle -> {
@@ -206,7 +217,7 @@ private fun PostItem(
             model = ImageRequest
                 .Builder(context)
                 .data(postInfo.imageUri)
-                .error(R.drawable.small_house)
+                .error(R.drawable.post_image_null)
                 .build(),
             contentDescription = "RoomImage",
             contentScale = ContentScale.Crop,
