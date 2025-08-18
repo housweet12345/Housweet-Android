@@ -1,8 +1,14 @@
 package com.housweet.presentation.ui.common
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -24,27 +30,41 @@ import com.housweet.presentation.R
 @Composable
 fun TopBarWithBackButton(
     title: String,
+    currentStep: Int,
     onBackClick: () -> Unit
 ) {
-    CenterAlignedTopAppBar(
-        title = {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleLarge,
-                fontSize = 14.sp
-            )
-        },
-        navigationIcon = {
-            IconButton(onClick = onBackClick) {
-                Image(
-                    painter = painterResource(id = R.drawable.arrowback),
-                    contentDescription = "뒤로가기",
-                    modifier = Modifier.size(24.dp)
+    Column(
+        modifier = Modifier.fillMaxWidth().background(Color.White),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        CenterAlignedTopAppBar(
+            title = {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontSize = 14.sp
                 )
-            }
-        },
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            containerColor = Color.White // ✅ 배경색 흰색 지정
+            },
+            navigationIcon = {
+                IconButton(onClick = onBackClick) {
+                    Image(
+                        painter = painterResource(id = R.drawable.arrowback),
+                        contentDescription = "뒤로가기",
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            },
+            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                containerColor = Color.White // ✅ 배경색 흰색 지정
+            ),
+            windowInsets = WindowInsets(
+                top = 0.dp,
+                bottom = 0.dp
+            ),
         )
-    )
+        StepIndicator(currentStep = currentStep)
+        Spacer(modifier = Modifier.height(12.dp))
+    }
+
 }

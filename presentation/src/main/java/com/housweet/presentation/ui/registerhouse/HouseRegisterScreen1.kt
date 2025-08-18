@@ -78,122 +78,123 @@ fun HouseRegisterScreen1(
 
     val scrollState = rememberScrollState()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(scrollState)
-            .background(Color.White)
-            .padding(horizontal = 16.dp),
-    ) {
+    Scaffold(
+        topBar = {
         // 상단바 + 제목
         TopBarWithBackButton(
             title = if (mode == RegisterModel.EDIT) "글 수정하기" else "하우스 올리기",
+            currentStep = 1,
             onBackClick = onBackClick,
-        )
-
-        StepIndicator(currentStep = 1)
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // 중앙 정렬된 콘텐츠 (텍스트 + 태그 선택)
+            )
+        }
+    ) { innerPadding ->
         Column(
             modifier = Modifier
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .background(Color.White)
+                .padding(horizontal = 16.dp)
+                .padding(innerPadding),
         ) {
-            Text(
-                text = "집에 대한 키워드를 선택해주세요.",
-                color = Color(0xFF6C4DFF),
-                modifier = Modifier.padding(bottom = 16.dp),
-                fontSize = 12.sp
-            )
-
-            sections.forEach { (title, tags) ->
+            // 중앙 정렬된 콘텐츠 (텍스트 + 태그 선택)
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
                 Text(
-                    text = title,
-                    fontSize = 12.sp,
-                    color = Color.Black,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp)
+                    text = "집에 대한 키워드를 선택해주세요.",
+                    color = Color(0xFF6C4DFF),
+                    modifier = Modifier.padding(vertical = 16.dp),
+                    fontSize = 12.sp
                 )
 
-                FlowRow(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    tags.forEach { tag ->
-                        val isSelected = selectedBySection[title]?.contains(tag) == true
-                        Box(
-                            modifier = Modifier
-                                .background(
-                                    color = if (isSelected) Color(0xFF665ED3) else Color.White,
-                                    shape = RoundedCornerShape(10.dp)
+                sections.forEach { (title, tags) ->
+                    Text(
+                        text = title,
+                        fontSize = 12.sp,
+                        color = Color.Black,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                    )
+
+                    FlowRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        tags.forEach { tag ->
+                            val isSelected = selectedBySection[title]?.contains(tag) == true
+                            Box(
+                                modifier = Modifier
+                                    .background(
+                                        color = if (isSelected) Color(0xFF665ED3) else Color.White,
+                                        shape = RoundedCornerShape(10.dp)
+                                    )
+                                    .clickable {
+                                        val current = selectedBySection[title]?.toMutableSet() ?: mutableSetOf()
+                                        if (isSelected) current.remove(tag) else current.add(tag)
+                                        selectedBySection[title] = current
+                                    }
+                                    .border(
+                                        width = 1.dp,
+                                        color = Color(0xFF665ED3),
+                                        shape = RoundedCornerShape(10.dp)
+                                    )
+                            ) {
+                                Text(
+                                    text = tag,
+                                    color = if (isSelected) Color.White else Color.Black,
+                                    fontSize = 12.sp,
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
                                 )
-                                .clickable {
-                                    val current = selectedBySection[title]?.toMutableSet() ?: mutableSetOf()
-                                    if (isSelected) current.remove(tag) else current.add(tag)
-                                    selectedBySection[title] = current
-                                }
-                                .border(
-                                    width = 1.dp,
-                                    color = Color(0xFF665ED3),
-                                    shape = RoundedCornerShape(10.dp)
-                                )
-                        ) {
-                            Text(
-                                text = tag,
-                                color = if (isSelected) Color.White else Color.Black,
-                                fontSize = 12.sp,
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
-                            )
+                            }
                         }
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Button(
+                onClick = {
+                    val missing = firstMissingSectionOrNull()
+                    if (missing == null) {
+                        val traffic = selectedBySection["교통"]?.toList() ?: emptyList()
+                        val size    = selectedBySection["집 상태"]?.toList() ?: emptyList()
+                        val infra   = selectedBySection["인프라"]?.toList() ?: emptyList()
+
+                        viewModel.updateHouseTags(traffic)          // ✅ 교통 → traffic_tags
+                        viewModel.updateSizeOfHouseTags(size)       // ✅ 집 상태 → size_of_house_tags
+                        viewModel.updateInfraTags(infra)            // ✅ 인프라 → infra_tags
+                        onNextClick()
+                    } else {
+                        missingSectionName = missing
+                        showDialog = true
+                    }
+                },
+                shape = RoundedCornerShape(6.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF665ED3),
+                    contentColor = Color.White
+                )
+            ) {
+                Text(
+                    text = "다음",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
         }
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        Button(
-            onClick = {
-                val missing = firstMissingSectionOrNull()
-                if (missing == null) {
-                    val traffic = selectedBySection["교통"]?.toList() ?: emptyList()
-                    val size    = selectedBySection["집 상태"]?.toList() ?: emptyList()
-                    val infra   = selectedBySection["인프라"]?.toList() ?: emptyList()
-
-                    viewModel.updateHouseTags(traffic)          // ✅ 교통 → traffic_tags
-                    viewModel.updateSizeOfHouseTags(size)       // ✅ 집 상태 → size_of_house_tags
-                    viewModel.updateInfraTags(infra)            // ✅ 인프라 → infra_tags
-                    onNextClick()
-                } else {
-                    missingSectionName = missing
-                    showDialog = true
-                }
-                      },
-            shape = RoundedCornerShape(6.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF665ED3),
-                contentColor = Color.White
-            )
-        ) {
-            Text(
-                text = "다음",
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-
-        Spacer(modifier = Modifier.height(32.dp))
     }
 
     if (showDialog) {
