@@ -59,6 +59,7 @@ class AuthRepositoryImpl @Inject constructor(
                 throw NoInternetException()
             }
             authLocalDataSource.clearAuthToken()
+            authRemoteDataSource.recreateHttpClient()
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -113,8 +114,8 @@ class AuthRepositoryImpl @Inject constructor(
             val isSetProfile = authRemoteDataSource.isSetProfile(userId)
             emit(Result.success(isSetProfile))
         } catch (e: Exception) {
-            if (e.message.toString().contains("Text: \"<!DOCTYPE html>")) emit(Result.success(false))
-            emit(Result.failure(e))
+            if (e.message.toString().contains("Profile not found")) emit(Result.success(false))
+            else emit(Result.failure(e))
         }
     }
 
@@ -124,7 +125,7 @@ class AuthRepositoryImpl @Inject constructor(
             emit(Result.success(isBelongToRoom))
         } catch (e: Exception) {
             if (e.message.toString().contains("Room not found")) emit(Result.success(false))
-            emit(Result.failure(e))
+            else emit(Result.failure(e))
         }
     }
 

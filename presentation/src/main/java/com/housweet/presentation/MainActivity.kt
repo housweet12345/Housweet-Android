@@ -75,6 +75,7 @@ import com.housweet.presentation.ui.startPage.loginPage.loginScreen.LoginScreen
 import com.housweet.presentation.ui.startPage.loginPage.termsOfServicePage.TermsOfServiceScreen
 import com.housweet.presentation.ui.startPage.splashPage.SplashScreen
 import com.housweet.presentation.ui.userlist.route.UserListRoute
+import com.housweet.presentation.viewmodel.chatlist.ChatListViewModel
 import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -133,8 +134,7 @@ class MainActivity : ComponentActivity() {
                     startDestination = if (!isFailedRefreshToken && !isLogout && !isDeleteAccount) Route.StartPageRoute.Splash else Route.StartPageRoute.LoginRoute.Login,
 
                     // access_token Log 확인 테스트용
-//                    startDestination = Route.StartPageRoute.LoginRoute.Login,
-//                    startDestination= "mypage",
+                    // startDestination = Route.StartPageRoute.LoginRoute.Login,
                     modifier = Modifier.padding(top = paddingValues.calculateTopPadding())
                 ) {
                     composable<Route.StartPageRoute.Splash> {
@@ -427,22 +427,15 @@ class MainActivity : ComponentActivity() {
 
                     composable<Route.CommunityPageRoute.PostRoute.DetailPost> {
                         val postId = it.toRoute<Route.CommunityPageRoute.PostRoute.DetailPost>().postId
-                        val chatListViewModel: com.housweet.presentation.viewmodel.chatlist.ChatListViewModel = hiltViewModel()
-
+                        val chatListViewModel: ChatListViewModel = hiltViewModel()
                         DetailPostScreen(
                             modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
-                            onChatScreen = { userId, nickName ->
-                                val myUserId = 3 // TODO: 실제 로그인 사용자 ID로 교체
-                                chatListViewModel.createRoomAndShow(
-                                    senderId = myUserId,
-                                    receiverId = userId,
-                                    counterpartNickname = nickName
-                                ) {roomId ->
+                            onChatScreen = { myUserId, userId, nickName ->
+                                chatListViewModel.createRoomAndShow(myUserId, userId, nickName) { roomId ->
                                     val encoded = Base64.encodeToString(
                                         nickName.toByteArray(),
                                         Base64.URL_SAFE or Base64.NO_WRAP
                                     )
-                                    Log.d("savepoint", "onChatScreen: $userId, $roomId, $encoded")
                                     navigationManager.navigateTo("chat_detail/$userId/$roomId/$encoded")
                                 }
                             },
@@ -536,7 +529,7 @@ class MainActivity : ComponentActivity() {
                             mode = mode,
                             postingId = postingId,
                             onNextClick = { navController.navigate(Route.HouseRegisterRoute.Step3(mode)) },
-                            onBackClick = { navController.navigate(Route.HouseRegisterRoute.Step1(mode)) },
+                            onBackClick = { navController.popBackStack() },
                             viewModel = houseRegisterViewModel
                         )
                     }
@@ -549,7 +542,7 @@ class MainActivity : ComponentActivity() {
                             mode = mode,
                             postingId = postingId,
                             onNextClick = { navController.navigate(Route.HouseRegisterRoute.Step4(mode)) },
-                            onBackClick = { navController.navigate(Route.HouseRegisterRoute.Step2(mode)) },
+                            onBackClick = { navController.popBackStack() },
                             viewModel = houseRegisterViewModel
                         )
                     }
@@ -561,7 +554,7 @@ class MainActivity : ComponentActivity() {
                         HouseRegisterScreen4(
                             mode = mode,
                             postingId = postingId,
-                            onBackClick = { navController.navigate(Route.HouseRegisterRoute.Step3(mode)) },
+                            onBackClick = { navController.popBackStack() },
                             onCompleteClick = {
                                 scope.launch {
                                     if (mode == RegisterModel.EDIT) {

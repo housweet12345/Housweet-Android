@@ -55,8 +55,7 @@ class SplashViewModel @Inject constructor(
     }
 
     private suspend fun isProfileSet(isAgreeTermsOfService: Boolean) {
-        isBelongToRoom(isAgreeTermsOfService, true)
-        /* useCases.isSetProfileUseCase().collect {
+        useCases.isSetProfileUseCase().collect {
             it.onSuccess { isSetProfile ->
                 isBelongToRoom(isAgreeTermsOfService, isSetProfile)
             }
@@ -65,7 +64,7 @@ class SplashViewModel @Inject constructor(
                 e.printStackTrace()
                 _event.emit(SplashEvent.Error)
             }
-        } */
+        }
     }
 
     private suspend fun isBelongToRoom(isAgreeTermsOfService: Boolean, isSetProfile: Boolean) {
