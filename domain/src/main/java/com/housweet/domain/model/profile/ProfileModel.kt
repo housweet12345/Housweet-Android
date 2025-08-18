@@ -9,5 +9,6 @@ data class ProfileModel(
     val profileImage: String,
     val tags: List<String>,
     val userId: Int,
-    val yearOfBirth: String
+    val yearOfBirth: String,
+    val isBlockedUser: Boolean? = null
 )

@@ -179,6 +179,7 @@ fun ProfileInfoSection(
     gender: String,
     introduction: String,
     imageUrl: String? = null,
+    isBlockedUser: Boolean = false,
 ) {
     Column(
         modifier = Modifier
@@ -231,19 +232,33 @@ fun ProfileInfoSection(
         }
         Spacer(Modifier.height(16.dp))
         // 이름
-        Text(
-            text = nickname,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            color = ColorGroup.Black_1E1E1E,
-        )
-        Spacer(Modifier.height(10.dp))
-        // 상태 메시지
-        Text(
-            text = introduction,
-            fontSize = 14.sp,
-            color = Color.Gray,
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = nickname,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = ColorGroup.Black_1E1E1E,
+            )
+            if (isBlockedUser) {
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "차단된 유저입니다",
+                    fontSize = 12.sp,
+                    color = ColorGroup.Primary,
+                )
+            }
+        }
+        if (!isBlockedUser) {
+            Spacer(Modifier.height(10.dp))
+            // 상태 메시지
+            Text(
+                text = introduction,
+                fontSize = 14.sp,
+                color = Color.Gray,
+            )
+        }
     }
 }
 

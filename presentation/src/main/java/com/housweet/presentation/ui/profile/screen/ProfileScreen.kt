@@ -35,18 +35,32 @@ fun ProfileScreen(
     onBackClick: () -> Unit = {},
     navigateEditProfile: () -> Unit = {},
     navigateChatting: () -> Unit = {},
-    onReportClick: (type: String, id: Int) -> Unit = { _, _ -> }
+    onReportClick: (type: String, id: Int) -> Unit = { _, _ -> },
+    onBlockClick: (Int) -> Unit = {}
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
     var showBlockDialog by remember { mutableStateOf(false) }
 
-    val menuItems = listOf(
-        MenuItem(text = "차단하기") { showBlockDialog = true },
-        MenuItem(text = "신고하기") {
+    val menuItems = buildList {
+        // 차단 관련 메뉴 아이템
+        if (profileInfo.isBlockedUser == true) {
+            add(MenuItem(text = "차단해지") {
+                showBlockDialog = true
+                menuExpanded = false
+            })
+        } else {
+            add(MenuItem(text = "차단하기") { 
+                showBlockDialog = true
+                menuExpanded = false
+            })
+        }
+        
+        // 신고하기 메뉴 아이템
+        add(MenuItem(text = "신고하기") {
             onReportClick( "user", profileInfo.userId)
             menuExpanded = false
-        }
-    )
+        })
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -69,18 +83,21 @@ fun ProfileScreen(
                 age = profileInfo.age,
                 gender = profileInfo.gender,
                 introduction = profileInfo.introduce,
-                imageUrl = profileInfo.profileImageUrl
+                imageUrl = profileInfo.profileImageUrl,
+                isBlockedUser = profileInfo.isBlockedUser == true
             )
-            Spacer(modifier = Modifier.height(16.dp))
-            // 태그 섹션
-            TagSection(mbti = profileInfo.mbti, tags = profileInfo.tags)
-            Spacer(modifier = Modifier.height(24.dp))
-            // 하단 버튼
-            EditProfileButton(
-                isMyProfile = profileInfo.myProfile,
-                editButtonOnClick = navigateEditProfile,
-                chatButtonOnClick = navigateChatting
-            )
+            if (profileInfo.isBlockedUser != true) {
+                Spacer(modifier = Modifier.height(16.dp))
+                // 태그 섹션
+                TagSection(mbti = profileInfo.mbti, tags = profileInfo.tags)
+                Spacer(modifier = Modifier.height(24.dp))
+                // 하단 버튼
+                EditProfileButton(
+                    isMyProfile = profileInfo.myProfile,
+                    editButtonOnClick = navigateEditProfile,
+                    chatButtonOnClick = navigateChatting
+                )
+            }
         }
 
         if (menuExpanded) {
@@ -99,9 +116,10 @@ fun ProfileScreen(
                 onDismissRequest = { showBlockDialog = false },
                 onConfirmation = {
                     showBlockDialog = false
-                    // TODO: 차단 로직 구현
+                    menuExpanded = false
+                    onBlockClick(profileInfo.userId)
                 },
-                dialogText = "차단하시겠습니까?"
+                dialogText = if (profileInfo.isBlockedUser == true) "차단 해지하시겠습니까?" else "차단하시겠습니까?"
             )
         }
     }

@@ -4,7 +4,9 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.housweet.domain.model.RoomPostDetailDataModel
+import com.housweet.domain.model.RoomPostsByLocationDataModel
 import com.housweet.domain.usecase.UseCases
+import com.housweet.presentation.ui.communityPage.postScreen.postsScreen.PostsEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,8 +31,11 @@ class DetailPostViewModel @Inject constructor(
     private val _roomPostDetail = MutableStateFlow(RoomPostDetailDataModel())
     val roomPostDetail: StateFlow<RoomPostDetailDataModel> = _roomPostDetail.asStateFlow()
 
+    var originalBookMarkState: Boolean = false
+
+    private var postId = savedStateHandle.get<Int>("postId")
+
     init {
-        val postId = savedStateHandle.get<Int>("postId")
         viewModelScope.launch {
             postId?.let { getRoomPostDetail(it) }
         }
@@ -41,6 +46,7 @@ class DetailPostViewModel @Inject constructor(
             useCases.getRoomPostDetailUseCase(postId).collect { result ->
                 result.onSuccess {
                     _roomPostDetail.value = it
+                    originalBookMarkState = it.isBookmarked
                 }
 
                 result.onFailure {
@@ -48,6 +54,37 @@ class DetailPostViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun toggleLike() {
+        val originalPost = _roomPostDetail.value
+        val updatedRoomPostDetail = _roomPostDetail.value.copy(
+            isBookmarked = !originalPost.isBookmarked
+        )
+
+        _roomPostDetail.value = updatedRoomPostDetail
+
+        viewModelScope.launch {
+            if (!originalPost.isBookmarked) {
+                useCases.clickBookMarkUseCase(originalPost.id).collect { result ->
+                    result.onFailure {
+                        rollbackBookMark(originalPost)
+                        _event.emit(DetailPostEvent.Error)
+                    }
+                }
+            } else {
+                useCases.unClickBookMarkUseCase(originalPost.id).collect { result ->
+                    result.onFailure {
+                        rollbackBookMark(originalPost)
+                        _event.emit(DetailPostEvent.Error)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun rollbackBookMark(originalPost: RoomPostDetailDataModel) {
+        _roomPostDetail.value = originalPost
     }
 
     fun reportRoom() {
