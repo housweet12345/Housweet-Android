@@ -32,11 +32,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
-import com.housweet.presentation.ui.startPage.BottomButton
-import com.housweet.presentation.ui.startPage.GuideText
-import com.housweet.presentation.ui.startPage.LoadingScreen
-import com.housweet.presentation.ui.startPage.WarningText
-import com.housweet.presentation.ui.startPage.WriteTextFiled
+import com.housweet.presentation.ui.common.BottomButton
+import com.housweet.presentation.ui.common.GuideText
+import com.housweet.presentation.ui.common.LoadingScreen
+import com.housweet.presentation.ui.common.WarningText
+import com.housweet.presentation.ui.common.WriteTextFiled
 import com.housweet.presentation.ui.theme.Black
 import com.housweet.presentation.ui.theme.White
 

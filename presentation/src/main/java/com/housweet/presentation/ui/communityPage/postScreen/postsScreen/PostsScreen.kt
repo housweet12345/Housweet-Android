@@ -45,8 +45,8 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.housweet.domain.model.RoomPostsByLocationDataModel
 import com.housweet.presentation.R
-import com.housweet.presentation.ui.startPage.GuideText
-import com.housweet.presentation.ui.startPage.LoadingScreen
+import com.housweet.presentation.ui.common.GuideText
+import com.housweet.presentation.ui.common.LoadingScreen
 import com.housweet.presentation.ui.theme.Black
 import com.housweet.presentation.ui.theme.Gray_A5A5A5
 import com.housweet.presentation.ui.theme.White

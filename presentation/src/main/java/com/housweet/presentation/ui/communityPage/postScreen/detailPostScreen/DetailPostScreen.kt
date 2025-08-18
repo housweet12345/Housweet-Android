@@ -61,8 +61,8 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.housweet.domain.model.RoomPostDetailDataModel
 import com.housweet.presentation.R
-import com.housweet.presentation.ui.startPage.GuideText
-import com.housweet.presentation.ui.startPage.LoadingScreen
+import com.housweet.presentation.ui.common.GuideText
+import com.housweet.presentation.ui.common.LoadingScreen
 import com.housweet.presentation.ui.theme.Black
 import com.housweet.presentation.ui.theme.Gray_7E7E7E
 import com.housweet.presentation.ui.theme.Gray_A5A5A5
@@ -74,7 +74,6 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import kotlin.time.Duration
 
 @Composable
 fun DetailPostScreen(
