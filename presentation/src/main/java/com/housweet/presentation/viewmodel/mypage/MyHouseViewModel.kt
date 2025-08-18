@@ -19,13 +19,16 @@ class MyHouseViewModel @Inject constructor(
     private val _state = MutableStateFlow<MyHouseUiState>(MyHouseUiState.Loading)
     val state: StateFlow<MyHouseUiState> = _state
 
-    fun load() {
-        viewModelScope.launch {
-            _state.value = MyHouseUiState.Loading
-            runCatching { repo.getMyHouse() }
-                .onSuccess { _state.value = MyHouseUiState.Success(it) }
-                .onFailure { _state.value = MyHouseUiState.Error(it.message ?: "불러오기 실패") }
-        }
+    fun load() = viewModelScope.launch {
+        _state.value = MyHouseUiState.Loading
+        runCatching { repo.getMyHouseOrNull() }
+            .onSuccess { house ->
+                _state.value = if (house == null) MyHouseUiState.Empty   // ✅
+                else MyHouseUiState.Success(house)
+            }
+            .onFailure { e ->
+                _state.value = MyHouseUiState.Error(e.message ?: "불러오기 실패")
+            }
     }
 
     fun refresh() = load()

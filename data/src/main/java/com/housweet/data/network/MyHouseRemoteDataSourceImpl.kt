@@ -5,13 +5,16 @@ import com.housweet.data.network.dto.MyHouseDto
 import com.housweet.data.network.dto.UpdateMyHouseNameRequest
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import javax.inject.Inject
@@ -22,22 +25,34 @@ class MyHouseRemoteDataSourceImpl @Inject constructor(
 
     private val base = "http://43.200.10.89"
 
-    override suspend fun getMyHouse(): MyHouseDto {
-        return client.get("$base/room/rooms/me").body()
+    override suspend fun getMyHouse(): MyHouseDto? {
+        val res: HttpResponse = client.get("$base/room/rooms/me")
+        return when (res.status) {
+            HttpStatusCode.OK -> res.body<MyHouseDto>()
+            HttpStatusCode.NotFound -> null                        // 빈 상태
+            else -> throw ResponseException(res, "getMyHouse failed: ${res.status} ${res.bodyAsText()}")
+        }
     }
 
     override suspend fun updateMyHouseName(roomId: Int, name: String): MyHouseDto {
         Log.d("MyHouseRemote", "PATCH $base/room/rooms/$roomId/, name=$name")
-        return client.patch("$base/room/rooms/$roomId/") {
+        val res = client.patch("$base/room/rooms/$roomId/") {
             contentType(ContentType.Application.Json)
             setBody(UpdateMyHouseNameRequest(name))
-        }.body()
+        }
+        if (res.status.isSuccess()) return res.body()
+        val text = runCatching { res.bodyAsText() }.getOrDefault("")
+        throw ResponseException(res, "updateMyHouseName failed: ${res.status} $text")
     }
 
-    override suspend fun refreshInviteCode(): MyHouseDto =
-        client.post("$base/room/rooms/new_invite_code/") {
+    override suspend fun refreshInviteCode(): MyHouseDto {
+        val res = client.post("$base/room/rooms/new_invite_code/") {
             contentType(ContentType.Application.Json)
-        }.body()
+        }
+        if (res.status.isSuccess()) return res.body()
+        val text = runCatching { res.bodyAsText() }.getOrDefault("")
+        throw ResponseException(res, "refreshInviteCode failed: ${res.status} $text")
+    }
 
     // 👇 하우스 삭제 (DELETE /room/rooms/{room_id}/  → 204)
     override suspend fun deleteMyHouse(roomId: Int) {

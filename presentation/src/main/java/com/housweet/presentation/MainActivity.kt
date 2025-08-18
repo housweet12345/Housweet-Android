@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -81,6 +82,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.reflect.typeOf
+import androidx.compose.runtime.getValue
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -427,21 +429,34 @@ class MainActivity : ComponentActivity() {
 
                     composable<Route.CommunityPageRoute.PostRoute.DetailPost> {
                         val postId = it.toRoute<Route.CommunityPageRoute.PostRoute.DetailPost>().postId
-                        val chatListViewModel: ChatListViewModel = hiltViewModel()
+                        val chatListViewModel: com.housweet.presentation.viewmodel.chatlist.ChatListViewModel = hiltViewModel()
+                        val myId by chatListViewModel.myUserId.collectAsStateWithLifecycle()
+
+                        // 필요 시 초기 로드
+                        LaunchedEffect(Unit) {
+                            if (myId == null) chatListViewModel.refreshMyUserIdAndUsers()
+                        }
+
                         DetailPostScreen(
                             modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
-                            onChatScreen = { myUserId, userId, nickName ->
-                                chatListViewModel.createRoomAndShow(myUserId, userId, nickName) { roomId ->
-                                    val encoded = Base64.encodeToString(
+                            onChatScreen = { receiverId, nickName ->
+                                val sender = myId ?: run {
+                                    // 스낵바 등으로 로그인 필요 메시지 처리
+                                    return@DetailPostScreen
+                                }
+                                chatListViewModel.createRoomAndShow(
+                                    senderId = sender,
+                                    receiverId = receiverId,
+                                    counterpartNickname = nickName
+                                ) { roomId ->
+                                    val encoded = android.util.Base64.encodeToString(
                                         nickName.toByteArray(),
-                                        Base64.URL_SAFE or Base64.NO_WRAP
+                                        android.util.Base64.URL_SAFE or android.util.Base64.NO_WRAP or android.util.Base64.NO_PADDING // ← 패딩 제거
                                     )
-                                    navigationManager.navigateTo("chat_detail/$userId/$roomId/$encoded")
+                                    navigationManager.navigateTo("chat_detail/$receiverId/$roomId/$encoded")
                                 }
                             },
-                            onProfileScreen = { userId ->
-                                navigationManager.navigateTo("profile/$userId")
-                            },
+                            onProfileScreen = { userId -> navigationManager.navigateTo("profile/$userId") },
                             onBackBtnClick = { isBookmarkChanged ->
                                 if (isBookmarkChanged) {
                                     navigationManager.navigateOneWay(
