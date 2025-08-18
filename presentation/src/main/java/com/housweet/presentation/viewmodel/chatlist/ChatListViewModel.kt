@@ -25,50 +25,40 @@ class ChatListViewModel @Inject constructor(
         fetchChatUsers(3) //임시 값. 내 아이디가 지금 3임.
     }
 
-    private fun fetchChatUsers(senderId: Int) {
-        viewModelScope.launch {
-            try {
-                _chatUsers.value = chatRepository.getChatUsers(senderId)
-            } catch (e: Exception) {
-                Log.e("ChatListVM", "getChatUsers failed", e)
-                _chatUsers.value = emptyList() // 안전하게 빈 목록
-            }
-        }
+    private fun fetchChatUsers(senderId: Int) = viewModelScope.launch {
+        val users = runCatching { chatRepository.getChatUsers(senderId) }
+            .onFailure { Log.e("ChatListVM", "getChatUsers failed", it) }
+            .getOrElse { emptyList() }
+        _chatUsers.value = users
     }
 
     fun sendChatMessage(senderId: Int, receiverId: Int, message: String, onResult: (Boolean) -> Unit) {
         viewModelScope.launch {
-            val result = chatRepository.sendMessage(senderId, receiverId, message)
-            onResult(result)
+            val ok = runCatching { chatRepository.sendMessage(senderId, receiverId, message) }
+                .getOrElse { false }
+            onResult(ok)
         }
     }
 
-    fun fetchChatMessages(
-        senderId: Int,
-        receiverId: Int,
-        onResult: (List<ChatMessage>) -> Unit
-    ) {
+    fun fetchChatMessages(senderId: Int, receiverId: Int, onResult: (List<ChatMessage>) -> Unit) {
         viewModelScope.launch {
-            try {
-                val response = chatRepository.getChatMessages(senderId, receiverId)
-                onResult(response)
-            } catch (e: Exception) {
-                Log.e("ChatViewModel", "메시지 불러오기 실패: ${e.message}")
-                onResult(emptyList())
-            }
+            val messages = runCatching { chatRepository.getChatMessages(senderId, receiverId) }
+                .onFailure { Log.e("ChatViewModel", "메시지 불러오기 실패", it) }
+                .getOrElse { emptyList() }
+            onResult(messages)
         }
     }
 
     fun deleteChatRoom(receiverId: Int, onResult: (Boolean, String?) -> Unit) {
         viewModelScope.launch {
-            val res = chatRepository.deleteRoom(receiverId)
+            val res = runCatching { chatRepository.deleteRoom(receiverId) }.getOrElse { Result.failure(it) }
             onResult(res.isSuccess, res.exceptionOrNull()?.message)
         }
     }
 
     fun reportChatRoom(roomId: Int, onResult: (Boolean, String?) -> Unit) {
         viewModelScope.launch {
-            val res = chatRepository.reportRoom(roomId)
+            val res = runCatching { chatRepository.reportRoom(roomId) }.getOrElse { Result.failure(it) }
             onResult(res.isSuccess, res.exceptionOrNull()?.message)
         }
     }
@@ -79,11 +69,20 @@ class ChatListViewModel @Inject constructor(
         _chatUsers.value = users
     }
 
+
     fun createRoomAndShow(
         senderId: Int,
         receiverId: Int,
-        counterpartNickname: String? = null
+        counterpartNickname: String? = null,
+        onReady: ((Int) -> Unit)? = null,
     ) = viewModelScope.launch {
+        //이미 방이 있을때 재사용
+        chatUsers.value.firstOrNull { it.counterpart_id == receiverId }?.let { existing ->
+            onReady?.invoke(existing.room_id)       // ✅ 즉시 콜백
+            return@launch
+        }
+
+        //없으면 생성
         val r = chatRepository.createRoom(senderId, receiverId)
         r.onSuccess { roomId ->
             val displayName = counterpartNickname ?: "상대"
@@ -102,14 +101,15 @@ class ChatListViewModel @Inject constructor(
                 last_message_created_at = ""    // 메시지 없음
             )
 
-            // 1) 낙관적 반영(중복 제거 후 맨 위로)
+            // 낙관적 반영(중복 제거 후 맨 위로)
             _chatUsers.update { list ->
                 list.filterNot { it.room_id == roomId }
                     .toMutableList().apply { add(0, newItem) }
             }
 
-            // 2) 서버 기준으로 동기화
+            // 서버 기준으로 동기화
             refreshChatUsers(senderId)
+            onReady?.invoke(roomId)
         }.onFailure {
             // 에러 처리 (스낵바/로그 등)
         }
