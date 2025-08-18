@@ -521,14 +521,28 @@ class MainActivity : ComponentActivity() {
                             postingId = postingId,
                             onNextClick = { navController.navigate(Route.HouseRegisterRoute.Step2(mode)) },
                             onBackClick = {
-                                val previousRoute = navController.previousBackStackEntry?.destination?.route
-                                if (previousRoute?.contains("CommunityPageRoute.Map") == true) {
-                                    navigationManager.navigateOneWay(
-                                        Route.HouseRegisterRoute.Step1(mode),
-                                        Route.CommunityPageRoute.Map()
-                                    )
+                                if (mode == RegisterModel.EDIT) {
+                                    // 1) 백스택에 이미 MyPostedRoomScreen 이 있으면 거기로 '직행' (중간 스텝들 모두 제거)
+                                    val popped = navController.popBackStack("posted_my_room", /* inclusive = */ false)
+                                    if (!popped) {
+                                        // 2) 없으면 새로 띄우되, 현재 Step1(EDIT) 자체는 지우고 단일 상단으로 정리
+                                        navController.navigate("posted_my_room") {
+                                            // 그래프 시작점까지 정리하거나, 필요 시 특정 지점으로 조정 가능
+                                            popUpTo(navController.graph.startDestinationId) { inclusive = false }
+                                            launchSingleTop = true
+                                        }
+                                    }
                                 } else {
-                                    navController.popBackStack()
+                                    // 기존 CREATE 플로우 동작 유지
+                                    val previousRoute = navController.previousBackStackEntry?.destination?.route
+                                    if (previousRoute?.contains("CommunityPageRoute.Map") == true) {
+                                        navigationManager.navigateOneWay(
+                                            Route.HouseRegisterRoute.Step1(mode),
+                                            Route.CommunityPageRoute.Map()
+                                        )
+                                    } else {
+                                        navController.popBackStack()
+                                    }
                                 }
                             },
                           viewModel = houseRegisterViewModel
