@@ -1,6 +1,7 @@
 package com.housweet.presentation.ui.registerhouse
 
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -51,6 +52,10 @@ fun HouseRegisterScreen4(
     viewModel: HouseRegisterViewModelBase,
     onShowSnackbar: (String) -> Unit = {}
 ) {
+    BackHandler {
+        onBackClick()
+    }
+
     // 1) 섹션 정의
     val sections = listOf(
         "생활 패턴" to listOf(
