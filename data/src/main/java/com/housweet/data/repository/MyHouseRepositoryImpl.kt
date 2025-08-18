@@ -9,9 +9,8 @@ class MyHouseRepositoryImpl @Inject constructor(
     private val remote: MyHouseRemoteDataSource
 ) : MyHouseRepository {
 
-    override suspend fun getMyHouse(): MyHouse {
-        return remote.getMyHouse().toDomain()
-    }
+    override suspend fun getMyHouseOrNull(): MyHouse? =
+        remote.getMyHouse()?.toDomain()
 
     override suspend fun updateMyHouseName(roomId: Int, name: String): MyHouse {
         return remote.updateMyHouseName(roomId, name).toDomain()
