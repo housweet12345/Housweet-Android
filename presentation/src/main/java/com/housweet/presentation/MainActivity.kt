@@ -1,5 +1,6 @@
 package com.housweet.presentation
 
+import android.R.attr.defaultValue
 import android.content.Intent
 import android.os.Bundle
 import android.util.Base64
@@ -690,26 +691,25 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable(
-                        route = "chat_detail/{receiverId}/{chatName}",
+                        route = "chat_detail/{receiverId}/{roomId}/{chatName}",
                         arguments = listOf(
                             navArgument("receiverId") { type = NavType.IntType },
-                            navArgument("chatName") { defaultValue = "Unknown" }
+                            navArgument ( "roomId" ) { type = NavType.IntType},
+                            navArgument("chatName") { type = NavType.StringType }
                         )
                     )
                     { backStackEntry ->
                         val receiverId = backStackEntry.arguments?.getInt("receiverId") ?: -1
-                        val encodedName =
-                            backStackEntry.arguments?.getString("chatName") ?: "Unknown"
-                        val chatName = String(
-                            Base64.decode(
-                                encodedName,
-                                Base64.URL_SAFE or Base64.NO_WRAP
-                            )
-                        ) // ✅ 여기서 디코딩
+                        val roomId     = backStackEntry.arguments?.getInt("roomId") ?: -1
+                        val encodedName = backStackEntry.arguments?.getString("chatName") ?: ""
+                        val chatName = runCatching {
+                            String(Base64.decode(encodedName, Base64.URL_SAFE or Base64.NO_WRAP))
+                        }.getOrElse { encodedName } // 혹시 디코딩 실패하면 원문 사용
                         ChatScreen(
                             chatName = chatName,
-                            receiverId = receiverId,
                             navController = navController,
+                            receiverId = receiverId,
+                            roomId = roomId
                         )
                     }
 

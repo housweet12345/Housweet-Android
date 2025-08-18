@@ -11,4 +11,6 @@ data class ChatUser(
     val sender_nickname : String,
     val receiver_nickname : String,
     val counterpart_nickname: String,
+    val last_message_content : String,
+    val last_message_created_at : String,
 )
