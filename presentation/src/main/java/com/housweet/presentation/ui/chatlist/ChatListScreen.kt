@@ -34,10 +34,14 @@ import com.housweet.presentation.viewmodel.chatlist.ChatListViewModel
 import kotlin.collections.filter
 import android.util.Base64
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.runtime.remember
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import kotlin.String
 import kotlin.io.encoding.ExperimentalEncodingApi
+import com.housweet.presentation.ui.chat.toKstKoreanFull
+
 
 @Composable
 fun ChatListScreen(
@@ -50,7 +54,12 @@ fun ChatListScreen(
     }
 
     val chatUsersState = viewModel.chatUsers.collectAsState()
-    ChatListContent(navController = navController, chatUsers = chatUsersState.value, onBackClick = onBackClick)
+
+    val visibleUsers = remember(chatUsersState.value) {
+        chatUsersState.value.filter { !it.is_blocked }      // ✅ 차단 숨김
+    }
+
+    ChatListContent(navController = navController, chatUsers = visibleUsers, onBackClick = onBackClick)
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalEncodingApi::class)
@@ -60,9 +69,6 @@ fun ChatListContent(
     chatUsers: List<ChatUser>,
     onBackClick: () -> Unit,
 ) {
-//    val myUserId = 3
-//    val filteredUsers = chatUsers.filter { it.id != myUserId }
-
     Scaffold(
         containerColor = Color.White,
         topBar = {
@@ -97,27 +103,29 @@ fun ChatListContent(
             LazyColumn(
                 modifier = Modifier.background(Color.White)
             ) {
-//                itemsIndexed(filteredUsers) { _, user ->
                 itemsIndexed(chatUsers) { _, user ->
-                    val dateTime = LocalDateTime.parse(user.updated_at)
-                    val formatter = DateTimeFormatter.ofPattern("M월 d일 a h시 m분", Locale.KOREAN)
-                    val formatted = dateTime.format(formatter)
+//                    val formatted = runCatching {
+//                        val dt = LocalDateTime.parse(user.last_message_created_at) // ISO 8601 가정
+//                        dt.format(DateTimeFormatter.ofPattern("M월 d일 a h시 m분", Locale.KOREAN))
+//                    }.getOrDefault(user.last_message_created_at) // 실패 시 원문 표시
+                    val formatted = runCatching<String> {
+                        user.last_message_created_at.toKstKoreanFull()
+                    }.getOrDefault(user.last_message_created_at)
                     ChatListItem(
                             chat = ChatPreview(
-                            name = user.receiver_nickname.toString(),
-                            lastMessage = "",
-//                            lastMessage = "",
+                            name = user.receiver_nickname,
+                            lastMessage = user.last_message_content,
                             time = formatted,
-//                            time = "",
                             profileImageUrl = "",
                             unread = false
                         ),
                         onClick = {
+                            val displayName = user.counterpart_nickname
                             val encodedName = Base64.encodeToString(
-                                user.receiver_nickname.toString().toByteArray(),
+                                displayName.toByteArray(),
                                 Base64.URL_SAFE or Base64.NO_WRAP
                             )
-                            navController.navigate("chat_detail/${user.sender_id}/$encodedName")
+                            navController.navigate("chat_detail/${user.counterpart_id}/${user.room_id}/$encodedName")
                         }
                     )
                 }
@@ -142,9 +150,11 @@ fun ChatListScreenPreview() {
             sender_nickname = "테스트3",
             receiver_nickname = "테스트1",
             counterpart_nickname = "테스트1",
+            last_message_content = "어쩌라구요",
+            last_message_created_at = "2025.08.15",
         ),
         ChatUser(
-            room_id = 1,
+            room_id = 2,
             sender_id = 3,
             receiver_id = 2,
             created_at = "2025-08-15T09:38:19",
@@ -154,9 +164,11 @@ fun ChatListScreenPreview() {
             sender_nickname = "테스트3",
             receiver_nickname = "테스트2",
             counterpart_nickname = "테스트2",
+            last_message_content = "어쩌라구요2",
+            last_message_created_at = "2025.08.15",
         ),
         ChatUser(
-            room_id = 1,
+            room_id = 3,
             sender_id = 3,
             receiver_id = 4,
             created_at = "2025-08-15T09:38:19",
@@ -166,6 +178,8 @@ fun ChatListScreenPreview() {
             sender_nickname = "테스트3",
             receiver_nickname = "테스트4",
             counterpart_nickname = "테스트4",
+            last_message_content = "어쩌라구요4",
+            last_message_created_at = "2025.08.15",
         )
     )
 

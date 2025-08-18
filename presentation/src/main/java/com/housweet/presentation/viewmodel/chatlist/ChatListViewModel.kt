@@ -9,6 +9,7 @@ import com.housweet.domain.repository.ChatRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -26,7 +27,12 @@ class ChatListViewModel @Inject constructor(
 
     private fun fetchChatUsers(senderId: Int) {
         viewModelScope.launch {
-            _chatUsers.value = chatRepository.getChatUsers(senderId)
+            try {
+                _chatUsers.value = chatRepository.getChatUsers(senderId)
+            } catch (e: Exception) {
+                Log.e("ChatListVM", "getChatUsers failed", e)
+                _chatUsers.value = emptyList() // 안전하게 빈 목록
+            }
         }
     }
 
@@ -53,4 +59,59 @@ class ChatListViewModel @Inject constructor(
         }
     }
 
+    fun deleteChatRoom(receiverId: Int, onResult: (Boolean, String?) -> Unit) {
+        viewModelScope.launch {
+            val res = chatRepository.deleteRoom(receiverId)
+            onResult(res.isSuccess, res.exceptionOrNull()?.message)
+        }
+    }
+
+    fun reportChatRoom(roomId: Int, onResult: (Boolean, String?) -> Unit) {
+        viewModelScope.launch {
+            val res = chatRepository.reportRoom(roomId)
+            onResult(res.isSuccess, res.exceptionOrNull()?.message)
+        }
+    }
+
+    fun refreshChatUsers(senderId: Int) = viewModelScope.launch {
+        val users = runCatching { chatRepository.getChatUsers(senderId) }
+            .getOrElse { emptyList() }
+        _chatUsers.value = users
+    }
+
+    fun createRoomAndShow(
+        senderId: Int,
+        receiverId: Int,
+        counterpartNickname: String? = null
+    ) = viewModelScope.launch {
+        val r = chatRepository.createRoom(senderId, receiverId)
+        r.onSuccess { roomId ->
+            val displayName = counterpartNickname ?: "상대"
+            val newItem = ChatUser(
+                room_id = roomId,
+                sender_id = senderId,
+                receiver_id = receiverId,
+                created_at = "",                // 아직 서버 시간 모름
+                updated_at = "",                // 아직 서버 시간 모름
+                is_blocked = false,
+                counterpart_id = receiverId,
+                sender_nickname = "나",         // 있으면 실제 닉네임으로
+                receiver_nickname = displayName,
+                counterpart_nickname = displayName,
+                last_message_content = "",      // 메시지 없음
+                last_message_created_at = ""    // 메시지 없음
+            )
+
+            // 1) 낙관적 반영(중복 제거 후 맨 위로)
+            _chatUsers.update { list ->
+                list.filterNot { it.room_id == roomId }
+                    .toMutableList().apply { add(0, newItem) }
+            }
+
+            // 2) 서버 기준으로 동기화
+            refreshChatUsers(senderId)
+        }.onFailure {
+            // 에러 처리 (스낵바/로그 등)
+        }
+    }
 }
