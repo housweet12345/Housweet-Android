@@ -22,9 +22,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.housweet.presentation.R
-import com.housweet.presentation.ui.startPage.BackOnPressed
-import com.housweet.presentation.ui.startPage.BottomButton
-import com.housweet.presentation.ui.startPage.GuideText
+import com.housweet.presentation.ui.common.BackOnPressed
+import com.housweet.presentation.ui.common.BottomButton
+import com.housweet.presentation.ui.common.GuideText
 import com.housweet.presentation.ui.theme.Black
 import com.housweet.presentation.ui.theme.Gray_7E7E7E
 import com.housweet.presentation.ui.theme.Purple

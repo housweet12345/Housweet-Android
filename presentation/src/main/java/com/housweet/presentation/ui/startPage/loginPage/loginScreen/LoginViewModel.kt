@@ -40,7 +40,8 @@ class LoginViewModel @Inject constructor(
     }
 
     private suspend fun isSetProfile(isTermsOfServiceAgreed: Boolean) {
-        useCases.isSetProfileUseCase().collect {
+        isBelongToRoom(true, isTermsOfServiceAgreed)
+        /* useCases.isSetProfileUseCase().collect {
             it.onSuccess { isSetProfile ->
                 isBelongToRoom(isSetProfile, isTermsOfServiceAgreed)
             }
@@ -49,7 +50,7 @@ class LoginViewModel @Inject constructor(
                 e.printStackTrace()
                 loginFail()
             }
-        }
+        } */
     }
 
     private suspend fun isBelongToRoom(isSetProfile: Boolean, isTermsOfServiceAgreed: Boolean) {

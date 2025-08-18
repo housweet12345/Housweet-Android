@@ -1,10 +1,8 @@
 package com.housweet.presentation
 
-import android.R.attr.defaultValue
 import android.content.Intent
 import android.os.Bundle
 import android.util.Base64
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -42,6 +40,7 @@ import com.housweet.presentation.ui.communityPage.searchRegionScreen.SearchRegio
 import com.housweet.presentation.ui.home.route.HomeRoute
 import com.housweet.presentation.ui.mypage.AppNotificationSettingsScreen
 import com.housweet.presentation.ui.mypage.BookmarkScreen
+import com.housweet.presentation.ui.mypage.deleteAccount.DeleteAccountScreen
 import com.housweet.presentation.ui.mypage.HelpScreen
 import com.housweet.presentation.ui.mypage.MyHouseDetailScreen
 import com.housweet.presentation.ui.mypage.MyHouseEditScreen
@@ -429,7 +428,6 @@ class MainActivity : ComponentActivity() {
                         DetailPostScreen(
                             modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
                             onChatScreen = { userId, nickName ->
-                                Log.d("savepoint", "onChatScreen: $userId, $nickName")
                                 navigationManager.navigateTo("chat_detail/${userId}/${nickName}")
                             },
                             onProfileScreen = { userId ->
@@ -589,18 +587,35 @@ class MainActivity : ComponentActivity() {
 
                     composable("mypage") {
                         MyPageScreen(
-                            navController
-                        ) {
-                            val previousRoute = navController.previousBackStackEntry?.destination?.route
-                            if (previousRoute?.contains("CommunityPageRoute.Map") == true) {
-                                navigationManager.navigateOneWay(
-                                    "mypage",
-                                    Route.CommunityPageRoute.Map()
-                                )
-                            } else {
-                                navController.popBackStack()
+                            navController,
+                            onBackClick = {
+                                val previousRoute = navController.previousBackStackEntry?.destination?.route
+                                if (previousRoute?.contains("CommunityPageRoute.Map") == true) {
+                                    navigationManager.navigateOneWay(
+                                        "mypage",
+                                        Route.CommunityPageRoute.Map()
+                                    )
+                                } else {
+                                    navController.popBackStack()
+                                }
+                            },
+                            onLogoutClick = {
+                                startViewModel.logout {
+                                    handleLogout()
+                                }
+                            },
+
+                            onDeleteAccountClick = {
+                                navigationManager.navigateTo("deleteAccount")
                             }
-                        }
+                        )
+                    }
+
+                    composable("deleteAccount") {
+                        DeleteAccountScreen(
+                            onBackClick = { navController.popBackStack() },
+                            onSuccessDeleteAccount = { handleDeleteAccount() }
+                        )
                     }
 
                     composable("bookmark") {

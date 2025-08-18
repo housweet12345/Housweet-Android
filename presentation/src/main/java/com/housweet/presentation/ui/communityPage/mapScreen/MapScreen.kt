@@ -46,7 +46,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.housweet.domain.model.Coordinate
 import com.housweet.domain.model.NearByPostCountDataModel
 import com.housweet.presentation.R
-import com.housweet.presentation.ui.startPage.GuideText
+import com.housweet.presentation.ui.common.GuideText
 import com.housweet.presentation.ui.theme.Gray_A5A5A5
 import com.housweet.presentation.ui.theme.Gray_CBCBCB
 import com.housweet.presentation.ui.theme.Purple
