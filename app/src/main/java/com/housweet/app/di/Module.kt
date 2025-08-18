@@ -19,6 +19,8 @@ import com.housweet.data.network.HouseRegisterRemoteDataSource
 import com.housweet.data.network.HouseRegisterRemoteDataSourceImpl
 import com.housweet.data.network.ImageUploadRemoteDataSource
 import com.housweet.data.network.KtorService
+import com.housweet.data.network.MyHouseRemoteDataSource
+import com.housweet.data.network.MyHouseRemoteDataSourceImpl
 import com.housweet.data.network.NoticeRemoteDataSource
 import com.housweet.data.network.NoticeRemoteDataSourceImpl
 import com.housweet.data.network.NotificationRemoteDataSource
@@ -36,6 +38,7 @@ import com.housweet.data.repository.ChatRepositoryImpl
 import com.housweet.data.repository.CommunityRepositoryImpl
 import com.housweet.data.repository.HouseRegisterRepositoryImpl
 import com.housweet.data.repository.ImageUploadRepositoryImpl
+import com.housweet.data.repository.MyHouseRepositoryImpl
 import com.housweet.data.repository.ReportRepositoryImpl
 import com.housweet.data.repository.NoticeRepositoryImpl
 import com.housweet.data.utils.CryptoManager
@@ -51,6 +54,7 @@ import com.housweet.domain.repository.HouseRegisterRepository
 import com.housweet.domain.repository.ImageUploadRepository
 import com.housweet.domain.repository.NotificationRepository
 import com.housweet.data.repository.NotificationRepositoryImpl
+import com.housweet.domain.repository.MyHouseRepository
 import com.housweet.domain.repository.NoticeRepository
 import com.housweet.domain.repository.ReportRepository
 import com.housweet.domain.repository.RoomPostingRepository
@@ -206,6 +210,18 @@ abstract class Module {
     abstract fun bindReportRepository(
         impl: ReportRepositoryImpl
     ): ReportRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindMyHouseRemoteDataSource(
+        impl: MyHouseRemoteDataSourceImpl
+    ): MyHouseRemoteDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindMyHouseRepository(
+        impl: MyHouseRepositoryImpl
+    ): MyHouseRepository
 
 
     companion object {
