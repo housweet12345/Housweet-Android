@@ -6,23 +6,56 @@ import androidx.lifecycle.viewModelScope
 import com.housweet.domain.model.ChatMessage
 import com.housweet.domain.model.ChatUser
 import com.housweet.domain.repository.ChatRepository
+import com.housweet.domain.usecase.auth.GetCurrentUserIdUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ChatListViewModel @Inject constructor(
-    private val chatRepository: ChatRepository
+    private val chatRepository: ChatRepository,
+    private val getCurrentUserId: GetCurrentUserIdUseCase
 ): ViewModel() {
 
     private val _chatUsers = MutableStateFlow<List<ChatUser>>(emptyList())
     val chatUsers: StateFlow<List<ChatUser>> = _chatUsers
 
+    private val _myUserId = MutableStateFlow<Int?>(null)
+    val myUserId: StateFlow<Int?> = _myUserId.asStateFlow()
+
+    private val _loading = MutableStateFlow(false)
+    val loading: StateFlow<Boolean> = _loading.asStateFlow()
+
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error.asStateFlow()
+
     init {
-        fetchChatUsers(3) //임시 값. 내 아이디가 지금 3임.
+        // 앱 시작 시 내 ID를 불러오고, 성공하면 채팅유저 리스트를 내 ID로 로드
+        refreshMyUserIdAndUsers()
+    }
+
+    /** 내 userId를 불러오고 곧바로 채팅방 목록까지 로드 */
+    fun refreshMyUserIdAndUsers() = viewModelScope.launch {
+        _loading.value = true
+        _error.value = null
+        try {
+            val id = getCurrentUserId()                 // ← ★ operator invoke
+            _myUserId.value = id
+            if (id != null) {
+                fetchChatUsers(id)                      // ← ★ 내 ID로 호출
+            } else {
+                _chatUsers.value = emptyList()
+                _error.value = "로그인이 필요합니다"
+            }
+        } catch (e: Exception) {
+            _error.value = e.message ?: "내 사용자 ID 조회 실패"
+        } finally {
+            _loading.value = false
+        }
     }
 
     private fun fetchChatUsers(senderId: Int) = viewModelScope.launch {

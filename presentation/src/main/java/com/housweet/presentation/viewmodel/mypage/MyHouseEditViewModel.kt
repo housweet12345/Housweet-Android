@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.housweet.domain.model.MyHouse
 import com.housweet.domain.repository.MyHouseRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -13,6 +14,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.onSuccess
 
 sealed interface MyHouseEditEffect {
     data class ShowMessage(val msg: String) : MyHouseEditEffect
@@ -43,22 +45,25 @@ class MyHouseEditViewModel @Inject constructor(
     fun load() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
-            runCatching { repo.getMyHouse() }
-                .onSuccess { house ->
-                    Log.d("MyHouseEditVM", "GET success: id=${house.id}, name=${house.name}")
-                    _uiState.value = MyHouseEditUiState(
-                        roomId = house.id,
-                        name = house.name,
-                        startDate = house.dateOfJoined,
-                        inviteCode = house.inviteCode,
-                        isLoading = false
-                    )
-                }
-                .onFailure { e ->
-                    Log.e("MyHouseEditVM", "GET failed", e)
+            try {
+                val house = repo.getMyHouseOrNull()
+                if (house == null) {
                     _uiState.value = _uiState.value.copy(isLoading = false)
-                    _effect.tryEmit(MyHouseEditEffect.ShowMessage(e.message ?: "불러오기 실패"))
+                    _effect.tryEmit(MyHouseEditEffect.ShowMessage("마이하우스가 없어요."))
+                    _effect.tryEmit(MyHouseEditEffect.CloseWithRefresh)
+                    return@launch
                 }
+                _uiState.value = MyHouseEditUiState(
+                    roomId = house.id,
+                    name = house.name,
+                    startDate = house.dateOfJoined,
+                    inviteCode = house.inviteCode,
+                    isLoading = false
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(isLoading = false)
+                _effect.tryEmit(MyHouseEditEffect.ShowMessage(e.message ?: "불러오기 실패"))
+            }
         }
     }
 
