@@ -19,14 +19,14 @@ import javax.inject.Singleton
 
 @Singleton
 class AuthRemoteDataSourceImpl @Inject constructor(
-    private val ktorClient: KtorService
+    private val ktorService: KtorService
 ): AuthRemoteDataSource {
     companion object {
         private const val BASE_URL = BuildConfig.BASE_URL
     }
 
     private var httpClient = ktorClient.createHttpClient()
-    private val httpClientForRefresh by lazy { ktorClient.createHttpClientForRefresh() }
+    private val httpClientForRefresh by lazy { ktorService.createHttpClientForRefresh() }
 
     override suspend fun loginWithKakao(
         socialId: String,
