@@ -1,6 +1,5 @@
 package com.housweet.presentation
 
-import android.R.attr.defaultValue
 import android.content.Intent
 import android.os.Bundle
 import android.util.Base64
@@ -130,10 +129,11 @@ class MainActivity : ComponentActivity() {
             ) { paddingValues ->
                 NavHost(
                     navController = navController,
-                    startDestination = if (!isFailedRefreshToken && !isLogout && !isDeleteAccount) Route.StartPageRoute.Splash else Route.StartPageRoute.LoginRoute.Login,
+//                    startDestination = if (!isFailedRefreshToken && !isLogout && !isDeleteAccount) Route.StartPageRoute.Splash else Route.StartPageRoute.LoginRoute.Login,
 
                     // access_token Log 확인 테스트용
-                    // startDestination = Route.StartPageRoute.LoginRoute.Login,
+//                     startDestination = Route.StartPageRoute.LoginRoute.Login,
+                    startDestination= "mypage",
                     modifier = Modifier.padding(top = paddingValues.calculateTopPadding())
                 ) {
                     composable<Route.StartPageRoute.Splash> {
@@ -426,14 +426,27 @@ class MainActivity : ComponentActivity() {
 
                     composable<Route.CommunityPageRoute.PostRoute.DetailPost> {
                         val postId = it.toRoute<Route.CommunityPageRoute.PostRoute.DetailPost>().postId
+                        val chatListViewModel: com.housweet.presentation.viewmodel.chatlist.ChatListViewModel = hiltViewModel()
+
                         DetailPostScreen(
                             modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
                             onChatScreen = { userId, nickName ->
-                                Log.d("savepoint", "onChatScreen: $userId, $nickName")
-                                navigationManager.navigateTo("chat_detail/${userId}/${nickName}")
+                                val myUserId = 3 // TODO: 실제 로그인 사용자 ID로 교체
+                                chatListViewModel.createRoomAndShow(
+                                    senderId = myUserId,
+                                    receiverId = userId,
+                                    counterpartNickname = nickName
+                                ) {roomId ->
+                                    val encoded = Base64.encodeToString(
+                                        nickName.toByteArray(),
+                                        Base64.URL_SAFE or Base64.NO_WRAP
+                                    )
+                                    Log.d("savepoint", "onChatScreen: $userId, $roomId, $encoded")
+                                    navigationManager.navigateTo("chat_detail/$userId/$roomId/$encoded")
+                                }
                             },
                             onProfileScreen = { userId ->
-                                navigationManager.navigateTo("profile/${userId}")
+                                navigationManager.navigateTo("profile/$userId")
                             },
                             onBackBtnClick = { isBookmarkChanged ->
                                 if (isBookmarkChanged) {

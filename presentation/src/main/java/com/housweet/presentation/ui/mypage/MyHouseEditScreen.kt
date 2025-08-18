@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Icon
+import androidx.compose.material.SnackbarHost
 import androidx.compose.material.Text
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -120,7 +121,8 @@ fun MyHouseEditScreen(
                 )
             )
         },
-        containerColor = Color.White
+        containerColor = Color.White,
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -196,13 +198,15 @@ fun MyHouseEditScreen(
             ) {
                 Text(text = "초대 코드", fontSize = 14.sp)
                 Spacer(modifier = Modifier.weight(1f))
-//                Icon(
-//                    painter = painterResource(id = R.drawable.refresh),
-//                    contentDescription = "refresh",
-//                    modifier = Modifier
-//                        .size(20.dp)
-//                        .clickable { onCodeRefresh() }
-//                )
+                Icon(
+                    painter = painterResource(id = R.drawable.refresh),
+                    contentDescription = "refresh",
+                    modifier = Modifier
+                        .size(20.dp)
+                        .clickable(enabled = !uiState.isLoading) {
+                            viewModel.refreshInviteCode()
+                        }
+                )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(text = uiState.inviteCode, fontSize = 14.sp)
             }
@@ -210,12 +214,14 @@ fun MyHouseEditScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             // 방 삭제하기
-//            Text(
-//                text = "방 삭제하기",
-//                color = Color.Red,
-//                modifier = Modifier.clickable { onDelete() },
-//                fontSize = 14.sp
-//            )
+            Text(
+                text = "방 삭제하기",
+                color = Color.Red,
+                modifier = Modifier.clickable(enabled = !uiState.isLoading) {
+                        viewModel.deleteMyHouse()
+                },
+                fontSize = 14.sp
+            )
 
             Spacer(modifier = Modifier.weight(1f))
 
