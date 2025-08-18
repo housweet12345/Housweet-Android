@@ -135,7 +135,7 @@ class KtorService @Inject constructor(
 
                     sendWithoutRequest { request ->
                         // 로그인, 토큰 갱신 같은 인증 관련 엔드포인트는 제외
-                        val authExcluded = request.url.pathSegments.lastOrNull() == "login"
+                        val authExcluded = request.url.pathSegments.lastOrNull() == "login" || request.url.pathSegments.contains("chat")
                         !authExcluded
                     }
                 }

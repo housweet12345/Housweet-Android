@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.housweet.domain.model.RoomPostDetailDataModel
 import com.housweet.domain.model.RoomPostsByLocationDataModel
 import com.housweet.domain.usecase.UseCases
+import com.housweet.domain.usecase.auth.GetCurrentUserIdUseCase
 import com.housweet.presentation.ui.communityPage.postScreen.postsScreen.PostsEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -20,6 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class DetailPostViewModel @Inject constructor(
     private val useCases: UseCases,
+    private val getCurrentUserIdUseCase: GetCurrentUserIdUseCase,
     savedStateHandle: SavedStateHandle
 ): ViewModel() {
     private val _uiState = MutableStateFlow<DetailPostState>(DetailPostState.Idle)
@@ -32,11 +34,13 @@ class DetailPostViewModel @Inject constructor(
     val roomPostDetail: StateFlow<RoomPostDetailDataModel> = _roomPostDetail.asStateFlow()
 
     var originalBookMarkState: Boolean = false
+    var myUserId: Int? = null
 
     private var postId = savedStateHandle.get<Int>("postId")
 
     init {
         viewModelScope.launch {
+            getMyUserId()
             postId?.let { getRoomPostDetail(it) }
         }
     }
@@ -99,5 +103,9 @@ class DetailPostViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private suspend fun getMyUserId() {
+        myUserId = getCurrentUserIdUseCase()
     }
 }

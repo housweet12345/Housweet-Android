@@ -25,7 +25,7 @@ class AuthRemoteDataSourceImpl @Inject constructor(
         private const val BASE_URL = BuildConfig.BASE_URL
     }
 
-    private val httpClient by lazy { ktorClient.createHttpClient() }
+    private var httpClient = ktorClient.createHttpClient()
     private val httpClientForRefresh by lazy { ktorClient.createHttpClientForRefresh() }
 
     override suspend fun loginWithKakao(
@@ -82,7 +82,15 @@ class AuthRemoteDataSourceImpl @Inject constructor(
     }
 
     override suspend fun deleteAccount(): Boolean {
-        val response = httpClient.post("$BASE_URL/auth/withdraw/")
-        return response.status.value == 200
+        val response = httpClient.post("$BASE_URL/auth/withdraw")
+        val isSuccess = response.status.value == 200 || response.status.value == 204
+        recreateHttpClient()
+
+        return isSuccess
+    }
+
+    override fun recreateHttpClient() {
+        httpClient.close() // 기존 클라이언트 닫기
+        httpClient = ktorClient.createHttpClient() // 새로운 클라이언트 생성
     }
 }
