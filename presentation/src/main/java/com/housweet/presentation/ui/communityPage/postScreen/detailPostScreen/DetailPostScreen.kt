@@ -1,8 +1,7 @@
 package com.housweet.presentation.ui.communityPage.postScreen.detailPostScreen
 
-import android.annotation.SuppressLint
 import android.content.Context
-import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -36,7 +35,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,6 +53,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.housweet.domain.model.RoomPostDetailDataModel
@@ -68,37 +70,58 @@ import com.housweet.presentation.ui.theme.Gray_CBCBCB
 import com.housweet.presentation.ui.theme.Purple
 import com.housweet.presentation.ui.theme.White
 import com.housweet.presentation.ui.theme.White_F8F8F8
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
+import kotlin.time.Duration
 
 @Composable
 fun DetailPostScreen(
     modifier: Modifier,
-    onChatScreen: (userId: Int) -> Unit,
+    onChatScreen: (userId: Int, nickName: String) -> Unit,
     onProfileScreen: (userId: Int) -> Unit,
-    onBackBtnClick: () -> Unit,
+    onBackBtnClick: (isBookmarkChanged: Boolean) -> Unit,
     detailPostViewModel: DetailPostViewModel = hiltViewModel()
 ) {
-    val uiState by detailPostViewModel.uiState.collectAsState()
-    val roomPostDetail by detailPostViewModel.roomPostDetail.collectAsState()
+    val uiState by detailPostViewModel.uiState.collectAsStateWithLifecycle()
+    val roomPostDetail by detailPostViewModel.roomPostDetail.collectAsStateWithLifecycle()
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
     val snackBarHostState = remember { SnackbarHostState() }
     var isMenuExpanded by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
-        detailPostViewModel.event.collect { event ->
-            when (event) {
-                DetailPostEvent.Error -> {
-                    snackBarHostState.showSnackbar(
-                        message = "방 정보를 제대로 불러오지 못했어요.",
-                        actionLabel = "닫기",
-                        duration = SnackbarDuration.Short
-                    )
-                }
+    BackHandler {
+        val isBookmarkChanged = detailPostViewModel.originalBookMarkState != roomPostDetail.isBookmarked
+        onBackBtnClick(isBookmarkChanged)
+    }
 
-                is DetailPostEvent.ReportRoom -> {
-                    snackBarHostState.showSnackbar(
-                        message = event.message,
-                        actionLabel = "닫기",
-                        duration = SnackbarDuration.Short
-                    )
+    LaunchedEffect(Unit) {
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            detailPostViewModel.event.collect { event ->
+                when (event) {
+                    DetailPostEvent.Error -> {
+                        snackBarHostState.showSnackbar(
+                            message = "방 정보를 제대로 불러오지 못했어요.",
+                            actionLabel = "닫기",
+                            duration = SnackbarDuration.Short
+                        )
+                    }
+
+                    DetailPostEvent.BookMarkError -> {
+                        snackBarHostState.showSnackbar(
+                            message = "북마크를 제대로 설정하지 못했어요.",
+                            actionLabel = "닫기",
+                            duration = SnackbarDuration.Short
+                        )
+                    }
+
+                    is DetailPostEvent.ReportRoom -> {
+                        snackBarHostState.showSnackbar(
+                            message = event.message,
+                            actionLabel = "닫기",
+                            duration = SnackbarDuration.Short
+                        )
+                    }
                 }
             }
         }
@@ -113,7 +136,10 @@ fun DetailPostScreen(
                 isMenuExpanded = isMenuExpanded,
                 onChatScreen = onChatScreen,
                 onProfileScreen = onProfileScreen,
-                onBackBtnClick = onBackBtnClick,
+                onBackBtnClick = {
+                    val isBookmarkChanged = detailPostViewModel.originalBookMarkState != roomPostDetail.isBookmarked
+                    onBackBtnClick(isBookmarkChanged)
+                },
                 onMenuClick = {
                     isMenuExpanded = !isMenuExpanded
                 },
@@ -123,6 +149,9 @@ fun DetailPostScreen(
                 onReportClick = {
                     isMenuExpanded = false
                     detailPostViewModel.reportRoom()
+                },
+                onToggleLike = {
+                    detailPostViewModel.toggleLike()
                 }
             )
         }
@@ -133,19 +162,19 @@ fun DetailPostScreen(
     }
 }
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 private fun DetailPostContent(
     modifier: Modifier,
     roomPostDetail: RoomPostDetailDataModel,
     snackBarHostState: SnackbarHostState,
     isMenuExpanded: Boolean,
-    onChatScreen: (userId: Int) -> Unit,
+    onChatScreen: (userId: Int, nickName: String) -> Unit,
     onProfileScreen: (userId: Int) -> Unit,
     onBackBtnClick: () -> Unit,
     onMenuClick: () -> Unit,
     onScreenClick: () -> Unit,
-    onReportClick: () -> Unit
+    onReportClick: () -> Unit,
+    onToggleLike: () -> Unit
 ) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
@@ -172,54 +201,70 @@ private fun DetailPostContent(
         },
         snackbarHost = { SnackbarHost(snackBarHostState) },
         containerColor = White
-    ) {
-        Column(
+    ) { innerPadding ->
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(scrollState)
+                .padding(innerPadding)
         ) {
-            AsyncImage(
-                model = ImageRequest
-                    .Builder(context)
-                    .data(roomPostDetail.imageUri)
-                    .error(R.drawable.small_house)
-                    .build(),
-                contentDescription = "RoomImage",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(1f)
-            )
-
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
+                modifier = Modifier.verticalScroll(scrollState)
             ) {
-                UserProfile(
-                    roomPostDetail = roomPostDetail,
-                    context = context,
-                    onProfileScreen = onProfileScreen
+                AsyncImage(
+                    model = ImageRequest
+                        .Builder(context)
+                        .data(roomPostDetail.imageUri)
+                        .error(R.drawable.post_image_null)
+                        .build(),
+                    contentDescription = "RoomImage",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(1f)
                 )
 
-                DetailContent(
-                    roomPostDetail = roomPostDetail
-                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
+                ) {
+                    UserProfile(
+                        roomPostDetail = roomPostDetail,
+                        context = context,
+                        onProfileScreen = onProfileScreen
+                    )
 
-                Spacer(modifier = Modifier.height(20.dp))
+                    DetailContent(
+                        roomPostDetail = roomPostDetail
+                    )
 
-                HouseFeatures(
-                    roomPostDetail = roomPostDetail
-                )
+                    Spacer(modifier = Modifier.height(20.dp))
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    HouseFeatures(
+                        roomPostDetail = roomPostDetail
+                    )
 
-                PreferredFeatures(
-                    roomPostDetail = roomPostDetail
-                )
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                Spacer(modifier = Modifier.height(101.dp))
+                    PreferredFeatures(
+                        roomPostDetail = roomPostDetail
+                    )
+
+                    Spacer(modifier = Modifier.height(101.dp))
+                }
             }
+
+            Icon(
+                painter = painterResource(id = if (roomPostDetail.isBookmarked) R.drawable.like else R.drawable.unlike),
+                contentDescription = "favorite",
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(top = 10.dp, end = 10.dp)
+                    .size(32.dp)
+                    .clip(CircleShape)
+                    .clickable { onToggleLike() },
+                tint = if (roomPostDetail.isBookmarked) Purple else White
+            )
         }
     }
 
@@ -328,7 +373,8 @@ private fun UserProfile(
         AsyncImage(
             model = ImageRequest
                 .Builder(context)
-                .data("https://picsum.photos/300/300")
+                .data(roomPostDetail.profileImageUrl)
+                .error(R.drawable.default_profile_img)
                 .build(),
             contentDescription = "RoomImage",
             modifier = Modifier
@@ -341,7 +387,7 @@ private fun UserProfile(
         ) {
             GuideText(
                 color = Black,
-                text = "김지안",
+                text = roomPostDetail.nickName,
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 12.sp,
                 lineHeight = 12.sp,
@@ -364,7 +410,7 @@ private fun UserProfile(
 
                 GuideText(
                     color = Gray_7E7E7E,
-                    text = "1시간 전",
+                    text = getRelativeTime(roomPostDetail.createdAtKst),
                     fontWeight = FontWeight.Normal,
                     fontSize = 10.sp,
                     lineHeight = 10.sp,
@@ -508,7 +554,7 @@ private fun FeatureBox(
 @Composable
 private fun BottomBar(
     roomPostDetail: RoomPostDetailDataModel,
-    onChatScreen: (userId: Int) -> Unit
+    onChatScreen: (userId: Int, nickName: String) -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -554,7 +600,7 @@ private fun BottomBar(
             Spacer(modifier = Modifier.weight(1f))
 
             Button(
-                onClick = { onChatScreen(roomPostDetail.userId) },
+                onClick = { onChatScreen(roomPostDetail.userId, roomPostDetail.nickName) },
                 modifier = Modifier
                     .width(68.dp)
                     .height(30.dp),
@@ -577,6 +623,25 @@ private fun BottomBar(
     }
 }
 
+fun getRelativeTime(dateTimeString: String): String {
+    if (dateTimeString.isEmpty()) return "오류"
+    val pastInstant = Instant.parse(dateTimeString)
+    val now = Instant.now()
+
+    val hours = ChronoUnit.HOURS.between(pastInstant, now)
+    val minutes = ChronoUnit.MINUTES.between(pastInstant, now)
+
+    return when {
+        hours >= 24 -> {
+            val formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH시 mm분")
+            pastInstant.atZone(ZoneId.systemDefault()).format(formatter)
+        }
+        hours >= 1 -> "${hours}시간 전"
+        minutes >= 1 -> "${minutes}분 전"
+        else -> "방금 전"
+    }
+}
+
 @Preview
 @Composable
 private fun DetailPostScreenPreview() {
@@ -585,12 +650,13 @@ private fun DetailPostScreenPreview() {
         modifier = Modifier,
         roomPostDetail = RoomPostDetailDataModel(),
         snackBarHostState = remember { SnackbarHostState() },
-        onChatScreen = {},
+        onChatScreen = { _, _ -> },
         onProfileScreen = {},
         onBackBtnClick = {},
         isMenuExpanded = isMenuExpanded,
         onMenuClick = { isMenuExpanded = !isMenuExpanded },
         onScreenClick = { isMenuExpanded = false },
-        onReportClick = {}
+        onReportClick = {},
+        onToggleLike = {}
     )
 }

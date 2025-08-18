@@ -15,10 +15,28 @@ class StartViewModel @Inject constructor(
     fun logout(
         onLogout: () -> Unit
     ) {
-        UserApiClient.instance.logout {
+        UserApiClient.instance.logout { error ->
+            if (error != null) {
+                return@logout
+            }
+
             viewModelScope.launch {
                 useCases.logoutUseCase()
                 onLogout()
+            }
+        }
+    }
+
+    fun deleteAccount(
+        onDeleteAccount: () -> Unit
+    ) {
+        UserApiClient.instance.unlink { error ->
+            if (error != null) {
+                return@unlink
+            }
+
+            viewModelScope.launch {
+                onDeleteAccount()
             }
         }
     }

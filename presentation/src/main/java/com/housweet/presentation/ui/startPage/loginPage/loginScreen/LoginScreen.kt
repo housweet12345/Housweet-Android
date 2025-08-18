@@ -27,7 +27,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -41,6 +40,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.startPage.BackOnPressed
 import com.housweet.presentation.ui.startPage.GuideText
@@ -67,26 +70,34 @@ data class Guide(
 fun LoginScreen(
     modifier: Modifier,
     loginViewModel: LoginViewModel = hiltViewModel(),
-    onNextScreen: (isTermsOfServiceAgreed: Boolean, isBelongToRoom: Boolean) -> Unit,
+    onNextScreen: (isTermsOfServiceAgreed: Boolean, isSetProfile: Boolean, isBelongToRoom: Boolean) -> Unit,
 ) {
-    val uiState: LoginUiState by loginViewModel.uiState.collectAsState()
+    val uiState: LoginUiState by loginViewModel.uiState.collectAsStateWithLifecycle()
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
     val snackBarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
 
     BackOnPressed()
-    LaunchedEffect(Unit) {
-        loginViewModel.event.collect { event ->
-            when (event) {
-                is LoginEvent.LoginSuccess -> {
-                    onNextScreen(event.isTermsOfServiceAgreed, event.isBelongToRoom)
-                }
 
-                LoginEvent.LoginError -> {
-                    snackBarHostState.showSnackbar(
-                        message = "로그인에 실패했습니다.",
-                        actionLabel = "닫기",
-                        duration = SnackbarDuration.Short
-                    )
+    LaunchedEffect(Unit) {
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            loginViewModel.event.collect { event ->
+                when (event) {
+                    is LoginEvent.LoginSuccess -> {
+                        onNextScreen(
+                            event.isTermsOfServiceAgreed,
+                            event.isSetProfile,
+                            event.isBelongToRoom
+                        )
+                    }
+
+                    LoginEvent.LoginError -> {
+                        snackBarHostState.showSnackbar(
+                            message = "로그인에 실패했습니다.",
+                            actionLabel = "닫기",
+                            duration = SnackbarDuration.Short
+                        )
+                    }
                 }
             }
         }

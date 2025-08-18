@@ -45,7 +45,13 @@ data class GetRoomPostDetailResponseDto(
     @SerialName("tidying_up_habit_tags")
     val tidyingUpHabitTags: List<String>,
     @SerialName("personality_tags")
-    val personalityTags: List<String>
+    val personalityTags: List<String>,
+    @SerialName("nickname")
+    val nickname: String,
+    @SerialName("profile_image_url")
+    val profileImageUrl: String?,
+    @SerialName("created_at_kst")
+    val createdAtKst: String
 )
 
 fun GetRoomPostDetailResponseDto.toRoomPostDetailDataModel(): RoomPostDetailDataModel {
@@ -69,6 +75,9 @@ fun GetRoomPostDetailResponseDto.toRoomPostDetailDataModel(): RoomPostDetailData
         infraTags = infraTags,
         lifePatternTags = lifePatternTags,
         tidyingUpHabitTags = tidyingUpHabitTags,
-        personalityTags = personalityTags
+        personalityTags = personalityTags,
+        nickName = nickname,
+        profileImageUrl = profileImageUrl ?: "",
+        createdAtKst = createdAtKst
     )
 }
