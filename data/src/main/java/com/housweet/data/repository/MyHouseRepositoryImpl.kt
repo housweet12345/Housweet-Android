@@ -16,4 +16,11 @@ class MyHouseRepositoryImpl @Inject constructor(
     override suspend fun updateMyHouseName(roomId: Int, name: String): MyHouse {
         return remote.updateMyHouseName(roomId, name).toDomain()
     }
+
+    override suspend fun refreshInviteCode(): MyHouse =
+        remote.refreshInviteCode().toDomain()
+
+    override suspend fun deleteMyHouse(roomId: Int) {
+        remote.deleteMyHouse(roomId)
+    }
 }
