@@ -17,10 +17,12 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.housweet.presentation.R
+import com.housweet.presentation.ui.common.BackOnPressed
 import com.housweet.presentation.ui.theme.ColorGroup
 
 @Composable
 fun BottomNavigation(navController: NavController) {
+    BackOnPressed()
     val items = listOf(
         BottomNavItem.Home,
         BottomNavItem.Notice,

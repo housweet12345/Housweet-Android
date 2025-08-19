@@ -13,8 +13,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -41,7 +41,6 @@ import com.housweet.presentation.ui.communityPage.searchRegionScreen.SearchRegio
 import com.housweet.presentation.ui.home.route.HomeRoute
 import com.housweet.presentation.ui.mypage.AppNotificationSettingsScreen
 import com.housweet.presentation.ui.mypage.BookmarkScreen
-import com.housweet.presentation.ui.mypage.deleteAccount.DeleteAccountScreen
 import com.housweet.presentation.ui.mypage.HelpScreen
 import com.housweet.presentation.ui.mypage.MyHouseDetailScreen
 import com.housweet.presentation.ui.mypage.MyHouseEditScreen
@@ -52,6 +51,7 @@ import com.housweet.presentation.ui.mypage.NoticeScreen
 import com.housweet.presentation.ui.mypage.TermsConditionsPolicies
 import com.housweet.presentation.ui.mypage.TermsLocationInformationPolies
 import com.housweet.presentation.ui.mypage.TermsPrivacyPolicies
+import com.housweet.presentation.ui.mypage.deleteAccount.DeleteAccountScreen
 import com.housweet.presentation.ui.navigation.BottomNavItem
 import com.housweet.presentation.ui.navigation.BottomNavigation
 import com.housweet.presentation.ui.navigation.CoordinateType
@@ -75,13 +75,11 @@ import com.housweet.presentation.ui.startPage.loginPage.loginScreen.LoginScreen
 import com.housweet.presentation.ui.startPage.loginPage.termsOfServicePage.TermsOfServiceScreen
 import com.housweet.presentation.ui.startPage.splashPage.SplashScreen
 import com.housweet.presentation.ui.userlist.route.UserListRoute
-import com.housweet.presentation.viewmodel.chatlist.ChatListViewModel
 import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.reflect.typeOf
-import androidx.compose.runtime.getValue
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -475,7 +473,7 @@ class MainActivity : ComponentActivity() {
                     composable(BottomNavItem.Home.route) {
                         HomeRoute(
                             navigateToChat = { navController.navigate("chat_list") },
-                            navigateToNotification = { /* TODO: 알림 화면 */ },
+                            navigateToNotification = { navController.navigate("notification") },
 //                            navigateToProfile = { navController.navigate("profile/me") },
                             navigateToMyPage = { navController.navigate("mypage") },
                             navigateToNoticeDetail = { noticeId -> /* TODO: 공지사항 상세 */ },
@@ -507,8 +505,14 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                     composable(BottomNavItem.Notice.route) {
-                        //공지사항 화면
-                        Text("공지사항")
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            ComingSoonScreen(
+                                modifier = Modifier.weight(1f)
+                            )
+                            BottomNavigation(
+                                navController = navController
+                            )
+                        }
                     }
 
                     composable<Route.HouseRegisterRoute.Step1> {
@@ -800,11 +804,35 @@ class MainActivity : ComponentActivity() {
                         arguments = listOf(navArgument("userId") { type = NavType.StringType })
                     ) {
                         val userId = it.arguments?.getString("userId")
+                        val chatListViewModel: com.housweet.presentation.viewmodel.chatlist.ChatListViewModel = hiltViewModel()
+                        val myId by chatListViewModel.myUserId.collectAsStateWithLifecycle()
+
+                        // 필요 시 초기 로드
+                        LaunchedEffect(Unit) {
+                            if (myId == null) chatListViewModel.refreshMyUserIdAndUsers()
+                        }
+
                         ProfileRoute(
                             userId = userId,
                             navigateEditProfile = { navController.navigate("profile/edit?fromTerms=false") },
                             onBackClick = { navController.popBackStack() },
-                            navigateChatting = { }
+                            navigateChatting = {receiverId, nickName ->
+                                val sender = myId ?: run {
+                                // 스낵바 등으로 로그인 필요 메시지 처리
+                                return@ProfileRoute
+                            }
+                                chatListViewModel.createRoomAndShow(
+                                    senderId = sender,
+                                    receiverId = receiverId,
+                                    counterpartNickname = nickName
+                                ) { roomId ->
+                                    val encoded = android.util.Base64.encodeToString(
+                                        nickName.toByteArray(),
+                                        android.util.Base64.URL_SAFE or android.util.Base64.NO_WRAP or android.util.Base64.NO_PADDING // ← 패딩 제거
+                                    )
+                                    navigationManager.navigateTo("chat_detail/$receiverId/$roomId/$encoded")
+                                }
+                            }
                         )
                     }
 
