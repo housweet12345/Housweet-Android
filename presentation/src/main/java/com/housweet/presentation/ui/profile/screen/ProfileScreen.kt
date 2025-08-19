@@ -34,7 +34,7 @@ fun ProfileScreen(
     profileInfo: ProfileInfo,
     onBackClick: () -> Unit = {},
     navigateEditProfile: () -> Unit = {},
-    navigateChatting: () -> Unit = {},
+    navigateChatting: (userId: Int, nickName: String) -> Unit = { _, _ -> },
     onReportClick: (type: String, id: Int) -> Unit = { _, _ -> },
     onBlockClick: (Int) -> Unit = {}
 ) {
@@ -95,7 +95,9 @@ fun ProfileScreen(
                 EditProfileButton(
                     isMyProfile = profileInfo.myProfile,
                     editButtonOnClick = navigateEditProfile,
-                    chatButtonOnClick = navigateChatting
+                    chatButtonOnClick = {
+                        navigateChatting(profileInfo.userId, profileInfo.nickname)
+                    }
                 )
             }
         }
