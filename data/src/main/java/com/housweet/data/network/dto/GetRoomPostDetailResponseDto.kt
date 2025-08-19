@@ -34,6 +34,8 @@ data class GetRoomPostDetailResponseDto(
     val roadAddress: String,
     @SerialName("detailed_address")
     val detailedAddress: String,
+    @SerialName("area_text")
+    val areaText: String,
     @SerialName("traffic_tags")
     val trafficTags: List<String>,
     @SerialName("size_of_house_tags")
@@ -70,6 +72,7 @@ fun GetRoomPostDetailResponseDto.toRoomPostDetailDataModel(): RoomPostDetailData
         lotNumberAddress = lotNumberAddress,
         roadAddress = roadAddress,
         detailedAddress = detailedAddress,
+        areaText = areaText,
         trafficTags = trafficTags,
         sizeOfHouseTags = sizeOfHouseTags,
         infraTags = infraTags,
