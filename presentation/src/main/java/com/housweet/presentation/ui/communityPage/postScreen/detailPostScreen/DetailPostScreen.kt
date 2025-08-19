@@ -337,7 +337,7 @@ private fun DetailPostTopBar(
 
         GuideText(
             color = Black,
-            text = roomPostDetail.lotNumberAddress,
+            text = roomPostDetail.areaText,
             fontWeight = FontWeight.Bold,
             fontSize = 14.sp,
             lineHeight = 14.sp,
@@ -578,7 +578,7 @@ private fun BottomBar(
             Column {
                 GuideText(
                     color = Black,
-                    text = roomPostDetail.lotNumberAddress,
+                    text = roomPostDetail.areaText,
                     fontWeight = FontWeight.Normal,
                     fontSize = 12.sp,
                     lineHeight = 12.sp,
