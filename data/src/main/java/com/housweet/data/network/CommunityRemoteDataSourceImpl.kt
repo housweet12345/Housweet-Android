@@ -6,6 +6,7 @@ import com.housweet.data.network.dto.GetNearbyPostCountResponseListDto
 import com.housweet.data.network.dto.GetRoomPostDetailResponseDto
 import com.housweet.data.network.dto.GetRoomPostsByLocationResponseListDto
 import com.housweet.data.network.dto.ReportRoomPostRequest
+import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.delete
@@ -19,7 +20,6 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
-import java.net.URLDecoder
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -32,7 +32,8 @@ class CommunityRemoteDataSourceImpl @Inject constructor(
         private const val TAG = "CommunityRemote"
     }
 
-    private val httpClient by lazy { ktorService.createHttpClient() }
+    private val httpClient: HttpClient
+        get() = ktorService.getHttpClient()
 
     // 공통: 성공 코드 확인 후 JSON 파싱. 파싱 실패도 보기 좋게 에러 메시지 포함.
     private suspend inline fun <reified T> HttpResponse.requireJsonOrThrow(endpoint: String): T {

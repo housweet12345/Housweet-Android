@@ -19,8 +19,11 @@ import io.ktor.http.isSuccess
 import javax.inject.Inject
 
 class HouseRegisterRemoteDataSourceImpl @Inject constructor(
-    private val client: HttpClient
+    private val ktorService: KtorService
 ) : HouseRegisterRemoteDataSource {
+
+    private val client: HttpClient
+        get() = ktorService.getHttpClient()
 
     private val BASE_URL = BuildConfig.BASE_URL
 

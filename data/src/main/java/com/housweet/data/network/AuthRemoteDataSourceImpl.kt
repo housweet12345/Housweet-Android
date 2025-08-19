@@ -6,6 +6,7 @@ import com.housweet.data.network.dto.IsTermsOfServiceAgreedResponseDto
 import com.housweet.data.network.dto.KakaoLoginRequest
 import com.housweet.data.network.dto.RefreshResponseDto
 import com.housweet.data.network.dto.RefreshTokenRequest
+import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.patch
@@ -25,7 +26,8 @@ class AuthRemoteDataSourceImpl @Inject constructor(
         private const val BASE_URL = BuildConfig.BASE_URL
     }
 
-    private var httpClient = ktorClient.createHttpClient()
+    private val httpClient: HttpClient
+        get() = ktorService.getHttpClient()
     private val httpClientForRefresh by lazy { ktorService.createHttpClientForRefresh() }
 
     override suspend fun loginWithKakao(
@@ -33,7 +35,7 @@ class AuthRemoteDataSourceImpl @Inject constructor(
         accessToken: String,
         email: String
     ): HttpResponse {
-        return httpClient.post("$BASE_URL/auth/login") {
+        val response = httpClient.post("$BASE_URL/auth/login") {
             contentType(ContentType.Application.Json)
             setBody(
                 KakaoLoginRequest(
@@ -43,6 +45,10 @@ class AuthRemoteDataSourceImpl @Inject constructor(
                 )
             )
         }
+
+        recreateHttpClient()
+
+        return response
     }
 
     override suspend fun refreshAccessToken(refreshToken: String): RefreshResponseDto {
@@ -90,7 +96,6 @@ class AuthRemoteDataSourceImpl @Inject constructor(
     }
 
     override fun recreateHttpClient() {
-        httpClient.close() // 기존 클라이언트 닫기
-        httpClient = ktorClient.createHttpClient() // 새로운 클라이언트 생성
+        ktorService.recreateHttpClient()
     }
 }

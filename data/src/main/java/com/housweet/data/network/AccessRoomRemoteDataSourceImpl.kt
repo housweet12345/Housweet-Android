@@ -3,6 +3,7 @@ package com.housweet.data.network
 import com.housweet.data.BuildConfig
 import com.housweet.data.network.dto.AccessRoomRequest
 import com.housweet.data.network.dto.CreateRoomRequest
+import io.ktor.client.HttpClient
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
@@ -18,7 +19,8 @@ class AccessRoomRemoteDataSourceImpl @Inject constructor(
         private const val BASE_URL = BuildConfig.BASE_URL
     }
 
-    private val httpClient by lazy { ktorService.createHttpClient() }
+    private val httpClient: HttpClient
+        get() = ktorService.getHttpClient()
 
     override suspend fun createRoom(name: String): Boolean {
         val response = httpClient.post("$BASE_URL/room/rooms/") {
