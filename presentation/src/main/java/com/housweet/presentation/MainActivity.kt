@@ -412,8 +412,8 @@ class MainActivity : ComponentActivity() {
                         val updatePostId = it.toRoute<Route.CommunityPageRoute.PostRoute.Posts>().updatePostId
                         PostsScreen(
                             updatePostId = updatePostId,
-                            onPostClick = { id ->
-                                navigationManager.navigateTo(Route.CommunityPageRoute.PostRoute.DetailPost(id))
+                            onPostClick = { id, lastRegion ->
+                                navigationManager.navigateTo(Route.CommunityPageRoute.PostRoute.DetailPost(id, lastRegion))
                             },
                             onBackBtnClick = {
                                 navigationManager.navigateOneWay(
@@ -426,6 +426,7 @@ class MainActivity : ComponentActivity() {
 
                     composable<Route.CommunityPageRoute.PostRoute.DetailPost> {
                         val postId = it.toRoute<Route.CommunityPageRoute.PostRoute.DetailPost>().postId
+                        val lastRegion = it.toRoute<Route.CommunityPageRoute.PostRoute.DetailPost>().lastRegion
                         val chatListViewModel: com.housweet.presentation.viewmodel.chatlist.ChatListViewModel = hiltViewModel()
                         val myId by chatListViewModel.myUserId.collectAsStateWithLifecycle()
 
@@ -457,12 +458,12 @@ class MainActivity : ComponentActivity() {
                             onBackBtnClick = { isBookmarkChanged ->
                                 if (isBookmarkChanged) {
                                     navigationManager.navigateOneWay(
-                                        Route.CommunityPageRoute.PostRoute.DetailPost(postId),
+                                        Route.CommunityPageRoute.PostRoute.DetailPost(postId, lastRegion),
                                         Route.CommunityPageRoute.PostRoute.Posts(updatePostId = postId)
                                     )
                                 } else {
                                     navigationManager.navigateOneWay(
-                                        Route.CommunityPageRoute.PostRoute.DetailPost(postId),
+                                        Route.CommunityPageRoute.PostRoute.DetailPost(postId, lastRegion),
                                         Route.CommunityPageRoute.PostRoute.Posts()
                                     )
                                 }
