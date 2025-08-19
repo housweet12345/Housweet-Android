@@ -1,5 +1,6 @@
 package com.housweet.presentation.ui.profile.screen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -110,6 +111,7 @@ fun EditProfileSelectKeyWordScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(Color.White)
                 .padding(paddingValues)
                 .padding(horizontal = 20.dp)
                 .verticalScroll(rememberScrollState()), // 스크롤 가능하도록 설정
