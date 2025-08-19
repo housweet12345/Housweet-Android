@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -26,6 +27,8 @@ import androidx.navigation.NavController
 import com.housweet.presentation.R
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.housweet.domain.model.BookmarkItem
 import com.housweet.presentation.viewmodel.mypage.BookmarkViewModel
 
@@ -34,7 +37,7 @@ import com.housweet.presentation.viewmodel.mypage.BookmarkViewModel
 fun BookmarkScreen(
     navController: NavController,
     viewModel: BookmarkViewModel = hiltViewModel(),
-    onItemClick: (BookmarkItem) -> Unit = {}
+    onItemClick: (BookmarkUiItem) -> Unit = {}
 ) {
     val bookmarks by viewModel.bookmarks.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -45,7 +48,7 @@ fun BookmarkScreen(
         bookmarks = bookmarks,
         isLoading = isLoading,
         onBack = { navController.popBackStack() },
-        onItemClick = onItemClick as (BookmarkUiItem) -> Unit,
+        onItemClick = onItemClick,
         onToggleBookmark = { viewModel.toggleBookmark(it) }
     )
 }
@@ -130,7 +133,17 @@ fun BookmarkCard(
                 .size(80.dp)
                 .clip(RoundedCornerShape(6.dp))
                 .background(Color(0xFFE0E0E0))
-        )
+        ){
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(item.thumbnailUrl)           // ✅ 서버에서 내려오는 profile_image
+                    .crossfade(true)                   // 페이드 효과
+                    .build(),
+                contentDescription = "방 이미지",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop      // 이미지 꽉 차게
+            )
+        }
 
         Spacer(modifier = Modifier.width(12.dp))
 

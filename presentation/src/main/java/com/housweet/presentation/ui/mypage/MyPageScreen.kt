@@ -40,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -54,6 +55,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.common.CustomAlertDialog
 import com.housweet.presentation.ui.profile.state.ProfileInfoState.Success
@@ -144,13 +147,6 @@ fun MyPageScreen(
                     .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(58.dp)
-                        .clip(CircleShape)
-                        .background(Color(0xFFE0E0E0))
-                )
-                Spacer(modifier = Modifier.width(16.dp))
 //                Column {
 //                    Text(text = "김지안", fontSize = 14.sp, fontWeight = FontWeight.Bold)
 //                    Text(text = "20대 남자", fontSize = 12.sp, color = Color.Gray)
@@ -158,6 +154,13 @@ fun MyPageScreen(
                 // 상태에 따라 출력
                 when (val s = profileState) {
                     is ProfileInfoState.Loading -> {
+                        Box(
+                            modifier = Modifier
+                                .size(58.dp)
+                                .clip(CircleShape)
+                                .background(Color(0xFFE0E0E0))
+                        )
+                        Spacer(modifier = Modifier.width(16.dp))
                         Column {
                             Text("불러오는 중...", fontSize = 14.sp, fontWeight = FontWeight.Bold)
                             Text(" ", fontSize = 12.sp, color = Color.Gray)
@@ -165,6 +168,13 @@ fun MyPageScreen(
                     }
 
                     is ProfileInfoState.Error -> {
+                        Box(
+                            modifier = Modifier
+                                .size(58.dp)
+                                .clip(CircleShape)
+                                .background(Color(0xFFE0E0E0))
+                        )
+                        Spacer(modifier = Modifier.width(16.dp))
                         Column {
                             Text("프로필 로드 실패", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFFD32F2F))
                             Spacer(Modifier.height(4.dp))
@@ -375,6 +385,23 @@ fun MyPageScreenPreview() {
 
 @Composable
 private fun ProfileHeaderContent(p: Any) {
+    Box(
+        modifier = Modifier
+            .size(58.dp)
+            .clip(CircleShape)
+            .background(Color(0xFFE0E0E0))
+    ){
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(safeGet(p, "profileImage"))           // ✅ 서버에서 내려오는 profile_image
+                .crossfade(true)                   // 페이드 효과
+                .build(),
+            contentDescription = "방 이미지",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop      // 이미지 꽉 차게
+        )
+    }
+    Spacer(modifier = Modifier.width(16.dp))
     Column {
         Text(text = safeGet(p, "nickname"), fontSize = 14.sp, fontWeight = FontWeight.Bold)
 

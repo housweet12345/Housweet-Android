@@ -30,8 +30,6 @@ class HouseRegisterViewModel @Inject constructor(
 
     override var currentPostingId by mutableStateOf<Int?>(null)
 
-    private var cachedRoomId: Int? = null
-
     private suspend fun ensureRoomId(): Int {
         // 서버 최신값 → 로컬 반영
         val live = getMyRoomId()
@@ -40,13 +38,6 @@ class HouseRegisterViewModel @Inject constructor(
     }
 
     // Room ID 로깅용 함수
-//    override fun logRoomId() {
-//        viewModelScope.launch {
-//            val roomId = roomLocalDataSource.getRoomId()
-//            Log.d("HouseRegister", "Room ID: $roomId")
-//        }
-//    }
-
     override fun logRoomId() {
         viewModelScope.launch {
             val local = roomLocalDataSource.getRoomId()
@@ -61,14 +52,14 @@ class HouseRegisterViewModel @Inject constructor(
     }
 
     // Step 1: 교통/인프라 등 태그
-    override var houseTags by mutableStateOf<List<String>>(emptyList())        // = trafficTags
+    override var trafficTags by mutableStateOf<List<String>>(emptyList())
         protected set
     override var sizeOfHouseTags by mutableStateOf<List<String>>(emptyList())
         protected set
     override var infraTags by mutableStateOf<List<String>>(emptyList())
         protected set
 
-    override fun updateHouseTags(tags: List<String>) { houseTags = tags }          // 교통
+    override fun updateTrafficTags(tags: List<String>) { trafficTags = tags }          // 교통
     override fun updateSizeOfHouseTags(tags: List<String>) { sizeOfHouseTags = tags } // 집 상태
     override fun updateInfraTags(tags: List<String>) { infraTags = tags }          // 인프라
 
@@ -180,7 +171,7 @@ class HouseRegisterViewModel @Inject constructor(
                     title = title.ifBlank { throw Exception("제목 누락") },
                     content = description.ifBlank { throw Exception("설명 누락") },
                     imageUri = url,
-                    trafficTags = houseTags, // 용도에 따라 분리 필요하면 분기
+                    trafficTags = trafficTags, // 용도에 따라 분리 필요하면 분기
                     sizeOfHouseTags = sizeOfHouseTags,
                     infraTags = infraTags,
                     lifePatternTags = lifePatternTags,
@@ -233,7 +224,7 @@ class HouseRegisterViewModel @Inject constructor(
         moveInDate = detail.availableFrom.orEmpty()
 
         // 태그: 서버 스키마에 맞춰 합치거나 분리
-        houseTags = (detail.trafficTags ?: emptyList()) +
+        trafficTags = (detail.trafficTags ?: emptyList()) +
                 (detail.infraTags ?: emptyList())
         preferredTags = (detail.personalityTags ?: emptyList())
 
@@ -251,7 +242,7 @@ class HouseRegisterViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val postingId = currentPostingId ?: error("postingId 없음")
-                val roomId = ensureRoomId() // ✅ 서버에서 최신값 동기화
+                val roomId = ensureRoomId() // 서버에서 최신값 동기화
 
                 val finalUrl: String = if (imageBitmap != null) {
                     val file = convertBitmapToFile(imageBitmap!!)
@@ -278,9 +269,8 @@ class HouseRegisterViewModel @Inject constructor(
         dong = region?.dongCode ?: "",
         title = title,
         content = description,
-        imageUri = url,     // ✅ 배열
-
-        trafficTags = houseTags,
+        imageUri = url,
+        trafficTags = trafficTags,
         sizeOfHouseTags = emptyList(),
         infraTags = emptyList(),
         lifePatternTags = emptyList(),
