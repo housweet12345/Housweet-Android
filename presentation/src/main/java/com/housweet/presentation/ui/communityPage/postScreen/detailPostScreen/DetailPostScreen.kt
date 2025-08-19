@@ -483,7 +483,7 @@ private fun HouseFeatures(
 
     FeaturesLayout(
         maxLines = 4,
-        featureList = roomPostDetail.trafficTags + roomPostDetail.sizeOfHouseTags + roomPostDetail.infraTags + roomPostDetail.personalityTags
+        featureList = roomPostDetail.trafficTags + roomPostDetail.sizeOfHouseTags + roomPostDetail.infraTags
     )
 }
 
@@ -504,7 +504,7 @@ private fun PreferredFeatures(
 
     FeaturesLayout(
         maxLines = 3,
-        featureList = roomPostDetail.lifePatternTags + roomPostDetail.tidyingUpHabitTags
+        featureList = roomPostDetail.personalityTags + roomPostDetail.lifePatternTags + roomPostDetail.tidyingUpHabitTags
     )
 }
 
