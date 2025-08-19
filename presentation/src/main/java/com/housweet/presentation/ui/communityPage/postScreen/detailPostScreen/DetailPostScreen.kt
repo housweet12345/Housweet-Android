@@ -337,7 +337,7 @@ private fun DetailPostTopBar(
 
         GuideText(
             color = Black,
-            text = roomPostDetail.lotNumberAddress,
+            text = roomPostDetail.areaText,
             fontWeight = FontWeight.Bold,
             fontSize = 14.sp,
             lineHeight = 14.sp,
@@ -483,7 +483,7 @@ private fun HouseFeatures(
 
     FeaturesLayout(
         maxLines = 4,
-        featureList = roomPostDetail.trafficTags + roomPostDetail.sizeOfHouseTags + roomPostDetail.infraTags + roomPostDetail.personalityTags
+        featureList = roomPostDetail.trafficTags + roomPostDetail.sizeOfHouseTags + roomPostDetail.infraTags
     )
 }
 
@@ -504,7 +504,7 @@ private fun PreferredFeatures(
 
     FeaturesLayout(
         maxLines = 3,
-        featureList = roomPostDetail.lifePatternTags + roomPostDetail.tidyingUpHabitTags
+        featureList = roomPostDetail.personalityTags + roomPostDetail.lifePatternTags + roomPostDetail.tidyingUpHabitTags
     )
 }
 
@@ -578,7 +578,7 @@ private fun BottomBar(
             Column {
                 GuideText(
                     color = Black,
-                    text = roomPostDetail.lotNumberAddress,
+                    text = roomPostDetail.areaText,
                     fontWeight = FontWeight.Normal,
                     fontSize = 12.sp,
                     lineHeight = 12.sp,

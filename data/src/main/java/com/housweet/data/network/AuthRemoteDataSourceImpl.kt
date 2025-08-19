@@ -6,6 +6,7 @@ import com.housweet.data.network.dto.IsTermsOfServiceAgreedResponseDto
 import com.housweet.data.network.dto.KakaoLoginRequest
 import com.housweet.data.network.dto.RefreshResponseDto
 import com.housweet.data.network.dto.RefreshTokenRequest
+import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.patch
@@ -19,21 +20,22 @@ import javax.inject.Singleton
 
 @Singleton
 class AuthRemoteDataSourceImpl @Inject constructor(
-    private val ktorClient: KtorService
+    private val ktorService: KtorService
 ): AuthRemoteDataSource {
     companion object {
         private const val BASE_URL = BuildConfig.BASE_URL
     }
 
-    private var httpClient = ktorClient.createHttpClient()
-    private val httpClientForRefresh by lazy { ktorClient.createHttpClientForRefresh() }
+    private val httpClient: HttpClient
+        get() = ktorService.getHttpClient()
+    private val httpClientForRefresh by lazy { ktorService.createHttpClientForRefresh() }
 
     override suspend fun loginWithKakao(
         socialId: String,
         accessToken: String,
         email: String
     ): HttpResponse {
-        return httpClient.post("$BASE_URL/auth/login") {
+        val response = httpClient.post("$BASE_URL/auth/login") {
             contentType(ContentType.Application.Json)
             setBody(
                 KakaoLoginRequest(
@@ -43,6 +45,10 @@ class AuthRemoteDataSourceImpl @Inject constructor(
                 )
             )
         }
+
+        recreateHttpClient()
+
+        return response
     }
 
     override suspend fun refreshAccessToken(refreshToken: String): RefreshResponseDto {
@@ -73,7 +79,7 @@ class AuthRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun isSetProfile(userId: Int): Boolean {
         val response = httpClient.get("${BuildConfig.USER_BASE_URL}/profile/$userId")
-        return response.status.value == 200
+        return !response.body<String>().contains("\"nickname\": \"\", \"introduce\": null")
     }
 
     override suspend fun isBelongToRoom(): Boolean {
@@ -90,7 +96,6 @@ class AuthRemoteDataSourceImpl @Inject constructor(
     }
 
     override fun recreateHttpClient() {
-        httpClient.close() // 기존 클라이언트 닫기
-        httpClient = ktorClient.createHttpClient() // 새로운 클라이언트 생성
+        ktorService.recreateHttpClient()
     }
 }
