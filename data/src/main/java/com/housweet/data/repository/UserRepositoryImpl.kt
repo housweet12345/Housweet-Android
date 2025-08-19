@@ -3,11 +3,13 @@ package com.housweet.data.repository
 import com.housweet.data.BuildConfig
 import com.housweet.data.dto.BlockUserRequestDto
 import com.housweet.data.dto.BlockUserResponseDto
+import com.housweet.data.local.AuthLocalDataSource
 import com.housweet.data.mapper.toProfilePatchDto
 import com.housweet.data.network.KtorService
 import com.housweet.data.network.dto.ProfileDto
 import com.housweet.data.network.dto.ProfileUpdateDto
 import com.housweet.data.network.dto.ProfileUpdateResponseDto
+import com.housweet.data.utils.TokenUtils
 import com.housweet.data.utils.appendProfileData
 import com.housweet.domain.model.profile.ProfileModel
 import com.housweet.domain.model.profile.ProfileUpdateModel
@@ -24,7 +26,8 @@ import io.ktor.client.request.setBody
 import javax.inject.Inject
 
 class UserRepositoryImpl @Inject constructor(
-    private val ktorService: KtorService
+    private val ktorService: KtorService,
+    private val authLocalDataSource: AuthLocalDataSource,
 ): UserRepository {
 
     private val client: HttpClient
@@ -38,8 +41,13 @@ class UserRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getOtherUserProfile(userId: String): Result<ProfileModel> {
+
+        val currentUserId = authLocalDataSource.getAuthToken()?.let { token ->
+            TokenUtils.getUserIdFromToken(token.accessToken)
+        } ?: ""
+
         return runCatching {
-            val response: ProfileDto = client.get("${BuildConfig.USER_BASE_URL}/profile/$userId").body()
+            val response: ProfileDto = client.get("${BuildConfig.USER_BASE_URL}/profile/$currentUserId/$userId").body()
             response.mapToProfileModel()
         }
     }
