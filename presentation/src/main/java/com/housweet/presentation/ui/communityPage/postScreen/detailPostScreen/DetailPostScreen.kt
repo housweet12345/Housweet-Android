@@ -131,6 +131,7 @@ fun DetailPostScreen(
             DetailPostContent(
                 modifier = modifier,
                 roomPostDetail = roomPostDetail,
+                lastRegion = detailPostViewModel.lastRegion,
                 snackBarHostState = snackBarHostState,
                 isMenuExpanded = isMenuExpanded,
                 onChatScreen = onChatScreen,
@@ -165,6 +166,7 @@ fun DetailPostScreen(
 private fun DetailPostContent(
     modifier: Modifier,
     roomPostDetail: RoomPostDetailDataModel,
+    lastRegion: String,
     snackBarHostState: SnackbarHostState,
     isMenuExpanded: Boolean,
     onChatScreen: (userId: Int, nickName: String) -> Unit,
@@ -188,6 +190,7 @@ private fun DetailPostContent(
         topBar = {
             DetailPostTopBar(
                 roomPostDetail = roomPostDetail,
+                lastRegion = lastRegion,
                 onBackBtnClick = onBackBtnClick,
                 onMenuClick = onMenuClick
             )
@@ -195,6 +198,7 @@ private fun DetailPostContent(
         bottomBar = {
             BottomBar(
                 roomPostDetail = roomPostDetail,
+                lastRegion = lastRegion,
                 onChatScreen = onChatScreen
             )
         },
@@ -314,6 +318,7 @@ private fun MenuDropdownMenu(
 @Composable
 private fun DetailPostTopBar(
     roomPostDetail: RoomPostDetailDataModel,
+    lastRegion: String,
     onBackBtnClick: () -> Unit,
     onMenuClick: () -> Unit
 ) {
@@ -337,7 +342,7 @@ private fun DetailPostTopBar(
 
         GuideText(
             color = Black,
-            text = roomPostDetail.areaText,
+            text = "${roomPostDetail.areaText} $lastRegion",
             fontWeight = FontWeight.Bold,
             fontSize = 14.sp,
             lineHeight = 14.sp,
@@ -553,6 +558,7 @@ private fun FeatureBox(
 @Composable
 private fun BottomBar(
     roomPostDetail: RoomPostDetailDataModel,
+    lastRegion: String,
     onChatScreen: (userId: Int, nickName: String) -> Unit
 ) {
     Box(
@@ -578,7 +584,7 @@ private fun BottomBar(
             Column {
                 GuideText(
                     color = Black,
-                    text = roomPostDetail.areaText,
+                    text = "${roomPostDetail.areaText} $lastRegion",
                     fontWeight = FontWeight.Normal,
                     fontSize = 12.sp,
                     lineHeight = 12.sp,
@@ -588,7 +594,7 @@ private fun BottomBar(
                 GuideText(
                     modifier = Modifier.padding(top = 4.dp),
                     color = Black,
-                    text = "보증금 ${roomPostDetail.deposit}만원 월세 ${roomPostDetail.rent}만원 관리비 ${roomPostDetail.managementFee}만원",
+                    text = "보증금 ${getRelativeMoney(roomPostDetail.deposit)}만원 월세 ${getRelativeMoney(roomPostDetail.rent)}만원 관리비 ${getRelativeMoney(roomPostDetail.managementFee)}만원",
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 12.sp,
                     lineHeight = 12.sp,
@@ -641,6 +647,11 @@ fun getRelativeTime(dateTimeString: String): String {
     }
 }
 
+fun getRelativeMoney(money: Int): Int {
+    return if (money >=10000) money / 10000
+    else money
+}
+
 @Preview
 @Composable
 private fun DetailPostScreenPreview() {
@@ -648,11 +659,12 @@ private fun DetailPostScreenPreview() {
     DetailPostContent(
         modifier = Modifier,
         roomPostDetail = RoomPostDetailDataModel(),
+        lastRegion = "",
         snackBarHostState = remember { SnackbarHostState() },
+        isMenuExpanded = isMenuExpanded,
         onChatScreen = { _, _ -> },
         onProfileScreen = {},
         onBackBtnClick = {},
-        isMenuExpanded = isMenuExpanded,
         onMenuClick = { isMenuExpanded = !isMenuExpanded },
         onScreenClick = { isMenuExpanded = false },
         onReportClick = {},

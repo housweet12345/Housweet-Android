@@ -34,13 +34,12 @@ class DetailPostViewModel @Inject constructor(
     val roomPostDetail: StateFlow<RoomPostDetailDataModel> = _roomPostDetail.asStateFlow()
 
     var originalBookMarkState: Boolean = false
-    var myUserId: Int? = null
 
     private var postId = savedStateHandle.get<Int>("postId")
+    var lastRegion = savedStateHandle.get<String>("lastRegion") ?: ""
 
     init {
         viewModelScope.launch {
-            getMyUserId()
             postId?.let { getRoomPostDetail(it) }
         }
     }
@@ -103,9 +102,5 @@ class DetailPostViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    private suspend fun getMyUserId() {
-        myUserId = getCurrentUserIdUseCase()
     }
 }
