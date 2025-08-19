@@ -22,6 +22,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.housweet.presentation.R
 import com.housweet.presentation.navigation.goToMyPageAfterDelete
+import com.housweet.presentation.ui.navigation.BottomNavItem
 import com.housweet.presentation.viewmodel.mypage.MyHouseEditEffect
 import com.housweet.presentation.viewmodel.mypage.MyHouseEditViewModel
 import kotlinx.coroutines.launch
@@ -71,7 +72,11 @@ fun MyHouseEditScreen(
                     }
                 }
                 is MyHouseEditEffect.Deleted -> {
-                    navController.goToMyPageAfterDelete()
+                    navController.navigate("mypage?afterDelete=true") {
+                        popUpTo(BottomNavItem.Home.route) { inclusive = true }
+                        launchSingleTop = true
+                        restoreState = false
+                    }
                 }
             }
         }
