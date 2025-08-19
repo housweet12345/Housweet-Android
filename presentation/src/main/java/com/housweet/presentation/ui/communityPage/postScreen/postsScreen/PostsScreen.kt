@@ -55,7 +55,7 @@ import com.housweet.presentation.ui.theme.White
 fun PostsScreen(
     updatePostId: Int?,
     postsViewModel: PostsViewModel = hiltViewModel(),
-    onPostClick: (postId: Int) -> Unit,
+    onPostClick: (postId: Int, lastRegion: String) -> Unit,
     onBackBtnClick: () -> Unit,
 ) {
     val uiState by postsViewModel.uiState.collectAsStateWithLifecycle()
@@ -120,7 +120,7 @@ private fun PostsContent(
     postRegions: List<String>,
     posts: Map<String, List<RoomPostsByLocationDataModel>>,
     snackBarHostState: SnackbarHostState,
-    onPostClick: (postId: Int) -> Unit,
+    onPostClick: (postId: Int, lastRegion: String) -> Unit,
     onToggleLike: (postRegion: String, postIndex: Int) -> Unit,
     onBackBtnClick: () -> Unit
 ) {
@@ -152,7 +152,7 @@ private fun PostsContent(
                         PostItem(
                             postInfo = postInfo,
                             postRegion = "${regionParts[1]} ${regionParts[2]}",
-                            onPostClick = { onPostClick(postInfo.id) },
+                            onPostClick = { onPostClick(postInfo.id, regionParts[2]) },
                             onToggleLike = { onToggleLike(postRegion, postIndex) }
                         )
                     }
@@ -330,7 +330,7 @@ private fun PostsScreenPreview() {
             )
         ),
         snackBarHostState = remember { SnackbarHostState() },
-        onPostClick = {},
+        onPostClick = { _, _ -> },
         onToggleLike = { _, _ -> },
         onBackBtnClick = {}
     )
