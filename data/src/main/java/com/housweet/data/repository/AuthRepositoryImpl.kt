@@ -114,8 +114,7 @@ class AuthRepositoryImpl @Inject constructor(
             val isSetProfile = authRemoteDataSource.isSetProfile(userId)
             emit(Result.success(isSetProfile))
         } catch (e: Exception) {
-            if (e.message.toString().contains("Profile not found")) emit(Result.success(false))
-            else emit(Result.failure(e))
+            emit(Result.failure(e))
         }
     }
 
