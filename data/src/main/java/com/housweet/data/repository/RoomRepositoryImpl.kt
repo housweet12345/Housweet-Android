@@ -58,13 +58,13 @@ class RoomRepositoryImpl @Inject constructor(
             .map { list -> list.map { it.mapToRoomMemberModel() } }
     }
 
-    override suspend fun updateMood(roomMemberId: Int, feeling: String): Result<RoomMemberModel> {
+    override suspend fun updateMood(memberId: Int, feeling: String): Result<RoomMemberModel> {
         val req = UpdateMoodRequestDto(feeling = feeling)
-        val res: HttpResponse = client.patch("$base/room/room-members/$roomMemberId/") { // 슬래시 O
+        val res: HttpResponse = client.patch("$base/room/room-members/$memberId/") { // 슬래시 O
             contentType(ContentType.Application.Json)
             setBody(req)
         }
-        return res.parseOrFail<RoomMemberDto>("updateMood($roomMemberId)")
+        return res.parseOrFail<RoomMemberDto>("updateMood($memberId)")
             .map { it.mapToRoomMemberModel() }
     }
 }
