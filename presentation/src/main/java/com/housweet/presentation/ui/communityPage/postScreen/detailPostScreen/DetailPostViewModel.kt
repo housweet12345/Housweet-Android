@@ -4,10 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.housweet.domain.model.RoomPostDetailDataModel
-import com.housweet.domain.model.RoomPostsByLocationDataModel
 import com.housweet.domain.usecase.UseCases
-import com.housweet.domain.usecase.auth.GetCurrentUserIdUseCase
-import com.housweet.presentation.ui.communityPage.postScreen.postsScreen.PostsEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +18,6 @@ import javax.inject.Inject
 @HiltViewModel
 class DetailPostViewModel @Inject constructor(
     private val useCases: UseCases,
-    private val getCurrentUserIdUseCase: GetCurrentUserIdUseCase,
     savedStateHandle: SavedStateHandle
 ): ViewModel() {
     private val _uiState = MutableStateFlow<DetailPostState>(DetailPostState.Idle)
