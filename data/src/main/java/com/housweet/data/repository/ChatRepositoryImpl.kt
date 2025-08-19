@@ -17,17 +17,17 @@ class ChatRepositoryImpl @Inject constructor(
                 sender_id = it.sender_id,
                 receiver_id = it.receiver_id,
 //                created_at = it.created_at.toKstIsoLocalMillis(),
-                created_at = it.created_at,
+                created_at = it.created_at.orEmpty(),
 //                updated_at = it.updated_at.toKstIsoLocalMillis(),
-                updated_at = it.updated_at,
+                updated_at = it.updated_at.orEmpty(),
                 is_blocked = it.isBlocked,
                 counterpart_id = it.counterpart_id,
-                sender_nickname = it.sender_nickname,
-                receiver_nickname = it.receiver_nickname,
-                counterpart_nickname = it.counterpart_nickname,
-                last_message_content = it.last_message_content,
+                sender_nickname = it.sender_nickname.orEmpty(),
+                receiver_nickname = it.receiver_nickname.orEmpty(),
+                counterpart_nickname = it.counterpart_nickname.orEmpty(),
+                last_message_content = it.last_message_content.orEmpty(),
 //                last_message_created_at = it.last_message_created_at.toKstIsoLocalMillis()
-                last_message_created_at = it.last_message_created_at
+                last_message_created_at = it.last_message_created_at.orEmpty()
             )
         }
     }
