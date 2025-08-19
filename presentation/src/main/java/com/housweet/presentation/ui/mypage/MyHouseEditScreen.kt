@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Icon
-import androidx.compose.material.SnackbarHost
 import androidx.compose.material.Text
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -22,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.housweet.presentation.R
+import com.housweet.presentation.navigation.goToMyPageAfterDelete
 import com.housweet.presentation.viewmodel.mypage.MyHouseEditEffect
 import com.housweet.presentation.viewmodel.mypage.MyHouseEditViewModel
 import kotlinx.coroutines.launch
@@ -70,16 +70,9 @@ fun MyHouseEditScreen(
                         }
                     }
                 }
-            }
-        }
-    }
-
-    BackHandler {
-        val popped = navController.popBackStack()
-        if (!popped) {
-            navController.navigate("myhousedetail") {
-                launchSingleTop = true
-                restoreState = false
+                is MyHouseEditEffect.Deleted -> {
+                    navController.goToMyPageAfterDelete()
+                }
             }
         }
     }
