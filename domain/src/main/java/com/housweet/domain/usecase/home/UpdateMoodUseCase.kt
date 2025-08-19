@@ -7,7 +7,7 @@ import javax.inject.Inject
 class UpdateMoodUseCase @Inject constructor(
     private val roomRepository: RoomRepository
 ) {
-    suspend operator fun invoke(roomId: Int, feeling: String): Result<RoomMemberModel> {
-        return roomRepository.updateMood(roomId, feeling)
+    suspend operator fun invoke(memberId: Int, feeling: String): Result<RoomMemberModel> {
+        return roomRepository.updateMood(memberId, feeling)
     }
 }
