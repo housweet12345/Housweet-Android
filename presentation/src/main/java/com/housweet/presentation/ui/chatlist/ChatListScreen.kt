@@ -110,12 +110,16 @@ fun ChatListContent(
                     }.getOrDefault(user.last_message_created_at)
 
                     val last = user.last_message_content.ifBlank { "대화를 시작해보세요" }
+                    val time = user.last_message_created_at
+                        .takeIf { it.isNotBlank() }                                         // 비어있으면 건너뜀
+                        ?.let { runCatching { it.toKstKoreanFull() }.getOrNull() }          // 포맷 실패도 안전
+                        .orEmpty()
 
                     ChatListItem(
                             chat = ChatPreview(
                             name = user.receiver_nickname,
                             lastMessage = last,
-                            time = formatted,
+                            time = time,
                             profileImageUrl = "",
                             unread = false
                         ),
