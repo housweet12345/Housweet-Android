@@ -19,6 +19,7 @@ import kotlin.onSuccess
 sealed interface MyHouseEditEffect {
     data class ShowMessage(val msg: String) : MyHouseEditEffect
     object CloseWithRefresh : MyHouseEditEffect
+    data object Deleted: MyHouseEditEffect
 }
 
 data class MyHouseEditUiState(
@@ -144,6 +145,7 @@ class MyHouseEditViewModel @Inject constructor(
                     _uiState.value = _uiState.value.copy(isLoading = false)
                     _effect.tryEmit(MyHouseEditEffect.ShowMessage("하우스를 삭제했어요."))
                     _effect.tryEmit(MyHouseEditEffect.CloseWithRefresh)
+                    _effect.emit(MyHouseEditEffect.Deleted)
                 }
                 .onFailure { e ->
                     _uiState.value = _uiState.value.copy(isLoading = false)
