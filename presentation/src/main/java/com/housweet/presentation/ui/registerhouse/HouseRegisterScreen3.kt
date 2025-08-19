@@ -7,7 +7,6 @@ import android.provider.MediaStore
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -16,11 +15,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,14 +28,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import com.housweet.presentation.R
 import com.housweet.presentation.model.RegisterModel
-import com.housweet.presentation.ui.common.StepIndicator
 import com.housweet.presentation.ui.common.TopBarWithBackButton
 import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModelBase
 import androidx.core.graphics.createBitmap
@@ -59,11 +54,7 @@ fun HouseRegisterScreen3(
     val scope = rememberCoroutineScope()
 
     val selectedBitmap = viewModel.imageBitmap
-
-    // 다이얼로그 상태
-    var showDialog by remember { mutableStateOf(false) }
-    // (필요하면 메시지 커스터마이즈할 수 있도록)
-    val missingMessage = "사진을 선택해주세요."
+    val imageUrl = viewModel.imageUrl
 
     BackHandler {
         if (selectedBitmap != null) viewModel.clearImages()
@@ -96,6 +87,10 @@ fun HouseRegisterScreen3(
             val url: String? = viewModel.uploadUris(context, listOf(uri))
             if (url != null) viewModel.setImageUrl(url)
         }
+    }
+
+    val isStep3Valid by remember(selectedBitmap, imageUrl) {
+        derivedStateOf { selectedBitmap != null || !imageUrl.isNullOrBlank() }
     }
 
     Scaffold (
@@ -174,11 +169,11 @@ fun HouseRegisterScreen3(
             Spacer(modifier = Modifier.weight(1f))
 
             Button(
+                enabled = isStep3Valid,
                 onClick = {
                     val hasSelectedImage = viewModel.imageBitmap != null
 
                     if (!hasSelectedImage) {
-                        showDialog = true
                         return@Button
                     }
 
@@ -201,30 +196,6 @@ fun HouseRegisterScreen3(
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-        }
-    }
-
-    if (showDialog) {
-        Dialog(onDismissRequest = { showDialog = false }) {
-            Surface(
-                shape = RoundedCornerShape(12.dp),
-                color = Color.White,
-                tonalElevation = 2.dp,
-                border = BorderStroke(1.dp, Color(0xFF665ED3))
-            ) {
-                Column(
-                    modifier = Modifier.padding(30.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = missingMessage,
-                        textAlign = TextAlign.Center,
-                        fontSize = 14.sp
-                    )
-                    Spacer(Modifier.height(12.dp))
-                    TextButton(onClick = { showDialog = false }) { Text("확인") }
-                }
-            }
         }
     }
 }

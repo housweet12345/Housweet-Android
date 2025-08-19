@@ -1,7 +1,6 @@
 package com.housweet.presentation.ui.registerhouse
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -15,24 +14,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.housweet.presentation.ui.common.StepIndicator
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.window.Dialog
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.housweet.domain.local.RoomLocalDataSource
-import com.housweet.domain.model.HouseRegisterModel
-import com.housweet.domain.repository.HouseRegisterRepository
-import com.housweet.domain.repository.ImageUploadRepository
 import com.housweet.presentation.model.RegisterModel
 import com.housweet.presentation.ui.common.TopBarWithBackButton
-import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModel
 import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModelBase
-import java.io.File
 
 @Composable
 fun HouseRegisterScreen1(
@@ -70,13 +57,18 @@ fun HouseRegisterScreen1(
     }
 
     // 3) 검증 & 다이얼로그 상태
-    var showDialog by remember { mutableStateOf(false) }
     var missingSectionName by remember { mutableStateOf<String?>(null) }
 
     fun firstMissingSectionOrNull(): String? =
         sections.firstOrNull { (title, _) -> selectedBySection[title].isNullOrEmpty() }?.first
 
     val scrollState = rememberScrollState()
+
+    val isStep1Valid by remember {
+        derivedStateOf {
+            sections.all { (title, _) -> selectedBySection[title]?.isNotEmpty() == true }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -161,6 +153,7 @@ fun HouseRegisterScreen1(
             Spacer(modifier = Modifier.weight(1f))
 
             Button(
+                enabled = isStep1Valid,
                 onClick = {
                     val missing = firstMissingSectionOrNull()
                     if (missing == null) {
@@ -174,7 +167,6 @@ fun HouseRegisterScreen1(
                         onNextClick()
                     } else {
                         missingSectionName = missing
-                        showDialog = true
                     }
                 },
                 shape = RoundedCornerShape(6.dp),
@@ -196,33 +188,6 @@ fun HouseRegisterScreen1(
             Spacer(modifier = Modifier.height(32.dp))
         }
     }
-
-    if (showDialog) {
-        Dialog(onDismissRequest = { showDialog = false }) {
-            Surface(
-                shape = RoundedCornerShape(12.dp),
-                color = Color.White,
-                tonalElevation = 2.dp,
-                border = BorderStroke(1.dp, Color(0xFF665ED3))
-            ) {
-                Column(
-                    modifier = Modifier.padding(20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "${missingSectionName ?: "항목"} 을(를) 선택해주세요.",
-                        textAlign = TextAlign.Center,
-                        fontSize = 14.sp
-                    )
-                    Spacer(Modifier.height(12.dp))
-                    TextButton(onClick = { showDialog = false }) {
-                        Text("확인")
-                    }
-                }
-            }
-        }
-    }
-
 }
 
 @Preview(showBackground = true)
