@@ -10,6 +10,7 @@ import com.housweet.domain.local.RoomLocalDataSource
 import com.housweet.domain.model.HouseRegisterModel
 import com.housweet.domain.repository.HouseRegisterRepository
 import com.housweet.domain.repository.ImageUploadRepository
+import com.housweet.domain.usecase.GetMyRoomIdUseCase
 import com.housweet.presentation.model.Region
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -23,16 +24,39 @@ import javax.inject.Inject
 class HouseRegisterViewModel @Inject constructor(
     private val houseRegisterRepository: HouseRegisterRepository,
     private val roomLocalDataSource: RoomLocalDataSource,
-    private val imageUploadRepository: ImageUploadRepository
+    private val imageUploadRepository: ImageUploadRepository,
+    private val getMyRoomId: GetMyRoomIdUseCase,
 ) : HouseRegisterViewModelBase() {
 
     override var currentPostingId by mutableStateOf<Int?>(null)
 
+    private var cachedRoomId: Int? = null
+
+    private suspend fun ensureRoomId(): Int {
+        // 서버 최신값 → 로컬 반영
+        val live = getMyRoomId()
+        roomLocalDataSource.saveRoomId(live)
+        return live
+    }
+
     // Room ID 로깅용 함수
+//    override fun logRoomId() {
+//        viewModelScope.launch {
+//            val roomId = roomLocalDataSource.getRoomId()
+//            Log.d("HouseRegister", "Room ID: $roomId")
+//        }
+//    }
+
     override fun logRoomId() {
         viewModelScope.launch {
-            val roomId = roomLocalDataSource.getRoomId()
-            Log.d("HouseRegister", "Room ID: $roomId")
+            val local = roomLocalDataSource.getRoomId()
+            runCatching { getMyRoomId() }
+                .onSuccess { live ->
+                    Log.d("HouseRegister", "RoomId(local)=$local / RoomId(server)=$live")
+                }
+                .onFailure {
+                    Log.e("HouseRegister", "RoomId(server) fetch 실패", it)
+                }
         }
     }
 
@@ -137,8 +161,7 @@ class HouseRegisterViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             try {
-                val roomId = roomLocalDataSource.getRoomId()
-                    ?: throw Exception("Room ID not found")
+                val roomId = ensureRoomId()
 
                 val bitmap: Bitmap = imageBitmap ?: throw Exception("이미지 없음: 최소 한 장을 선택해주세요.")
 
@@ -227,7 +250,8 @@ class HouseRegisterViewModel @Inject constructor(
     override fun submitEdit(onSuccess: () -> Unit, onError: (Throwable) -> Unit) {
         viewModelScope.launch {
             try {
-                val postingId = currentPostingId ?: throw IllegalStateException("postingId 없음")
+                val postingId = currentPostingId ?: error("postingId 없음")
+                val roomId = ensureRoomId() // ✅ 서버에서 최신값 동기화
 
                 val finalUrl: String = if (imageBitmap != null) {
                     val file = convertBitmapToFile(imageBitmap!!)
@@ -237,7 +261,7 @@ class HouseRegisterViewModel @Inject constructor(
                     ?: throw Exception("편집에 사용할 이미지 URL이 없습니다.")
                 }
 
-                val model = buildModel(finalUrl)
+                val model = buildModel(roomId, finalUrl)
                 houseRegisterRepository.updateHouse(postingId, model)
 
                 onSuccess()
@@ -247,8 +271,8 @@ class HouseRegisterViewModel @Inject constructor(
         }
     }
 
-    private fun buildModel(url: String) = HouseRegisterModel(
-        room = currentPostingId ?: 0, // 서버 스펙에 맞게 조정 필요
+    private fun buildModel(roomId: Int, url: String) = HouseRegisterModel(
+        room = roomId, // 서버 스펙에 맞게 조정 필요
         si = region?.sidoCode ?: "",
         gu = region?.sigunguCode ?: "",
         dong = region?.dongCode ?: "",
