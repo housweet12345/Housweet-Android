@@ -24,6 +24,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -78,9 +79,22 @@ fun EditProfileScreen(
         )
     }
 
-    // gender 파라미터가 변경될 때 selectedOption 업데이트
+    // gender 파라미터가 변경될 때 selectedOption 업데이트 (초기 로딩 시에만)
     LaunchedEffect(gender) {
-        selectedOption = when (gender) {
+        if (selectedOption == 3) { // 아직 선택되지 않은 상태일 때만 업데이트
+            selectedOption = when (gender) {
+                "남성" -> 1
+                "여성" -> 2
+                "남자" -> 1
+                "여자" -> 2
+                else -> 3
+            }
+        }
+    }
+
+    // genderState 변경 시 selectedOption도 동기화
+    LaunchedEffect(genderState) {
+        selectedOption = when (genderState) {
             "남성" -> 1
             "여성" -> 2
             "남자" -> 1
@@ -89,19 +103,15 @@ fun EditProfileScreen(
         }
     }
 
-    // 성별 상태 동기화 (UI용 "남자"/"여자"로 설정)
-    LaunchedEffect(selectedOption) {
-        genderState = when (selectedOption) {
-                1 -> "남자"
-                2 -> "여자"
-                else -> ""
-            }
-    }
 
     // 유효성 검사 - 필수 필드가 모두 입력되었는지 확인
-    val isFormValid = nameState.isNotBlank() && 
-                     yearOfBirthState.isNotBlank() && 
-                     genderState.isNotBlank()
+    val isFormValid by remember {
+        derivedStateOf {
+            nameState.isNotBlank() && 
+            yearOfBirthState.isNotBlank() && 
+            genderState.isNotBlank()
+        }
+    }
 
     Scaffold(
         contentWindowInsets = WindowInsets(0.dp), // 상단 여백 제거
@@ -190,7 +200,14 @@ fun EditProfileScreen(
                     option1 = "남자",
                     option2 = "여자",
                     selectedOption = selectedOption,
-                    onOptionSelected = { selectedOption = it },
+                    onOptionSelected = { option ->
+                        selectedOption = option
+                        genderState = when (option) {
+                            1 -> "남자"
+                            2 -> "여자"
+                            else -> ""
+                        }
+                    },
                     enabled = gender.isEmpty() && genderState.isEmpty() // 기존 값과 현재 상태 모두 비어있을 때만 활성화
                 )
             }
