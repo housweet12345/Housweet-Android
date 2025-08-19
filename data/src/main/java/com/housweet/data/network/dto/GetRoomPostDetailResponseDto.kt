@@ -29,11 +29,11 @@ data class GetRoomPostDetailResponseDto(
     @SerialName("is_bookmarked")
     val isBookmarked: Boolean,
     @SerialName("lot_number_address")
-    val lotNumberAddress: String,
+    val lotNumberAddress: String?,
     @SerialName("road_address")
-    val roadAddress: String,
+    val roadAddress: String?,
     @SerialName("detailed_address")
-    val detailedAddress: String,
+    val detailedAddress: String?,
     @SerialName("area_text")
     val areaText: String,
     @SerialName("traffic_tags")
@@ -69,9 +69,9 @@ fun GetRoomPostDetailResponseDto.toRoomPostDetailDataModel(): RoomPostDetailData
         availableFrom = availableFrom,
         ageRangeAndGender = ageRangeAndGender,
         isBookmarked = isBookmarked,
-        lotNumberAddress = lotNumberAddress,
-        roadAddress = roadAddress,
-        detailedAddress = detailedAddress,
+        lotNumberAddress = lotNumberAddress ?: "",
+        roadAddress = roadAddress ?: "",
+        detailedAddress = detailedAddress ?: "",
         areaText = areaText,
         trafficTags = trafficTags,
         sizeOfHouseTags = sizeOfHouseTags,
