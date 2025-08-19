@@ -2,7 +2,6 @@ package com.housweet.presentation.ui.registerhouse
 
 import android.content.Context
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -23,21 +22,22 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.housweet.presentation.model.Region
 import com.housweet.presentation.model.RegisterModel
 import com.housweet.presentation.ui.common.RegionBottomSheet
-import com.housweet.presentation.ui.common.StepIndicator
 import com.housweet.presentation.ui.common.TopBarWithBackButton
-import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModel
 import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModelBase
 import java.io.BufferedReader
 import java.io.InputStreamReader
+
+private fun Region?.isComplete(): Boolean {
+    return this != null &&
+            sido.isNotBlank() && sigungu.isNotBlank() && dong.isNotBlank() &&
+            sidoCode.isNotBlank() && sigunguCode.isNotBlank() && dongCode.isNotBlank()
+}
 
 @Composable
 fun HouseRegisterScreen2(
@@ -66,12 +66,31 @@ fun HouseRegisterScreen2(
     var showBottomSheet by remember { mutableStateOf(false) }
     var selectedRegion by remember { mutableStateOf<Region?>(null) }
 
-    var showDialog by remember { mutableStateOf(false) }
     var missingField by remember { mutableStateOf<String?>(null) }
 
+    val isStep2Valid by remember(
+        selectedRegion, inputTitle, inputDescription,
+        deposit, monthlyRent, managementFee, moveInDate
+    ) {
+        mutableStateOf(
+            selectedRegion.isComplete() &&
+                    inputTitle.isNotBlank() &&
+                    inputDescription.isNotBlank() &&
+                    deposit.isNotBlank() &&
+                    monthlyRent.isNotBlank() &&
+                    managementFee.isNotBlank() &&
+                    moveInDate.isNotBlank()
+        )
+    }
+
     fun firstMissingFieldOrNull(): String? {
+        val r = selectedRegion
         return when {
-            selectedRegion == null -> "지역"
+            r == null -> "지역(시/군/구/동)"
+            r.sido.isBlank() -> "지역(시/도)"
+            r.sigungu.isBlank() -> "지역(시/군/구)"
+            r.dong.isBlank() -> "지역(동)"
+            r.sidoCode.isBlank() || r.sigunguCode.isBlank() || r.dongCode.isBlank() -> "지역(코드 매핑)"
             inputTitle.isBlank() -> "제목"
             inputDescription.isBlank() -> "자세한 설명"
             deposit.isBlank() -> "보증금"
@@ -366,12 +385,12 @@ fun HouseRegisterScreen2(
             Spacer(modifier = Modifier.weight(1f))
 
             Button(
+                enabled = isStep2Valid,
                 onClick = {
                     // 검증
                     val missing = firstMissingFieldOrNull()
                     if (missing != null) {
                         missingField = missing
-                        showDialog = true
                         return@Button
                     }
 
@@ -424,31 +443,6 @@ fun HouseRegisterScreen2(
             }
         )
     }
-
-    if (showDialog) {
-        Dialog(onDismissRequest = { showDialog = false }) {
-            Surface(
-                shape = RoundedCornerShape(12.dp),
-                color = Color.White,
-                tonalElevation = 2.dp,
-                border = BorderStroke(1.dp, Color(0xFF665ED3))
-            ) {
-                Column(
-                    modifier = Modifier.padding(20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "${missingField ?: "항목"}을(를) 입력(선택)해주세요.",
-                        textAlign = TextAlign.Center,
-                        fontSize = 14.sp
-                    )
-                    Spacer(Modifier.height(12.dp))
-                    TextButton(onClick = { showDialog = false }) { Text("확인") }
-                }
-            }
-        }
-    }
-
 }
 
 private fun norm(s: String?): String =
