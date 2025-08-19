@@ -622,26 +622,42 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-                    composable("mypage") {
+                    composable(
+                        route = "mypage?afterDelete={afterDelete}",
+                        arguments = listOf(
+                            navArgument("afterDelete") {
+                                type = NavType.BoolType
+                                defaultValue = false
+                            }
+                        )
+                    ) { backStackEntry ->
+                        val afterDelete = backStackEntry.arguments?.getBoolean("afterDelete") ?: false
+
                         MyPageScreen(
-                            navController,
+                            navController = navController,
                             onBackClick = {
-                                val previousRoute = navController.previousBackStackEntry?.destination?.route
-                                if (previousRoute?.contains("CommunityPageRoute.Map") == true) {
+                                if (afterDelete) {
+                                    // ✅ 삭제 플로우로 진입했으면 Home 대신 AccessRoom으로
                                     navigationManager.navigateOneWay(
-                                        "mypage",
-                                        Route.CommunityPageRoute.Map()
+                                        "mypage?afterDelete=$afterDelete",
+                                        Route.StartPageRoute.AccessRoomRoute.AccessRoom
                                     )
                                 } else {
-                                    navController.popBackStack()
+                                    // 기존 동작 유지
+                                    val previousRoute = navController.previousBackStackEntry?.destination?.route
+                                    if (previousRoute?.contains("CommunityPageRoute.Map") == true) {
+                                        navigationManager.navigateOneWay(
+                                            "mypage",
+                                            Route.CommunityPageRoute.Map()
+                                        )
+                                    } else {
+                                        navController.popBackStack()
+                                    }
                                 }
                             },
                             onLogoutClick = {
-                                startViewModel.logout {
-                                    handleLogout()
-                                }
+                                startViewModel.logout { handleLogout() }
                             },
-
                             onDeleteAccountClick = {
                                 navigationManager.navigateTo("deleteAccount")
                             }
