@@ -29,7 +29,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.housweet.domain.model.BookmarkItem
 import com.housweet.presentation.viewmodel.mypage.BookmarkViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)

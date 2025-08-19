@@ -9,17 +9,17 @@ data class ChatUserDto(
     val room_id : Int,
     val sender_id : Int,
     val receiver_id : Int,
-    val created_at : String,
-    val updated_at : String,
+    val created_at : String? = null,
+    val updated_at : String? = null,
     @SerialName("is_blocked")
     @Serializable(with = FlexibleBooleanSerializer::class)
-    val isBlocked: Boolean,
+    val isBlocked: Boolean = false,
     val counterpart_id : Int,
-    val sender_nickname : String,
-    val receiver_nickname : String,
-    val counterpart_nickname : String,
-    val last_message_content : String,
-    val last_message_created_at : String,
+    val sender_nickname : String? = null,
+    val receiver_nickname : String? = null,
+    val counterpart_nickname : String? = null,
+    val last_message_content : String? = null,
+    val last_message_created_at : String? = null,
 )
 
 @Serializable

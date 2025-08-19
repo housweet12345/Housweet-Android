@@ -5,16 +5,12 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class RegisterHouseRequest(
     val room: Int,
-//    val si: Int,
-//    val gu: Int,
-//    val dong: Long,
     val si: String,
     val gu: String,
     val dong: String,
     val title: String,
     val content: String,
     val image_uri: String,
-//    val images: List<String>,
     val traffic_tags: List<String>,
     val size_of_house_tags: List<String>,
     val infra_tags: List<String>,
