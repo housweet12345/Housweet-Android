@@ -14,7 +14,7 @@ data class ProfileDto(
     val tag: List<String>?,
     @SerialName("user_id") val userId: Int,
     @SerialName("year_of_birth") val yearOfBirth: Int,
-    @SerialName("is_blocked_user") val isBlockedUser: Boolean? = null
+    @SerialName("is_blocked") val isBlockedUser: Int? = null
 ) {
     fun mapToProfileModel(): ProfileModel {
         return ProfileModel(
@@ -27,7 +27,7 @@ data class ProfileDto(
             mbti = mbti,
             tags = tag ?: emptyList(),
             isCheckedUser = false,
-            isBlockedUser = isBlockedUser
+            isBlockedUser = isBlockedUser == 1
         )
     }
     private fun genderToKorean(gender: String): String {
