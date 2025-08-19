@@ -605,7 +605,7 @@ private fun BottomBar(
             Spacer(modifier = Modifier.weight(1f))
 
             Button(
-                onClick = { onChatScreen(roomPostDetail.userId, roomPostDetail.nickName) },
+                onClick = { if (roomPostDetail.userId != -1) onChatScreen(roomPostDetail.userId, roomPostDetail.nickName) },
                 modifier = Modifier
                     .width(68.dp)
                     .height(30.dp),
