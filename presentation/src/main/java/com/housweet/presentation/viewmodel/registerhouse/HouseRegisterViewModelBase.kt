@@ -18,14 +18,14 @@ open class HouseRegisterViewModelBase : ViewModel() {
     }
 
     // Step 1
-    open var houseTags by mutableStateOf<List<String>>(emptyList())        // = trafficTags
+    open var trafficTags by mutableStateOf<List<String>>(emptyList())
         protected set
     open var sizeOfHouseTags by mutableStateOf<List<String>>(emptyList())
         protected set
     open var infraTags by mutableStateOf<List<String>>(emptyList())
         protected set
 
-    open fun updateHouseTags(tags: List<String>) { houseTags = tags }          // 교통
+    open fun updateTrafficTags(tags: List<String>) { trafficTags = tags }          // 교통
     open fun updateSizeOfHouseTags(tags: List<String>) { sizeOfHouseTags = tags } // 집 상태
     open fun updateInfraTags(tags: List<String>) { infraTags = tags }          // 인프라
 

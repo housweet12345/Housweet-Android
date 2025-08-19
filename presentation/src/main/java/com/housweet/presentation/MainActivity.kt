@@ -588,7 +588,7 @@ class MainActivity : ComponentActivity() {
                                     if (mode == RegisterModel.EDIT) {
                                         // 알림
                                         snackBarHostState.showSnackbar(
-                                            message = "방 수정이 완료 되었습니다.",
+                                            message = "방 공고 수정이 완료 되었습니다.",
                                             duration = SnackbarDuration.Short
                                         )
                                         // 이동: 올린 방 관리
@@ -599,7 +599,7 @@ class MainActivity : ComponentActivity() {
                                     } else {
                                         // 알림
                                         snackBarHostState.showSnackbar(
-                                            message = "방 생성이 완료 되었습니다.",
+                                            message = "방 공고 생성이 완료 되었습니다.",
                                             duration = SnackbarDuration.Short
                                         )
                                         // 이동: 지도 화면
@@ -657,8 +657,13 @@ class MainActivity : ComponentActivity() {
 
                     composable("bookmark") {
                         BookmarkScreen(
-                            onItemClick = { /* TODO: 상세 페이지로 이동 등 처리 */ },
-                            navController = navController
+                            navController = navController,
+                            onItemClick = { uiItem ->
+                                // 타입세이프 라우트로 디테일 이동
+                                navigationManager.navigateTo(
+                                    Route.CommunityPageRoute.PostRoute.DetailPost(uiItem.id)
+                                )
+                            }
                         )
                     }
 

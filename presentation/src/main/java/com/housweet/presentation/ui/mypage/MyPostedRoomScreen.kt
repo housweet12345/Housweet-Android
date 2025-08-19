@@ -49,6 +49,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -58,6 +60,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.housweet.domain.model.RoomPost
 import com.housweet.domain.repository.RoomPostingRepository
 import com.housweet.presentation.R
@@ -328,7 +332,17 @@ fun RoomItem(
                     .size(80.dp)
                     .clip(RoundedCornerShape(6.dp))
                     .background(Color.LightGray)
-            )
+            ) {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(roomPost.imageUri)           // ✅ 서버에서 내려오는 image_uri
+                        .crossfade(true)                   // 페이드 효과
+                        .build(),
+                    contentDescription = "방 이미지",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop      // 이미지 꽉 차게
+                )
+            }
             Spacer(Modifier.width(12.dp))
 
             Column(Modifier.weight(1f)) {
