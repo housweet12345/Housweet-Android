@@ -8,7 +8,6 @@ import com.housweet.data.network.KtorService
 import com.housweet.domain.model.home.RoomHomeModel
 import com.housweet.domain.model.home.RoomMemberModel
 import com.housweet.domain.repository.RoomRepository
-import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.patch
@@ -23,8 +22,7 @@ import javax.inject.Inject
 class RoomRepositoryImpl @Inject constructor(
     private val ktorService: KtorService
 ): RoomRepository {
-    private val client: HttpClient
-        get() = ktorService.getHttpClient()
+    private val client by lazy { ktorService.createHttpClient() }
     private val base = BuildConfig.BASE_URL
 
     private suspend inline fun <reified T> HttpResponse.parseOrFail(op: String): Result<T> {
