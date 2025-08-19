@@ -3,7 +3,6 @@ package com.housweet.presentation
 import android.content.Intent
 import android.os.Bundle
 import android.util.Base64
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -20,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -81,6 +81,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.reflect.typeOf
+import androidx.compose.runtime.getValue
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -427,21 +428,34 @@ class MainActivity : ComponentActivity() {
 
                     composable<Route.CommunityPageRoute.PostRoute.DetailPost> {
                         val postId = it.toRoute<Route.CommunityPageRoute.PostRoute.DetailPost>().postId
-                        val chatListViewModel: ChatListViewModel = hiltViewModel()
+                        val chatListViewModel: com.housweet.presentation.viewmodel.chatlist.ChatListViewModel = hiltViewModel()
+                        val myId by chatListViewModel.myUserId.collectAsStateWithLifecycle()
+
+                        // 필요 시 초기 로드
+                        LaunchedEffect(Unit) {
+                            if (myId == null) chatListViewModel.refreshMyUserIdAndUsers()
+                        }
+
                         DetailPostScreen(
                             modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
-                            onChatScreen = { myUserId, userId, nickName ->
-                                chatListViewModel.createRoomAndShow(myUserId, userId, nickName) { roomId ->
-                                    val encoded = Base64.encodeToString(
+                            onChatScreen = { receiverId, nickName ->
+                                val sender = myId ?: run {
+                                    // 스낵바 등으로 로그인 필요 메시지 처리
+                                    return@DetailPostScreen
+                                }
+                                chatListViewModel.createRoomAndShow(
+                                    senderId = sender,
+                                    receiverId = receiverId,
+                                    counterpartNickname = nickName
+                                ) { roomId ->
+                                    val encoded = android.util.Base64.encodeToString(
                                         nickName.toByteArray(),
-                                        Base64.URL_SAFE or Base64.NO_WRAP
+                                        android.util.Base64.URL_SAFE or android.util.Base64.NO_WRAP or android.util.Base64.NO_PADDING // ← 패딩 제거
                                     )
-                                    navigationManager.navigateTo("chat_detail/$userId/$roomId/$encoded")
+                                    navigationManager.navigateTo("chat_detail/$receiverId/$roomId/$encoded")
                                 }
                             },
-                            onProfileScreen = { userId ->
-                                navigationManager.navigateTo("profile/$userId")
-                            },
+                            onProfileScreen = { userId -> navigationManager.navigateTo("profile/$userId") },
                             onBackBtnClick = { isBookmarkChanged ->
                                 if (isBookmarkChanged) {
                                     navigationManager.navigateOneWay(
@@ -507,14 +521,28 @@ class MainActivity : ComponentActivity() {
                             postingId = postingId,
                             onNextClick = { navController.navigate(Route.HouseRegisterRoute.Step2(mode)) },
                             onBackClick = {
-                                val previousRoute = navController.previousBackStackEntry?.destination?.route
-                                if (previousRoute?.contains("CommunityPageRoute.Map") == true) {
-                                    navigationManager.navigateOneWay(
-                                        Route.HouseRegisterRoute.Step1(mode),
-                                        Route.CommunityPageRoute.Map()
-                                    )
+                                if (mode == RegisterModel.EDIT) {
+                                    // 1) 백스택에 이미 MyPostedRoomScreen 이 있으면 거기로 '직행' (중간 스텝들 모두 제거)
+                                    val popped = navController.popBackStack("posted_my_room", /* inclusive = */ false)
+                                    if (!popped) {
+                                        // 2) 없으면 새로 띄우되, 현재 Step1(EDIT) 자체는 지우고 단일 상단으로 정리
+                                        navController.navigate("posted_my_room") {
+                                            // 그래프 시작점까지 정리하거나, 필요 시 특정 지점으로 조정 가능
+                                            popUpTo(navController.graph.startDestinationId) { inclusive = false }
+                                            launchSingleTop = true
+                                        }
+                                    }
                                 } else {
-                                    navController.popBackStack()
+                                    // 기존 CREATE 플로우 동작 유지
+                                    val previousRoute = navController.previousBackStackEntry?.destination?.route
+                                    if (previousRoute?.contains("CommunityPageRoute.Map") == true) {
+                                        navigationManager.navigateOneWay(
+                                            Route.HouseRegisterRoute.Step1(mode),
+                                            Route.CommunityPageRoute.Map()
+                                        )
+                                    } else {
+                                        navController.popBackStack()
+                                    }
                                 }
                             },
                           viewModel = houseRegisterViewModel

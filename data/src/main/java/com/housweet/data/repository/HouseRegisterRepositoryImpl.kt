@@ -22,7 +22,6 @@ class HouseRegisterRepositoryImpl @Inject constructor(
             title = model.title,
             content = model.content,
             image_uri = model.imageUri,
-//            images = model.images,
             traffic_tags = model.trafficTags,
             size_of_house_tags = model.sizeOfHouseTags,
             infra_tags = model.infraTags,
