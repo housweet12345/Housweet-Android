@@ -18,15 +18,17 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -45,6 +48,7 @@ import com.housweet.presentation.R
 import com.housweet.presentation.ui.theme.ColorGroup
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileTopBar(
     title: String = "프로필",
@@ -52,38 +56,42 @@ fun ProfileTopBar(
     onBackClick: () -> Unit = {},
     onMoreClick: () -> Unit = {},
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-    ) {
-        IconButton(
-            onClick = onBackClick,
-            modifier = Modifier.align(Alignment.CenterStart)
-        ) {
-            Icon(
-                imageVector = Icons.Default.ArrowBack,
-                contentDescription = "뒤로가기"
+    CenterAlignedTopAppBar(
+        windowInsets = WindowInsets(
+            top = 0.dp,
+            bottom = 0.dp
+        ),
+        title = {
+            Text(
+                text = title,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
             )
-        }
-
-        Text(
-            text = title,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier.align(Alignment.Center)
-        )
-        if (moreIconButton){
-            IconButton(
-                onClick = onMoreClick,
-                modifier = Modifier.align(Alignment.CenterEnd)
-            ) {
+        },
+        navigationIcon = {
+            IconButton(onClick = onBackClick) {
                 Icon(
-                    imageVector = Icons.Default.MoreVert,
-                    contentDescription = "더보기"
+                    painter = painterResource(id = R.drawable.back_black),
+                    contentDescription = "뒤로가기",
+                    modifier = Modifier.padding(start = 0.dp)
                 )
             }
-        }
-    }
+        },
+        actions = {
+            if (moreIconButton) {
+                IconButton(onClick = onMoreClick) {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = "더보기"
+                    )
+                }
+            }
+        },
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+            containerColor = Color.White
+        )
+    )
 }
 
 @Composable
@@ -262,7 +270,6 @@ fun ProfileInfoSection(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun MultiSelectableTagSection(
     modifier: Modifier = Modifier,
