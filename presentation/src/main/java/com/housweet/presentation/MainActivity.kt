@@ -599,11 +599,12 @@ class MainActivity : ComponentActivity() {
                                             message = "방 공고 수정이 완료 되었습니다.",
                                             duration = SnackbarDuration.Short
                                         )
+
                                         // 이동: 올린 방 관리
-                                        navigationManager.navigateOneWay(
-                                            "posted_my_room",
-                                            "posted_my_room"
-                                        )
+                                        repeat(4) { navController.popBackStack() } // Step4→3→2→1 제거
+                                        navController.navigate("posted_my_room") {
+                                            launchSingleTop = true
+                                        }
                                     } else {
                                         // 알림
                                         snackBarHostState.showSnackbar(
@@ -611,10 +612,10 @@ class MainActivity : ComponentActivity() {
                                             duration = SnackbarDuration.Short
                                         )
                                         // 이동: 지도 화면
-                                        navigationManager.navigateOneWay(
-                                            Route.CommunityPageRoute.Map(),
-                                            Route.CommunityPageRoute.Map()
-                                        )
+                                        repeat(4) { navController.popBackStack() } // Step4→3→2→1 제거
+                                        navController.navigate(Route.CommunityPageRoute.Map()) {
+                                            launchSingleTop = true
+                                        }
                                     }
                                 }
                             },
