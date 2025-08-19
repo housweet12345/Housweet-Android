@@ -54,10 +54,12 @@ import com.housweet.domain.repository.HouseRegisterRepository
 import com.housweet.domain.repository.ImageUploadRepository
 import com.housweet.domain.repository.NotificationRepository
 import com.housweet.data.repository.NotificationRepositoryImpl
+import com.housweet.data.usecase.GetMyRoomIdUseCaseImpl
 import com.housweet.domain.repository.MyHouseRepository
 import com.housweet.domain.repository.NoticeRepository
 import com.housweet.domain.repository.ReportRepository
 import com.housweet.domain.repository.RoomPostingRepository
+import com.housweet.domain.usecase.GetMyRoomIdUseCase
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -223,6 +225,11 @@ abstract class Module {
         impl: MyHouseRepositoryImpl
     ): MyHouseRepository
 
+    @Binds
+    @Singleton
+    abstract fun bindGetMyRoomIdUseCase(
+        impl: GetMyRoomIdUseCaseImpl
+    ): GetMyRoomIdUseCase
 
     companion object {
         @Provides
