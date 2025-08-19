@@ -52,15 +52,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.common.CustomAlertDialog
-import com.housweet.presentation.ui.profile.state.ProfileInfoState.Success
-import com.housweet.presentation.viewmodel.mypage.MyHouseViewModel
 import com.housweet.presentation.viewmodel.profile.ProfileInfoViewModel
 import com.housweet.presentation.ui.profile.state.ProfileInfoState
 

@@ -1,5 +1,6 @@
 package com.housweet.presentation.ui.chatlist
 
+import android.R.attr.onClick
 import android.R.id.input
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -104,17 +105,16 @@ fun ChatListContent(
                 modifier = Modifier.background(Color.White)
             ) {
                 itemsIndexed(chatUsers) { _, user ->
-//                    val formatted = runCatching {
-//                        val dt = LocalDateTime.parse(user.last_message_created_at) // ISO 8601 가정
-//                        dt.format(DateTimeFormatter.ofPattern("M월 d일 a h시 m분", Locale.KOREAN))
-//                    }.getOrDefault(user.last_message_created_at) // 실패 시 원문 표시
                     val formatted = runCatching<String> {
                         user.last_message_created_at.toKstKoreanFull()
                     }.getOrDefault(user.last_message_created_at)
+
+                    val last = user.last_message_content.ifBlank { "대화를 시작해보세요" }
+
                     ChatListItem(
                             chat = ChatPreview(
                             name = user.receiver_nickname,
-                            lastMessage = user.last_message_content,
+                            lastMessage = last,
                             time = formatted,
                             profileImageUrl = "",
                             unread = false
