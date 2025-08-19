@@ -15,6 +15,7 @@ data class RoomPostDetailDataModel(
     val lotNumberAddress: String = "오류",
     val roadAddress: String = "오류",
     val detailedAddress: String = "오류",
+    val areaText: String = "오류",
     val trafficTags: List<String> = listOf(),
     val sizeOfHouseTags: List<String> = listOf(),
     val infraTags: List<String> = listOf(),
