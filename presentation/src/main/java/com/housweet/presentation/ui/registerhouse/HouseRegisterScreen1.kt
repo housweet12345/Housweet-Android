@@ -168,9 +168,9 @@ fun HouseRegisterScreen1(
                         val size    = selectedBySection["집 상태"]?.toList() ?: emptyList()
                         val infra   = selectedBySection["인프라"]?.toList() ?: emptyList()
 
-                        viewModel.updateHouseTags(traffic)          // ✅ 교통 → traffic_tags
-                        viewModel.updateSizeOfHouseTags(size)       // ✅ 집 상태 → size_of_house_tags
-                        viewModel.updateInfraTags(infra)            // ✅ 인프라 → infra_tags
+                        viewModel.updateTrafficTags(traffic)          // 교통 → traffic_tags
+                        viewModel.updateSizeOfHouseTags(size)       // 집 상태 → size_of_house_tags
+                        viewModel.updateInfraTags(infra)            // 인프라 → infra_tags
                         onNextClick()
                     } else {
                         missingSectionName = missing
