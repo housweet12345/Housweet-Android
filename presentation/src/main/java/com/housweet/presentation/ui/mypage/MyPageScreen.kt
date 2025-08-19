@@ -85,6 +85,10 @@ fun MyPageScreen(
     val profileState = viewModel.profileState.collectAsState().value
     var lastProfile: Any? by remember { mutableStateOf(null) }
 
+    LaunchedEffect(Unit) {
+        viewModel.loadProfile("me")
+    }
+
     Scaffold (
         containerColor = Color.White,
         topBar = {
@@ -144,11 +148,13 @@ fun MyPageScreen(
                     .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-//                Column {
-//                    Text(text = "김지안", fontSize = 14.sp, fontWeight = FontWeight.Bold)
-//                    Text(text = "20대 남자", fontSize = 12.sp, color = Color.Gray)
-//                }
-                // 상태에 따라 출력
+                Box(
+                    modifier = Modifier
+                        .size(58.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFFE0E0E0))
+                )
+                Spacer(modifier = Modifier.width(16.dp))
                 when (val s = profileState) {
                     is ProfileInfoState.Loading -> {
                         Box(
@@ -390,7 +396,7 @@ private fun ProfileHeaderContent(p: Any) {
     ){
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
-                .data(safeGet(p, "profileImage"))           // ✅ 서버에서 내려오는 profile_image
+                .data(safeGet(p, "profileImage"))           // 서버에서 내려오는 profile_image
                 .crossfade(true)                   // 페이드 효과
                 .build(),
             contentDescription = "방 이미지",
