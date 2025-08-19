@@ -1,8 +1,10 @@
 package com.housweet.presentation
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Base64
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -21,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -598,7 +601,7 @@ class MainActivity : ComponentActivity() {
                                         )
                                         // 이동: 올린 방 관리
                                         navigationManager.navigateOneWay(
-                                            Route.HouseRegisterRoute.Step4(mode),
+                                            "posted_my_room",
                                             "posted_my_room"
                                         )
                                     } else {
@@ -609,7 +612,7 @@ class MainActivity : ComponentActivity() {
                                         )
                                         // 이동: 지도 화면
                                         navigationManager.navigateOneWay(
-                                            Route.HouseRegisterRoute.Step4(mode),
+                                            Route.CommunityPageRoute.Map(),
                                             Route.CommunityPageRoute.Map()
                                         )
                                     }
