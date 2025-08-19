@@ -3,16 +3,17 @@ package com.housweet.data.repository
 import com.housweet.data.BuildConfig
 import com.housweet.data.dto.BlockUserRequestDto
 import com.housweet.data.dto.BlockUserResponseDto
+import com.housweet.data.mapper.toProfilePatchDto
+import com.housweet.data.network.KtorService
 import com.housweet.data.network.dto.ProfileDto
 import com.housweet.data.network.dto.ProfileUpdateDto
 import com.housweet.data.network.dto.ProfileUpdateResponseDto
-import com.housweet.data.mapper.toProfilePatchDto
-import com.housweet.data.network.KtorService
 import com.housweet.data.utils.appendProfileData
 import com.housweet.domain.model.profile.ProfileModel
 import com.housweet.domain.model.profile.ProfileUpdateModel
 import com.housweet.domain.model.profile.ProfileUpdateResponseModel
 import com.housweet.domain.repository.UserRepository
+import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
@@ -26,7 +27,8 @@ class UserRepositoryImpl @Inject constructor(
     private val ktorService: KtorService
 ): UserRepository {
 
-    private val client by lazy { ktorService.createHttpClient() }
+    private val client: HttpClient
+        get() = ktorService.getHttpClient()
 
     override suspend fun getMyProfile(): Result<ProfileModel> {
         return runCatching {

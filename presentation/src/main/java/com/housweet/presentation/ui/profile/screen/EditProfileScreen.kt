@@ -1,6 +1,7 @@
 package com.housweet.presentation.ui.profile.screen
 
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -70,7 +71,7 @@ fun EditProfileScreen(
                 "여성" -> 2
                 "남자" -> 1
                 "여자" -> 2
-                else -> 1
+                else -> 3
             }
         )
     }
@@ -82,13 +83,17 @@ fun EditProfileScreen(
             "여성" -> 2
             "남자" -> 1
             "여자" -> 2
-            else -> 1
+            else -> 3
         }
     }
 
     // 성별 상태 동기화 (UI용 "남자"/"여자"로 설정)
     LaunchedEffect(selectedOption) {
-        genderState = if (selectedOption == 1) "남자" else "여자"
+        genderState = when (selectedOption) {
+                1 -> "남자"
+                2 -> "여자"
+                else -> ""
+            }
     }
 
     // 유효성 검사 - 필수 필드가 모두 입력되었는지 확인
@@ -176,6 +181,7 @@ fun EditProfileScreen(
                     enabled = yearOfBirth.isEmpty() && yearOfBirthState.isEmpty() // 기존 데이터와 현재 상태 모두 비어있을 때만 활성화
                 )
                 Spacer(Modifier.width(10.dp))
+                Log.d("savepoint", "$gender $genderState")
                 ToggleButtonGroup(
                     modifier = Modifier.weight(1f),
                     option1 = "남자",

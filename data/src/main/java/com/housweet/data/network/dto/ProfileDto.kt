@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ProfileDto(
     val gender: String,
-    val introduce: String,
+    val introduce: String?,
     val mbti: String,
     val nickname: String,
     @SerialName("profile_image") val profileImage: String?,
@@ -20,10 +20,10 @@ data class ProfileDto(
         return ProfileModel(
             userId = userId,
             nickname = nickname,
-            introduce = introduce,
+            introduce = introduce ?: "",
             profileImage = profileImage ?: "",
-            yearOfBirth = yearOfBirth.toString(),
-            gender = genderToKorean(gender),
+            yearOfBirth = if (yearOfBirth == 0) "" else yearOfBirth.toString(),
+            gender = if (gender == "unknown") "" else genderToKorean(gender),
             mbti = mbti,
             tags = tag ?: emptyList(),
             isCheckedUser = false,
