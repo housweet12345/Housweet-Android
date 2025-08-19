@@ -21,7 +21,7 @@ fun ProfileRoute(
     viewModel: ProfileInfoViewModel = hiltViewModel(),
     navigateEditProfile: () -> Unit = {},
     onBackClick: () -> Unit = {},
-    navigateChatting: () -> Unit = {}
+    navigateChatting: (Int, String) -> Unit,
 ) {
     val state = viewModel.profileState.collectAsStateWithLifecycle()
     val reportResult = viewModel.reportResult.collectAsStateWithLifecycle()
