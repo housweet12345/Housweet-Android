@@ -437,8 +437,10 @@ private fun ageGenderLabel(yearOfBirth: String?, genderRaw: String?): String {
     val age = yearOfBirth?.toIntOrNull()?.let { (nowYear - it).coerceAtLeast(0) }
     val decade = age?.let { (it / 10) * 10 }?.takeIf { it in 10..90 }?.toString()?.plus("대") ?: "연령정보없음"
     val gender = when (genderRaw?.lowercase()) {
-        "m", "male", "man" -> "남자"
-        "f", "female", "woman" -> "여자"
+        "MALE", "male", "M" -> "남성"
+        "FEMALE", "female", "F" -> "여성"
+        "남자", "남성" -> "남성"
+        "여자", "여성" -> "여성"
         else -> "성별정보없음"
     }
     return "$decade $gender"
