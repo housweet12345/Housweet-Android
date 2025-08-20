@@ -5,14 +5,18 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,6 +34,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -93,146 +99,150 @@ fun HouseRegisterScreen4(
             TopBarWithBackButton(
                 title = if (mode == RegisterModel.EDIT) "글 수정하기" else "하우스 올리기",
                 currentStep = 4,
-                onBackClick = onBackClick
+                onBackClick = onBackClick,
             )
-        }
+        },
+        contentWindowInsets = WindowInsets(0)
     ){ innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.White)
-                .padding(horizontal = 16.dp)
-                .padding(innerPadding)
-        ) {
+        KeyboardClosableContainer{
             Column(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
+                    .fillMaxSize()
+                    .imePadding()
+                    .background(Color.White)
+                    .padding(horizontal = 16.dp)
+                    .padding(innerPadding)
             ) {
-                Text(
-                    text = "선호하는 사람에 대한 키워드를 선택해주세요.",
-                    color = Color(0xFF6C4DFF),
-                    fontSize = 12.sp,
-                    modifier = Modifier.padding(vertical = 16.dp)
-                )
-            }
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        text = "선호하는 사람에 대한 키워드를 선택해주세요.",
+                        color = Color(0xFF6C4DFF),
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(vertical = 16.dp)
+                    )
+                }
 
-            Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
-            LazyColumn(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                sections.forEach { (title, tags) ->
-                    item {
-                        Text(
-                            text = title,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp,
-                            modifier = Modifier.padding(vertical = 4.dp)
-                        )
-                    }
+                LazyColumn(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    sections.forEach { (title, tags) ->
+                        item {
+                            Text(
+                                text = title,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 12.sp,
+                                modifier = Modifier.padding(vertical = 4.dp)
+                            )
+                        }
 
-                    item {
-                        FlowRow(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            tags.forEach { tag ->
-                                val isSelected = selectedBySection[title]?.contains(tag) == true
+                        item {
+                            FlowRow(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                tags.forEach { tag ->
+                                    val isSelected = selectedBySection[title]?.contains(tag) == true
 
-                                Box(
-                                    modifier = Modifier
-                                        .clickable {
-                                            val current = selectedBySection[title]?.toMutableSet() ?: mutableSetOf()
-                                            if (isSelected) current.remove(tag) else current.add(tag)
-                                            selectedBySection[title] = current
-                                        }
-                                        .border(
-                                            width = 1.dp,
-                                            color = Color(0xFF665ED3),
-                                            shape = RoundedCornerShape(12.dp)
+                                    Box(
+                                        modifier = Modifier
+                                            .clickable {
+                                                val current = selectedBySection[title]?.toMutableSet() ?: mutableSetOf()
+                                                if (isSelected) current.remove(tag) else current.add(tag)
+                                                selectedBySection[title] = current
+                                            }
+                                            .border(
+                                                width = 1.dp,
+                                                color = Color(0xFF665ED3),
+                                                shape = RoundedCornerShape(12.dp)
+                                            )
+                                            .background(
+                                                color = if (isSelected) Color(0xFF665ED3) else Color.White,
+                                                shape = RoundedCornerShape(12.dp)
+                                            )
+                                            .padding(horizontal = 12.dp, vertical = 8.dp)
+                                    ) {
+                                        Text(
+                                            text = tag,
+                                            fontSize = 12.sp,
+                                            color = if (isSelected) Color.White else Color.Black
                                         )
-                                        .background(
-                                            color = if (isSelected) Color(0xFF665ED3) else Color.White,
-                                            shape = RoundedCornerShape(12.dp)
-                                        )
-                                        .padding(horizontal = 12.dp, vertical = 8.dp)
-                                ) {
-                                    Text(
-                                        text = tag,
-                                        fontSize = 12.sp,
-                                        color = if (isSelected) Color.White else Color.Black
-                                    )
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            Button(
-                enabled = isStep4Valid,
-                onClick = {
-                val missing = firstMissingSectionOrNull()
-                if (missing != null) {
-                    missingSectionName = missing
-                    return@Button
-                }
+                Button(
+                    enabled = isStep4Valid,
+                    onClick = {
+                        val missing = firstMissingSectionOrNull()
+                        if (missing != null) {
+                            missingSectionName = missing
+                            return@Button
+                        }
 
-                val life   = selectedBySection["생활 패턴"]?.toList() ?: emptyList()
-                val tidy   = selectedBySection["정리 습관"]?.toList() ?: emptyList()
-                val person = selectedBySection["성격"]?.toList() ?: emptyList()
+                        val life   = selectedBySection["생활 패턴"]?.toList() ?: emptyList()
+                        val tidy   = selectedBySection["정리 습관"]?.toList() ?: emptyList()
+                        val person = selectedBySection["성격"]?.toList() ?: emptyList()
 
-                // 2) ViewModel에 반영
-                viewModel.updateLifePatternTags(life)
-                viewModel.updateTidyingUpHabitTags(tidy)
-                viewModel.updatePreferredTags(person)
+                        // 2) ViewModel에 반영
+                        viewModel.updateLifePatternTags(life)
+                        viewModel.updateTidyingUpHabitTags(tidy)
+                        viewModel.updatePreferredTags(person)
 
-                val onSuccessWrapped = {
-                    Log.d("HouseRegister4", "✅ onSuccess 호출됨")
-                    onCompleteClick()
-                }
-                val onErrorWrapped: (Throwable) -> Unit = { e ->
-                    Log.e("HouseRegister4", "❌ submit 실패: ${e.message}", e)
-                    // 모드별 안내문구
-                    resultMessage = if (mode == RegisterModel.EDIT) "방 수정에 실패했습니다" else "방 생성에 실패했습니다"
-                    onShowSnackbar(resultMessage)
-                }
+                        val onSuccessWrapped = {
+                            Log.d("HouseRegister4", "✅ onSuccess 호출됨")
+                            onCompleteClick()
+                        }
+                        val onErrorWrapped: (Throwable) -> Unit = { e ->
+                            Log.e("HouseRegister4", "❌ submit 실패: ${e.message}", e)
+                            // 모드별 안내문구
+                            resultMessage = if (mode == RegisterModel.EDIT) "방 수정에 실패했습니다" else "방 생성에 실패했습니다"
+                            onShowSnackbar(resultMessage)
+                        }
 
-                if (mode == RegisterModel.EDIT) {
-                    viewModel.submitEdit(
-                        onSuccess = onSuccessWrapped,
-                        onError = onErrorWrapped
+                        if (mode == RegisterModel.EDIT) {
+                            viewModel.submitEdit(
+                                onSuccess = onSuccessWrapped,
+                                onError = onErrorWrapped
+                            )
+                        } else {
+                            viewModel.submitHouseRegister(
+                                onSuccess = onSuccessWrapped,
+                                onError = onErrorWrapped
+                            )
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    shape = RoundedCornerShape(6.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF665ED3),
+                        contentColor = Color.White
                     )
-                } else {
-                    viewModel.submitHouseRegister(
-                        onSuccess = onSuccessWrapped,
-                        onError = onErrorWrapped
+                ) {
+                    Text(
+                        text = "완료",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold
                     )
                 }
-            },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
-                shape = RoundedCornerShape(6.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF665ED3),
-                    contentColor = Color.White
-                )
-            ) {
-                Text(
-                    text = "완료",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
+            }
         }
     }
 }
@@ -257,4 +267,16 @@ class PreviewHouseRegisterViewModel4 : HouseRegisterViewModelBase() {
         println("🏠 하우스 등록 요청 (프리뷰용)")
         onSuccess()  // 성공 콜백만 호출
     }
+}
+
+@Composable private fun KeyboardClosableContainer(content: @Composable () -> Unit) {
+    val fm = LocalFocusManager.current
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .imePadding() // 키보드 높이만큼 안전 패딩
+        .navigationBarsPadding() // 제스처/네비바 대응
+        .pointerInput(Unit) {
+            detectTapGestures(onTap = { fm.clearFocus() }) // 바깥 탭 → 키보드 닫힘
+        }
+    ) { content() }
 }
