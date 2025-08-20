@@ -14,6 +14,8 @@ data class GetRoomPostsByLocationResponseListDto(
 data class GetRoomPostsByLocationResponseDto(
     @SerialName("id")
     val id: Int,
+    @SerialName("user_id")
+    val userId: Int,
     @SerialName("title")
     val title: String,
     @SerialName("is_bookmarked")
@@ -34,6 +36,7 @@ fun GetRoomPostsByLocationResponseListDto.toRoomPostsByLocationDataModel(): List
     return this.data.map {
         RoomPostsByLocationDataModel(
             id = it.id,
+            userId = it.userId,
             title = it.title,
             isBookmarked = it.isBookmarked,
             imageUri = it.imageUri ?: "",
