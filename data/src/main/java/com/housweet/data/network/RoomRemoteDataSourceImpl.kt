@@ -13,7 +13,7 @@ class RoomRemoteDataSourceImpl @Inject constructor(
     private val ktorService: KtorService
 ): RoomRemoteDataSource {
     override suspend fun getMyRoomInfo(accessToken: String): MyRoomResponse {
-        val client = ktorService.getHttpClient()
+        val client = ktorService.createHttpClient()
         return client.get("http://43.200.10.89/room/rooms/me/") {
             headers {
                 append("Authorization", "Bearer $accessToken")
