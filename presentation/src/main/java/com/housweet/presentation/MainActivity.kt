@@ -34,6 +34,7 @@ import com.housweet.presentation.model.RegisterModel
 import com.housweet.presentation.ui.chat.ChatScreen
 import com.housweet.presentation.ui.chatlist.ChatListScreen
 import com.housweet.presentation.ui.common.ComingSoonScreen
+import com.housweet.presentation.ui.common.LoadingScreen
 import com.housweet.presentation.ui.communityPage.mapScreen.MapScreen
 import com.housweet.presentation.ui.communityPage.postScreen.detailPostScreen.DetailPostScreen
 import com.housweet.presentation.ui.communityPage.postScreen.postsScreen.PostsScreen
@@ -75,6 +76,7 @@ import com.housweet.presentation.ui.startPage.loginPage.loginScreen.LoginScreen
 import com.housweet.presentation.ui.startPage.loginPage.termsOfServicePage.TermsOfServiceScreen
 import com.housweet.presentation.ui.startPage.splashPage.SplashScreen
 import com.housweet.presentation.ui.userlist.route.UserListRoute
+import com.housweet.presentation.viewmodel.chatlist.ChatListViewModel
 import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -465,7 +467,7 @@ class MainActivity : ComponentActivity() {
                                         nickName.toByteArray(),
                                         android.util.Base64.URL_SAFE or android.util.Base64.NO_WRAP or android.util.Base64.NO_PADDING // ← 패딩 제거
                                     )
-                                    navigationManager.navigateTo("chat_detail/$receiverId/$roomId/$encoded")
+                                    navigationManager.navigateTo("chat_detail/$sender/$receiverId/$roomId/$encoded")
                                 }
                             },
                             onProfileScreen = { userId -> navigationManager.navigateTo("profile/$userId") },
@@ -784,14 +786,16 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable(
-                        route = "chat_detail/{receiverId}/{roomId}/{chatName}",
+                        route = "chat_detail/{senderId}/{receiverId}/{roomId}/{chatName}",
                         arguments = listOf(
+                            navArgument("senderId") {type = NavType.IntType},
                             navArgument("receiverId") { type = NavType.IntType },
                             navArgument ( "roomId" ) { type = NavType.IntType},
                             navArgument("chatName") { type = NavType.StringType }
                         )
                     )
                     { backStackEntry ->
+                        val senderId = backStackEntry.arguments?.getInt("senderId") ?: -1
                         val receiverId = backStackEntry.arguments?.getInt("receiverId") ?: -1
                         val roomId     = backStackEntry.arguments?.getInt("roomId") ?: -1
                         val encodedName = backStackEntry.arguments?.getString("chatName") ?: ""
@@ -801,6 +805,7 @@ class MainActivity : ComponentActivity() {
                         ChatScreen(
                             chatName = chatName,
                             navController = navController,
+                            senderId = senderId,
                             receiverId = receiverId,
                             roomId = roomId
                         )
@@ -864,9 +869,9 @@ class MainActivity : ComponentActivity() {
                             },
                             navigateChatting = { receiverId, nickName ->
                                 val sender = myId ?: run {
-                                    // 스낵바 등으로 로그인 필요 메시지 처리
-                                    return@ProfileRoute
-                                }
+                                // 스낵바 등으로 로그인 필요 메시지 처리
+                                return@ProfileRoute
+                            }
                                 chatListViewModel.createRoomAndShow(
                                     senderId = sender,
                                     receiverId = receiverId,
@@ -876,7 +881,7 @@ class MainActivity : ComponentActivity() {
                                         nickName.toByteArray(),
                                         android.util.Base64.URL_SAFE or android.util.Base64.NO_WRAP or android.util.Base64.NO_PADDING // ← 패딩 제거
                                     )
-                                    navigationManager.navigateTo("chat_detail/$receiverId/$roomId/$encoded")
+                                    navigationManager.navigateTo("chat_detail/$sender/$receiverId/$roomId/$encoded")
                                 }
                             }
                         )

@@ -1,6 +1,5 @@
 package com.housweet.presentation.ui.chat
 
-import android.R.attr.singleLine
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,14 +24,13 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.ImeAction
-import androidx.core.app.PendingIntentCompat.send
 import com.housweet.presentation.R
 
 @Composable
 fun ChatInput(
     senderId: Int,
     receiverId: Int,
-    onSendMessage: (senderId: Int, receiverId: Int, message: String) -> Unit,
+    onSendMessage: (Int, Int, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var inputText by remember { mutableStateOf("") }
