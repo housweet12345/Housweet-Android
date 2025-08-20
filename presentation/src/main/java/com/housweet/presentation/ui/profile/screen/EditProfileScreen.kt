@@ -194,7 +194,6 @@ fun EditProfileScreen(
                     enabled = yearOfBirth.isEmpty() && yearOfBirthState.isEmpty() // 기존 데이터와 현재 상태 모두 비어있을 때만 활성화
                 )
                 Spacer(Modifier.width(10.dp))
-                Log.d("savepoint", "$gender $genderState")
                 ToggleButtonGroup(
                     modifier = Modifier.weight(1f),
                     option1 = "남자",
