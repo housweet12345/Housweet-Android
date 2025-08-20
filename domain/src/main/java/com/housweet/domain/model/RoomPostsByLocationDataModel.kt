@@ -2,6 +2,7 @@ package com.housweet.domain.model
 
 data class RoomPostsByLocationDataModel(
     val id: Int,
+    val userId: Int,
     val title: String,
     val isBookmarked: Boolean,
     val imageUri: String,
