@@ -57,7 +57,7 @@ fun ChatListScreen(
     val chatUsersState = viewModel.chatUsers.collectAsState()
 
     val visibleUsers = remember(chatUsersState.value) {
-        chatUsersState.value.filter { !it.is_blocked }      // ✅ 차단 숨김
+        chatUsersState.value.filter { !it.is_blocked }      // 차단 숨김
     }
 
     ChatListContent(navController = navController, chatUsers = visibleUsers, onBackClick = onBackClick)
