@@ -2,10 +2,14 @@ package com.housweet.presentation.ui.registerhouse
 
 import android.content.Context
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -18,7 +22,9 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -30,6 +36,8 @@ import com.housweet.presentation.model.RegisterModel
 import com.housweet.presentation.ui.common.RegionBottomSheet
 import com.housweet.presentation.ui.common.TopBarWithBackButton
 import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModelBase
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
@@ -130,299 +138,309 @@ fun HouseRegisterScreen2(
                 currentStep = 2,
                 onBackClick = onBackClick
             )
-        }
+        },
+        contentWindowInsets = WindowInsets(0)
     ){ innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)
-                .background(Color.White)
-                .padding(horizontal = 16.dp)
-                .padding(innerPadding)
-        ) {
-            val focusRequester = remember { FocusRequester() }
-            val keyboardController = LocalSoftwareKeyboardController.current
-
+        KeyboardClosableContainer{
             Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .imePadding()
+                    .verticalScroll(scrollState)
+                    .background(Color.White)
+                    .padding(horizontal = 16.dp)
+                    .padding(innerPadding)
             ) {
-                Text(
-                    text = "자세한 정보를 입력해주세요.",
-                    color = Color(0xFF6C4DFF),
-                    fontSize = 12.sp,
-                    modifier = Modifier.padding(vertical = 16.dp)
-                )
-            }
+                val focusRequester = remember { FocusRequester() }
+                val keyboardController = LocalSoftwareKeyboardController.current
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(60.dp)
-                    .padding(4.dp)
-                    .border(1.dp, Color.Gray, RoundedCornerShape(6.dp))
-                    .clickable { showBottomSheet = true }
-                    .background(Color.White, shape = RoundedCornerShape(6.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = regionDisplay,
-                    color = if (regionDisplay == "지역을 선택해주세요.") Color.Gray else Color.Black,
-                    fontSize = 12.sp
-                )
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-            Text("제목", fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(6.dp))
-            OutlinedTextField(
-                value = inputTitle,
-                onValueChange = { inputTitle = it },
-                placeholder = { Text("제목을 입력해주세요.", color = Color(0xFFA5A5A5), fontSize = 12.sp) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(4.dp)
-                    .focusRequester(focusRequester)
-                    .onFocusChanged {
-                        if (it.isFocused) {
-                            keyboardController?.show()
-                        }
-                    },
-                shape = RoundedCornerShape(6.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color.Gray,
-                    unfocusedBorderColor = Color.Gray
-                )
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-            Text("자세한 설명", fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(6.dp))
-            OutlinedTextField(
-                value = inputDescription,
-                onValueChange = { inputDescription = it },
-                placeholder = { Text("자세한 설명을 입력해주세요.", color = Color(0xFFA5A5A5), fontSize = 12.sp) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp)
-                    .padding(4.dp)
-                    .focusRequester(focusRequester)
-                    .onFocusChanged {
-                        if (it.isFocused) {
-                            keyboardController?.show()
-                        }
-                    }
-                ,
-                shape = RoundedCornerShape(6.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color.Gray,
-                    unfocusedBorderColor = Color.Gray
-                )
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-            Row(modifier = Modifier.fillMaxWidth().padding(4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text("보증금", fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Bold)
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .border(1.dp, Color.Gray, RoundedCornerShape(6.dp))
-                            .padding(horizontal = 12.dp),
-                        contentAlignment = Alignment.CenterStart
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            TextField(
-                                value = deposit,
-                                onValueChange = { deposit = it },
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(end = 4.dp),
-                                placeholder = { Text("") }, // placeholder 제거
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                colors = TextFieldDefaults.colors(
-                                    focusedContainerColor = Color.Transparent,
-                                    unfocusedContainerColor = Color.Transparent,
-                                    disabledContainerColor = Color.Transparent,
-                                    focusedIndicatorColor = Color.Transparent,
-                                    unfocusedIndicatorColor = Color.Transparent,
-                                    disabledIndicatorColor = Color.Transparent
-                                ),
-                                singleLine = true
-                            )
-                            Text(
-                                text = "만원",
-                                fontSize = 12.sp,
-                                color = Color(0xFFA5A5A5)
-                            )
-                        }
-                    }
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        text = "자세한 정보를 입력해주세요.",
+                        color = Color(0xFF6C4DFF),
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(vertical = 16.dp)
+                    )
                 }
 
-                Column(modifier = Modifier.weight(1f)) {
-                    Text("월세", fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Bold)
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .border(1.dp, Color.Gray, RoundedCornerShape(6.dp))
-                            .padding(horizontal = 12.dp),
-                        contentAlignment = Alignment.CenterStart
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            TextField(
-                                value = monthlyRent,
-                                onValueChange = { monthlyRent = it },
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(end = 4.dp),
-                                placeholder = { Text("") }, // placeholder 제거
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                colors = TextFieldDefaults.colors(
-                                    focusedContainerColor = Color.Transparent,
-                                    unfocusedContainerColor = Color.Transparent,
-                                    disabledContainerColor = Color.Transparent,
-                                    focusedIndicatorColor = Color.Transparent,
-                                    unfocusedIndicatorColor = Color.Transparent,
-                                    disabledIndicatorColor = Color.Transparent
-                                ),
-                                singleLine = true
-                            )
-                            Text(
-                                text = "만원",
-                                fontSize = 12.sp,
-                                color = Color(0xFFA5A5A5)
-                            )
-                        }
-                    }
-                }
-            }
+                Spacer(modifier = Modifier.height(12.dp))
 
-            Spacer(modifier = Modifier.height(12.dp))
-            Text("관리비", fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(6.dp))
-            Row(modifier = Modifier.fillMaxWidth().padding(4.dp)) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .height(60.dp)
+                        .padding(4.dp)
                         .border(1.dp, Color.Gray, RoundedCornerShape(6.dp))
-                        .padding(horizontal = 12.dp),
-                    contentAlignment = Alignment.CenterStart
+                        .clickable { showBottomSheet = true }
+                        .background(Color.White, shape = RoundedCornerShape(6.dp)),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        TextField(
-                            value = managementFee,
-                            onValueChange = { managementFee = it },
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(end = 4.dp),
-                            placeholder = { Text("") }, // placeholder 제거
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            colors = TextFieldDefaults.colors(
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent,
-                                disabledContainerColor = Color.Transparent,
-                                focusedIndicatorColor = Color.Transparent,
-                                unfocusedIndicatorColor = Color.Transparent,
-                                disabledIndicatorColor = Color.Transparent
-                            ),
-                            singleLine = true
-                        )
-                        Text(
-                            text = "만원",
-                            fontSize = 12.sp,
-                            color = Color(0xFFA5A5A5)
-                        )
-                    }
+                    Text(
+                        text = regionDisplay,
+                        color = if (regionDisplay == "지역을 선택해주세요.") Color.Gray else Color.Black,
+                        fontSize = 12.sp
+                    )
                 }
-            }
 
+                Spacer(modifier = Modifier.height(12.dp))
+                Text("제목", fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(6.dp))
+                OutlinedTextField(
+                    value = inputTitle,
+                    onValueChange = { inputTitle = it },
+                    placeholder = { Text("제목을 입력해주세요.", color = Color(0xFFA5A5A5), fontSize = 12.sp) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(4.dp)
+                        .focusRequester(focusRequester)
+                        .onFocusChanged {
+                            if (it.isFocused) {
+                                keyboardController?.show()
+                            }
+                        }
+                        .autoBringIntoViewOnFocus(),
+                    shape = RoundedCornerShape(6.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color.Gray,
+                        unfocusedBorderColor = Color.Gray
+                    )
+                )
 
-            Spacer(modifier = Modifier.height(12.dp))
-            Text("입주 가능일", fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(6.dp))
-            OutlinedTextField(
-                value = moveInDate,
-                onValueChange = { moveInDate = it },
-                placeholder = { Text("가능한 날짜 또는 시기를 작성해주세요.", color = Color(0xFFA5A5A5), fontSize = 12.sp) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(4.dp)
-                    .focusRequester(focusRequester)
-                    .onFocusChanged {
-                        if (it.isFocused) {
-                            keyboardController?.show()
+                Spacer(modifier = Modifier.height(12.dp))
+                Text("자세한 설명", fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(6.dp))
+                OutlinedTextField(
+                    value = inputDescription,
+                    onValueChange = { inputDescription = it },
+                    placeholder = { Text("자세한 설명을 입력해주세요.", color = Color(0xFFA5A5A5), fontSize = 12.sp) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(120.dp)
+                        .padding(4.dp)
+                        .focusRequester(focusRequester)
+                        .onFocusChanged {
+                            if (it.isFocused) {
+                                keyboardController?.show()
+                            }
+                        }
+                        .autoBringIntoViewOnFocus()
+                    ,
+                    shape = RoundedCornerShape(6.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color.Gray,
+                        unfocusedBorderColor = Color.Gray
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+                Row(modifier = Modifier.fillMaxWidth().padding(4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("보증금", fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .border(1.dp, Color.Gray, RoundedCornerShape(6.dp))
+                                .padding(horizontal = 12.dp),
+                            contentAlignment = Alignment.CenterStart
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                TextField(
+                                    value = deposit,
+                                    onValueChange = { deposit = it },
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .padding(end = 4.dp)
+                                        .autoBringIntoViewOnFocus(),
+                                    placeholder = { Text("") }, // placeholder 제거
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    colors = TextFieldDefaults.colors(
+                                        focusedContainerColor = Color.Transparent,
+                                        unfocusedContainerColor = Color.Transparent,
+                                        disabledContainerColor = Color.Transparent,
+                                        focusedIndicatorColor = Color.Transparent,
+                                        unfocusedIndicatorColor = Color.Transparent,
+                                        disabledIndicatorColor = Color.Transparent
+                                    ),
+                                    singleLine = true
+                                )
+                                Text(
+                                    text = "만원",
+                                    fontSize = 12.sp,
+                                    color = Color(0xFFA5A5A5)
+                                )
+                            }
                         }
                     }
-                ,
-                shape = RoundedCornerShape(6.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color.Gray,
-                    unfocusedBorderColor = Color.Gray
-                )
-            )
 
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(
-                text = "ⓘ 경고문 블라블라",
-                color = Color(0xFF6C4DFF),
-                fontSize = 12.sp
-            )
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Button(
-                enabled = isStep2Valid,
-                onClick = {
-                    // 검증
-                    val missing = firstMissingFieldOrNull()
-                    if (missing != null) {
-                        missingField = missing
-                        return@Button
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("월세", fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .border(1.dp, Color.Gray, RoundedCornerShape(6.dp))
+                                .padding(horizontal = 12.dp),
+                            contentAlignment = Alignment.CenterStart
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                TextField(
+                                    value = monthlyRent,
+                                    onValueChange = { monthlyRent = it },
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .padding(end = 4.dp)
+                                        .autoBringIntoViewOnFocus(),
+                                    placeholder = { Text("") }, // placeholder 제거
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    colors = TextFieldDefaults.colors(
+                                        focusedContainerColor = Color.Transparent,
+                                        unfocusedContainerColor = Color.Transparent,
+                                        disabledContainerColor = Color.Transparent,
+                                        focusedIndicatorColor = Color.Transparent,
+                                        unfocusedIndicatorColor = Color.Transparent,
+                                        disabledIndicatorColor = Color.Transparent
+                                    ),
+                                    singleLine = true
+                                )
+                                Text(
+                                    text = "만원",
+                                    fontSize = 12.sp,
+                                    color = Color(0xFFA5A5A5)
+                                )
+                            }
+                        }
                     }
+                }
 
-                    // 통과 시 ViewModel 저장 & 다음 단계
-                    viewModel.setStep2Data(
-                        region = selectedRegion,
-                        title = inputTitle.trim(),
-                        desc = inputDescription.trim(),
-                        deposit = deposit.trim(),
-                        rent = monthlyRent.trim(),
-                        fee = managementFee.trim(),
-                        moveIn = moveInDate.trim()
+                Spacer(modifier = Modifier.height(12.dp))
+                Text("관리비", fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(6.dp))
+                Row(modifier = Modifier.fillMaxWidth().padding(4.dp)) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .border(1.dp, Color.Gray, RoundedCornerShape(6.dp))
+                            .padding(horizontal = 12.dp),
+                        contentAlignment = Alignment.CenterStart
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            TextField(
+                                value = managementFee,
+                                onValueChange = { managementFee = it },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(end = 4.dp)
+                                    .autoBringIntoViewOnFocus(),
+                                placeholder = { Text("") }, // placeholder 제거
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                colors = TextFieldDefaults.colors(
+                                    focusedContainerColor = Color.Transparent,
+                                    unfocusedContainerColor = Color.Transparent,
+                                    disabledContainerColor = Color.Transparent,
+                                    focusedIndicatorColor = Color.Transparent,
+                                    unfocusedIndicatorColor = Color.Transparent,
+                                    disabledIndicatorColor = Color.Transparent
+                                ),
+                                singleLine = true
+                            )
+                            Text(
+                                text = "만원",
+                                fontSize = 12.sp,
+                                color = Color(0xFFA5A5A5)
+                            )
+                        }
+                    }
+                }
+
+
+                Spacer(modifier = Modifier.height(12.dp))
+                Text("입주 가능일", fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(6.dp))
+                OutlinedTextField(
+                    value = moveInDate,
+                    onValueChange = { moveInDate = it },
+                    placeholder = { Text("가능한 날짜 또는 시기를 작성해주세요.", color = Color(0xFFA5A5A5), fontSize = 12.sp) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(4.dp)
+                        .focusRequester(focusRequester)
+                        .onFocusChanged {
+                            if (it.isFocused) {
+                                keyboardController?.show()
+                            }
+                        }
+                        .autoBringIntoViewOnFocus()
+                    ,
+                    shape = RoundedCornerShape(6.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color.Gray,
+                        unfocusedBorderColor = Color.Gray
                     )
-                    onNextClick()
-                },
-                shape = RoundedCornerShape(6.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF665ED3),
-                    contentColor = Color.White
                 )
-            ) {
-                Text(
-                    text = "다음",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = "ⓘ 경고문 블라블라",
+                    color = Color(0xFF6C4DFF),
+                    fontSize = 12.sp
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Button(
+                    enabled = isStep2Valid,
+                    onClick = {
+                        // 검증
+                        val missing = firstMissingFieldOrNull()
+                        if (missing != null) {
+                            missingField = missing
+                            return@Button
+                        }
+
+                        // 통과 시 ViewModel 저장 & 다음 단계
+                        viewModel.setStep2Data(
+                            region = selectedRegion,
+                            title = inputTitle.trim(),
+                            desc = inputDescription.trim(),
+                            deposit = deposit.trim(),
+                            rent = monthlyRent.trim(),
+                            fee = managementFee.trim(),
+                            moveIn = moveInDate.trim()
+                        )
+                        onNextClick()
+                    },
+                    shape = RoundedCornerShape(6.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF665ED3),
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text(
+                        text = "다음",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+            }
         }
     }
 
@@ -466,6 +484,8 @@ fun readCsv(context: Context, fileName: String): List<Map<String, String>> {
         }
     }
 }
+
+
 
 data class RegionDataBundle(
     val cities: List<String>,
@@ -547,3 +567,33 @@ fun HouseRegisterScreen2Preview() {
 }
 
 class PreviewHouseRegisterViewModel2 : HouseRegisterViewModelBase()
+
+@Composable private fun KeyboardClosableContainer(content: @Composable () -> Unit) {
+    val fm = LocalFocusManager.current
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .imePadding() // 키보드 높이만큼 안전 패딩
+        .navigationBarsPadding() // 제스처/네비바 대응
+        .pointerInput(Unit) {
+            detectTapGestures(onTap = { fm.clearFocus() }) // 바깥 탭 → 키보드 닫힘
+        }
+    ) { content() }
+}
+
+@Composable
+@OptIn(ExperimentalFoundationApi::class)
+fun Modifier.autoBringIntoViewOnFocus(): Modifier {
+    val requester = remember { BringIntoViewRequester() }
+    val scope = rememberCoroutineScope()
+    return this
+        .bringIntoViewRequester(requester)
+        .onFocusChanged { state ->
+            if (state.isFocused) {
+                scope.launch {
+                    // 키보드가 뜨기 시작한 뒤 스크롤되도록 살짝 지연
+                    delay(120)
+                    requester.bringIntoView()
+                }
+            }
+        }
+}
