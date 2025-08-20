@@ -1,10 +1,8 @@
 package com.housweet.presentation
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Base64
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -23,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -415,14 +412,16 @@ class MainActivity : ComponentActivity() {
                     composable<Route.CommunityPageRoute.PostRoute.Posts> {
                         val postRegions = it.toRoute<Route.CommunityPageRoute.PostRoute.Posts>().postRegions
                         val updatePostId = it.toRoute<Route.CommunityPageRoute.PostRoute.Posts>().updatePostId
+                        val blockedUserId = it.toRoute<Route.CommunityPageRoute.PostRoute.Posts>().blockedUserId
                         PostsScreen(
                             updatePostId = updatePostId,
+                            blockedUserId = blockedUserId,
                             onPostClick = { id, lastRegion ->
                                 navigationManager.navigateTo(Route.CommunityPageRoute.PostRoute.DetailPost(id, lastRegion))
                             },
                             onBackBtnClick = {
                                 navigationManager.navigateOneWay(
-                                    Route.CommunityPageRoute.PostRoute.Posts(postRegions, updatePostId),
+                                    Route.CommunityPageRoute.PostRoute.Posts(postRegions, updatePostId, blockedUserId),
                                     Route.CommunityPageRoute.Map()
                                 )
                             },
@@ -432,12 +431,22 @@ class MainActivity : ComponentActivity() {
                     composable<Route.CommunityPageRoute.PostRoute.DetailPost> {
                         val postId = it.toRoute<Route.CommunityPageRoute.PostRoute.DetailPost>().postId
                         val lastRegion = it.toRoute<Route.CommunityPageRoute.PostRoute.DetailPost>().lastRegion
+                        val blockedUserId = it.toRoute<Route.CommunityPageRoute.PostRoute.DetailPost>().blockedUserId
                         val chatListViewModel: com.housweet.presentation.viewmodel.chatlist.ChatListViewModel = hiltViewModel()
                         val myId by chatListViewModel.myUserId.collectAsStateWithLifecycle()
 
                         // 필요 시 초기 로드
                         LaunchedEffect(Unit) {
                             if (myId == null) chatListViewModel.refreshMyUserIdAndUsers()
+                        }
+
+                        blockedUserId?.let {
+                            navigationManager.navigateOneWay(
+                                Route.CommunityPageRoute.PostRoute.DetailPost(postId, lastRegion, blockedUserId),
+                                Route.CommunityPageRoute.PostRoute.Posts(blockedUserId = blockedUserId)
+                            )
+
+                            return@composable
                         }
 
                         DetailPostScreen(
@@ -463,12 +472,12 @@ class MainActivity : ComponentActivity() {
                             onBackBtnClick = { isBookmarkChanged ->
                                 if (isBookmarkChanged) {
                                     navigationManager.navigateOneWay(
-                                        Route.CommunityPageRoute.PostRoute.DetailPost(postId, lastRegion),
+                                        Route.CommunityPageRoute.PostRoute.DetailPost(postId, lastRegion, blockedUserId),
                                         Route.CommunityPageRoute.PostRoute.Posts(updatePostId = postId)
                                     )
                                 } else {
                                     navigationManager.navigateOneWay(
-                                        Route.CommunityPageRoute.PostRoute.DetailPost(postId, lastRegion),
+                                        Route.CommunityPageRoute.PostRoute.DetailPost(postId, lastRegion, blockedUserId),
                                         Route.CommunityPageRoute.PostRoute.Posts()
                                     )
                                 }
@@ -838,12 +847,26 @@ class MainActivity : ComponentActivity() {
                         ProfileRoute(
                             userId = userId,
                             navigateEditProfile = { navController.navigate("profile/edit?fromTerms=false") },
-                            onBackClick = { navController.popBackStack() },
-                            navigateChatting = {receiverId, nickName ->
+                            onBackClick = { isBlocked ->
+                                if (isBlocked) {
+                                    val previousRoute = navController.previousBackStackEntry?.destination?.route
+                                    if (previousRoute?.contains("CommunityPageRoute.PostRoute.DetailPost") == true) {
+                                        navigationManager.navigateOneWay(
+                                            "profile/$userId",
+                                            Route.CommunityPageRoute.PostRoute.DetailPost(blockedUserId = userId?.toInt() ?: -1)
+                                        )
+                                    } else {
+                                        navController.popBackStack()
+                                    }
+                                } else {
+                                    navController.popBackStack()
+                                }
+                            },
+                            navigateChatting = { receiverId, nickName ->
                                 val sender = myId ?: run {
-                                // 스낵바 등으로 로그인 필요 메시지 처리
-                                return@ProfileRoute
-                            }
+                                    // 스낵바 등으로 로그인 필요 메시지 처리
+                                    return@ProfileRoute
+                                }
                                 chatListViewModel.createRoomAndShow(
                                     senderId = sender,
                                     receiverId = receiverId,

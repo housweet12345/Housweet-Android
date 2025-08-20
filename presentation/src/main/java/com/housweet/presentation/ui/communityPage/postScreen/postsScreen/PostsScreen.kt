@@ -54,6 +54,7 @@ import com.housweet.presentation.ui.theme.White
 @Composable
 fun PostsScreen(
     updatePostId: Int?,
+    blockedUserId: Int?,
     postsViewModel: PostsViewModel = hiltViewModel(),
     onPostClick: (postId: Int, lastRegion: String) -> Unit,
     onBackBtnClick: () -> Unit,
@@ -100,6 +101,7 @@ fun PostsScreen(
             PostsContent(
                 postRegions = postsViewModel.postRegions,
                 posts = posts,
+                blockedUserId = blockedUserId,
                 snackBarHostState = snackBarHostState,
                 onPostClick = onPostClick,
                 onToggleLike = { postRegion, postIndex ->
@@ -119,6 +121,7 @@ fun PostsScreen(
 private fun PostsContent(
     postRegions: List<String>,
     posts: Map<String, List<RoomPostsByLocationDataModel>>,
+    blockedUserId: Int?,
     snackBarHostState: SnackbarHostState,
     onPostClick: (postId: Int, lastRegion: String) -> Unit,
     onToggleLike: (postRegion: String, postIndex: Int) -> Unit,
@@ -148,7 +151,7 @@ private fun PostsContent(
                     key = { posts[it].id }
                 ) { postIndex ->
                     val postInfo = posts[postIndex]
-                    if (postInfo.isVisible) {
+                    if (postInfo.isVisible && postInfo.userId != blockedUserId) {
                         PostItem(
                             postInfo = postInfo,
                             postRegion = "${regionParts[1]} ${regionParts[2]}",
@@ -319,6 +322,7 @@ private fun PostsScreenPreview() {
             "서울특별시 강남구 역삼동" to listOf(
                 RoomPostsByLocationDataModel(
                     id = 1,
+                    userId = 0,
                     title = "방 구하는 분",
                     imageUri = "https://picsum.photos/200/300",
                     isBookmarked = false,
@@ -329,6 +333,7 @@ private fun PostsScreenPreview() {
                 )
             )
         ),
+        blockedUserId = 0,
         snackBarHostState = remember { SnackbarHostState() },
         onPostClick = { _, _ -> },
         onToggleLike = { _, _ -> },
