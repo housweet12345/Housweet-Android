@@ -36,12 +36,10 @@ import kotlin.collections.filter
 import android.util.Base64
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.runtime.remember
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 import kotlin.String
 import kotlin.io.encoding.ExperimentalEncodingApi
 import com.housweet.presentation.ui.chat.toKstKoreanFull
+import com.housweet.presentation.ui.chatlist.ChatListContent
 
 
 @Composable
@@ -54,19 +52,23 @@ fun ChatListScreen(
         onBackClick()
     }
 
+    val myIdState = viewModel.myUserId.collectAsState()
     val chatUsersState = viewModel.chatUsers.collectAsState()
+
+    val myId = myIdState.value ?: run { return }
 
     val visibleUsers = remember(chatUsersState.value) {
         chatUsersState.value.filter { !it.is_blocked }      // 차단 숨김
     }
 
-    ChatListContent(navController = navController, chatUsers = visibleUsers, onBackClick = onBackClick)
+    ChatListContent(navController = navController, senderId = myId, chatUsers = visibleUsers, onBackClick = onBackClick)
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalEncodingApi::class)
 @Composable
 fun ChatListContent(
     navController: NavController,
+    senderId: Int,
     chatUsers: List<ChatUser>,
     onBackClick: () -> Unit,
 ) {
@@ -129,7 +131,7 @@ fun ChatListContent(
                                 displayName.toByteArray(),
                                 Base64.URL_SAFE or Base64.NO_WRAP
                             )
-                            navController.navigate("chat_detail/${user.counterpart_id}/${user.room_id}/$encodedName")
+                            navController.navigate("chat_detail/$senderId/${user.counterpart_id}/${user.room_id}/$encodedName")
                         }
                     )
                 }
@@ -142,6 +144,7 @@ fun ChatListContent(
 @Composable
 fun ChatListScreenPreview() {
     val navController = rememberNavController()
+    val mockSenderId = 3
     val mockUsers = listOf(
         ChatUser(
             room_id = 1,
@@ -187,5 +190,5 @@ fun ChatListScreenPreview() {
         )
     )
 
-    ChatListContent(navController = navController, chatUsers = mockUsers, onBackClick = {})
+    ChatListContent(navController = navController, senderId = mockSenderId, chatUsers = mockUsers, onBackClick = {})
 }
