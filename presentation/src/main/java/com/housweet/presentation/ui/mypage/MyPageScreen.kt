@@ -58,6 +58,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.common.CustomAlertDialog
+import com.housweet.presentation.ui.profile.state.ProfileInfo
 import com.housweet.presentation.viewmodel.profile.ProfileInfoViewModel
 import com.housweet.presentation.ui.profile.state.ProfileInfoState
 
@@ -83,7 +84,7 @@ fun MyPageScreen(
     }
 
     val profileState = viewModel.profileState.collectAsState().value
-    var lastProfile: Any? by remember { mutableStateOf(null) }
+    var lastProfile: ProfileInfo? by remember { mutableStateOf(null) }
 
     Scaffold (
         containerColor = Color.White,
@@ -381,61 +382,26 @@ fun MyPageScreenPreview() {
 }
 
 @Composable
-private fun ProfileHeaderContent(p: Any) {
-    Box(
+private fun ProfileHeaderContent(profileInfo: ProfileInfo) {
+
+    AsyncImage(
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(profileInfo.profileImageUrl)
+            .error(R.drawable.default_profile_img)// ✅ 서버에서 내려오는 profile_image
+            .build(),
+        contentDescription = "방 이미지",
         modifier = Modifier
             .size(58.dp)
-            .clip(CircleShape)
-            .background(Color(0xFFE0E0E0))
-    ){
-        AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(safeGet(p, "profileImage"))           // ✅ 서버에서 내려오는 profile_image
-                .crossfade(true)                   // 페이드 효과
-                .build(),
-            contentDescription = "방 이미지",
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop      // 이미지 꽉 차게
-        )
-    }
+            .clip(shape = CircleShape),
+        contentScale = ContentScale.Crop      // 이미지 꽉 차게
+    )
     Spacer(modifier = Modifier.width(16.dp))
     Column {
-        Text(text = safeGet(p, "nickname"), fontSize = 14.sp, fontWeight = FontWeight.Bold)
-
-        val subtitle = when {
-            // 이미 ageGroupKor / genderKor가 있으면 그걸 쓰기
-            safeHas(p, "ageGroupKor") && safeHas(p, "genderKor") ->
-                "${safeGet(p, "ageGroupKor")} ${safeGet(p, "genderKor")}"
-            else ->
-                ageGenderLabel(
-                    yearOfBirth = safeGet(p, "yearOfBirth"),
-                    genderRaw   = safeGet(p, "gender")
-                )
-        }
-        Text(text = subtitle, fontSize = 12.sp, color = Color.Gray)
+        Text(text = profileInfo.nickname, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+        Text(
+            text = "${profileInfo.age} ${profileInfo.gender}",
+            fontSize = 12.sp,
+            color = Color.Gray
+        )
     }
-}
-
-private fun safeHas(obj: Any, field: String): Boolean =
-    try { obj::class.members.any { it.name == field } } catch (_: Exception) { false }
-
-private fun safeGet(obj: Any, field: String): String =
-    try {
-        val m = obj::class.members.firstOrNull { it.name == field } ?: return ""
-        val v = m.call(obj)
-        when (v) { null -> ""; is String -> v; else -> v.toString() }
-    } catch (_: Exception) { "" }
-
-private fun ageGenderLabel(yearOfBirth: String?, genderRaw: String?): String {
-    val nowYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)
-    val age = yearOfBirth?.toIntOrNull()?.let { (nowYear - it).coerceAtLeast(0) }
-    val decade = age?.let { (it / 10) * 10 }?.takeIf { it in 10..90 }?.toString()?.plus("대") ?: "연령정보없음"
-    val gender = when (genderRaw?.lowercase()) {
-        "MALE", "male", "M" -> "남성"
-        "FEMALE", "female", "F" -> "여성"
-        "남자", "남성" -> "남성"
-        "여자", "여성" -> "여성"
-        else -> "성별정보없음"
-    }
-    return "$decade $gender"
 }
