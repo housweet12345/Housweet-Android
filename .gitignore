@@ -139,6 +139,6 @@ CLAUDE.md
 /.kotlin
 app/google-services.json
 
-android/fastlane/*.json
-android/fastlane/keystore/*.jks
+fastlane/*.json
+fastlane/keystore/*.jks
 .env
