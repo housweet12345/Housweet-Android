@@ -8,7 +8,6 @@ import com.housweet.data.network.dto.VisibilityRequestDto
 import com.housweet.data.network.dto.toRoomPost
 import com.housweet.domain.model.RoomPost
 import com.housweet.domain.repository.RoomPostingRepository
-import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
@@ -26,8 +25,7 @@ class RoomPostingRepositoryImpl @Inject constructor(
     private val authLocalDataSource: AuthLocalDataSource
 ): RoomPostingRepository {
 
-    private val client: HttpClient
-        get() = ktorService.getHttpClient()
+    private val client by lazy { ktorService.createHttpClient() }
     private val BASE_URL = BuildConfig.BASE_URL
 
     override suspend fun getMyRoomPostings(): List<RoomPost> {
