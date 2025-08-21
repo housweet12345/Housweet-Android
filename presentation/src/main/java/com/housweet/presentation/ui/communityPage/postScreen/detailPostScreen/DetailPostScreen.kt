@@ -369,38 +369,38 @@ private fun UserProfile(
 ) {
     Spacer(modifier = Modifier.height(16.dp))
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+    Box(
+        modifier = Modifier.fillMaxWidth()
     ) {
-        AsyncImage(
-            model = ImageRequest
-                .Builder(context)
-                .data(roomPostDetail.profileImageUrl)
-                .error(R.drawable.default_profile_img)
-                .build(),
-            contentDescription = "RoomImage",
-            modifier = Modifier
-                .size(30.dp)
-                .clip(CircleShape)
-                .clickable { onProfileScreen(roomPostDetail.userId) }
-        )
-        Column(
-            modifier = Modifier.padding(start = 8.dp)
+        Row(
+            modifier = Modifier.clickable {
+                if (roomPostDetail.userId != -1) onProfileScreen(roomPostDetail.userId)
+            },
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            GuideText(
-                color = Black,
-                text = roomPostDetail.nickName,
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = 12.sp,
-                lineHeight = 12.sp,
-                textAlign = TextAlign.Start
+            AsyncImage(
+                model = ImageRequest
+                    .Builder(context)
+                    .data(roomPostDetail.profileImageUrl)
+                    .error(R.drawable.default_profile_img)
+                    .build(),
+                contentDescription = "RoomImage",
+                modifier = Modifier.size(30.dp)
             )
 
-            Spacer(modifier = Modifier.height(3.dp))
+            Column(
+                modifier = Modifier.padding(start = 8.dp)
+            ) {
+                GuideText(
+                    color = Black,
+                    text = roomPostDetail.nickName,
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 12.sp,
+                    lineHeight = 12.sp,
+                    textAlign = TextAlign.Start
+                )
 
-            Row {
+                Spacer(modifier = Modifier.height(3.dp))
                 GuideText(
                     color = Black,
                     text = roomPostDetail.ageRangeAndGender,
@@ -409,19 +409,18 @@ private fun UserProfile(
                     lineHeight = 10.sp,
                     textAlign = TextAlign.Start
                 )
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                GuideText(
-                    color = Gray_7E7E7E,
-                    text = getRelativeTime(roomPostDetail.createdAtKst),
-                    fontWeight = FontWeight.Normal,
-                    fontSize = 10.sp,
-                    lineHeight = 10.sp,
-                    textAlign = TextAlign.Start
-                )
             }
         }
+
+        GuideText(
+            modifier = Modifier.align(Alignment.BottomEnd),
+            color = Gray_7E7E7E,
+            text = getRelativeTime(roomPostDetail.createdAtKst),
+            fontWeight = FontWeight.Normal,
+            fontSize = 10.sp,
+            lineHeight = 10.sp,
+            textAlign = TextAlign.Start
+        )
     }
 }
 
