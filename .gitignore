@@ -138,3 +138,5 @@ CLAUDE.md
 
 /.kotlin
 app/google-services.json
+
+android/keystore/*.jks
