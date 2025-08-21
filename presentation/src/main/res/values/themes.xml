@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="Theme.Housweet" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.Housweet" parent="android:Theme.Material.Light.NoActionBar" >
+        <item name="android:statusBarColor">#000000</item>
+    </style>
 
     <style name="Theme.MySplashScreen" parent="Theme.Housweet">
         <item name="android:windowBackground">@color/splash_white</item>
