@@ -49,7 +49,7 @@ platform :android do
   desc "Validate Play Console preconditions (no upload)"
   lane :validateReleaseToStore do
     ENV["SUPPLY_VERBOSE"] = "true"                # 상세 로그
-    json_file = File.expand_path("roomshare-6d8cd-95b994871b09.json", Dir.pwd)
+    json_file = File.expand_path("roomshare-6d8cd-91118a26e96c.json", Dir.pwd)
     package   = "com.housweet.app"                  # ← 실제 applicationId로 교체
 
     build_aab
@@ -70,7 +70,7 @@ platform :android do
   # 🚦 2) 클로즈드 테스트 트랙 업로드 (파이프라인 점검용)
   desc "Upload to Closed track as draft"
     lane :publishClosedDraft do
-      json_file = File.expand_path("roomshare-6d8cd-95b994871b09.json", Dir.pwd)
+      json_file = File.expand_path("roomshare-6d8cd-91118a26e96c.json", Dir.pwd)
       package   = "com.housweet.app"
 
       build_aab
@@ -91,7 +91,7 @@ platform :android do
   # 🚀 3) 프로덕션 업로드 (모든 선행조건 완료 후)
   desc "Upload to Production as draft"
   lane :publishProductionDraft do
-    json_file = File.expand_path("roomshare-6d8cd-95b994871b09.json", Dir.pwd)
+    json_file = File.expand_path("roomshare-6d8cd-91118a26e96c.json", Dir.pwd)
     package   = "com.housweet.app"                  # ← 실제 applicationId
 
     build_aab
