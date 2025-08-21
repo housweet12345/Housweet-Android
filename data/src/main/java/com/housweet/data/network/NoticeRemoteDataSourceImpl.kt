@@ -2,6 +2,7 @@ package com.housweet.data.network
 
 import com.housweet.data.BuildConfig
 import com.housweet.data.network.dto.NoticeDto
+import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.get
@@ -15,7 +16,8 @@ import javax.inject.Singleton
 class NoticeRemoteDataSourceImpl @Inject constructor(
     private val ktorService: KtorService
 ) : NoticeRemoteDataSource {
-    private val client by lazy { ktorService.createHttpClient() }
+    private val client: HttpClient
+        get() = ktorService.getHttpClient()
     private val base = BuildConfig.BASE_URL
 
     // 공통 헬퍼: 성공코드 확인 → JSON 파싱(실패시 raw 포함해 친절한 에러)

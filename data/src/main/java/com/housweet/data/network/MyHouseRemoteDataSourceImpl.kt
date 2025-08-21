@@ -20,8 +20,10 @@ import io.ktor.http.isSuccess
 import javax.inject.Inject
 
 class MyHouseRemoteDataSourceImpl @Inject constructor(
-    private val client: HttpClient
+    private val ktorService: KtorService
 ) : MyHouseRemoteDataSource {
+    private val client: HttpClient
+        get() = ktorService.getHttpClient()
 
     private val base = "http://43.200.10.89"
 
