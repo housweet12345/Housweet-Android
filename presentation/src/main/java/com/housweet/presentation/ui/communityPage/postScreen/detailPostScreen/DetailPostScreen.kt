@@ -43,6 +43,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -385,7 +386,10 @@ private fun UserProfile(
                     .error(R.drawable.default_profile_img)
                     .build(),
                 contentDescription = "RoomImage",
-                modifier = Modifier.size(30.dp)
+                modifier = Modifier
+                    .size(30.dp)
+                    .clip(shape = CircleShape),
+                contentScale = ContentScale.Crop
             )
 
             Column(

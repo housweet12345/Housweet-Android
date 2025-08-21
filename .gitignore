@@ -137,3 +137,4 @@ fabric.properties
 CLAUDE.md
 
 /.kotlin
+app/google-services.json
