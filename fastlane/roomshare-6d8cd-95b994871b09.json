@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "roomshare-6d8cd",
+  "private_key_id": "95b994871b09a7c7e877a2ae96b564383ab4e533",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCU3p+Ek4wgPcp+\nGA8tSwYcgVzbTe2UOBmMIA8+0Pb93oYmQak0pt0qHa+c0PCkQ1+1eR6MMYSZc5O6\nbNywthHoMeRDsql01UJS7UJUc61eMwf2IATKoJsMi1lQUTl6KRyPb1ZezG6RuG/t\ndwf7D9rS8LuHu0oyuOU3pt96Xrpxgp6zPoGoe3hAR65ml0g35QII7n6wrSiYVPVv\nTuoIwoOgISSF8utyXxlfTwFeBB6AddpXgBc7sejTQ7AX1fyvDUDsax/zzzXuh5GQ\nMLg5sxyfgyrBaGflFZPPjtfO42vQ54Tmz/w4fWCk9GojR/40Mafbsr8UUOpVxs5S\n8dszViFLAgMBAAECggEAAW2jusura4uWZ3Hv67QB4ml+DHDGvBHnWwas/VCGBh+b\nMz9mTD0/91NXIgjkycsHgUXPWaDk52FEihLwTpAVt85zGSe5EsJLZknTdDnhh7VW\nRIkdSe1NXJx+jwJk2nXID69TjGcEh6WnOIeePKpcmCWYrBh6DSxwUdMkW3qzda9p\n+PYLHYjBP5ufp7HtJGCr0GfRsCdbpUeFk0WEFPdZKtEvyMp4IhGQ8UucGz/K1Q0Z\nu8NCKYwBdz+g0E1y8iMaTO2kg/lJbiAVeuzbAjzDPj73zc0Am2OyPujogC76lLzO\ncuCojNouJTG7NS9Sbn9FqQpXVFK+mkuwg9JECZMxtQKBgQDQzDSBHtHWKc5YlLcQ\nyMAXq9D1tipIRGvQd1mfz1i4VX9Zeq6KEbule0WW5vOp8gcEm9v8ndOZTymu+6Km\nrAdiw7gdR7OkPhZ6JoBumo1u7R0PGqM6Y0QePDL3EEBhaacZ5RKCqyVZsxygNjUk\nSlyUc9nP0v1e3IYT6a5DVdCPzwKBgQC2hjAv08KFMxTeGeznffOOAPRWq6eoAx4K\nIDWo2ukeq3r2VvwgBAZm+V83ACCdhPdtInKhM3F8xZg/pzmoFwbytQBfMbsY0nzp\nQQXVNxX5dXawIWYhCnBksQk+9fYG6PjoPTtZJJiPaC/AvnZU43UJgcr6a/QjGWsc\nb39aRD/ZxQKBgA5PsNmYzzEqtGYF63ZPDDuTH0N4NPW3GtyzEYWOpLodwhjT+9qi\n1IXHKUHqmpDvceOy+yUZfENp1aWUwdVCvU7bs2buXzXGu6urr+nk1gTgY7mBTebW\nnvijj6q3hnIm17lCpj4mlOzNBg1FKedO4YGbXzaLc6po2xfKUJN08lKpAoGAQ93B\nLQdf3IcRy0N4gtqiJLrWHyPUQvRlxv4S9aXv6Cd6oP3W4VCd0MwISzsQ5YD7PukA\nFlA6clpGMeTL22Q0gSor6Tlkh+Y7677xnEXPNeInL3Y7sy1efRIWjgKGaCtX4YJi\n/tJMp4Xlu5UWCppIejB4eISLUkGxQfFzOO0HkMECgYA7IDWoS10dOFTZh9IZYWao\n/xnBgrmcTXyj+HLk6qsJ0pKYocAwK/izyJqr0PUZrWVPQAmjtoGcVUZMFd97X8r/\n+m7eFirnTrVa/bxrnNFo4sMpyYd+U4/Up/nbC8XCj27L2OkxpiUxwm35Eze9iYZ/\npdqR5jggDEqplLbbo3UmBw==\n-----END PRIVATE KEY-----\n",
+  "client_email": "fastlane-supply-housweet@roomshare-6d8cd.iam.gserviceaccount.com",
+  "client_id": "117693355323402274978",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/fastlane-supply-housweet%40roomshare-6d8cd.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
