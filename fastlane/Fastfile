@@ -51,37 +51,4 @@ platform :android do
   	)
   end
 
-    lane :publishReleaseToStore do
-      # 경로들
-      keystore = File.join(Dir.pwd, "keystore/housweet.jks")
-      json_file = File.join(Dir.pwd, "fastlane/roomshare-6d8cd-95b994871b09.json")
-
-      # (선택) 로컬에서 서명 주입이 필요할 때만 사용
-      # 보통은 app/build.gradle의 signingConfigs를 쓰면 이 블록은 불필요
-      # 필요하다면 ENV로 빼두세요.
-      gradle(
-        task: "bundleRelease",
-        print_command: true,
-        properties: {
-          "android.injected.signing.store.file" => keystore,
-          "android.injected.signing.store.password" => ENV['STORE_PASSWORD'],
-          "android.injected.signing.key.alias" => ENV['KEY_ALIAS'],
-          "android.injected.signing.key.password" => ENV['KEY_PASSWORD'],
-        }
-      )
-
-      # AAB 자동 감지되지만, 확실히 하려면 aab: 로 경로 지정 가능
-      # aab_path = "app/build/outputs/bundle/release/app-release.aab"
-
-      upload_to_play_store(
-        track: "internal",            # 테스트면 internal이 편함(또는 'production'도 가능)
-        release_status: "draft",      # 초안으로 올리기
-        json_key: json_file,          # 파일 "경로"를 줄 때는 json_key
-        skip_upload_metadata: true,
-        skip_upload_images: true,
-        skip_upload_screenshots: true
-        # aab: aab_path              # 명시하고 싶으면 주석 해제
-      )
-    end
-
 end
