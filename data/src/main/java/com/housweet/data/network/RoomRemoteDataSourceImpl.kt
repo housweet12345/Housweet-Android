@@ -1,6 +1,7 @@
 package com.housweet.data.network
 
 import com.housweet.data.network.dto.MyRoomResponse
+import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.http.ContentType
@@ -12,8 +13,9 @@ import javax.inject.Inject
 class RoomRemoteDataSourceImpl @Inject constructor(
     private val ktorService: KtorService
 ): RoomRemoteDataSource {
+    private val client: HttpClient
+        get() = ktorService.getHttpClient()
     override suspend fun getMyRoomInfo(accessToken: String): MyRoomResponse {
-        val client = ktorService.createHttpClient()
         return client.get("http://43.200.10.89/room/rooms/me/") {
             headers {
                 append("Authorization", "Bearer $accessToken")

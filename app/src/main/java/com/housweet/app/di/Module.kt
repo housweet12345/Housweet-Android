@@ -257,8 +257,8 @@ abstract class Module {
 
         @Provides
         @Singleton
-        fun provideReportApi(httpClient: HttpClient): ReportApi {
-            return ReportApi(httpClient)
+        fun provideReportApi(ktorService: KtorService): ReportApi {
+            return ReportApi(ktorService)
         }
 
         @Provides
