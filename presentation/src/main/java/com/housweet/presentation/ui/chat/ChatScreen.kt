@@ -51,6 +51,7 @@ import kotlinx.coroutines.delay
 fun ChatScreen(
     chatName: String,
     navController: NavController,
+    senderId: Int,
     receiverId: Int,
     roomId: Int
 ) {
@@ -59,7 +60,6 @@ fun ChatScreen(
     val chatItems = remember { mutableStateListOf<ChatItem>() }
 
     var expanded by remember { mutableStateOf(false) }
-    val senderId = 3
     var showDeleteConfirm by remember { mutableStateOf(false) }
     var showReportConfirm by remember { mutableStateOf(false) }
     val listState = rememberLazyListState()
@@ -180,7 +180,7 @@ fun ChatScreen(
                     showReportConfirm = false
                     viewModel.reportChatRoom(roomId) { ok, err ->
                         if (ok) {
-                            viewModel.refreshChatUsers(senderId = 3)         // ✅ 신고 후 새로고침
+                            viewModel.refreshChatUsers(senderId = senderId)         // ✅ 신고 후 새로고침
                             navController.popBackStack()
                         } else {
                             Log.e("Chat", "신고 실패: $err")
