@@ -39,13 +39,13 @@ Submit a new Beta Build to Crashlytics Beta
 
 Deploy a new version to the Google Play
 
-### android distribute
+### android publishReleaseToStore
 
 ```sh
-[bundle exec] fastlane android distribute
+[bundle exec] fastlane android publishReleaseToStore
 ```
 
-Lane for distribution
+
 
 ----
 
