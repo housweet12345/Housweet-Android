@@ -434,7 +434,7 @@ class MainActivity : ComponentActivity() {
                         val postId = it.toRoute<Route.CommunityPageRoute.PostRoute.DetailPost>().postId
                         val lastRegion = it.toRoute<Route.CommunityPageRoute.PostRoute.DetailPost>().lastRegion
                         val blockedUserId = it.toRoute<Route.CommunityPageRoute.PostRoute.DetailPost>().blockedUserId
-                        val chatListViewModel: com.housweet.presentation.viewmodel.chatlist.ChatListViewModel = hiltViewModel()
+                        val chatListViewModel: ChatListViewModel = hiltViewModel()
                         val myId by chatListViewModel.myUserId.collectAsStateWithLifecycle()
 
                         // 필요 시 초기 로드
@@ -869,9 +869,9 @@ class MainActivity : ComponentActivity() {
                             },
                             navigateChatting = { receiverId, nickName ->
                                 val sender = myId ?: run {
-                                // 스낵바 등으로 로그인 필요 메시지 처리
-                                return@ProfileRoute
-                            }
+                                    // 스낵바 등으로 로그인 필요 메시지 처리
+                                    return@ProfileRoute
+                                }
                                 chatListViewModel.createRoomAndShow(
                                     senderId = sender,
                                     receiverId = receiverId,
