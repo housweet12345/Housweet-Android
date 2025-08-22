@@ -38,8 +38,6 @@ android {
                 "Kakao_Redirect_URI" to "kakao$kakaoApiKey"
             )
         )
-
-
     }
 
     buildFeatures {
@@ -48,7 +46,9 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
