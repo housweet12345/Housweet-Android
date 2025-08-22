@@ -76,3 +76,19 @@
 -keep class com.kakao.sdk.**.model.* { <fields>; }
 
 -keepnames class com.housweet.** { *; }
+
+# API 응답 모델 클래스들을 난독화에서 제외
+-keep class com.housweet.data.api.** { *; }
+-keep class com.housweet.data.model.** { *; }
+
+# Gson 관련 설정
+-keepattributes Signature
+-keepattributes *Annotation*
+-keep class com.google.gson.** { *; }
+-keep class com.google.gson.reflect.TypeToken { *; }
+-keep class * extends com.google.gson.reflect.TypeToken
+
+# API 응답에 사용되는 모든 데이터 클래스
+-keepclassmembers class * {
+    @com.google.gson.annotations.SerializedName <fields>;
+}
