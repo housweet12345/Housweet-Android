@@ -29,7 +29,31 @@ Runs all the tests
 [bundle exec] fastlane android beta
 ```
 
-Submit a new Beta Build to Crashlytics Beta
+Crashlytics Beta
+
+### android validateReleaseToStore
+
+```sh
+[bundle exec] fastlane android validateReleaseToStore
+```
+
+Validate Play Console preconditions (no upload)
+
+### android publishClosedDraft
+
+```sh
+[bundle exec] fastlane android publishClosedDraft
+```
+
+Upload to Closed track as draft
+
+### android publishProductionDraft
+
+```sh
+[bundle exec] fastlane android publishProductionDraft
+```
+
+Upload to Production as draft
 
 ### android deploy
 
@@ -37,7 +61,7 @@ Submit a new Beta Build to Crashlytics Beta
 [bundle exec] fastlane android deploy
 ```
 
-Deploy a new version to the Google Play
+Deploy (legacy)
 
 ### android publishReleaseToStore
 
