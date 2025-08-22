@@ -13,6 +13,8 @@
 # Uncomment the line if you want fastlane to automatically update itself
 # update_fastlane
 
+# fastlane/Fastfile
+
 default_platform(:android)
 
 platform :android do
@@ -21,62 +23,102 @@ platform :android do
     gradle(task: "test")
   end
 
-  desc "Submit a new Beta Build to Crashlytics Beta"
+  desc "Crashlytics Beta"
   lane :beta do
     gradle(task: "clean assembleRelease")
     crashlytics
-  
-    # sh "your_script.sh"
-    # You can also use other beta testing services here
   end
 
-  desc "Deploy a new version to the Google Play"
+  # 🔧 공통 빌드 (AAB 생성)
+  private_lane :build_aab do |options|
+    keystore  = File.expand_path("keystore/housweet.jks", Dir.pwd)   # 필요 시 경로 조정
+    gradle(
+      task: "bundle",
+      build_type: "Release",
+      print_command: true,
+      properties: {
+        "android.injected.signing.store.file" => keystore,
+        "android.injected.signing.store.password" => ENV.fetch("SIGNING_STORE_PASSWORD", "306300"),
+        "android.injected.signing.key.alias" => ENV.fetch("SIGNING_KEY_ALIAS", "key0"),
+        "android.injected.signing.key.password" => ENV.fetch("SIGNING_KEY_PASSWORD", "306300"),
+      }
+    )
+  end
+
+  # ✅ 1) 콘솔 선행조건 검증만 (실제 업로드 X)
+  desc "Validate Play Console preconditions (no upload)"
+  lane :validateReleaseToStore do
+    ENV["SUPPLY_VERBOSE"] = "true"                # 상세 로그
+    json_file = File.expand_path("roomshare-6d8cd-95b994871b09.json", Dir.pwd)
+    package   = "com.housweet.app"                  # ← 실제 applicationId로 교체
+
+    build_aab
+
+    upload_to_play_store(
+      json_key: json_file,
+      package_name: package,
+      aab: Dir["app/build/outputs/bundle/release/*.aab"].first,
+      track: "internal",                           # 검증은 internal로
+      release_status: "draft",
+      validate_only: true,                         # ✅ 검증 모드
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+      skip_upload_metadata: false                  # 메타데이터 체크 필요하면 false 유지
+    )
+  end
+
+  # 🚦 2) 클로즈드 테스트 트랙 업로드 (파이프라인 점검용)
+  desc "Upload to Closed track as draft"
+    lane :publishClosedDraft do
+      json_file = File.expand_path("roomshare-6d8cd-95b994871b09.json", Dir.pwd)
+      package   = "com.housweet.app"
+
+      build_aab
+
+      upload_to_play_store(
+        json_key: json_file,
+        package_name: package,
+        aab: Dir["app/build/outputs/bundle/release/*.aab"].first,
+        track: "alpha",
+        release_status: "draft",
+        skip_upload_images: true,
+        skip_upload_screenshots: true,
+        skip_upload_metadata: true,         # 내부 트랙이면 보통 OK
+        skip_upload_changelogs: true        # ✅ changelog 옵션 대신 이걸 사용(선택)
+      )
+    end
+
+  # 🚀 3) 프로덕션 업로드 (모든 선행조건 완료 후)
+  desc "Upload to Production as draft"
+  lane :publishProductionDraft do
+    json_file = File.expand_path("roomshare-6d8cd-95b994871b09.json", Dir.pwd)
+    package   = "com.housweet.app"                  # ← 실제 applicationId
+
+    build_aab
+
+    upload_to_play_store(
+      json_key: json_file,
+      package_name: package,
+      aab: Dir["app/build/outputs/bundle/release/*.aab"].first,
+      track: "production",
+      release_status: "draft",
+      # 프로덕션은 메타데이터/콘텐츠 등급/국가 배포 등 선행조건 충족 필수
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+      skip_upload_metadata: false                 # 스토어 리스팅 확인 위해 false 권장
+    )
+  end
+
+  # 기존 deploy도 정리(원하면 유지)
+  desc "Deploy (legacy)"
   lane :deploy do
     gradle(task: "clean assembleRelease")
     upload_to_play_store
   end
 
-#   desc "Lane for distribution"
-#       lane :distribute do
-#           gradle(task: 'clean')
-#           gradle(
-#             task: "assemble",
-#             build_type: "debug",
-#   	)
-#           firebase_app_distribution(
-#               app: ENV['APP_ID'],
-#   	    groups: ENV['FIREBASE_GROUPS'],
-#   	    release_notes_file: ENV['RELEASE_NOTES_FILE'],
-#          	    debug: true,
-#   	)
-#   end
-
-
-    lane :publishReleaseToStore do
-      keystore  = File.expand_path("keystore/housweet.jks", Dir.pwd) # 회준님께 jks 파일 받아서 넣기.
-      json_file = File.expand_path("roomshare-6d8cd-95b994871b09.json", Dir.pwd)
-
-      gradle(
-        task: "bundle",
-        build_type: "Release",
-        print_command: true,
-        properties: {
-          "android.injected.signing.store.file" => keystore,
-          "android.injected.signing.store.password" => "306300",
-          "android.injected.signing.key.alias" => "key0",
-          "android.injected.signing.key.password" => "306300",
-        }
-      )
-
-      upload_to_play_store(
-        track: "production",           # 테스트면 internal 권장
-        release_status: "draft",
-        json_key: json_file,           # <-- 여기!
-        skip_upload_metadata: true,
-        skip_upload_images: true,
-        skip_upload_screenshots: true
-        # aab: Dir["app/build/outputs/bundle/release/*.aab"].first  # 명시하고 싶으면 사용
-      )
-    end
-
+  # 기존 publishReleaseToStore 대체
+  lane :publishReleaseToStore do
+    # 사용 패턴: 먼저 validateReleaseToStore → publishInternalDraft → (체크리스트 완료) publishProductionDraft
+    UI.message("Use `fastlane validateReleaseToStore` / `publishInternalDraft` / `publishProductionDraft` lanes.")
+  end
 end
