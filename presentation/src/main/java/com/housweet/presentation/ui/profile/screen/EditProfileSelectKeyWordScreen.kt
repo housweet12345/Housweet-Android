@@ -49,7 +49,7 @@ fun EditProfileSelectKeyWordScreen(
     showSkipButton: Boolean = false, // 건너뛰기 버튼 표시 여부
     onBackClick: () -> Unit = {},
     onNextClick: (ProfileUpdateModel) -> Unit = {},
-    onSkipClick: () -> Unit = {}
+    onSkipClick: (ProfileUpdateModel) -> Unit = {}
 ) {
     // 각 섹션별 선택된 태그를 관리하는 상태
     var lifePatternTags by remember { mutableStateOf(setOf<String>()) }
@@ -90,6 +90,21 @@ fun EditProfileSelectKeyWordScreen(
         onNextClick(profileUpdateModel)
     }
 
+    // Skip 버튼 클릭 처리 (키워드 설정 화면에서 보내는건 스킵 처리)
+    val handleSkipClick = {
+
+        val profileUpdateModel = ProfileUpdateModel(
+            gender = currentProfile.gender, // 기존 정보 유지
+            introduce = currentProfile.introduce, // 기존 정보 유지
+            mbti = "XXXX",
+            nickname = currentProfile.nickname, // 기존 정보 유지
+            tags = emptyList(),
+            yearOfBirth = currentProfile.yearOfBirth // 기존 정보 유지
+        )
+
+        onSkipClick(profileUpdateModel)
+    }
+
     Scaffold(
         contentWindowInsets = WindowInsets(0.dp), // 상단 여백 제거
         bottomBar = {
@@ -98,7 +113,7 @@ fun EditProfileSelectKeyWordScreen(
                     leftText = "완료",
                     rightText = "건너뛰기",
                     onLeftClick = handleNextClick,
-                    onRightClick = onSkipClick
+                    onRightClick = handleSkipClick
                 )
             } else {
                 BottomButton(

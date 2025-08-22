@@ -42,7 +42,7 @@ fun EditProfileKeyWordRoute(
                 showSkipButton = showSkipButton,
                 onBackClick = onBackClick,
                 onNextClick = viewModel::updateProfile,
-                onSkipClick = onSkipClick
+                onSkipClick = viewModel::updateProfile
             )
         }
         ProfileInfoState.Loading -> {
