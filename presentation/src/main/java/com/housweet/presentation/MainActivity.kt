@@ -136,6 +136,8 @@ class MainActivity : ComponentActivity() {
 
                     // access_token Log 확인 테스트용
                     // startDestination = Route.StartPageRoute.LoginRoute.Login,
+//                     startDestination = Route.StartPageRoute.LoginRoute.Login,
+//                    startDestination= "mypage",
                     modifier = Modifier.padding(top = paddingValues.calculateTopPadding())
                 ) {
                     composable<Route.StartPageRoute.Splash> {
