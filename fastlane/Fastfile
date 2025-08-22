@@ -36,19 +36,47 @@ platform :android do
     upload_to_play_store
   end
 
-  desc "Lane for distribution"
-      lane :distribute do
-          gradle(task: 'clean')
-          gradle(
-            task: "assemble",
-            build_type: "debug",
-  	)
-          firebase_app_distribution(
-              app: ENV['APP_ID'],
-  	    groups: ENV['FIREBASE_GROUPS'],
-  	    release_notes_file: ENV['RELEASE_NOTES_FILE'],
-         	    debug: true,
-  	)
-  end
+#   desc "Lane for distribution"
+#       lane :distribute do
+#           gradle(task: 'clean')
+#           gradle(
+#             task: "assemble",
+#             build_type: "debug",
+#   	)
+#           firebase_app_distribution(
+#               app: ENV['APP_ID'],
+#   	    groups: ENV['FIREBASE_GROUPS'],
+#   	    release_notes_file: ENV['RELEASE_NOTES_FILE'],
+#          	    debug: true,
+#   	)
+#   end
+
+
+    lane :publishReleaseToStore do
+      keystore  = File.expand_path("keystore/housweet.jks", Dir.pwd) # 회준님께 jks 파일 받아서 넣기.
+      json_file = File.expand_path("roomshare-6d8cd-95b994871b09.json", Dir.pwd)
+
+      gradle(
+        task: "bundle",
+        build_type: "Release",
+        print_command: true,
+        properties: {
+          "android.injected.signing.store.file" => keystore,
+          "android.injected.signing.store.password" => "306300",
+          "android.injected.signing.key.alias" => "key0",
+          "android.injected.signing.key.password" => "306300",
+        }
+      )
+
+      upload_to_play_store(
+        track: "production",           # 테스트면 internal 권장
+        release_status: "draft",
+        json_key: json_file,           # <-- 여기!
+        skip_upload_metadata: true,
+        skip_upload_images: true,
+        skip_upload_screenshots: true
+        # aab: Dir["app/build/outputs/bundle/release/*.aab"].first  # 명시하고 싶으면 사용
+      )
+    end
 
 end
