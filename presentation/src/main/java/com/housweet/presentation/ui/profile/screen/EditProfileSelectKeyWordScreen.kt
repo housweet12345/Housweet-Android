@@ -128,14 +128,19 @@ fun EditProfileSelectKeyWordScreen(
                 .fillMaxSize()
                 .background(Color.White)
                 .padding(paddingValues)
-                .padding(horizontal = 20.dp)
                 .verticalScroll(rememberScrollState()), // 스크롤 가능하도록 설정
         ) {
+            // ProfileTopBar는 전체 화면 너비 사용
             ProfileTopBar(
                 title = "프로필 수정",
                 moreIconButton = false,
                 onBackClick = onBackClick
             )
+            
+            // 나머지 컨텐츠는 horizontal padding 적용
+            Column(
+                modifier = Modifier.padding(horizontal = 20.dp)
+            ) {
 
             // 상단 단계 표시
             Row(
@@ -208,6 +213,7 @@ fun EditProfileSelectKeyWordScreen(
                 initialMbti = mbtiState,
                 onMbtiChanged = { mbtiState = it }
             )
+            }
         }
     }
 }

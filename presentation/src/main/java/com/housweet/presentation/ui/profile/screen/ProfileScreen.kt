@@ -68,7 +68,6 @@ fun ProfileScreen(
                 .fillMaxSize()
                 .background(Color.White)
                 .windowInsetsPadding(WindowInsets.navigationBars)
-                .padding(horizontal = 20.dp)
         ) {
             // 상단 앱바
             ProfileTopBar(
@@ -77,6 +76,11 @@ fun ProfileScreen(
                 onBackClick = onBackClick,
                 onMoreClick = { menuExpanded = true }
             )
+            
+            // 나머지 컨텐츠는 horizontal padding 적용
+            Column(
+                modifier = Modifier.padding(horizontal = 20.dp)
+            ) {
             // 프로필 정보
             ProfileInfoSection(
                 nickname = profileInfo.nickname,
@@ -99,6 +103,7 @@ fun ProfileScreen(
                         navigateChatting(profileInfo.userId, profileInfo.nickname)
                     }
                 )
+            }
             }
         }
 

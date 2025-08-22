@@ -129,15 +129,21 @@ fun EditProfileScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.White)
-                .padding(paddingValues)
-                .padding(horizontal = 20.dp),
+                .padding(paddingValues),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // ProfileTopBar는 전체 화면 너비 사용
             ProfileTopBar(
                 title = "프로필 수정",
                 moreIconButton = false,
                 onBackClick = onBackClick
             )
+            
+            // 나머지 컨텐츠는 horizontal padding 적용
+            Column(
+                modifier = Modifier.padding(horizontal = 20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
 
             // 상단 단계 표시 (1단계, 2단계)
             Row(
@@ -228,6 +234,7 @@ fun EditProfileScreen(
                 value = introductionState,
                 onValueChange = { introductionState = it } // 상태 업데이트
             )
+            }
         }
     }
 }
