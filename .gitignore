@@ -142,3 +142,5 @@ app/google-services.json
 fastlane/*.json
 fastlane/keystore/*.jks
 .env
+keystore.properties
+fastlane/report.xml

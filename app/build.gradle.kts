@@ -12,6 +12,13 @@ val properties = Properties().apply {
     load(FileInputStream("${rootDir}/local.properties"))
 }
 
+val keystoreProps = Properties().apply {
+    val f = File("${rootDir}/keystore.properties")
+    if (f.exists()) {
+        load(FileInputStream(f))
+    }
+}
+
 val kakaoApiKey = properties["kakaoLogin_api_key"] as? String ?: ""
 val naverClientId = properties["naver_client_id"] ?: ""
 
@@ -23,8 +30,8 @@ android {
         applicationId = "com.housweet.app"
         minSdk = 28
         targetSdk = 35
-        versionCode = 2
-        versionName = "1.1"
+        versionCode = 3
+        versionName = "1.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -42,6 +49,16 @@ android {
 
     buildFeatures {
         buildConfig = true
+    }
+
+    signingConfigs {
+        create("release") {
+            // keystore.properties를 기준으로 설정
+            storeFile = file(keystoreProps["storeFile"] as String)
+            storePassword = keystoreProps["storePassword"] as String
+            keyAlias = keystoreProps["keyAlias"] as String
+            keyPassword = keystoreProps["keyPassword"] as String
+        }
     }
 
     buildTypes {
