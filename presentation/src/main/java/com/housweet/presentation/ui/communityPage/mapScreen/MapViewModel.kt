@@ -4,7 +4,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.housweet.domain.model.NearByPostCountDataModel
-import com.housweet.domain.usecase.UseCases
+import com.housweet.domain.usecase.community.GetNearbyPostCountUseCase
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.compose.MarkerState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,7 +19,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MapViewModel @Inject constructor(
-    private val useCases: UseCases
+    private val getNearbyPostCountUseCase: GetNearbyPostCountUseCase
 ): ViewModel() {
     private val _uiState = MutableStateFlow<MapUiState>(MapUiState.Idle)
     val uiState: StateFlow<MapUiState> = _uiState.asStateFlow()
@@ -38,7 +38,7 @@ class MapViewModel @Inject constructor(
 
     fun getDongPostInfo(latitude: Double, longitude: Double, zoomLevel: Double) {
         viewModelScope.launch {
-            useCases.getNearbyPostCountUseCase(
+            getNearbyPostCountUseCase(
                 latitude = latitude,
                 longitude = longitude,
                 filteringDistance = getFilteringDistance(zoomLevel = zoomLevel)

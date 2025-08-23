@@ -2,7 +2,10 @@ package com.housweet.presentation.ui.startPage.splashPage
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.housweet.domain.usecase.UseCases
+import com.housweet.domain.usecase.start.CheckLoginUseCase
+import com.housweet.domain.usecase.start.IsBelongToRoomUseCase
+import com.housweet.domain.usecase.start.IsSetProfileUseCase
+import com.housweet.domain.usecase.start.IsTermsOfServiceAgreedUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -14,7 +17,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SplashViewModel @Inject constructor(
-    private val useCases: UseCases
+    private val checkLoginUseCase: CheckLoginUseCase,
+    private val isTermsOfServiceAgreedUseCase: IsTermsOfServiceAgreedUseCase,
+    private val isSetProfileUseCase: IsSetProfileUseCase,
+    private val isBelongToRoomUseCase: IsBelongToRoomUseCase
 ): ViewModel() {
     private val _uiState = MutableStateFlow<SplashState>(SplashState.Idle)
     val uiState = _uiState.asStateFlow()
@@ -28,7 +34,7 @@ class SplashViewModel @Inject constructor(
 
     fun checkLogin() {
         viewModelScope.launch {
-            useCases.checkLoginUseCase().collect {
+            checkLoginUseCase().collect {
                 delay(1500)
                 it.onSuccess { isAutoLogin ->
                     if (isAutoLogin) isTermsOfServiceAgreed()
@@ -43,7 +49,7 @@ class SplashViewModel @Inject constructor(
     }
 
     private suspend fun isTermsOfServiceAgreed() {
-        useCases.isTermsOfServiceAgreedUseCase().collect {
+        isTermsOfServiceAgreedUseCase().collect {
             it.onSuccess { isAgreeTermsOfService ->
                 isProfileSet(isAgreeTermsOfService)
             }
@@ -55,7 +61,7 @@ class SplashViewModel @Inject constructor(
     }
 
     private suspend fun isProfileSet(isAgreeTermsOfService: Boolean) {
-        useCases.isSetProfileUseCase().collect {
+        isSetProfileUseCase().collect {
             it.onSuccess { isSetProfile ->
                 isBelongToRoom(isAgreeTermsOfService, isSetProfile)
             }
@@ -68,7 +74,7 @@ class SplashViewModel @Inject constructor(
     }
 
     private suspend fun isBelongToRoom(isAgreeTermsOfService: Boolean, isSetProfile: Boolean) {
-        useCases.isBelongToRoomUseCase().collect {
+        isBelongToRoomUseCase().collect {
             it.onSuccess { isBelongToRoom ->
                 _event.emit(
                     SplashEvent.IsAutoLogin(isAgreeTermsOfService, isSetProfile, isBelongToRoom)

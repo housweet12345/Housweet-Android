@@ -3,7 +3,8 @@ package com.housweet.presentation.ui.mypage.deleteAccount
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.housweet.domain.usecase.UseCases
+import com.housweet.domain.usecase.DeleteAccountUseCase
+import com.housweet.domain.usecase.start.IsBelongToRoomUseCase
 import com.kakao.sdk.user.UserApiClient
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -15,7 +16,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DeleteAccountViewModel @Inject constructor(
-    private val useCases: UseCases
+    private val isBelongToRoomUseCase: IsBelongToRoomUseCase,
+    private val deleteAccountUseCase: DeleteAccountUseCase
 ): ViewModel() {
     private val _uiState = MutableStateFlow<DeleteAccountUiState>(DeleteAccountUiState.Idle)
     val uiState = _uiState.asStateFlow()
@@ -30,7 +32,7 @@ class DeleteAccountViewModel @Inject constructor(
     private fun isBelongToRoom() {
         _uiState.value = DeleteAccountUiState.IsLoading
         viewModelScope.launch {
-            useCases.isBelongToRoomUseCase().collect {
+            isBelongToRoomUseCase().collect {
                 _uiState.value = DeleteAccountUiState.Idle
                 it.onSuccess { isBelongToRoom ->
                     _event.emit(DeleteAccountEvent.IsBelongToRoom(isBelongToRoom))
@@ -54,7 +56,7 @@ class DeleteAccountViewModel @Inject constructor(
             }
 
             viewModelScope.launch {
-                useCases.deleteAccountUseCase().collect {
+                deleteAccountUseCase().collect {
                     _uiState.value = DeleteAccountUiState.Idle
                     it.onSuccess { successDelete ->
                         if (successDelete) _event.emit(DeleteAccountEvent.DeleteAccountSuccess)
