@@ -9,6 +9,7 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.patch
 import io.ktor.client.request.setBody
+import com.housweet.data.request.AppSettingUpdateRequest
 import javax.inject.Inject
 
 class AppSettingRemoteDataSourceImpl @Inject constructor(
@@ -26,7 +27,7 @@ class AppSettingRemoteDataSourceImpl @Inject constructor(
     override suspend fun updateAppSetting(settingId: Int, isEnabled: Boolean): AppSettingItemDto {
         Log.d("AppSettingRemote", "PATCH 요청 시작 → settingId: $settingId, isEnabled: $isEnabled")
 
-        val requestBody = AppSettingUpdateRequestDto(is_enabled = isEnabled)
+        val requestBody = AppSettingUpdateRequest(is_enabled = isEnabled)
         Log.d("AppSettingRemote", "요청 바디: $requestBody")
 
         return client.patch("$baseUrl/user/app-settings/$settingId/") {

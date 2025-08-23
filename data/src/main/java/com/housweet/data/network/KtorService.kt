@@ -4,7 +4,7 @@ import android.util.Log
 import com.housweet.data.BuildConfig
 import com.housweet.data.local.AuthLocalDataSource
 import com.housweet.data.network.dto.RefreshResponseDto
-import com.housweet.data.network.dto.RefreshTokenRequest
+import com.housweet.data.request.RefreshTokenRequest
 import com.housweet.domain.event.AuthEvent
 import com.housweet.domain.event.AuthEventBus
 import com.housweet.domain.model.AuthToken

@@ -1,11 +1,11 @@
 package com.housweet.data.network
 
 import com.housweet.data.BuildConfig
-import com.housweet.data.network.dto.AgreeTermsOfServiceRequest
+import com.housweet.data.request.AgreeTermsOfServiceRequest
 import com.housweet.data.network.dto.IsTermsOfServiceAgreedResponseDto
-import com.housweet.data.network.dto.KakaoLoginRequest
+import com.housweet.data.request.KakaoLoginRequest
 import com.housweet.data.network.dto.RefreshResponseDto
-import com.housweet.data.network.dto.RefreshTokenRequest
+import com.housweet.data.request.RefreshTokenRequest
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get

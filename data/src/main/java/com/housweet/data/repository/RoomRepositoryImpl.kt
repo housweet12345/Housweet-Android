@@ -3,7 +3,7 @@ package com.housweet.data.repository
 import com.housweet.data.BuildConfig
 import com.housweet.data.dto.RoomHomeResponseDto
 import com.housweet.data.dto.RoomMemberDto
-import com.housweet.data.dto.UpdateMoodRequestDto
+import com.housweet.data.request.UpdateMoodRequest
 import com.housweet.data.network.KtorService
 import com.housweet.domain.model.home.RoomHomeModel
 import com.housweet.domain.model.home.RoomMemberModel
@@ -59,7 +59,7 @@ class RoomRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateMood(memberId: Int, feeling: String): Result<RoomMemberModel> {
-        val req = UpdateMoodRequestDto(feeling = feeling)
+        val req = UpdateMoodRequest(feeling = feeling)
         val res: HttpResponse = client.patch("$base/room/room-members/$memberId/") { // 슬래시 O
             contentType(ContentType.Application.Json)
             setBody(req)

@@ -4,7 +4,7 @@ import android.util.Log
 import com.housweet.data.BuildConfig
 import com.housweet.data.local.AuthLocalDataSource
 import com.housweet.data.network.dto.RoomPostingListResponse
-import com.housweet.data.network.dto.VisibilityRequestDto
+import com.housweet.data.request.VisibilityRequest
 import com.housweet.data.network.dto.toRoomPost
 import com.housweet.domain.model.RoomPost
 import com.housweet.domain.repository.RoomPostingRepository
@@ -48,7 +48,7 @@ class RoomPostingRepositoryImpl @Inject constructor(
             client.patch("$BASE_URL/room/room-postings/$postingId/") {
                 contentType(ContentType.Application.Json)
                 headers { append("Authorization", "Bearer $token") }
-                setBody(VisibilityRequestDto(isVisible))
+                setBody(VisibilityRequest(isVisible))
             }
             true
         } catch (t: Throwable) {

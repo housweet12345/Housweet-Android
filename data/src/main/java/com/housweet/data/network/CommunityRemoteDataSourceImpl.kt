@@ -5,7 +5,7 @@ import com.housweet.data.network.dto.BookmarkedPostingListResponse
 import com.housweet.data.network.dto.GetNearbyPostCountResponseListDto
 import com.housweet.data.network.dto.GetRoomPostDetailResponseDto
 import com.housweet.data.network.dto.GetRoomPostsByLocationResponseListDto
-import com.housweet.data.network.dto.ReportRoomPostRequest
+import com.housweet.data.request.ReportRoomPostRequest
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ResponseException

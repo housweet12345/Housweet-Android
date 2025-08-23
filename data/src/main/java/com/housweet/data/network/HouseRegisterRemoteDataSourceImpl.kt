@@ -1,8 +1,8 @@
 package com.housweet.data.network
 
 import com.housweet.data.BuildConfig
-import com.housweet.data.model.request.RegisterHouseRequest
-import com.housweet.data.network.dto.UpdateHouseRequest
+import com.housweet.data.request.RegisterHouseRequest
+import com.housweet.data.request.UpdateHouseRequest
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ResponseException

@@ -1,13 +1,13 @@
 package com.housweet.data.repository
 
 import com.housweet.data.BuildConfig
-import com.housweet.data.dto.BlockUserRequestDto
+import com.housweet.data.request.BlockUserRequest
 import com.housweet.data.dto.BlockUserResponseDto
 import com.housweet.data.local.AuthLocalDataSource
 import com.housweet.data.mapper.toProfilePatchDto
 import com.housweet.data.network.KtorService
 import com.housweet.data.network.dto.ProfileDto
-import com.housweet.data.network.dto.ProfileUpdateDto
+import com.housweet.data.request.ProfileUpdateRequest
 import com.housweet.data.network.dto.ProfileUpdateResponseDto
 import com.housweet.data.utils.TokenUtils
 import com.housweet.data.utils.appendProfileData
@@ -65,7 +65,7 @@ class UserRepositoryImpl @Inject constructor(
                 }.body()
             } else {
                 // 이미지가 없으면 일반 JSON으로 전송
-                val patchDto: ProfileUpdateDto = updatedProfile.toProfilePatchDto()
+                val patchDto: ProfileUpdateRequest = updatedProfile.toProfilePatchDto()
                 client.patch("${BuildConfig.USER_BASE_URL}/profile/$userId/update/") {
                     setBody(patchDto)
                 }.body()
@@ -76,7 +76,7 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun blockUser(blockedUserId: Int): Result<Boolean> {
         return runCatching {
-            val requestDto = BlockUserRequestDto(blockedUserId = blockedUserId)
+            val requestDto = BlockUserRequest(blockedUserId = blockedUserId)
             val response: BlockUserResponseDto = client.post("${BuildConfig.BASE_URL}/room/room-postings/block/") {
                 setBody(requestDto)
             }.body()

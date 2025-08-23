@@ -1,10 +1,10 @@
-package com.housweet.data.network.dto
+package com.housweet.data.request
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ReportRoomPostRequest(
+data class ReportRequest(
     @SerialName("type")
     val type: String,
     @SerialName("id")

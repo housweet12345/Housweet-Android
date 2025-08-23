@@ -1,8 +1,8 @@
-package com.housweet.data.network.dto
+package com.housweet.data.request
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class AppSettingUpdateRequestDto(
+data class AppSettingUpdateRequest(
     val is_enabled: Boolean
 )

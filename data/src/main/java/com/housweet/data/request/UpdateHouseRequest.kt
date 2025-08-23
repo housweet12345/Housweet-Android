@@ -1,16 +1,21 @@
-package com.housweet.data.model.request
+package com.housweet.data.request
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class RegisterHouseRequest(
+data class UpdateHouseRequest(
     val room: Int,
+//    val si: Int,
+//    val gu: Int,
+//    val dong: Long,
     val si: String,
     val gu: String,
     val dong: String,
     val title: String,
     val content: String,
     val image_uri: String,
+//    val images: List<String>,
     val traffic_tags: List<String>,
     val size_of_house_tags: List<String>,
     val infra_tags: List<String>,
@@ -20,5 +25,5 @@ data class RegisterHouseRequest(
     val rent: Int,
     val deposit: Int,
     val management_fee: Int,
-    val available_from: String
+    @SerialName("available_from") val available_from: String
 )

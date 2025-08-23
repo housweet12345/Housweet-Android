@@ -1,8 +1,8 @@
 package com.housweet.data.network
 
 import com.housweet.data.BuildConfig
-import com.housweet.data.network.dto.AccessRoomRequest
-import com.housweet.data.network.dto.CreateRoomRequest
+import com.housweet.data.request.AccessRoomRequest
+import com.housweet.data.request.CreateRoomRequest
 import io.ktor.client.HttpClient
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
