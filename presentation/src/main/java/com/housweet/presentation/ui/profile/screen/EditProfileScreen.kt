@@ -1,7 +1,6 @@
 package com.housweet.presentation.ui.profile.screen
 
 import android.net.Uri
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -19,12 +18,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -191,7 +190,7 @@ fun EditProfileScreen(
                     modifier = Modifier.weight(1f),
                     selectedYear = yearOfBirthState,
                     onYearSelected = { yearOfBirthState = it },
-                    enabled = yearOfBirth.isEmpty() && yearOfBirthState.isEmpty() // 기존 데이터와 현재 상태 모두 비어있을 때만 활성화
+                    enabled = yearOfBirth.isEmpty() // 기존 데이터와 현재 상태 모두 비어있을 때만 활성화
                 )
                 Spacer(Modifier.width(10.dp))
                 ToggleButtonGroup(
@@ -207,7 +206,7 @@ fun EditProfileScreen(
                             else -> ""
                         }
                     },
-                    enabled = gender.isEmpty() && genderState.isEmpty() // 기존 값과 현재 상태 모두 비어있을 때만 활성화
+                    enabled = gender.isEmpty()  // 기존 값과 현재 상태 모두 비어있을 때만 활성화
                 )
             }
 
