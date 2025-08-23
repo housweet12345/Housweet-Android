@@ -18,7 +18,7 @@ import com.housweet.domain.usecase.auth.GetCurrentUserIdUseCase
 import com.housweet.domain.usecase.community.ClickBookMarkUseCase
 import com.housweet.domain.usecase.community.GetNearbyPostCountUseCase
 import com.housweet.domain.usecase.community.GetRoomPostDetailUseCase
-import com.housweet.domain.usecase.community.GetRoomPostsByLocationUsaCase
+import com.housweet.domain.usecase.community.GetRoomPostsByLocationUseCase
 import com.housweet.domain.usecase.community.ReportRoomPostUseCase
 import com.housweet.domain.usecase.community.UnClickBookMarkUseCase
 import com.housweet.domain.usecase.home.GetRoomHomeUseCase
@@ -60,7 +60,7 @@ object UseCaseModule {
             checkLoginUseCase = CheckLoginUseCase(authRepository),
             createRoomUseCase = CreateRoomUseCase(accessRoomRepository),
             getNearbyPostCountUseCase = GetNearbyPostCountUseCase(communityRepository),
-            getRoomPostsByLocationUsaCase = GetRoomPostsByLocationUsaCase(communityRepository),
+            getRoomPostsByLocationUseCase = GetRoomPostsByLocationUseCase(communityRepository),
             clickBookMarkUseCase = ClickBookMarkUseCase(communityRepository),
             unClickBookMarkUseCase = UnClickBookMarkUseCase(communityRepository),
             getRoomPostDetailUseCase = GetRoomPostDetailUseCase(communityRepository),

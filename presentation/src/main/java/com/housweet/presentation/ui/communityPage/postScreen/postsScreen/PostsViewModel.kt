@@ -41,7 +41,7 @@ class PostsViewModel @Inject constructor(
             val posts = mutableMapOf<String, List<RoomPostsByLocationDataModel>>()
 
             postRegions.forEach { postRegion ->
-                useCases.getRoomPostsByLocationUsaCase(postRegion).collect { result ->
+                useCases.getRoomPostsByLocationUseCase(postRegion).collect { result ->
                     result.onSuccess {
                         posts[postRegion] = it
                     }

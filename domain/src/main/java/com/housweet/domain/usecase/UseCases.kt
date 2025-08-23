@@ -3,7 +3,7 @@ package com.housweet.domain.usecase
 import com.housweet.domain.usecase.community.ClickBookMarkUseCase
 import com.housweet.domain.usecase.community.GetNearbyPostCountUseCase
 import com.housweet.domain.usecase.community.GetRoomPostDetailUseCase
-import com.housweet.domain.usecase.community.GetRoomPostsByLocationUsaCase
+import com.housweet.domain.usecase.community.GetRoomPostsByLocationUseCase
 import com.housweet.domain.usecase.community.ReportRoomPostUseCase
 import com.housweet.domain.usecase.community.UnClickBookMarkUseCase
 import com.housweet.domain.usecase.start.AccessRoomWithInviteCodeUseCase
@@ -22,7 +22,7 @@ data class UseCases (
     val checkLoginUseCase: CheckLoginUseCase,
     val createRoomUseCase: CreateRoomUseCase,
     val getNearbyPostCountUseCase: GetNearbyPostCountUseCase,
-    val getRoomPostsByLocationUsaCase: GetRoomPostsByLocationUsaCase,
+    val getRoomPostsByLocationUseCase: GetRoomPostsByLocationUseCase,
     val clickBookMarkUseCase: ClickBookMarkUseCase,
     val unClickBookMarkUseCase: UnClickBookMarkUseCase,
     val getRoomPostDetailUseCase: GetRoomPostDetailUseCase,
