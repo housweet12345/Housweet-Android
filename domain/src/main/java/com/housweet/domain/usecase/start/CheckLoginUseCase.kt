@@ -1,13 +1,5 @@
 package com.housweet.domain.usecase.start
 
-import com.housweet.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.Flow
-import javax.inject.Inject
 
-class CheckLoginUseCase @Inject constructor(
-    private val authRepository: AuthRepository
-) {
-    suspend operator fun invoke(): Flow<Result<Boolean>> {
-        return authRepository.checkLogin()
-    }
-}
+fun interface CheckLoginUseCase: suspend () -> Flow<Result<Boolean>>

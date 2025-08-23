@@ -39,9 +39,9 @@ class MapViewModel @Inject constructor(
     fun getDongPostInfo(latitude: Double, longitude: Double, zoomLevel: Double) {
         viewModelScope.launch {
             getNearbyPostCountUseCase(
-                latitude = latitude,
-                longitude = longitude,
-                filteringDistance = getFilteringDistance(zoomLevel = zoomLevel)
+                latitude,
+                longitude,
+                getFilteringDistance(zoomLevel = zoomLevel)
             ).collect { result ->
                 result.onSuccess {
                     setMarkerStates(it)
