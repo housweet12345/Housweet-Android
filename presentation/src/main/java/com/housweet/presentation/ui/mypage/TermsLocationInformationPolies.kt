@@ -1,5 +1,6 @@
 package com.housweet.presentation.ui.mypage
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -36,6 +37,7 @@ import com.housweet.presentation.R
 import com.housweet.presentation.ui.common.GuideText
 import com.housweet.presentation.ui.theme.Black
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TermsLocationInformationPolies(
@@ -66,10 +68,9 @@ fun TermsLocationInformationPolies(
                 )
             )
         }
-    ) { innerPadding ->
+    ) {
         LazyColumn(
             modifier = Modifier
-                .padding(innerPadding)
                 .fillMaxSize()
                 .padding(start = 24.dp, end = 24.dp)
                 .background(Color.White),

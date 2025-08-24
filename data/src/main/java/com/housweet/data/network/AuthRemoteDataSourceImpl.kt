@@ -79,7 +79,7 @@ class AuthRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun isSetProfile(userId: Int): Boolean {
         val response = httpClient.get("${BuildConfig.USER_BASE_URL}/profile/$userId/$userId")
-        return !response.body<String>().contains("\"nickname\": \"\", \"introduce\": null")
+        return !response.body<String>().contains("\"year_of_birth\": 0")
     }
 
     override suspend fun isBelongToRoom(): Boolean {

@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -96,7 +97,7 @@ fun HouseRegisterScreen3(
         derivedStateOf { selectedBitmap != null || !imageUrl.isNullOrBlank() }
     }
 
-    Scaffold (
+    Scaffold(
         topBar = {
             TopBarWithBackButton(
                 title = if (mode == RegisterModel.EDIT) "글 수정하기" else "하우스 올리기",
@@ -110,65 +111,67 @@ fun HouseRegisterScreen3(
         contentWindowInsets = WindowInsets(0)
     )
     { innerPadding ->
-        KeyboardClosableContainer{
+        KeyboardClosableContainer {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .imePadding()
                     .background(Color.White)
-                    .padding(horizontal = 16.dp)
                     .padding(innerPadding)
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(horizontal = 16.dp)
                 ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Text(
+                            text = "실제 사진을 첨부해주세요.",
+                            color = Color(0xFF6C4DFF),
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(vertical = 16.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
                     Text(
-                        text = "실제 사진을 첨부해주세요.",
-                        color = Color(0xFF6C4DFF),
+                        text = "사진 첨부",
                         fontSize = 12.sp,
-                        modifier = Modifier.padding(vertical = 16.dp)
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
                     )
-                }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                Text(
-                    text = "사진 첨부",
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(120.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .border(0.5.dp, Color(0xFFCBCDD2), shape = RoundedCornerShape(12.dp))
-                        .clickable{
-                            singlePicker.launch("image/*")
-                        },
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (selectedBitmap == null) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.camera_icon_gray),
-                            contentDescription = "사진 선택",
-                            tint = Color.Gray,
-                            modifier = Modifier.size(48.dp)
-                        )
-                    } else {
-                        Image(
-                            bitmap = selectedBitmap.asImageBitmap(),
-                            contentDescription = "선택 이미지",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.matchParentSize()
-                        )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(120.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .border(0.5.dp, Color(0xFFCBCDD2), shape = RoundedCornerShape(12.dp))
+                            .clickable {
+                                singlePicker.launch("image/*")
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (selectedBitmap == null) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.camera_icon_gray),
+                                contentDescription = "사진 선택",
+                                tint = Color.Gray,
+                                modifier = Modifier.size(48.dp)
+                            )
+                        } else {
+                            Image(
+                                bitmap = selectedBitmap.asImageBitmap(),
+                                contentDescription = "선택 이미지",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.matchParentSize()
+                            )
+                        }
                     }
                 }
 
@@ -187,8 +190,8 @@ fun HouseRegisterScreen3(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(48.dp),
-                    shape = RoundedCornerShape(6.dp),
+                        .height(50.dp),
+                    shape = RectangleShape,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF665ED3),
                         contentColor = Color.White
@@ -200,8 +203,6 @@ fun HouseRegisterScreen3(
                         fontWeight = FontWeight.Bold
                     )
                 }
-
-                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }
