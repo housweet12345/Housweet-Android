@@ -1,23 +1,30 @@
 package com.housweet.presentation.ui.registerhouse
 
+import android.R.attr.lineHeight
+import android.R.attr.text
+import android.R.attr.textColor
 import android.content.Context
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -26,15 +33,25 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.housweet.presentation.model.Region
 import com.housweet.presentation.model.RegisterModel
+import com.housweet.presentation.ui.common.GuideText
 import com.housweet.presentation.ui.common.RegionBottomSheet
 import com.housweet.presentation.ui.common.TopBarWithBackButton
+import com.housweet.presentation.ui.theme.Black
+import com.housweet.presentation.ui.theme.Gray_7E7E7E
+import com.housweet.presentation.ui.theme.Gray_A5A5A5
+import com.housweet.presentation.ui.theme.Gray_CBCBCB
+import com.housweet.presentation.ui.theme.White
+import com.housweet.presentation.ui.theme.nanumSquareFontFamily
 import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModelBase
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -148,7 +165,7 @@ fun HouseRegisterScreen2(
                     .imePadding()
                     .verticalScroll(scrollState)
                     .background(Color.White)
-                    .padding(horizontal = 16.dp)
+                    .padding(horizontal = 20.dp)
                     .padding(innerPadding)
             ) {
                 val focusRequester = remember { FocusRequester() }
@@ -167,14 +184,13 @@ fun HouseRegisterScreen2(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(60.dp)
-                        .padding(4.dp)
-                        .border(1.dp, Color.Gray, RoundedCornerShape(6.dp))
+                        .height(30.dp)
+                        .border(0.5.dp, Color.Gray, RoundedCornerShape(6.dp))
                         .clickable { showBottomSheet = true }
                         .background(Color.White, shape = RoundedCornerShape(6.dp)),
                     contentAlignment = Alignment.Center
@@ -186,16 +202,13 @@ fun HouseRegisterScreen2(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(16.dp))
                 Text("제목", fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(6.dp))
-                OutlinedTextField(
-                    value = inputTitle,
-                    onValueChange = { inputTitle = it },
-                    placeholder = { Text("제목을 입력해주세요.", color = Color(0xFFA5A5A5), fontSize = 12.sp) },
+                RegisterContentTextField(
+                    text = inputTitle,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(4.dp)
                         .focusRequester(focusRequester)
                         .onFocusChanged {
                             if (it.isFocused) {
@@ -203,196 +216,121 @@ fun HouseRegisterScreen2(
                             }
                         }
                         .autoBringIntoViewOnFocus(),
-                    shape = RoundedCornerShape(6.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color.Gray,
-                        unfocusedBorderColor = Color.Gray
-                    )
+                    height = 30.dp,
+                    hint = "제목을 입력해주세요.",
+                    alignment = Alignment.CenterStart,
+                    onValueChange = {
+                        inputTitle = it
+                    }
                 )
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(16.dp))
                 Text("자세한 설명", fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(6.dp))
-                OutlinedTextField(
-                    value = inputDescription,
-                    onValueChange = { inputDescription = it },
-                    placeholder = { Text("자세한 설명을 입력해주세요.", color = Color(0xFFA5A5A5), fontSize = 12.sp) },
+                RegisterContentTextField(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(120.dp)
-                        .padding(4.dp)
                         .focusRequester(focusRequester)
                         .onFocusChanged {
                             if (it.isFocused) {
                                 keyboardController?.show()
                             }
                         }
-                        .autoBringIntoViewOnFocus()
-                    ,
-                    shape = RoundedCornerShape(6.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color.Gray,
-                        unfocusedBorderColor = Color.Gray
-                    )
+                        .autoBringIntoViewOnFocus(),
+                    text = inputDescription,
+                    textLength = 9999,
+                    hint = "자세한 설명을 입력해주세요.",
+                    height = 90.dp,
+                    singleLine = false,
+                    alignment = Alignment.TopStart,
+                    topPaddingOnText = 8.dp,
+                    onValueChange = {
+                        inputDescription = it
+                    }
                 )
 
-                Spacer(modifier = Modifier.height(12.dp))
-                Row(modifier = Modifier.fillMaxWidth().padding(4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("보증금", fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+                        Text(
+                            "보증금",
+                            fontSize = 12.sp,
+                            color = Color.Black,
+                            fontWeight = FontWeight.Bold
+                        )
                         Spacer(modifier = Modifier.height(6.dp))
                         Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .border(1.dp, Color.Gray, RoundedCornerShape(6.dp))
-                                .padding(horizontal = 12.dp),
                             contentAlignment = Alignment.CenterStart
                         ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                TextField(
-                                    value = deposit,
-                                    onValueChange = { deposit = it },
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .padding(end = 4.dp)
-                                        .autoBringIntoViewOnFocus(),
-                                    placeholder = { Text("") }, // placeholder 제거
-                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                    colors = TextFieldDefaults.colors(
-                                        focusedContainerColor = Color.Transparent,
-                                        unfocusedContainerColor = Color.Transparent,
-                                        disabledContainerColor = Color.Transparent,
-                                        focusedIndicatorColor = Color.Transparent,
-                                        unfocusedIndicatorColor = Color.Transparent,
-                                        disabledIndicatorColor = Color.Transparent
-                                    ),
-                                    singleLine = true
-                                )
-                                Text(
-                                    text = "만원",
-                                    fontSize = 12.sp,
-                                    color = Color(0xFFA5A5A5)
-                                )
-                            }
+                            RegisterCostTextField(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .autoBringIntoViewOnFocus(),
+                                text = deposit,
+                                height = 30.dp,
+                                onValueChange = { deposit = it }
+                            )
                         }
                     }
 
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("월세", fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+                        Text(
+                            "월세",
+                            fontSize = 12.sp,
+                            color = Color.Black,
+                            fontWeight = FontWeight.Bold
+                        )
                         Spacer(modifier = Modifier.height(6.dp))
-                        Box(
+                        RegisterCostTextField(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .border(1.dp, Color.Gray, RoundedCornerShape(6.dp))
-                                .padding(horizontal = 12.dp),
-                            contentAlignment = Alignment.CenterStart
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                TextField(
-                                    value = monthlyRent,
-                                    onValueChange = { monthlyRent = it },
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .padding(end = 4.dp)
-                                        .autoBringIntoViewOnFocus(),
-                                    placeholder = { Text("") }, // placeholder 제거
-                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                    colors = TextFieldDefaults.colors(
-                                        focusedContainerColor = Color.Transparent,
-                                        unfocusedContainerColor = Color.Transparent,
-                                        disabledContainerColor = Color.Transparent,
-                                        focusedIndicatorColor = Color.Transparent,
-                                        unfocusedIndicatorColor = Color.Transparent,
-                                        disabledIndicatorColor = Color.Transparent
-                                    ),
-                                    singleLine = true
-                                )
-                                Text(
-                                    text = "만원",
-                                    fontSize = 12.sp,
-                                    color = Color(0xFFA5A5A5)
-                                )
-                            }
-                        }
+                                .autoBringIntoViewOnFocus(),
+                            text = monthlyRent,
+                            height = 30.dp,
+                            onValueChange = { monthlyRent = it }
+                        )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(16.dp))
                 Text("관리비", fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(6.dp))
-                Row(modifier = Modifier.fillMaxWidth().padding(4.dp)) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .border(1.dp, Color.Gray, RoundedCornerShape(6.dp))
-                            .padding(horizontal = 12.dp),
-                        contentAlignment = Alignment.CenterStart
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            TextField(
-                                value = managementFee,
-                                onValueChange = { managementFee = it },
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(end = 4.dp)
-                                    .autoBringIntoViewOnFocus(),
-                                placeholder = { Text("") }, // placeholder 제거
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                colors = TextFieldDefaults.colors(
-                                    focusedContainerColor = Color.Transparent,
-                                    unfocusedContainerColor = Color.Transparent,
-                                    disabledContainerColor = Color.Transparent,
-                                    focusedIndicatorColor = Color.Transparent,
-                                    unfocusedIndicatorColor = Color.Transparent,
-                                    disabledIndicatorColor = Color.Transparent
-                                ),
-                                singleLine = true
-                            )
-                            Text(
-                                text = "만원",
-                                fontSize = 12.sp,
-                                color = Color(0xFFA5A5A5)
-                            )
-                        }
-                    }
-                }
+                RegisterCostTextField(
+                    modifier = Modifier
+                        .fillMaxWidth(0.5f)
+                        .padding(end = 10.dp)
+                        .autoBringIntoViewOnFocus(),
+                    text = managementFee,
+                    height = 30.dp,
+                    onValueChange = { managementFee = it }
+                )
 
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(16.dp))
                 Text("입주 가능일", fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(6.dp))
-                OutlinedTextField(
-                    value = moveInDate,
-                    onValueChange = { moveInDate = it },
-                    placeholder = { Text("가능한 날짜 또는 시기를 작성해주세요.", color = Color(0xFFA5A5A5), fontSize = 12.sp) },
+                RegisterContentTextField(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(4.dp)
                         .focusRequester(focusRequester)
                         .onFocusChanged {
                             if (it.isFocused) {
                                 keyboardController?.show()
                             }
                         }
-                        .autoBringIntoViewOnFocus()
-                    ,
-                    shape = RoundedCornerShape(6.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color.Gray,
-                        unfocusedBorderColor = Color.Gray
-                    )
+                        .autoBringIntoViewOnFocus(),
+                    text = moveInDate,
+                    textLength = 50,
+                    height = 30.dp,
+                    hint = "가능한 날짜 또는 시기를 작성해주세요.",
+                    alignment = Alignment.CenterStart,
+                    onValueChange = { moveInDate = it }
                 )
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(40.dp))
                 Text(
                     text = "ⓘ 경고문 블라블라",
                     color = Color(0xFF6C4DFF),
@@ -461,6 +399,124 @@ fun HouseRegisterScreen2(
             }
         )
     }
+}
+
+@Composable
+private fun RegisterContentTextField(
+    modifier: Modifier,
+    text: String,
+    height: Dp,
+    hint: String,
+    textLength: Int = 20,
+    textColor: Color = Black,
+    singleLine: Boolean = true,
+    alignment: Alignment,
+    topPaddingOnText: Dp = 0.dp,
+    onValueChange: (String) -> Unit
+) {
+    BasicTextField(
+        value = text,
+        onValueChange = {
+            if (it.length <= textLength) {
+                onValueChange(it)
+            }
+        },
+        modifier = modifier,
+        textStyle = TextStyle(
+            fontSize = 12.sp,
+            lineHeight = 18.sp,
+            fontWeight = FontWeight.W400,
+            fontFamily = nanumSquareFontFamily,
+            color = textColor
+        ),
+        singleLine = singleLine,
+        decorationBox = { innerTextField ->
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(height),
+                shape = RoundedCornerShape(6.dp),
+                color = White,
+                border = BorderStroke(width = 0.5.dp, color = Color.Gray)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 8.dp, vertical = topPaddingOnText),
+                    contentAlignment = alignment
+                ) {
+                    if (text.isEmpty()) {
+                        Text(
+                            text = hint,
+                            color = Color.Gray,
+                            fontSize = 12.sp,
+                        )
+                    }
+                    innerTextField()
+                }
+            }
+        }
+    )
+}
+
+@Composable
+private fun RegisterCostTextField(
+    modifier: Modifier,
+    text: String,
+    height: Dp,
+    textLength: Int = 10,
+    textColor: Color = Black,
+    singleLine: Boolean = true,
+    onValueChange: (String) -> Unit
+) {
+    BasicTextField(
+        value = text,
+        onValueChange = {
+            if (it.length <= textLength) {
+                onValueChange(it)
+            }
+        },
+        modifier = modifier,
+        textStyle = TextStyle(
+            fontSize = 12.sp,
+            lineHeight = 18.sp,
+            fontWeight = FontWeight.W400,
+            fontFamily = nanumSquareFontFamily,
+            color = textColor
+        ),
+        singleLine = singleLine,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        decorationBox = { innerTextField ->
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(height),
+                shape = RoundedCornerShape(6.dp),
+                color = White,
+                border = BorderStroke(width = 0.5.dp, color = Color.Gray)
+            ) {
+                Box {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(start = 8.dp),
+                        contentAlignment = Alignment.CenterStart
+                    ) {
+                        innerTextField()
+                    }
+
+                    Text(
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .padding(end = 8.dp),
+                        text = "만원",
+                        fontSize = 12.sp,
+                        color = Color(0xFFA5A5A5)
+                    )
+                }
+            }
+        }
+    )
 }
 
 private fun norm(s: String?): String =

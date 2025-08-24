@@ -133,7 +133,7 @@ fun HouseRegisterScreen3(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
                     text = "사진 첨부",
@@ -149,7 +149,7 @@ fun HouseRegisterScreen3(
                         .fillMaxWidth()
                         .height(120.dp)
                         .clip(RoundedCornerShape(10.dp))
-                        .border(1.dp, Color(0xFFCBCDD2), shape = RoundedCornerShape(12.dp))
+                        .border(0.5.dp, Color(0xFFCBCDD2), shape = RoundedCornerShape(12.dp))
                         .clickable{
                             singlePicker.launch("image/*")
                         },

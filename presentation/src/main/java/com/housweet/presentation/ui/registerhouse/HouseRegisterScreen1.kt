@@ -139,7 +139,7 @@ fun HouseRegisterScreen1(
                                             selectedBySection[title] = current
                                         }
                                         .border(
-                                            width = 1.dp,
+                                            width = 0.5.dp,
                                             color = Color(0xFF665ED3),
                                             shape = RoundedCornerShape(10.dp)
                                         )
