@@ -259,7 +259,7 @@ private fun PostItem(
 
             GuideText(
                 color = Black,
-                text = "보증금 ${postInfo.deposit} 월세 ${postInfo.rent}",
+                text = "보증금 ${getRelativeMoney(postInfo.deposit)} 월세 ${getRelativeMoney(postInfo.rent)}",
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 12.sp,
                 lineHeight = 12.sp,
@@ -313,6 +313,11 @@ private fun PostItem(
     }
 }
 
+fun getRelativeMoney(money: Int): Int {
+    return if (money >=10000) money / 10000
+    else money
+}
+
 @Preview
 @Composable
 private fun PostsScreenPreview() {
@@ -322,12 +327,12 @@ private fun PostsScreenPreview() {
             "서울특별시 강남구 역삼동" to listOf(
                 RoomPostsByLocationDataModel(
                     id = 1,
-                    userId = 0,
+                    userId = 2,
                     title = "방 구하는 분",
                     imageUri = "https://picsum.photos/200/300",
                     isBookmarked = false,
-                    rent = 40,
-                    deposit = 1000,
+                    rent = 40000000,
+                    deposit = 1000000,
                     ageRangeAndGender = "20대 남성",
                     isVisible = true
                 )

@@ -390,6 +390,9 @@ class MainActivity : ComponentActivity() {
                             },
                             onMyPageClick = {
                                 navigationManager.navigateTo("mypage")
+                            },
+                            onHouseClick = {
+                                navController.popBackStack()
                             }
                         )
                     }
@@ -472,6 +475,12 @@ class MainActivity : ComponentActivity() {
                             },
                             onProfileScreen = { userId -> navigationManager.navigateTo("profile/$userId") },
                             onBackBtnClick = { isBookmarkChanged ->
+                                val previousRoute = navController.previousBackStackEntry?.destination?.route
+                                if (previousRoute?.contains("bookmark") == true) {
+                                    navController.popBackStack()
+                                    return@DetailPostScreen
+                                }
+
                                 if (isBookmarkChanged) {
                                     navigationManager.navigateOneWay(
                                         Route.CommunityPageRoute.PostRoute.DetailPost(postId, lastRegion, blockedUserId),

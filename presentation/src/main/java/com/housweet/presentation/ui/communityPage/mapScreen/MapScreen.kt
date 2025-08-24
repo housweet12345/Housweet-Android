@@ -76,6 +76,7 @@ fun MapScreen(
     onChatClick: () -> Unit,
     onNotificationClick: () -> Unit,
     onMyPageClick: () -> Unit,
+    onHouseClick: () -> Unit
 ) {
     val uiState by mapViewModel.uiState.collectAsStateWithLifecycle()
     val mapState by mapViewModel.mapState.collectAsStateWithLifecycle()
@@ -141,7 +142,8 @@ fun MapScreen(
                 onWritePostBtnClick = onWritePostBtnClick,
                 onChatClick = onChatClick,
                 onNotificationClick = onNotificationClick,
-                onMyPageClick = onMyPageClick
+                onMyPageClick = onMyPageClick,
+                onHouseClick = onHouseClick
             )
         }
     }
@@ -161,6 +163,7 @@ private fun MapContent(
     onChatClick: () -> Unit,
     onNotificationClick: () -> Unit,
     onMyPageClick: () -> Unit,
+    onHouseClick: () -> Unit
 ) {
     val mapUiSettings = remember {
         MapUiSettings(
@@ -184,7 +187,8 @@ private fun MapContent(
             MapTopBar(
                 onChatClick = onChatClick,
                 onNotificationClick = onNotificationClick,
-                onMyPageClick = onMyPageClick
+                onMyPageClick = onMyPageClick,
+                onHouseClick = onHouseClick
             )
         },
         snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
@@ -252,7 +256,8 @@ private fun MapContent(
 private fun MapTopBar(
     onChatClick: () -> Unit,
     onNotificationClick: () -> Unit,
-    onMyPageClick: () -> Unit
+    onMyPageClick: () -> Unit,
+    onHouseClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -267,7 +272,7 @@ private fun MapTopBar(
             modifier = Modifier
                 .padding(start = 20.dp)
                 .clip(CircleShape)
-                .clickable { },
+                .clickable { onHouseClick() },
         )
 
         Row(
@@ -436,7 +441,8 @@ private fun TestMapContent(
             MapTopBar(
                 onChatClick = onChatClick,
                 onNotificationClick = onNotificationClick,
-                onMyPageClick = onMyPageClick
+                onMyPageClick = onMyPageClick,
+                onHouseClick = {}
             )
         },
         containerColor = White
