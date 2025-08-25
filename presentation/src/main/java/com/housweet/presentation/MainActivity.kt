@@ -3,6 +3,7 @@ package com.housweet.presentation
 import android.content.Intent
 import android.os.Bundle
 import android.util.Base64
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -35,7 +36,10 @@ import com.housweet.presentation.ui.chat.ChatScreen
 import com.housweet.presentation.ui.chatlist.ChatListScreen
 import com.housweet.presentation.ui.common.ComingSoonScreen
 import com.housweet.presentation.ui.common.LoadingScreen
+import com.housweet.presentation.ui.communityPage.GuideToCreateRoomScreen
 import com.housweet.presentation.ui.communityPage.mapScreen.MapScreen
+import com.housweet.presentation.ui.communityPage.mapScreen.MapUiState
+import com.housweet.presentation.ui.communityPage.mapScreen.UserRoomState
 import com.housweet.presentation.ui.communityPage.postScreen.detailPostScreen.DetailPostScreen
 import com.housweet.presentation.ui.communityPage.postScreen.postsScreen.PostsScreen
 import com.housweet.presentation.ui.communityPage.searchRegionScreen.SearchRegionScreen
@@ -325,7 +329,7 @@ class MainActivity : ComponentActivity() {
                             },
                             onFindRoomMateScreen = {
                                 navigationManager.navigateTo(
-                                    Route.CommunityPageRoute.Map()
+                                    Route.CommunityPageRoute.Map(userRoomStateNum = 0)
                                 )
                             },
                             onCreateRoomScreen = {
@@ -367,9 +371,12 @@ class MainActivity : ComponentActivity() {
                         typeMap = mapOf(typeOf<Coordinate?>() to CoordinateType)
                     ) {
                         val coordinate = it.toRoute<Route.CommunityPageRoute.Map>().coordinate
+                        val userRoomStateNum = it.toRoute<Route.CommunityPageRoute.Map>().userRoomStateNum
+
                         MapScreen(
                             modifier = Modifier,
                             searchRegion = coordinate,
+                            userRoomStateNum = userRoomStateNum,
                             onMarkerClick = { postRegion ->
                                 navigationManager.navigateTo(Route.CommunityPageRoute.PostRoute.Posts(postRegion))
                             },
@@ -379,7 +386,12 @@ class MainActivity : ComponentActivity() {
                             onSearchBtnClick = {
                                 navigationManager.navigateTo(Route.CommunityPageRoute.SearchRegion)
                             },
-                            onWritePostBtnClick = {
+                            onWritePostBtnClick = { isNotBelongToRoom ->
+                                if (isNotBelongToRoom) {
+                                    navigationManager.navigateTo(Route.CommunityPageRoute.GuideToCreateRoom)
+                                    return@MapScreen
+                                }
+
                                 navigationManager.navigateTo(Route.HouseRegisterRoute.Step1(mode = RegisterModel.CREATE))
                             },
                             onChatClick = {
@@ -393,6 +405,20 @@ class MainActivity : ComponentActivity() {
                             },
                             onHouseClick = {
                                 navController.popBackStack()
+                            }
+                        )
+                    }
+
+                    composable<Route.CommunityPageRoute.GuideToCreateRoom> {
+                        GuideToCreateRoomScreen(
+                            onGuideClick = {
+                                navigationManager.navigateTo(Route.StartPageRoute.AccessRoomRoute.CreateRoom)
+                            },
+                            onBackBtnClick = {
+                                navigationManager.navigateOneWay(
+                                    Route.CommunityPageRoute.GuideToCreateRoom,
+                                    Route.CommunityPageRoute.Map()
+                                )
                             }
                         )
                     }
@@ -418,6 +444,7 @@ class MainActivity : ComponentActivity() {
                         val postRegions = it.toRoute<Route.CommunityPageRoute.PostRoute.Posts>().postRegions
                         val updatePostId = it.toRoute<Route.CommunityPageRoute.PostRoute.Posts>().updatePostId
                         val blockedUserId = it.toRoute<Route.CommunityPageRoute.PostRoute.Posts>().blockedUserId
+
                         PostsScreen(
                             updatePostId = updatePostId,
                             blockedUserId = blockedUserId,
@@ -973,7 +1000,10 @@ class MainActivity : ComponentActivity() {
                         UserListRoute(
                             onBackClick = { navController.popBackStack() },
                             navigateToProfile = { navController.navigate("profile/$it") },
-                            onWorkspaceInvite = { navController.navigate(Route.CommunityPageRoute.Map()) }
+                            onWorkspaceInvite = { isHost ->
+                                navController.navigate(Route.CommunityPageRoute.Map(userRoomStateNum = if (isHost) 1 else 2)
+                                )
+                            }
                         )
                     }
                 }
