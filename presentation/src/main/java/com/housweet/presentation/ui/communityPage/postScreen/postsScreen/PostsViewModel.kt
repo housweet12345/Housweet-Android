@@ -1,5 +1,6 @@
 package com.housweet.presentation.ui.communityPage.postScreen.postsScreen
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -29,10 +30,15 @@ class PostsViewModel @Inject constructor(
     private val _posts = MutableStateFlow<Map<String, List<RoomPostsByLocationDataModel>>>(mapOf())
     val posts: StateFlow<Map<String, List<RoomPostsByLocationDataModel>>> = _posts.asStateFlow()
 
-    val postRegions = savedStateHandle.get<String>("postRegions")?.split(",") ?: emptyList()
+    val postRegions = savedStateHandle.get<String>("postRegions")?.let {
+        if (it.isEmpty()) emptyList()
+        else it.split(",")
+    } ?: emptyList()
 
     init {
-        getPostsByLocation(postRegions)
+        if (postRegions.isNotEmpty()) {
+            getPostsByLocation(postRegions)
+        }
     }
 
     private fun getPostsByLocation(postRegions: List<String>) {
