@@ -360,24 +360,32 @@ class MainActivity : ComponentActivity() {
 
                     composable<Route.StartPageRoute.AccessRoomRoute.CreateRoom> {
                         CreateRoomScreen(
-                            modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
-                        ){
-                            navigationManager.navigateOneWay(
-                                Route.StartPageRoute.AccessRoomRoute.AccessRoom,
-                                BottomNavItem.Home.route
-                            )
-                        }
+                            modifier = Modifier,
+                            onBackBtnClick = {
+                                navController.popBackStack()
+                            },
+                            onSuccessCreateRoom = {
+                                navigationManager.navigateOneWay(
+                                    Route.StartPageRoute.AccessRoomRoute.AccessRoom,
+                                    BottomNavItem.Home.route
+                                )
+                            }
+                        )
                     }
 
                     composable<Route.StartPageRoute.AccessRoomRoute.SearchRoom> {
                         SearchRoomScreen(
-                            modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
-                        ){
-                            navigationManager.navigateOneWay(
-                                Route.StartPageRoute.AccessRoomRoute.AccessRoom,
-                                BottomNavItem.Home.route
-                            )
-                        }
+                            modifier = Modifier,
+                            onBackBtnClick = {
+                                navController.popBackStack()
+                            },
+                            onSuccessSearchRoom = {
+                                navigationManager.navigateOneWay(
+                                    Route.StartPageRoute.AccessRoomRoute.AccessRoom,
+                                    BottomNavItem.Home.route
+                                )
+                            }
+                        )
                     }
 
                     composable<Route.CommunityPageRoute.Map>(
