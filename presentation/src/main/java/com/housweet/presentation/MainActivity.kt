@@ -1,11 +1,14 @@
 package com.housweet.presentation
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Base64
 import android.util.Log
+import android.view.WindowInsetsController
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,6 +22,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -79,6 +84,8 @@ import com.housweet.presentation.ui.startPage.loginPage.WelcomeScreen
 import com.housweet.presentation.ui.startPage.loginPage.loginScreen.LoginScreen
 import com.housweet.presentation.ui.startPage.loginPage.termsOfServicePage.TermsOfServiceScreen
 import com.housweet.presentation.ui.startPage.splashPage.SplashScreen
+import com.housweet.presentation.ui.theme.Black
+import com.housweet.presentation.ui.theme.White
 import com.housweet.presentation.ui.userlist.route.UserListRoute
 import com.housweet.presentation.viewmodel.chatlist.ChatListViewModel
 import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModel
@@ -95,6 +102,10 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        enableEdgeToEdge()
+        WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = true
+
 
         val isFailedRefreshToken = intent.getBooleanExtra("isFailedRefreshToken", false)
         val isLogout = intent.getBooleanExtra("isLogout", false)
@@ -132,7 +143,9 @@ class MainActivity : ComponentActivity() {
             }
 
             Scaffold(
-                snackbarHost = { SnackbarHost(hostState = snackBarHostState) }
+                modifier = Modifier.fillMaxSize(),
+                snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
+                containerColor = Color.White
             ) { paddingValues ->
                 NavHost(
                     navController = navController,
