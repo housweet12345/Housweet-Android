@@ -1,15 +1,15 @@
-package com.housweet.data.network.dto
+package com.housweet.data.network
 
 import android.util.Log
 import com.housweet.data.BuildConfig
-import com.housweet.data.network.AppSettingRemoteDataSource
-import com.housweet.data.network.KtorService
+import com.housweet.data.request.AppSettingUpdateRequest
+import com.housweet.data.response.AppSettingResponse
+import com.housweet.data.response.AppSettingItemResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.patch
 import io.ktor.client.request.setBody
-import com.housweet.data.request.AppSettingUpdateRequest
 import javax.inject.Inject
 
 class AppSettingRemoteDataSourceImpl @Inject constructor(
@@ -20,11 +20,11 @@ class AppSettingRemoteDataSourceImpl @Inject constructor(
         get() = ktorService.getHttpClient()
     private val baseUrl = BuildConfig.BASE_URL
 
-    override suspend fun getAppSettings(): AppSettingResponseDto {
+    override suspend fun getAppSettings(): AppSettingResponse {
         return client.get("$baseUrl/user/app-settings/").body()
     }
 
-    override suspend fun updateAppSetting(settingId: Int, isEnabled: Boolean): AppSettingItemDto {
+    override suspend fun updateAppSetting(settingId: Int, isEnabled: Boolean): AppSettingItemResponse {
         Log.d("AppSettingRemote", "PATCH 요청 시작 → settingId: $settingId, isEnabled: $isEnabled")
 
         val requestBody = AppSettingUpdateRequest(is_enabled = isEnabled)

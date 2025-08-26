@@ -2,13 +2,13 @@ package com.housweet.data.repository
 
 import com.housweet.data.BuildConfig
 import com.housweet.data.request.BlockUserRequest
-import com.housweet.data.dto.BlockUserResponseDto
+import com.housweet.data.response.BlockUserResponse
 import com.housweet.data.local.AuthLocalDataSource
 import com.housweet.data.mapper.toProfilePatchDto
 import com.housweet.data.network.KtorService
-import com.housweet.data.network.dto.ProfileDto
+import com.housweet.data.response.ProfileResponse
 import com.housweet.data.request.ProfileUpdateRequest
-import com.housweet.data.network.dto.ProfileUpdateResponseDto
+import com.housweet.data.response.ProfileUpdateResponse
 import com.housweet.data.utils.TokenUtils
 import com.housweet.data.utils.appendProfileData
 import com.housweet.domain.model.profile.ProfileModel
@@ -35,7 +35,7 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun getMyProfile(): Result<ProfileModel> {
         return runCatching {
-            val response: ProfileDto = client.get("${BuildConfig.USER_BASE_URL}/profile/me").body()
+            val response: ProfileResponse = client.get("${BuildConfig.USER_BASE_URL}/profile/me").body()
             response.mapToProfileModel()
         }
     }
@@ -47,14 +47,14 @@ class UserRepositoryImpl @Inject constructor(
         } ?: ""
 
         return runCatching {
-            val response: ProfileDto = client.get("${BuildConfig.USER_BASE_URL}/profile/$currentUserId/$userId").body()
+            val response: ProfileResponse = client.get("${BuildConfig.USER_BASE_URL}/profile/$currentUserId/$userId").body()
             response.mapToProfileModel()
         }
     }
 
     override suspend fun updateProfile(userId: String, updatedProfile: ProfileUpdateModel): Result<ProfileUpdateResponseModel> {
         return runCatching {
-            val response: ProfileUpdateResponseDto = if (updatedProfile.profileImageData != null) {
+            val response: ProfileUpdateResponse = if (updatedProfile.profileImageData != null) {
                 // 이미지가 있으면 멀티파트로 전송
                 val formData = formData {
                     appendProfileData(updatedProfile)
@@ -77,7 +77,7 @@ class UserRepositoryImpl @Inject constructor(
     override suspend fun blockUser(blockedUserId: Int): Result<Boolean> {
         return runCatching {
             val requestDto = BlockUserRequest(blockedUserId = blockedUserId)
-            val response: BlockUserResponseDto = client.post("${BuildConfig.BASE_URL}/room/room-postings/block/") {
+            val response: BlockUserResponse = client.post("${BuildConfig.BASE_URL}/room/room-postings/block/") {
                 setBody(requestDto)
             }.body()
             response.detail.contains("successfully", ignoreCase = true)

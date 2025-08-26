@@ -1,11 +1,11 @@
 package com.housweet.data.network
 
 import android.util.Log
-import com.housweet.data.network.dto.ChatMessageResponse
-import com.housweet.data.network.dto.ChatUserDto
-import com.housweet.data.network.dto.ChatUsersEnvelope
-import com.housweet.data.network.dto.CreateChatRoomMinimal
-import com.housweet.data.network.dto.SendMessageResponse
+import com.housweet.data.response.ChatUserResponse
+import com.housweet.data.response.ChatUsersEnvelope
+import com.housweet.data.response.CreateChatRoomResponse
+import com.housweet.data.response.ChatMessageResponse
+import com.housweet.data.response.SendMessageResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.okhttp.OkHttp
@@ -19,7 +19,6 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.headers
 import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
@@ -87,7 +86,7 @@ class ChatRemoteDataSourceImpl @Inject constructor(
                 )
             }.getOrNull()
 
-    override suspend fun getChatUsers(senderId: Int): List<ChatUserDto> {
+    override suspend fun getChatUsers(senderId: Int): List<ChatUserResponse> {
         return try {
             val res: HttpResponse = noAuthClient.get("$base/chat/view-room/$senderId/")
             if (res.status.isSuccess()) {
@@ -160,7 +159,7 @@ class ChatRemoteDataSourceImpl @Inject constructor(
         return try {
             val res: HttpResponse = noAuthClient.post("$base/chat/create_room/$senderId/$receiverId/")
             if (res.status.isSuccess()) {
-                val body: CreateChatRoomMinimal? = res.safeBodyOrNull()
+                val body: CreateChatRoomResponse? = res.safeBodyOrNull()
                 if (body?.created == true) Result.success(body.room_id)
                 else Result.failure(IllegalStateException("Room not created (missing/invalid body)"))
             } else {

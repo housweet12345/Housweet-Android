@@ -1,9 +1,9 @@
-package com.housweet.data.network.dto
+package com.housweet.data.response
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class CreateChatRoomMinimal(
+data class CreateChatRoomResponse(
     val room_id: Int,
     val created: Boolean
 )

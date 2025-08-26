@@ -1,11 +1,11 @@
-package com.housweet.data.network.dto
+package com.housweet.data.response
 
 import com.housweet.data.network.FlexibleBooleanSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ChatUserDto(
+data class ChatUserResponse(
     val room_id : Int,
     val sender_id : Int,
     val receiver_id : Int,
@@ -24,5 +24,5 @@ data class ChatUserDto(
 
 @Serializable
 data class ChatUsersEnvelope(
-    @SerialName("results") val results: List<ChatUserDto>
+    @SerialName("results") val results: List<ChatUserResponse>
 )

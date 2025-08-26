@@ -1,6 +1,6 @@
 package com.housweet.data.network
 
-import com.housweet.data.network.dto.MyRoomResponse
+import com.housweet.data.response.MyRoomResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get

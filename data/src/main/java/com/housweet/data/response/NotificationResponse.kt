@@ -1,18 +1,18 @@
-package com.housweet.data.network.dto
+package com.housweet.data.response
 
 import com.housweet.domain.model.NotificationModel
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class NotificationDto(
+data class NotificationResponse(
     val id: Int,
     val type: String,
     val content: String,
     @SerialName("created_at") val createdAt: String
 )
 
-fun NotificationDto.toDomain(): NotificationModel {
+fun NotificationResponse.toDomain(): NotificationModel {
     return NotificationModel(
         id = id,
         type = type,

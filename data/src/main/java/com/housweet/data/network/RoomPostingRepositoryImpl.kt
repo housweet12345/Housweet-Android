@@ -3,7 +3,7 @@ package com.housweet.data.network
 import android.util.Log
 import com.housweet.data.BuildConfig
 import com.housweet.data.local.AuthLocalDataSource
-import com.housweet.data.network.dto.RoomPostingListResponse
+import com.housweet.data.response.RoomPostingListResponse
 import com.housweet.data.request.VisibilityRequest
 import com.housweet.data.network.dto.toRoomPost
 import com.housweet.domain.model.RoomPost

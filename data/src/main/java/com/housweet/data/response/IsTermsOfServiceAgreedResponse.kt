@@ -1,10 +1,10 @@
-package com.housweet.data.network.dto
+package com.housweet.data.response
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class IsTermsOfServiceAgreedResponseDto(
+data class IsTermsOfServiceAgreedResponse(
     @SerialName("id")
     val id: Int,
     @SerialName("user")

@@ -1,10 +1,10 @@
-package com.housweet.data.network.dto
+package com.housweet.data.response
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class NoticeDto(
+data class NoticeResponse(
     val id: Int,
     val title: String,
     val content: String,
@@ -12,7 +12,7 @@ data class NoticeDto(
     @SerialName("created_at") val createdAt: String
 )
 
-fun NoticeDto.toDomain() = com.housweet.domain.model.Notice(
+fun NoticeResponse.toDomain() = com.housweet.domain.model.Notice(
     id = id,
     title = title,
     content = content,

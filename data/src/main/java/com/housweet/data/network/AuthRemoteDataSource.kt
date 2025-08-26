@@ -1,7 +1,7 @@
 package com.housweet.data.network
 
-import com.housweet.data.network.dto.IsTermsOfServiceAgreedResponseDto
-import com.housweet.data.network.dto.RefreshResponseDto
+import com.housweet.data.response.IsTermsOfServiceAgreedResponse
+import com.housweet.data.response.RefreshResponse
 import io.ktor.client.statement.HttpResponse
 
 interface AuthRemoteDataSource {
@@ -12,9 +12,9 @@ interface AuthRemoteDataSource {
     ): HttpResponse
     suspend fun refreshAccessToken(
         refreshToken: String
-    ): RefreshResponseDto
+    ): RefreshResponse
     suspend fun agreeTermsOfService(): Boolean
-    suspend fun isTermsOfServiceAgreed(): IsTermsOfServiceAgreedResponseDto
+    suspend fun isTermsOfServiceAgreed(): IsTermsOfServiceAgreedResponse
     suspend fun isSetProfile(userId: Int): Boolean
     suspend fun isBelongToRoom(): Boolean
     suspend fun deleteAccount(): Boolean

@@ -1,10 +1,10 @@
-package com.housweet.data.network.dto
+package com.housweet.data.response
 
 import com.housweet.domain.model.MyHouse
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class MyHouseDto(
+data class MyHouseResponse(
     val id: Int,
     val name: String,
     val room_leader_id: Int,

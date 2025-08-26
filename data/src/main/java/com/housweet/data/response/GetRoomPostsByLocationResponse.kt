@@ -1,17 +1,17 @@
-package com.housweet.data.network.dto
+package com.housweet.data.response
 
 import com.housweet.domain.model.RoomPostsByLocationDataModel
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class GetRoomPostsByLocationResponseListDto(
+data class GetRoomPostsByLocationResponseList(
     @SerialName("data")
-    val data: List<GetRoomPostsByLocationResponseDto>
+    val data: List<GetRoomPostsByLocationResponse>
 )
 
 @Serializable
-data class GetRoomPostsByLocationResponseDto(
+data class GetRoomPostsByLocationResponse(
     @SerialName("id")
     val id: Int,
     @SerialName("user_id")
@@ -32,7 +32,7 @@ data class GetRoomPostsByLocationResponseDto(
     val isVisible: Boolean
 )
 
-fun GetRoomPostsByLocationResponseListDto.toRoomPostsByLocationDataModel(): List<RoomPostsByLocationDataModel> {
+fun GetRoomPostsByLocationResponseList.toRoomPostsByLocationDataModel(): List<RoomPostsByLocationDataModel> {
     return this.data.map {
         RoomPostsByLocationDataModel(
             id = it.id,

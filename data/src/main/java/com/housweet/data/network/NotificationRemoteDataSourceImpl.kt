@@ -1,7 +1,7 @@
 package com.housweet.data.network
 
 import com.housweet.data.BuildConfig
-import com.housweet.data.network.dto.NotificationDto
+import com.housweet.data.response.NotificationResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -16,7 +16,7 @@ class NotificationRemoteDataSourceImpl @Inject constructor(
         get() = ktorService.getHttpClient()
     private val baseUrl = BuildConfig.BASE_URL
 
-    override suspend fun getNotifications(): List<NotificationDto> {
+    override suspend fun getNotifications(): List<NotificationResponse> {
         return client.get("$baseUrl/communications/notifications/").body()
     }
 }

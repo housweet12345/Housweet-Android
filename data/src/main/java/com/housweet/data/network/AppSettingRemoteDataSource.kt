@@ -1,9 +1,9 @@
 package com.housweet.data.network
 
-import com.housweet.data.network.dto.AppSettingItemDto
-import com.housweet.data.network.dto.AppSettingResponseDto
+import com.housweet.data.response.AppSettingItemResponse
+import com.housweet.data.response.AppSettingResponse
 
 interface AppSettingRemoteDataSource {
-    suspend fun getAppSettings(): AppSettingResponseDto
-    suspend fun updateAppSetting(settingId: Int, isEnabled: Boolean): AppSettingItemDto
+    suspend fun getAppSettings(): AppSettingResponse
+    suspend fun updateAppSetting(settingId: Int, isEnabled: Boolean): AppSettingItemResponse
 }

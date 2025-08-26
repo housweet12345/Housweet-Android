@@ -1,10 +1,10 @@
-package com.housweet.data.network.dto
+package com.housweet.data.response
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class BookmarkedPostingDto(
+data class BookmarkedPostingResponse(
     val id: Int,
     val title: String,
     @SerialName("image_uri") val imageUri: String? = null,
@@ -17,10 +17,10 @@ data class BookmarkedPostingDto(
 
 @Serializable
 data class BookmarkedPostingListResponse(
-    val data: List<BookmarkedPostingDto>
+    val data: List<BookmarkedPostingResponse>
 )
 
-fun BookmarkedPostingDto.toDomain(): com.housweet.domain.model.BookmarkItem {
+fun BookmarkedPostingResponse.toDomain(): com.housweet.domain.model.BookmarkItem {
     return com.housweet.domain.model.BookmarkItem(
         id = id,
         title = title,

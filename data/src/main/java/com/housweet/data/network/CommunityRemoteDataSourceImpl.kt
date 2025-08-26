@@ -1,10 +1,10 @@
 package com.housweet.data.network
 
 import com.housweet.data.BuildConfig
-import com.housweet.data.network.dto.BookmarkedPostingListResponse
-import com.housweet.data.network.dto.GetNearbyPostCountResponseListDto
-import com.housweet.data.network.dto.GetRoomPostDetailResponseDto
-import com.housweet.data.network.dto.GetRoomPostsByLocationResponseListDto
+import com.housweet.data.response.BookmarkedPostingListResponse
+import com.housweet.data.response.GetNearbyPostCountResponseListDto
+import com.housweet.data.response.GetRoomPostDetailResponse
+import com.housweet.data.response.GetRoomPostsByLocationResponseList
 import com.housweet.data.request.ReportRoomPostRequest
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -60,7 +60,7 @@ class CommunityRemoteDataSourceImpl @Inject constructor(
         return res.requireJsonOrThrow("getNearbyPostCount")
     }
 
-    override suspend fun getRoomPostsByLocation(searchWord: String): GetRoomPostsByLocationResponseListDto {
+    override suspend fun getRoomPostsByLocation(searchWord: String): GetRoomPostsByLocationResponseList {
         // Ktor가 query 인코딩을 처리하므로 그대로 전달
         val res: HttpResponse = httpClient.get("$BASE_URL/room/room-postings/") {
             parameter("search_word", searchWord)
@@ -84,7 +84,7 @@ class CommunityRemoteDataSourceImpl @Inject constructor(
         return res.status in setOf(HttpStatusCode.OK, HttpStatusCode.NoContent)
     }
 
-    override suspend fun getRoomPostDetail(roomPostingId: Int): GetRoomPostDetailResponseDto {
+    override suspend fun getRoomPostDetail(roomPostingId: Int): GetRoomPostDetailResponse {
         val res: HttpResponse = httpClient.get("$BASE_URL/room/room-postings/$roomPostingId/")
         return res.requireJsonOrThrow("getRoomPostDetail")
     }

@@ -3,8 +3,8 @@ package com.housweet.data.network
 import android.util.Log
 import com.housweet.data.BuildConfig
 import com.housweet.data.local.AuthLocalDataSource
-import com.housweet.data.network.dto.RefreshResponseDto
 import com.housweet.data.request.RefreshTokenRequest
+import com.housweet.data.response.RefreshResponse
 import com.housweet.domain.event.AuthEvent
 import com.housweet.domain.event.AuthEventBus
 import com.housweet.domain.model.AuthToken
@@ -200,7 +200,7 @@ class KtorService @Inject constructor(
         }
 
         val tokenResponseDto = runBlocking {
-            refreshResponse.body<RefreshResponseDto>()
+            refreshResponse.body<RefreshResponse>()
         }
 
         runBlocking {

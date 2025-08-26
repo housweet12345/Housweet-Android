@@ -1,10 +1,10 @@
-package com.housweet.data.network
+package com.housweet.data.response
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class PostingDetailDto(
+data class PostingDetailResponse(
     val title: String? = null,
     val content: String? = null,
     @SerialName("image_uri") val imageUri: String? = null,

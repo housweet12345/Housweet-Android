@@ -1,23 +1,23 @@
-package com.housweet.data.network.dto
+package com.housweet.data.response
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class AppSettingResponseDto(
+data class AppSettingResponse(
     @SerialName("notification_enabled") val notificationEnabled: Boolean,
-    val categories: List<AppSettingCategoryDto>
+    val categories: List<AppSettingCategoryResponse>
 )
 
 @Serializable
-data class AppSettingCategoryDto(
+data class AppSettingCategoryResponse(
     @SerialName("category_id") val categoryId: Int,
     @SerialName("category_name") val categoryName: String,
-    val settings: List<AppSettingItemDto>
+    val settings: List<AppSettingItemResponse>
 )
 
 @Serializable
-data class AppSettingItemDto(
+data class AppSettingItemResponse(
     val id: Int,
     @SerialName("template_id") val templateId: Int? = null,
     val key: String,

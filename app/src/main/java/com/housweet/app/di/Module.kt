@@ -30,7 +30,7 @@ import com.housweet.data.network.ReportRemoteDataSourceImpl
 import com.housweet.data.network.RoomPostingRepositoryImpl
 import com.housweet.data.network.RoomRemoteDataSource
 import com.housweet.data.network.RoomRemoteDataSourceImpl
-import com.housweet.data.network.dto.AppSettingRemoteDataSourceImpl
+import com.housweet.data.network.AppSettingRemoteDataSourceImpl
 import com.housweet.data.repository.AccessRoomRepositoryImpl
 import com.housweet.data.repository.AppSettingRepositoryImpl
 import com.housweet.data.repository.AuthRepositoryImpl

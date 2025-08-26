@@ -1,11 +1,11 @@
-package com.housweet.data.network.dto
+package com.housweet.data.response
 
 import com.housweet.domain.model.AuthToken
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class LoginResponseDto(
+data class LoginResponse(
     @SerialName("access")
     val accessToken: String,
 
@@ -16,7 +16,7 @@ data class LoginResponseDto(
     val isTermsOfServiceAgreed: Boolean
 )
 
-fun LoginResponseDto.toAuthToken(): AuthToken {
+fun LoginResponse.toAuthToken(): AuthToken {
     return AuthToken(
         accessToken = accessToken,
         refreshToken = refreshToken

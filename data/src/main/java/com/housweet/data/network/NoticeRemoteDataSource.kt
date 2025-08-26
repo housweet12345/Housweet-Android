@@ -1,9 +1,8 @@
 package com.housweet.data.network
 
-import com.housweet.data.network.dto.NoticeDto
-import io.ktor.client.statement.HttpResponse
+import com.housweet.data.response.NoticeResponse
 
 interface NoticeRemoteDataSource {
-    suspend fun getNotices(): List<NoticeDto>
-    suspend fun getNotice(id: Int): NoticeDto
+    suspend fun getNotices(): List<NoticeResponse>
+    suspend fun getNotice(id: Int): NoticeResponse
 }

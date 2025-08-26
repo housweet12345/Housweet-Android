@@ -1,11 +1,11 @@
-package com.housweet.data.network.dto
+package com.housweet.data.response
 
 import com.housweet.domain.model.RoomPostDetailDataModel
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class GetRoomPostDetailResponseDto(
+data class GetRoomPostDetailResponse(
     @SerialName("id")
     val id: Int,
     @SerialName("user_id")
@@ -56,7 +56,7 @@ data class GetRoomPostDetailResponseDto(
     val createdAtKst: String
 )
 
-fun GetRoomPostDetailResponseDto.toRoomPostDetailDataModel(): RoomPostDetailDataModel {
+fun GetRoomPostDetailResponse.toRoomPostDetailDataModel(): RoomPostDetailDataModel {
     return RoomPostDetailDataModel(
         id = id,
         userId = userId,

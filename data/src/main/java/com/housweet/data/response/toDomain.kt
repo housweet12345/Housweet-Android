@@ -1,9 +1,8 @@
-package com.housweet.data.network.dto
+package com.housweet.data.response
 
-import com.housweet.data.network.PostingDetailDto
 import com.housweet.domain.model.RoomPostingDetail
 
-fun PostingDetailDto.toDomain(): RoomPostingDetail =
+fun PostingDetailResponse.toDomain(): RoomPostingDetail =
     RoomPostingDetail(
         title = title.orEmpty(),
         content = content.orEmpty(),
@@ -18,11 +17,11 @@ fun PostingDetailDto.toDomain(): RoomPostingDetail =
         deposit = deposit ?: 0,
         managementFee = managementFee ?: 0,
         availableFrom = availableFrom.orEmpty(),
-        lotNumberAddress = lotNumberAddress,
-        roadAddress = roadAddress,
-        detailedAddress = detailedAddress,
-        si = si ?: "",
-        gu = gu ?: "",
-        dong = dong ?: "",
-        isVisible = isVisible ?: true
+        lotNumberAddress = lotNumberAddress.orEmpty(),
+        roadAddress = roadAddress.orEmpty(),
+        detailedAddress = detailedAddress.orEmpty(),
+        si = si.orEmpty(),
+        gu = gu.orEmpty(),
+        dong = dong.orEmpty(),
+        isVisible = isVisible ?: false
     )

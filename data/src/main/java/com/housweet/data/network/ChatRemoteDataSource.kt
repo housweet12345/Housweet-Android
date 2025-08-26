@@ -1,11 +1,10 @@
 package com.housweet.data.network
 
-import com.housweet.data.network.dto.ChatMessageResponse
-import com.housweet.data.network.dto.ChatUserDto
-import com.housweet.domain.model.ChatMessage
+import com.housweet.data.response.ChatUserResponse
+import com.housweet.data.response.ChatMessageResponse
 
 interface ChatRemoteDataSource {
-    suspend fun getChatUsers(senderId: Int): List<ChatUserDto>
+    suspend fun getChatUsers(senderId: Int): List<ChatUserResponse>
 
     suspend fun sendMessage(senderId: Int, receiverId: Int, message: String): Boolean
 

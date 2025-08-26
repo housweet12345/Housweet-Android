@@ -1,9 +1,9 @@
 package com.housweet.data.network.dto
 
+import com.housweet.data.response.RoomPostingResponse
 import com.housweet.domain.model.RoomPost
-import java.nio.file.Files.isHidden
 
-fun RoomPostingDto.toRoomPost(): RoomPost {
+fun RoomPostingResponse.toRoomPost(): RoomPost {
     return RoomPost(
         id = id,
         userId = userId,

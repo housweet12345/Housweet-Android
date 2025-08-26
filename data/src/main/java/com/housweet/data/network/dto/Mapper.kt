@@ -31,11 +31,13 @@
 
 package com.housweet.data.network.dto
 
+import com.housweet.data.response.AppSettingResponse
+import com.housweet.data.response.AppSettingItemResponse
 import com.housweet.domain.model.AppSettingCategory
 import com.housweet.domain.model.AppSettingItem
 
-// AppSettingResponseDto → Domain 변환
-fun AppSettingResponseDto.toDomain(): List<AppSettingCategory> {
+// AppSettingResponse → Domain 변환
+fun AppSettingResponse.toDomain(): List<AppSettingCategory> {
     return categories.map { category ->
         AppSettingCategory(
             categoryId = category.categoryId,
@@ -45,8 +47,8 @@ fun AppSettingResponseDto.toDomain(): List<AppSettingCategory> {
     }
 }
 
-// AppSettingItemDto → Domain 변환
-fun AppSettingItemDto.toDomain(): AppSettingItem = AppSettingItem(
+// AppSettingItemResponse → Domain 변환
+fun AppSettingItemResponse.toDomain(): AppSettingItem = AppSettingItem(
     id = id,
     templateId = templateId,
     key = key,

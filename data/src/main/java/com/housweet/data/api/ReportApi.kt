@@ -3,7 +3,7 @@ package com.housweet.data.api
 import com.housweet.data.BuildConfig
 import com.housweet.data.network.KtorService
 import com.housweet.data.request.ReportRequest
-import com.housweet.data.network.dto.ReportResponse
+import com.housweet.data.response.ReportResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.post

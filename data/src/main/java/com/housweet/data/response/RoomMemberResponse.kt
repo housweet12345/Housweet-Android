@@ -1,11 +1,11 @@
-package com.housweet.data.dto
+package com.housweet.data.response
 
 import com.housweet.domain.model.home.RoomMemberModel
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class RoomMemberDto(
+data class RoomMemberResponse(
     val id: Int,
     @SerialName("user_id")
     val userId: Int,

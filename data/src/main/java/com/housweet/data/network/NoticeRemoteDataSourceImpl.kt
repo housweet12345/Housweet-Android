@@ -1,7 +1,7 @@
 package com.housweet.data.network
 
 import com.housweet.data.BuildConfig
-import com.housweet.data.network.dto.NoticeDto
+import com.housweet.data.response.NoticeResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ResponseException
@@ -31,12 +31,12 @@ class NoticeRemoteDataSourceImpl @Inject constructor(
         }
     }
 
-    override suspend fun getNotices(): List<NoticeDto> {
+    override suspend fun getNotices(): List<NoticeResponse> {
         val res: HttpResponse = client.get("$base/communications/notices/")
         return res.requireJsonOrThrow("getNotices")
     }
 
-    override suspend fun getNotice(id: Int): NoticeDto {
+    override suspend fun getNotice(id: Int): NoticeResponse {
         val res: HttpResponse = client.get("$base/communications/notices/$id/")
         return res.requireJsonOrThrow("getNotice($id)")
     }

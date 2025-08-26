@@ -1,11 +1,11 @@
-package com.housweet.data.network.dto
+package com.housweet.data.response
 
 import com.housweet.domain.model.profile.ProfileModel
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ProfileDto(
+data class ProfileResponse(
     val gender: String,
     val introduce: String?,
     val mbti: String,

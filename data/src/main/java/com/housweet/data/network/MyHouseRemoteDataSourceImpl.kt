@@ -1,8 +1,8 @@
 package com.housweet.data.network
 
 import android.util.Log
-import com.housweet.data.network.dto.MyHouseDto
-import com.housweet.data.network.dto.UpdateMyHouseNameRequest
+import com.housweet.data.response.MyHouseResponse
+import com.housweet.data.response.UpdateMyHouseNameRequest
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ResponseException
@@ -27,16 +27,16 @@ class MyHouseRemoteDataSourceImpl @Inject constructor(
 
     private val base = "http://43.200.10.89"
 
-    override suspend fun getMyHouse(): MyHouseDto? {
+    override suspend fun getMyHouse(): MyHouseResponse? {
         val res: HttpResponse = client.get("$base/room/rooms/me")
         return when (res.status) {
-            HttpStatusCode.OK -> res.body<MyHouseDto>()
+            HttpStatusCode.OK -> res.body<MyHouseResponse>()
             HttpStatusCode.NotFound -> null                        // 빈 상태
             else -> throw ResponseException(res, "getMyHouse failed: ${res.status} ${res.bodyAsText()}")
         }
     }
 
-    override suspend fun updateMyHouseName(roomId: Int, name: String): MyHouseDto {
+    override suspend fun updateMyHouseName(roomId: Int, name: String): MyHouseResponse {
         Log.d("MyHouseRemote", "PATCH $base/room/rooms/$roomId/, name=$name")
         val res = client.patch("$base/room/rooms/$roomId/") {
             contentType(ContentType.Application.Json)
@@ -47,7 +47,7 @@ class MyHouseRemoteDataSourceImpl @Inject constructor(
         throw ResponseException(res, "updateMyHouseName failed: ${res.status} $text")
     }
 
-    override suspend fun refreshInviteCode(): MyHouseDto {
+    override suspend fun refreshInviteCode(): MyHouseResponse {
         val res = client.post("$base/room/rooms/new_invite_code/") {
             contentType(ContentType.Application.Json)
         }
