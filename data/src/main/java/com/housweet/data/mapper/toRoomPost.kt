@@ -1,4 +1,4 @@
-package com.housweet.data.network.dto
+package com.housweet.data.mapper
 
 import com.housweet.data.response.RoomPostingResponse
 import com.housweet.domain.model.RoomPost

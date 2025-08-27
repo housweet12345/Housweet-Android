@@ -29,7 +29,7 @@
 //    isEnabled = isEnabled
 //)
 
-package com.housweet.data.network.dto
+package com.housweet.data.mapper
 
 import com.housweet.data.response.AppSettingResponse
 import com.housweet.data.response.AppSettingItemResponse

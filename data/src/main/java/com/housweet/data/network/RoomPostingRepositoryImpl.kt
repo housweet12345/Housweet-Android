@@ -5,7 +5,7 @@ import com.housweet.data.BuildConfig
 import com.housweet.data.local.AuthLocalDataSource
 import com.housweet.data.response.RoomPostingListResponse
 import com.housweet.data.request.VisibilityRequest
-import com.housweet.data.network.dto.toRoomPost
+import com.housweet.data.mapper.toRoomPost
 import com.housweet.domain.model.RoomPost
 import com.housweet.domain.repository.RoomPostingRepository
 import io.ktor.client.HttpClient
