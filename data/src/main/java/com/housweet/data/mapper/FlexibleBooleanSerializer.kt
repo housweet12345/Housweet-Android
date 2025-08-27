@@ -1,4 +1,4 @@
-package com.housweet.data.network
+package com.housweet.data.mapper
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException

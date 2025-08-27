@@ -1,6 +1,6 @@
 package com.housweet.data.repository
 
-import com.housweet.data.network.AppSettingRemoteDataSource
+import com.housweet.data.datasource.AppSettingRemoteDataSource
 import com.housweet.data.mapper.toDomain
 import com.housweet.domain.model.AppSettingCategory
 import com.housweet.domain.model.AppSettingItem

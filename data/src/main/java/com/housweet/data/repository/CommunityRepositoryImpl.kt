@@ -1,6 +1,6 @@
 package com.housweet.data.repository
 
-import com.housweet.data.network.CommunityRemoteDataSource
+import com.housweet.data.datasource.CommunityRemoteDataSource
 import com.housweet.data.response.toRoomPostDetailDataModel
 import com.housweet.data.response.toNearByPostCountDataModel
 import com.housweet.data.response.toDomain

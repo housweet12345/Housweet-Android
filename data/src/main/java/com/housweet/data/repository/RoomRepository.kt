@@ -1,5 +1,6 @@
-package com.housweet.data.network
+package com.housweet.data.repository
 
+import com.housweet.data.datasource.RoomRemoteDataSource
 import com.housweet.data.local.AuthLocalDataSource
 import javax.inject.Inject
 

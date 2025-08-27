@@ -1,8 +1,10 @@
-package com.housweet.data.network
+package com.housweet.data.datasource
 
 import com.housweet.data.BuildConfig
+import com.housweet.data.network.KtorService
 import com.housweet.data.request.RegisterHouseRequest
 import com.housweet.data.request.UpdateHouseRequest
+import com.housweet.data.response.PostingDetailResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ResponseException
@@ -40,7 +42,7 @@ class HouseRegisterRemoteDataSourceImpl @Inject constructor(
     }
 
     // 방 공고 상세 조회
-    override suspend fun getPostingDetail(id: Int): PostingDetailDto {
+    override suspend fun getPostingDetail(id: Int): PostingDetailResponse {
         val res: HttpResponse = client.get("$BASE_URL/room/room-postings/$id/")
         return when (res.status) {
             HttpStatusCode.OK -> res.body()

@@ -1,4 +1,4 @@
-package com.housweet.data.network
+package com.housweet.data.datasource
 
 import android.util.Log
 import com.housweet.data.BuildConfig
@@ -6,6 +6,7 @@ import com.housweet.data.local.AuthLocalDataSource
 import com.housweet.data.response.RoomPostingListResponse
 import com.housweet.data.request.VisibilityRequest
 import com.housweet.data.mapper.toRoomPost
+import com.housweet.data.network.KtorService
 import com.housweet.domain.model.RoomPost
 import com.housweet.domain.repository.RoomPostingRepository
 import io.ktor.client.HttpClient

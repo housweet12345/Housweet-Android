@@ -1,6 +1,6 @@
 package com.housweet.data.response
 
-import com.housweet.data.network.FlexibleBooleanSerializer
+import com.housweet.data.mapper.FlexibleBooleanSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

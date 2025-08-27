@@ -1,6 +1,6 @@
 package com.housweet.data.repository
 
-import com.housweet.data.network.NotificationRemoteDataSource
+import com.housweet.data.datasource.NotificationRemoteDataSource
 import com.housweet.data.response.toDomain
 import com.housweet.domain.model.NotificationModel
 import com.housweet.domain.repository.NotificationRepository

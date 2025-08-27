@@ -1,6 +1,7 @@
-package com.housweet.data.network
+package com.housweet.data.datasource
 
 import android.util.Log
+import com.housweet.data.network.KtorService
 import com.housweet.data.response.MyHouseResponse
 import com.housweet.data.response.UpdateMyHouseNameRequest
 import io.ktor.client.HttpClient

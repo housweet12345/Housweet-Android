@@ -1,4 +1,4 @@
-package com.housweet.data.network
+package com.housweet.data.datasource
 
 interface AccessRoomRemoteDataSource {
     suspend fun createRoom(name: String): Boolean

@@ -1,7 +1,7 @@
 package com.housweet.data.usecase
 
 import com.housweet.data.local.AuthLocalDataSource
-import com.housweet.data.network.RoomRemoteDataSource
+import com.housweet.data.datasource.RoomRemoteDataSource
 import com.housweet.domain.usecase.GetMyRoomIdUseCase
 import javax.inject.Inject
 

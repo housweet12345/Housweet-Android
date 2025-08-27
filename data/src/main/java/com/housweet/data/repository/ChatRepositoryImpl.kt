@@ -1,6 +1,6 @@
 package com.housweet.data.repository
 
-import com.housweet.data.network.ChatRemoteDataSource
+import com.housweet.data.datasource.ChatRemoteDataSource
 import com.housweet.data.response.toDomain
 import com.housweet.domain.model.ChatMessage
 import com.housweet.domain.model.ChatUser

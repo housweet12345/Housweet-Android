@@ -1,7 +1,8 @@
-package com.housweet.data.network
+package com.housweet.data.datasource
 
 import android.util.Log
 import com.housweet.data.BuildConfig
+import com.housweet.data.network.KtorService
 import com.housweet.data.request.AppSettingUpdateRequest
 import com.housweet.data.response.AppSettingResponse
 import com.housweet.data.response.AppSettingItemResponse

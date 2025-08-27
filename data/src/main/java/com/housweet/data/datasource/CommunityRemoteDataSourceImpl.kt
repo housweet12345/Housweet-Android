@@ -1,6 +1,7 @@
-package com.housweet.data.network
+package com.housweet.data.datasource
 
 import com.housweet.data.BuildConfig
+import com.housweet.data.network.KtorService
 import com.housweet.data.response.BookmarkedPostingListResponse
 import com.housweet.data.response.GetNearbyPostCountResponseListDto
 import com.housweet.data.response.GetRoomPostDetailResponse
@@ -20,7 +21,6 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
-import java.net.URLDecoder
 import javax.inject.Inject
 import javax.inject.Singleton
 

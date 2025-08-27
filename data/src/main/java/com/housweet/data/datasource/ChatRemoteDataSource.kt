@@ -1,4 +1,4 @@
-package com.housweet.data.network
+package com.housweet.data.datasource
 
 import com.housweet.data.response.ChatUserResponse
 import com.housweet.data.response.ChatMessageResponse

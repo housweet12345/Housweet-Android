@@ -1,6 +1,7 @@
-package com.housweet.data.network
+package com.housweet.data.datasource
 
 import com.housweet.data.BuildConfig
+import com.housweet.data.network.KtorService
 import com.housweet.data.request.AccessRoomRequest
 import com.housweet.data.request.CreateRoomRequest
 import io.ktor.client.HttpClient
