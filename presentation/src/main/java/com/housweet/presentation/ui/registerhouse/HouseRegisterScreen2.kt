@@ -209,7 +209,6 @@ fun HouseRegisterScreen2(
                     Text("제목", fontSize = 12.sp, color = Color.Black, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(6.dp))
                     RegisterContentTextField(
-                        text = inputTitle,
                         modifier = Modifier
                             .fillMaxWidth()
                             .focusRequester(focusRequester)
@@ -219,6 +218,8 @@ fun HouseRegisterScreen2(
                                 }
                             }
                             .autoBringIntoViewOnFocus(),
+                        text = inputTitle,
+                        textLength = 100,
                         height = 30.dp,
                         hint = "제목을 입력해주세요.",
                         alignment = Alignment.CenterStart,
