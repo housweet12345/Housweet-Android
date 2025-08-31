@@ -34,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
@@ -110,12 +111,12 @@ fun HouseRegisterScreen4(
                     .fillMaxSize()
                     .imePadding()
                     .background(Color.White)
-                    .padding(horizontal = 16.dp)
                     .padding(innerPadding)
             ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
@@ -130,7 +131,9 @@ fun HouseRegisterScreen4(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 LazyColumn(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     sections.forEach { (title, tags) ->
@@ -160,7 +163,7 @@ fun HouseRegisterScreen4(
                                                 selectedBySection[title] = current
                                             }
                                             .border(
-                                                width = 1.dp,
+                                                width = 0.5.dp,
                                                 color = Color(0xFF665ED3),
                                                 shape = RoundedCornerShape(12.dp)
                                             )
@@ -228,7 +231,7 @@ fun HouseRegisterScreen4(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
-                    shape = RoundedCornerShape(6.dp),
+                    shape = RectangleShape,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF665ED3),
                         contentColor = Color.White
@@ -240,8 +243,6 @@ fun HouseRegisterScreen4(
                         fontWeight = FontWeight.Bold
                     )
                 }
-
-                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }

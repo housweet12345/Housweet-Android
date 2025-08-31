@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -47,6 +48,7 @@ import com.housweet.domain.model.RoomPostsByLocationDataModel
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.common.GuideText
 import com.housweet.presentation.ui.common.LoadingScreen
+import com.housweet.presentation.ui.startPage.loginPage.loginScreen.Guide
 import com.housweet.presentation.ui.theme.Black
 import com.housweet.presentation.ui.theme.Gray_A5A5A5
 import com.housweet.presentation.ui.theme.White
@@ -74,27 +76,27 @@ fun PostsScreen(
 
     LaunchedEffect(Unit) {
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-        postsViewModel.event.collect { event ->
-            when (event) {
-                PostsEvent.Error -> {
-                    snackBarHostState.showSnackbar(
-                        message = "방 정보를 제대로 불러오지 못했어요.",
-                        actionLabel = "닫기",
-                        duration = SnackbarDuration.Short
-                    )
-                }
+            postsViewModel.event.collect { event ->
+                when (event) {
+                    PostsEvent.Error -> {
+                        snackBarHostState.showSnackbar(
+                            message = "방 정보를 제대로 불러오지 못했어요.",
+                            actionLabel = "닫기",
+                            duration = SnackbarDuration.Short
+                        )
+                    }
 
-                PostsEvent.BookMarkError -> {
-                    snackBarHostState.showSnackbar(
-                        message = "북마크를 제대로 설정하지 못했어요.",
-                        actionLabel = "닫기",
-                        duration = SnackbarDuration.Short
-                    )
+                    PostsEvent.BookMarkError -> {
+                        snackBarHostState.showSnackbar(
+                            message = "북마크를 제대로 설정하지 못했어요.",
+                            actionLabel = "닫기",
+                            duration = SnackbarDuration.Short
+                        )
+                    }
                 }
             }
         }
     }
-        }
 
     when(uiState) {
         PostsState.Idle -> {
@@ -130,10 +132,16 @@ private fun PostsContent(
     Scaffold(
         topBar = {
             PostsTopBar(
-                regions = if (postRegions.size > 3) {
-                    postRegions.take(3).joinToString(", ") { it.split(" ").last() } + "..."
-                } else {
-                    postRegions.joinToString(", ") { it.split(" ").last() }
+                regions = when {
+                    postRegions.size > 3 -> {
+                        postRegions.take(3).joinToString(", ") { it.split(" ").last() } + "..."
+                    }
+
+                    postRegions.size in 1 .. 3 -> {
+                        postRegions.joinToString(", ") { it.split(" ").last() }
+                    }
+
+                    else -> "하우스 없음"
                 },
                 onBackBtnClick = onBackBtnClick
             )
@@ -141,23 +149,52 @@ private fun PostsContent(
         snackbarHost = { SnackbarHost(snackBarHostState) },
         containerColor = White
     ) { innerPadding ->
-        LazyColumn(
-            modifier = Modifier.padding(innerPadding),
-        ) {
-            posts.forEach { (postRegion, posts) ->
-                val regionParts  = postRegion.split(" ")
-                items(
-                    count = posts.size,
-                    key = { posts[it].id }
-                ) { postIndex ->
-                    val postInfo = posts[postIndex]
-                    if (postInfo.isVisible && postInfo.userId != blockedUserId) {
-                        PostItem(
-                            postInfo = postInfo,
-                            postRegion = "${regionParts[1]} ${regionParts[2]}",
-                            onPostClick = { onPostClick(postInfo.id, regionParts[2]) },
-                            onToggleLike = { onToggleLike(postRegion, postIndex) }
-                        )
+        if (postRegions.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.dead_house),
+                        contentDescription = "deadHouse",
+                        modifier = Modifier.padding(top = 140.dp)
+                    )
+
+                    GuideText(
+                        modifier = Modifier.padding(top = 20.dp),
+                        color = Black,
+                        text = "현재 지역에 올라온 방이 없어요",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp,
+                        lineHeight = 22.sp,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.padding(innerPadding),
+            ) {
+                posts.forEach { (postRegion, posts) ->
+                    val regionParts = postRegion.split(" ")
+                    items(
+                        count = posts.size,
+                        key = { posts[it].id }
+                    ) { postIndex ->
+                        val postInfo = posts[postIndex]
+                        if (postInfo.isVisible && postInfo.userId != blockedUserId) {
+                            PostItem(
+                                postInfo = postInfo,
+                                postRegion = "${regionParts[1]} ${regionParts[2]}",
+                                onPostClick = { onPostClick(postInfo.id, regionParts[2]) },
+                                onToggleLike = { onToggleLike(postRegion, postIndex) }
+                            )
+                        }
                     }
                 }
             }
@@ -259,7 +296,7 @@ private fun PostItem(
 
             GuideText(
                 color = Black,
-                text = "보증금 ${postInfo.deposit} 월세 ${postInfo.rent}",
+                text = "보증금 ${getRelativeMoney(postInfo.deposit)} 월세 ${getRelativeMoney(postInfo.rent)}",
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 12.sp,
                 lineHeight = 12.sp,
@@ -313,21 +350,26 @@ private fun PostItem(
     }
 }
 
+fun getRelativeMoney(money: Int): Int {
+    return if (money >=10000) money / 10000
+    else money
+}
+
 @Preview
 @Composable
 private fun PostsScreenPreview() {
     PostsContent(
-        postRegions = listOf("서울특별시 강남구 역삼동"),
+        postRegions = listOf(),
         posts = mapOf(
             "서울특별시 강남구 역삼동" to listOf(
                 RoomPostsByLocationDataModel(
                     id = 1,
-                    userId = 0,
+                    userId = 2,
                     title = "방 구하는 분",
                     imageUri = "https://picsum.photos/200/300",
                     isBookmarked = false,
-                    rent = 40,
-                    deposit = 1000,
+                    rent = 40000000,
+                    deposit = 1000000,
                     ageRangeAndGender = "20대 남성",
                     isVisible = true
                 )

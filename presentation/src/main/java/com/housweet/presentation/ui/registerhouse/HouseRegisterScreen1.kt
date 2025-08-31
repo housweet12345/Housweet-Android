@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
@@ -91,12 +92,13 @@ fun HouseRegisterScreen1(
                     .imePadding()
                     .verticalScroll(scrollState)
                     .background(Color.White)
-                    .padding(horizontal = 16.dp)
                     .padding(innerPadding),
             ) {
                 // 중앙 정렬된 콘텐츠 (텍스트 + 태그 선택)
                 Column(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
@@ -139,7 +141,7 @@ fun HouseRegisterScreen1(
                                             selectedBySection[title] = current
                                         }
                                         .border(
-                                            width = 1.dp,
+                                            width = 0.5.dp,
                                             color = Color(0xFF665ED3),
                                             shape = RoundedCornerShape(10.dp)
                                         )
@@ -175,14 +177,14 @@ fun HouseRegisterScreen1(
                             missingSectionName = missing
                         }
                     },
-                    shape = RoundedCornerShape(6.dp),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(48.dp),
+                        .height(50.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF665ED3),
                         contentColor = Color.White
-                    )
+                    ),
+                    shape = RectangleShape
                 ) {
                     Text(
                         text = "다음",
@@ -190,8 +192,6 @@ fun HouseRegisterScreen1(
                         fontWeight = FontWeight.Bold
                     )
                 }
-
-                Spacer(modifier = Modifier.height(32.dp))
             }
         }
     }

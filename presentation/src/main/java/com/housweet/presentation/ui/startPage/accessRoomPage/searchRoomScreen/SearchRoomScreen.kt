@@ -1,22 +1,31 @@
 package com.housweet.presentation.ui.startPage.accessRoomPage.searchRoomScreen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -27,6 +36,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import com.housweet.presentation.R
 import com.housweet.presentation.ui.common.BottomButton
 import com.housweet.presentation.ui.common.GuideText
 import com.housweet.presentation.ui.common.LoadingScreen
@@ -40,6 +50,7 @@ import com.housweet.presentation.ui.theme.White
 fun SearchRoomScreen(
     modifier: Modifier,
     searchRoomViewModel: SearchRoomViewModel = hiltViewModel(),
+    onBackBtnClick: () -> Unit,
     onSuccessSearchRoom: () -> Unit
 ) {
     val uiState: SearchRoomState by searchRoomViewModel.uiState.collectAsStateWithLifecycle()
@@ -75,6 +86,7 @@ fun SearchRoomScreen(
                     }
                     code = it
                 },
+                onBackBtnClick = onBackBtnClick,
                 onBtnClick = {
                     searchRoomViewModel.accessRoomWithInviteCode(it)
                 }
@@ -92,49 +104,91 @@ private fun SearchRoomContent(
     modifier: Modifier,
     code: String,
     isWarning: Boolean,
+    onBackBtnClick: () -> Unit,
     onBtnClick: (name: String) -> Unit,
     onValueChange: (String) -> Unit
 ) {
-    Column(modifier = modifier
-        .fillMaxSize()
-        .background(White)
-        .consumeWindowInsets(WindowInsets.navigationBars)
-        .imePadding()
-    ) {
-        Spacer(modifier = Modifier.height(92.dp))
-        GuideText(
-            modifier = Modifier.padding(start = 20.dp),
-            color = Black,
-            text = "초대코드를 입력해주세요.",
-            fontWeight = FontWeight.W800,
-            fontSize = 12.sp,
-            lineHeight = 18.sp,
-            textAlign = TextAlign.Start
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        WriteTextFiled(
-            text = code,
-            textColor = if (isWarning) Red else Black,
-            onValueChange = {
-                onValueChange(it)
-            }
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        if (isWarning) {
-            WarningText(
-                text = "없는 초대코드 입니다."
+    Scaffold (
+        modifier = modifier,
+        topBar = { SearchRoomTopBar( onBackBtnClick = onBackBtnClick) },
+        containerColor = White
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+                .background(White)
+                .consumeWindowInsets(WindowInsets.navigationBars)
+                .imePadding()
+        ) {
+            Spacer(modifier = Modifier.height(92.dp))
+            GuideText(
+                modifier = Modifier.padding(start = 20.dp),
+                color = Black,
+                text = "초대코드를 입력해주세요.",
+                fontWeight = FontWeight.W800,
+                fontSize = 12.sp,
+                lineHeight = 18.sp,
+                textAlign = TextAlign.Start
             )
-        }
 
-        Spacer(modifier = Modifier.weight(weight = 1f))
+            Spacer(modifier = Modifier.height(8.dp))
 
-        BottomButton(text = "찾기") {
-            onBtnClick(code)
+            WriteTextFiled(
+                text = code,
+                textColor = if (isWarning) Red else Black,
+                onValueChange = {
+                    onValueChange(it)
+                }
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            if (isWarning) {
+                WarningText(
+                    text = "없는 초대코드 입니다."
+                )
+            }
+
+            Spacer(modifier = Modifier.weight(weight = 1f))
+
+            BottomButton(text = "찾기") {
+                onBtnClick(code)
+            }
         }
+    }
+}
+
+@Composable
+private fun SearchRoomTopBar(
+    onBackBtnClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .background(White)
+            .fillMaxWidth()
+            .height(48.dp)
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.back),
+            contentDescription = "back",
+            modifier = Modifier
+                .padding(start = 20.dp)
+                .align(Alignment.CenterStart)
+                .clip(CircleShape)
+                .clickable { onBackBtnClick() },
+            tint = Black
+        )
+
+        GuideText(
+            modifier = Modifier.align(Alignment.Center),
+            color = Black,
+            text = "하우스 찾기",
+            fontWeight = FontWeight.Bold,
+            fontSize = 14.sp,
+            lineHeight = 14.sp,
+            textAlign = TextAlign.Center
+        )
     }
 }
 
@@ -146,6 +200,7 @@ private fun SearchRoomScreenPreview() {
         code = "asdasas",
         isWarning = true,
         onValueChange = {},
+        onBackBtnClick = {},
         onBtnClick = {}
     )
 }

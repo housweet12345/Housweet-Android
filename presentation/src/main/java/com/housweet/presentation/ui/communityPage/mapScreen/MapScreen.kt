@@ -27,7 +27,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,6 +55,7 @@ import com.housweet.presentation.ui.theme.Gray_CBCBCB
 import com.housweet.presentation.ui.theme.Purple
 import com.housweet.presentation.ui.theme.White
 import com.housweet.presentation.ui.theme.White_F8F8F8
+import com.kakao.sdk.user.model.User
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.geometry.LatLngBounds
 import com.naver.maps.map.CameraPosition
@@ -68,17 +72,20 @@ import com.naver.maps.map.compose.rememberCameraPositionState
 fun MapScreen(
     modifier: Modifier,
     searchRegion: Coordinate?,
+    userRoomStateNum: Int?,
     mapViewModel: MapViewModel = hiltViewModel(),
     onMarkerClick: (region: String) -> Unit,
     onViewPostBtnClick: (regions: String) -> Unit,
     onSearchBtnClick: () -> Unit,
-    onWritePostBtnClick: () -> Unit,
+    onWritePostBtnClick: (isNotBelongToRoom: Boolean) -> Unit,
     onChatClick: () -> Unit,
     onNotificationClick: () -> Unit,
     onMyPageClick: () -> Unit,
+    onHouseClick: () -> Unit
 ) {
     val uiState by mapViewModel.uiState.collectAsStateWithLifecycle()
     val mapState by mapViewModel.mapState.collectAsStateWithLifecycle()
+    val userRoomState by rememberSaveable { mutableStateOf(userRoomStateNum) }
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val snackBarHostState = remember { SnackbarHostState() }
     val cameraPositionState: CameraPositionState = rememberCameraPositionState { position = CameraPosition(LatLng(37.5666805, 126.9784147), MapConstants.MAX_ZOOM_LEVEL) }
@@ -89,7 +96,7 @@ fun MapScreen(
                 CameraPosition(LatLng(it.y, it.x), MapConstants.MAX_ZOOM_LEVEL)
         }
     }
-    
+
     LaunchedEffect(Unit) {
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
             mapViewModel.event.collect { event ->
@@ -117,6 +124,7 @@ fun MapScreen(
             mapViewModel.freeMarkers()
         }
     }
+
     when (uiState) {
         MapUiState.Idle -> {
             MapContent(
@@ -124,6 +132,7 @@ fun MapScreen(
                 cameraPositionState = cameraPositionState,
                 snackBarHostState = snackBarHostState,
                 markerStates =  mapState.markerStates,
+                userRoomState = userRoomState?.toEnum<UserRoomState>(),
                 onMarkerClick = {
                     onMarkerClick(it)
                 },
@@ -131,9 +140,8 @@ fun MapScreen(
                     if (range == null) return@MapContent
                     val filteredPostRegion = mapState.markerData
                         .filter { MapUtils.isPositionVisible(LatLng(it.latitude, it.longitude), range) }
-                        .filter { it.roomCount > 0}
+                        .filter { it.roomCount > 0 }
                         .map { "${it.siName} ${it.guName} ${it.dongName}" }
-                        .let { it.ifEmpty { return@MapContent }}
 
                     onViewPostBtnClick(filteredPostRegion.joinToString(","))
                 },
@@ -141,7 +149,8 @@ fun MapScreen(
                 onWritePostBtnClick = onWritePostBtnClick,
                 onChatClick = onChatClick,
                 onNotificationClick = onNotificationClick,
-                onMyPageClick = onMyPageClick
+                onMyPageClick = onMyPageClick,
+                onHouseClick = onHouseClick
             )
         }
     }
@@ -154,13 +163,15 @@ private fun MapContent(
     cameraPositionState: CameraPositionState,
     snackBarHostState: SnackbarHostState,
     markerStates: MutableMap<NearByPostCountDataModel, MarkerState>,
+    userRoomState: UserRoomState?,
     onMarkerClick: (String) -> Unit,
     onViewPostBtnClick: (LatLngBounds?) -> Unit,
     onSearchBtnClick: () -> Unit,
-    onWritePostBtnClick: () -> Unit,
+    onWritePostBtnClick: (isNotBelongToRoom: Boolean) -> Unit,
     onChatClick: () -> Unit,
     onNotificationClick: () -> Unit,
     onMyPageClick: () -> Unit,
+    onHouseClick: () -> Unit
 ) {
     val mapUiSettings = remember {
         MapUiSettings(
@@ -184,7 +195,8 @@ private fun MapContent(
             MapTopBar(
                 onChatClick = onChatClick,
                 onNotificationClick = onNotificationClick,
-                onMyPageClick = onMyPageClick
+                onMyPageClick = onMyPageClick,
+                onHouseClick = onHouseClick
             )
         },
         snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
@@ -215,14 +227,20 @@ private fun MapContent(
                 }
             }
 
-            MapOptionButton(
-                modifier = Modifier
-                    .padding(start = 15.dp, top = 14.dp)
-                    .align(Alignment.TopStart),
-                icon = R.drawable.small_house,
-                text = "방 올리기",
-            ) {
-                onWritePostBtnClick()
+            when (userRoomState) {
+                UserRoomState.IsHost, UserRoomState.IsNotBelong -> {
+                    MapOptionButton(
+                        modifier = Modifier
+                            .padding(start = 15.dp, top = 14.dp)
+                            .align(Alignment.TopStart),
+                        icon = R.drawable.small_house,
+                        text = "방 올리기",
+                    ) {
+                        onWritePostBtnClick(userRoomState == UserRoomState.IsNotBelong)
+                    }
+                }
+
+                UserRoomState.IsNotHost, null -> { }
             }
 
             MapOptionButton(
@@ -252,7 +270,8 @@ private fun MapContent(
 private fun MapTopBar(
     onChatClick: () -> Unit,
     onNotificationClick: () -> Unit,
-    onMyPageClick: () -> Unit
+    onMyPageClick: () -> Unit,
+    onHouseClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -267,7 +286,7 @@ private fun MapTopBar(
             modifier = Modifier
                 .padding(start = 20.dp)
                 .clip(CircleShape)
-                .clickable { },
+                .clickable { onHouseClick() },
         )
 
         Row(
@@ -436,7 +455,8 @@ private fun TestMapContent(
             MapTopBar(
                 onChatClick = onChatClick,
                 onNotificationClick = onNotificationClick,
-                onMyPageClick = onMyPageClick
+                onMyPageClick = onMyPageClick,
+                onHouseClick = {}
             )
         },
         containerColor = White
@@ -516,6 +536,11 @@ private fun TestRoomMarker(
         }
     }
 }
+
+inline fun <reified T : Enum<T>> Int.toEnum(): T? {
+    return enumValues<T>().getOrNull(this)
+}
+
 
 @Preview
 @Composable

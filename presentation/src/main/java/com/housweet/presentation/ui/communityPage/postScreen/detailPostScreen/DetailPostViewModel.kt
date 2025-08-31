@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.housweet.domain.model.RoomPostDetailDataModel
 import com.housweet.domain.usecase.UseCases
+import com.housweet.domain.usecase.auth.GetCurrentUserIdUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,9 +19,10 @@ import javax.inject.Inject
 @HiltViewModel
 class DetailPostViewModel @Inject constructor(
     private val useCases: UseCases,
+    private val currentUserIdUseCase: GetCurrentUserIdUseCase,
     savedStateHandle: SavedStateHandle
 ): ViewModel() {
-    private val _uiState = MutableStateFlow<DetailPostState>(DetailPostState.Idle)
+    private val _uiState = MutableStateFlow<DetailPostState>(DetailPostState.IsLoading)
     val uiState: StateFlow<DetailPostState> = _uiState.asStateFlow()
 
     private val _event = MutableSharedFlow<DetailPostEvent>()
@@ -30,12 +32,14 @@ class DetailPostViewModel @Inject constructor(
     val roomPostDetail: StateFlow<RoomPostDetailDataModel> = _roomPostDetail.asStateFlow()
 
     var originalBookMarkState: Boolean = false
+    var currentUserId: Int? = null
 
     private var postId = savedStateHandle.get<Int>("postId")
     var lastRegion = savedStateHandle.get<String>("lastRegion") ?: ""
 
     init {
         viewModelScope.launch {
+            currentUserId = currentUserIdUseCase()
             postId?.let { getRoomPostDetail(it) }
         }
     }
@@ -44,11 +48,13 @@ class DetailPostViewModel @Inject constructor(
         viewModelScope.launch {
             useCases.getRoomPostDetailUseCase(postId).collect { result ->
                 result.onSuccess {
+                    _uiState.value = DetailPostState.Idle
                     _roomPostDetail.value = it
                     originalBookMarkState = it.isBookmarked
                 }
 
                 result.onFailure {
+                    _uiState.value = DetailPostState.Idle
                     _event.emit(DetailPostEvent.Error)
                 }
             }
