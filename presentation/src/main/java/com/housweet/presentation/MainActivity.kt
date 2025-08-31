@@ -10,6 +10,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -155,7 +157,9 @@ class MainActivity : ComponentActivity() {
                     // startDestination = Route.StartPageRoute.LoginRoute.Login,
 //                     startDestination = Route.StartPageRoute.LoginRoute.Login,
 //                    startDestination= "mypage",
-                    modifier = Modifier.padding(top = paddingValues.calculateTopPadding())
+                    modifier = Modifier.padding(top = paddingValues.calculateTopPadding()),
+                    enterTransition = { EnterTransition.None },
+                    exitTransition = { ExitTransition.None }
                 ) {
                     composable<Route.StartPageRoute.Splash> {
                         SplashScreen(
@@ -1022,7 +1026,7 @@ class MainActivity : ComponentActivity() {
                             onBackClick = { navController.popBackStack() },
                             navigateToProfile = { navController.navigate("profile/$it") },
                             onWorkspaceInvite = { isHost ->
-                                navController.navigate(Route.CommunityPageRoute.Map(userRoomStateNum = if (isHost) 1 else 2)
+                                navController.navigate(Route.CommunityPageRoute.Map(userRoomStateNum = 1)
                                 )
                             }
                         )
