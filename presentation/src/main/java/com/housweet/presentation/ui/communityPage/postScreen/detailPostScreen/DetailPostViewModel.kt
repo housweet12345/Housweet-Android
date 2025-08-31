@@ -1,5 +1,6 @@
 package com.housweet.presentation.ui.communityPage.postScreen.detailPostScreen
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -22,7 +23,7 @@ class DetailPostViewModel @Inject constructor(
     private val currentUserIdUseCase: GetCurrentUserIdUseCase,
     savedStateHandle: SavedStateHandle
 ): ViewModel() {
-    private val _uiState = MutableStateFlow<DetailPostState>(DetailPostState.Idle)
+    private val _uiState = MutableStateFlow<DetailPostState>(DetailPostState.IsLoading)
     val uiState: StateFlow<DetailPostState> = _uiState.asStateFlow()
 
     private val _event = MutableSharedFlow<DetailPostEvent>()
@@ -48,11 +49,13 @@ class DetailPostViewModel @Inject constructor(
         viewModelScope.launch {
             useCases.getRoomPostDetailUseCase(postId).collect { result ->
                 result.onSuccess {
+                    _uiState.value = DetailPostState.Idle
                     _roomPostDetail.value = it
                     originalBookMarkState = it.isBookmarked
                 }
 
                 result.onFailure {
+                    _uiState.value = DetailPostState.Idle
                     _event.emit(DetailPostEvent.Error)
                 }
             }
