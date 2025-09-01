@@ -193,6 +193,7 @@ class HouseRegisterViewModel @Inject constructor(
                 houseRegisterRepository.registerHouse(model)
                 Log.d("HouseRegister", "하우스 등록 성공: $model")
                 onSuccess()
+                resetAll()
             } catch (e: Exception) {
                 Log.e("HouseRegister", "등록 실패", e)
                 onError(e)
@@ -292,5 +293,31 @@ class HouseRegisterViewModel @Inject constructor(
             won < Int.MIN_VALUE -> Int.MIN_VALUE
             else -> won.toInt()
         }
+    }
+
+    open fun resetAll() {
+        currentPostingId = null
+
+        // step1
+        trafficTags = emptyList()
+        sizeOfHouseTags = emptyList()
+        infraTags = emptyList()
+
+        // step2
+        region = null
+        title = ""
+        description = ""
+        deposit = ""
+        monthlyRent = ""
+        managementFee = ""
+        moveInDate = ""
+
+        // step3
+        clearImages() // imageBitmap/imageUrl 둘 다 null로
+
+        // step4
+        lifePatternTags = emptyList()
+        tidyingUpHabitTags = emptyList()
+        preferredTags = emptyList()
     }
 }
