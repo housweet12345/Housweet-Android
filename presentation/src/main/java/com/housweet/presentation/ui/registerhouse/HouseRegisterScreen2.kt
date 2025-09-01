@@ -38,6 +38,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -148,6 +149,10 @@ fun HouseRegisterScreen2(
             .filter { it.isNotBlank() }
             .joinToString(" ")
     }?.takeIf { it.isNotBlank() } ?: "지역을 선택해주세요."
+
+    val bodyStyle = TextStyle(
+        textIndent = TextIndent(firstLine = 0.sp, restLine = 16.sp)
+    )
 
     Scaffold (
         topBar = {
@@ -346,12 +351,17 @@ fun HouseRegisterScreen2(
 
                     Spacer(modifier = Modifier.height(40.dp))
                     Text(
-                        text = "ⓘ 경고문 블라블라",
+                        text = "ⓘ 하우스메이트를 구하는 글 작성 시, 전화번호, 카카오톡 ID, 집 주소등의 민감한 개인정보의 작성을 지양해주세요.\n"
+                        + "ⓘ 개인 연락처는 채팅 기능을 통해 교환해주세요.\n"
+                        + "ⓘ 허위 정보(가격, 위치, 룸 크기 등에 대한) 글은 고지 없이 제재될 수 있습니다.\n"
+                        + "ⓘ 본 서비스는 개인간의 거래에 개입하지 않으며, 발생한 문제에 대해서는 책임지지 않습니다.",
                         color = Color(0xFF6C4DFF),
-                        fontSize = 12.sp
+                        fontSize = 12.sp,
+                        style = bodyStyle
                     )
                 }
 
+                Spacer(modifier = Modifier.height(40.dp))
                 Spacer(modifier = Modifier.weight(1f))
 
                 Button(
