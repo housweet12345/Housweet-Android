@@ -1,16 +1,18 @@
 package com.housweet.presentation
 
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.util.Base64
-import android.view.WindowInsetsController
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -41,11 +43,8 @@ import com.housweet.presentation.model.RegisterModel
 import com.housweet.presentation.ui.chat.ChatScreen
 import com.housweet.presentation.ui.chatlist.ChatListScreen
 import com.housweet.presentation.ui.common.ComingSoonScreen
-import com.housweet.presentation.ui.common.LoadingScreen
 import com.housweet.presentation.ui.communityPage.GuideToCreateRoomScreen
 import com.housweet.presentation.ui.communityPage.mapScreen.MapScreen
-import com.housweet.presentation.ui.communityPage.mapScreen.MapUiState
-import com.housweet.presentation.ui.communityPage.mapScreen.UserRoomState
 import com.housweet.presentation.ui.communityPage.postScreen.detailPostScreen.DetailPostScreen
 import com.housweet.presentation.ui.communityPage.postScreen.postsScreen.PostsScreen
 import com.housweet.presentation.ui.communityPage.searchRegionScreen.SearchRegionScreen
@@ -85,8 +84,6 @@ import com.housweet.presentation.ui.startPage.loginPage.WelcomeScreen
 import com.housweet.presentation.ui.startPage.loginPage.loginScreen.LoginScreen
 import com.housweet.presentation.ui.startPage.loginPage.termsOfServicePage.TermsOfServiceScreen
 import com.housweet.presentation.ui.startPage.splashPage.SplashScreen
-import com.housweet.presentation.ui.theme.Black
-import com.housweet.presentation.ui.theme.White
 import com.housweet.presentation.ui.userlist.route.UserListRoute
 import com.housweet.presentation.viewmodel.chatlist.ChatListViewModel
 import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModel
@@ -157,8 +154,106 @@ class MainActivity : ComponentActivity() {
 //                     startDestination = Route.StartPageRoute.LoginRoute.Login,
 //                    startDestination= "mypage",
                     modifier = Modifier.padding(top = paddingValues.calculateTopPadding()),
-                    enterTransition = { EnterTransition.None },
-                    exitTransition = { ExitTransition.None }
+                    enterTransition = {
+                        val bottomNavCase = listOf(
+                            BottomNavItem.Home.route,
+                            BottomNavItem.Notice.route,
+                            BottomNavItem.Calendar.route,
+                            BottomNavItem.FinanceLedger.route,
+                        )
+
+                        val afterDeleteRoomCase = listOf(
+                            "mypage?afterDelete={afterDelete}",
+                            "com.housweet.presentation.ui.navigation.Route.StartPageRoute.AccessRoomRoute.AccessRoom"
+                        )
+
+                        val isBottomNavItem = bottomNavCase.contains(navController.currentBackStackEntry?.destination?.route)
+                        val isAfterDeleteRoom = afterDeleteRoomCase.contains(navController.currentBackStackEntry?.destination?.route)
+                                || navController.currentBackStackEntry?.toRoute<Route.StartPageRoute.AccessRoomRoute.AccessRoom>()?.isAfterDelete == true
+
+                        when {
+                            (navController.previousBackStackEntry == null || isBottomNavItem) && !isAfterDeleteRoom -> {
+                                EnterTransition.None
+                            }
+                            navController.previousBackStackEntry == null && isAfterDeleteRoom -> {
+                                slideInHorizontally(
+                                    initialOffsetX = { fullWidth -> -fullWidth },
+                                    animationSpec = tween(
+                                        durationMillis = 300,
+                                        easing = FastOutSlowInEasing
+                                    )
+                                )
+                            }
+                            else -> {
+                                slideInHorizontally(
+                                    initialOffsetX = { fullWidth -> fullWidth },
+                                    animationSpec = tween(
+                                        durationMillis = 300,
+                                        easing = FastOutSlowInEasing
+                                    )
+                                )
+                            }
+                        }
+                    },
+                    exitTransition = {
+                        val bottomNavCase = listOf(
+                            BottomNavItem.Home.route,
+                            BottomNavItem.Notice.route,
+                            BottomNavItem.Calendar.route,
+                            BottomNavItem.FinanceLedger.route,
+                        )
+
+                        val afterDeleteRoomCase = listOf(
+                            "mypage?afterDelete={afterDelete}",
+                            "com.housweet.presentation.ui.navigation.Route.StartPageRoute.AccessRoomRoute.AccessRoom"
+                        )
+
+                        val isBottomNavItem = bottomNavCase.contains(navController.currentBackStackEntry?.destination?.route)
+                        val isAfterDeleteRoom = afterDeleteRoomCase.contains(navController.currentBackStackEntry?.destination?.route)
+                                || navController.currentBackStackEntry?.toRoute<Route.StartPageRoute.AccessRoomRoute.AccessRoom>()?.isAfterDelete == true
+
+                        when {
+                            (navController.previousBackStackEntry == null || isBottomNavItem) && !isAfterDeleteRoom -> {
+                                ExitTransition.None
+                            }
+                            navController.previousBackStackEntry == null && isAfterDeleteRoom -> {
+                                slideOutHorizontally(
+                                    targetOffsetX = { fullWidth -> fullWidth },
+                                    animationSpec = tween(
+                                        durationMillis = 300,
+                                        easing = FastOutSlowInEasing
+                                    )
+                                )
+                            }
+                            else -> {
+                                slideOutHorizontally(
+                                    targetOffsetX = { fullWidth -> -fullWidth },
+                                    animationSpec = tween(
+                                        durationMillis = 300,
+                                        easing = FastOutSlowInEasing
+                                    )
+                                )
+                            }
+                        }
+                    },
+                    popEnterTransition = {
+                        slideInHorizontally(
+                            initialOffsetX = { fullWidth -> -fullWidth },
+                            animationSpec = tween(
+                                durationMillis = 300,
+                                easing = FastOutSlowInEasing
+                            )
+                        )
+                    },
+                    popExitTransition = {
+                        slideOutHorizontally(
+                            targetOffsetX = { fullWidth -> fullWidth },
+                            animationSpec = tween(
+                                durationMillis = 300,
+                                easing = FastOutSlowInEasing
+                            )
+                        )
+                    }
                 ) {
                     composable<Route.StartPageRoute.Splash> {
                         SplashScreen(
@@ -185,7 +280,7 @@ class MainActivity : ComponentActivity() {
                                     if (!isBelongToRoom) {
                                         navigationManager.navigateOneWay(
                                             Route.StartPageRoute.Splash,
-                                            Route.StartPageRoute.AccessRoomRoute.AccessRoom
+                                            Route.StartPageRoute.AccessRoomRoute.AccessRoom()
                                         )
 
                                         return@SplashScreen
@@ -246,7 +341,7 @@ class MainActivity : ComponentActivity() {
                                 else -> {
                                     navigationManager.navigateOneWay(
                                         Route.StartPageRoute.LoginRoute.Login,
-                                        Route.StartPageRoute.AccessRoomRoute.AccessRoom
+                                        Route.StartPageRoute.AccessRoomRoute.AccessRoom()
                                     )
                                 }
                             }
@@ -310,7 +405,7 @@ class MainActivity : ComponentActivity() {
                                             isSetProfile = true,
                                             isBelongToRoom = false
                                         ),
-                                        Route.StartPageRoute.AccessRoomRoute.AccessRoom
+                                        Route.StartPageRoute.AccessRoomRoute.AccessRoom()
                                     )
 
                                     return@TermsOfServiceScreen
@@ -368,10 +463,8 @@ class MainActivity : ComponentActivity() {
                                 navController.popBackStack()
                             },
                             onSuccessCreateRoom = {
-                                navigationManager.navigateOneWay(
-                                    Route.StartPageRoute.AccessRoomRoute.AccessRoom,
-                                    BottomNavItem.Home.route
-                                )
+                                repeat(2) { navController.popBackStack() }
+                                navigationManager.navigateTo(BottomNavItem.Home.route)
                             }
                         )
                     }
@@ -383,10 +476,8 @@ class MainActivity : ComponentActivity() {
                                 navController.popBackStack()
                             },
                             onSuccessSearchRoom = {
-                                navigationManager.navigateOneWay(
-                                    Route.StartPageRoute.AccessRoomRoute.AccessRoom,
-                                    BottomNavItem.Home.route
-                                )
+                                repeat(2) { navController.popBackStack() }
+                                navigationManager.navigateTo(BottomNavItem.Home.route)
                             }
                         )
                     }
@@ -714,7 +805,6 @@ class MainActivity : ComponentActivity() {
                         )
                     ) { backStackEntry ->
                         val afterDelete = backStackEntry.arguments?.getBoolean("afterDelete") ?: false
-
                         MyPageScreen(
                             navController = navController,
                             onBackClick = {
@@ -722,7 +812,7 @@ class MainActivity : ComponentActivity() {
                                     // ✅ 삭제 플로우로 진입했으면 Home 대신 AccessRoom으로
                                     navigationManager.navigateOneWay(
                                         "mypage?afterDelete=$afterDelete",
-                                        Route.StartPageRoute.AccessRoomRoute.AccessRoom
+                                        Route.StartPageRoute.AccessRoomRoute.AccessRoom(isAfterDelete = true)
                                     )
                                 } else {
                                     // 기존 동작 유지
@@ -1008,7 +1098,7 @@ class MainActivity : ComponentActivity() {
                                 if (fromTerms) {
                                     navigationManager.navigateOneWay(
                                         "profile/edit_keyword?fromTerms=$fromTerms",
-                                        Route.StartPageRoute.AccessRoomRoute.AccessRoom
+                                        Route.StartPageRoute.AccessRoomRoute.AccessRoom()
                                     )
                                 } else {
                                     navigationManager.navigateOneWay(

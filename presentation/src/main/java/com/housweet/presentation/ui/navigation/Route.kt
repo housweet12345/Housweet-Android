@@ -24,7 +24,7 @@ sealed interface Route {
 
         sealed interface AccessRoomRoute : StartPageRoute {
             @Serializable
-            data object AccessRoom : AccessRoomRoute
+            data class AccessRoom(val isAfterDelete: Boolean = false) : AccessRoomRoute
 
             @Serializable
             data object CreateRoom : AccessRoomRoute
