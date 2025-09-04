@@ -13,9 +13,8 @@ class GlobalApplication: Application() {
         super.onCreate()
         Log.d("APP", "GlobalApplication started")
         KakaoSdk.init(this, BuildConfig.Kakao_API_KEY)
-        val keyHash = Utility.getKeyHash(this)
-        Log.d("KAKAO_HASH", "keyHash: $keyHash")
         NaverMapSdk.getInstance(this).client =
             NaverMapSdk.NcpKeyClient(BuildConfig.Naver_Client_ID)
+
     }
 }
