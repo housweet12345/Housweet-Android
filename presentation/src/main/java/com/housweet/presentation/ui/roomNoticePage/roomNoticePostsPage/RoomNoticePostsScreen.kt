@@ -21,8 +21,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,11 +48,17 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.common.GuideText
+import com.housweet.presentation.ui.common.LoadingScreen
 import com.housweet.presentation.ui.navigation.BottomNavigation
 import com.housweet.presentation.ui.theme.Black
 import com.housweet.presentation.ui.theme.Gray_7E7E7E
@@ -63,20 +73,50 @@ fun NoticePostsScreen(
     navController: NavController,
     onNoticeClick: () -> Unit,
     onWritePostClick: () -> Unit,
-    onWriteRuleClick: () -> Unit
+    onWriteRuleClick: () -> Unit,
+    roomNoticePostsViewModel: RoomNoticePostsViewModel = hiltViewModel()
 ) {
+    val uiState by roomNoticePostsViewModel.uiState.collectAsStateWithLifecycle()
+    val snackBarHostState = remember { SnackbarHostState() }
     var roomOfRulesExpanded by remember { mutableStateOf(false) }
-    NoticePostsContent(
-        modifier = modifier,
-        navController = navController,
-        roomOfRulesExpanded = roomOfRulesExpanded,
-        onExpandBtnClick = {
-            roomOfRulesExpanded = !roomOfRulesExpanded
-        },
-        onNoticeClick = onNoticeClick,
-        onWritePostClick = onWritePostClick,
-        onWriteRuleClick = onWriteRuleClick
-    )
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+
+    LaunchedEffect(Unit) {
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            roomNoticePostsViewModel.event.collect { event ->
+                when (event) {
+                    RoomNoticePostsEvent.Error -> {
+                        snackBarHostState.showSnackbar(
+                            message = "공지와 규칙을 불러오는데 실패했습니다.",
+                            actionLabel = "닫기",
+                            duration = SnackbarDuration.Short
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    when (uiState) {
+        RoomNoticePostsStates.Idle -> {
+            NoticePostsContent(
+                modifier = modifier,
+                navController = navController,
+                roomOfRulesExpanded = roomOfRulesExpanded,
+                snackBarHostState = snackBarHostState,
+                onExpandBtnClick = {
+                    roomOfRulesExpanded = !roomOfRulesExpanded
+                },
+                onNoticeClick = onNoticeClick,
+                onWritePostClick = onWritePostClick,
+                onWriteRuleClick = onWriteRuleClick
+            )
+        }
+
+        RoomNoticePostsStates.Loading -> {
+            LoadingScreen()
+        }
+    }
 }
 
 @Composable
@@ -84,6 +124,7 @@ private fun NoticePostsContent(
     modifier: Modifier,
     navController: NavController,
     roomOfRulesExpanded: Boolean,
+    snackBarHostState: SnackbarHostState,
     onExpandBtnClick: () -> Unit,
     onNoticeClick: () -> Unit,
     onWritePostClick: () -> Unit,
@@ -95,7 +136,8 @@ private fun NoticePostsContent(
         modifier = modifier,
         bottomBar = {
             BottomNavigation(navController = navController)
-        }
+        },
+        snackbarHost = { SnackbarHost(hostState = snackBarHostState) }
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -385,6 +427,7 @@ private fun NoticePostsScreenPreview() {
         modifier = Modifier,
         navController = NavController(LocalContext.current),
         roomOfRulesExpanded = false,
+        snackBarHostState = remember { SnackbarHostState() },
         onExpandBtnClick = {},
         onNoticeClick = {},
         onWritePostClick = {},

@@ -36,6 +36,10 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.common.GuideText
 import com.housweet.presentation.ui.common.LoadingScreen
@@ -51,24 +55,27 @@ fun WritePostOfNoticeScreen(
     onSuccessPostNotice: () -> Unit,
     writePostOfNoticeViewModel: WritePostOfRoomNoticeViewModel = hiltViewModel()
 ) {
-    val uiState by writePostOfNoticeViewModel.uiState.collectAsState()
+    val uiState by writePostOfNoticeViewModel.uiState.collectAsStateWithLifecycle()
     val snackBarHostState = remember { SnackbarHostState() }
     var titleValue by remember { mutableStateOf(TextFieldValue("")) }
     var contentValue by remember { mutableStateOf(TextFieldValue("")) }
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
 
     LaunchedEffect(Unit) {
-        writePostOfNoticeViewModel.event.collect { event ->
-            when (event) {
-                WritePostOfNoticeEvent.CurseFiltering -> {
-                    snackBarHostState.showSnackbar(
-                        message = "부적절한 내용이 포함되어있습니다!",
-                        actionLabel = "닫기",
-                        duration = SnackbarDuration.Short
-                    )
-                }
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            writePostOfNoticeViewModel.event.collect { event ->
+                when (event) {
+                    WritePostOfNoticeEvent.CurseFiltering -> {
+                        snackBarHostState.showSnackbar(
+                            message = "부적절한 내용이 포함되어있습니다!",
+                            actionLabel = "닫기",
+                            duration = SnackbarDuration.Short
+                        )
+                    }
 
-                WritePostOfNoticeEvent.Error -> {
+                    WritePostOfNoticeEvent.Error -> {
 
+                    }
                 }
             }
         }

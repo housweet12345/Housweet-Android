@@ -28,8 +28,11 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -53,10 +56,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.common.GuideText
+import com.housweet.presentation.ui.common.LoadingScreen
 import com.housweet.presentation.ui.theme.Black
 import com.housweet.presentation.ui.theme.Gray_7E7E7E
 import com.housweet.presentation.ui.theme.Gray_A5A5A5
@@ -75,58 +84,86 @@ data class TempComment(
 
 @Composable
 fun DetailPostOfNoticeScreen(
-    onBackBtnClick: () -> Unit
+    onBackBtnClick: () -> Unit,
+    detailPostOfNoticeViewModel: DetailPostOfNoticeViewModel = hiltViewModel()
 ) {
+    val uiState by detailPostOfNoticeViewModel.uiState.collectAsStateWithLifecycle()
+    val snackBarHostState = remember { SnackbarHostState() }
     var commentTextValue by remember { mutableStateOf(TextFieldValue("")) }
     var commentList by remember { mutableStateOf(listOf(TempComment("확인", mutableStateListOf("ㅁㅁㅁ")))) }
     var isMenuExpanded by remember { mutableStateOf(false) }
     var selectedCommentIndex by remember { mutableIntStateOf(-1) }
-
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
 
-    DetailPostOfNoticeContent(
-        commentTextValue = commentTextValue,
-        commentList = commentList,
-        isMenuExpanded = isMenuExpanded,
-        selectedCommentIndex = selectedCommentIndex,
-        listState = listState,
-        onCommentTextChanged = {
-            commentTextValue = it
-        },
-        onAddNewComment = {
-            if (commentTextValue.text.isEmpty()) return@DetailPostOfNoticeContent
-
-            val targetIndex = if (selectedCommentIndex == -1) {
-                commentList = commentList + TempComment(commentTextValue.text, mutableStateListOf())
-                commentList.lastIndex + 4
-            } else {
-                commentList[selectedCommentIndex].replies.add(commentTextValue.text)
-                selectedCommentIndex + 4
+    LaunchedEffect(Unit) {
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            detailPostOfNoticeViewModel.event.collect { event ->
+                when (event) {
+                    is DetailPostOfRoomNoticeEvent.Error -> {
+                        snackBarHostState.showSnackbar(
+                            message = event.message,
+                            actionLabel = "닫기",
+                            duration = SnackbarDuration.Short
+                        )
+                    }
+                }
             }
+        }
+    }
 
-            commentTextValue = TextFieldValue("")
+    when (uiState) {
+        DetailPostOfRoomNoticeState.Idle -> {
+            DetailPostOfNoticeContent(
+                commentTextValue = commentTextValue,
+                commentList = commentList,
+                isMenuExpanded = isMenuExpanded,
+                selectedCommentIndex = selectedCommentIndex,
+                listState = listState,
+                onCommentTextChanged = {
+                    commentTextValue = it
+                },
+                onAddNewComment = {
+                    if (commentTextValue.text.isEmpty()) return@DetailPostOfNoticeContent
 
-            coroutineScope.launch {
-                listState.animateScrollToItem(targetIndex)
-            }
-        },
-        onMenuClick = {
-            isMenuExpanded = !isMenuExpanded
-        },
-        onScreenClick = {
-            isMenuExpanded = false
-        },
-        onReplyBtnClick = {
-            if (selectedCommentIndex == -1) {
-                selectedCommentIndex = it
-                return@DetailPostOfNoticeContent
-            }
+                    val targetIndex = if (selectedCommentIndex == -1) {
+                        commentList =
+                            commentList + TempComment(commentTextValue.text, mutableStateListOf())
+                        commentList.lastIndex + 4
+                    } else {
+                        commentList[selectedCommentIndex].replies.add(commentTextValue.text)
+                        selectedCommentIndex + 4
+                    }
 
-            selectedCommentIndex = if (selectedCommentIndex != it) it else -1
-        },
-        onBackBtnClick = onBackBtnClick
-    )
+                    commentTextValue = TextFieldValue("")
+
+                    coroutineScope.launch {
+                        listState.animateScrollToItem(targetIndex)
+                    }
+                },
+                onMenuClick = {
+                    isMenuExpanded = !isMenuExpanded
+                },
+                onScreenClick = {
+                    isMenuExpanded = false
+                },
+                onReplyBtnClick = {
+                    if (selectedCommentIndex == -1) {
+                        selectedCommentIndex = it
+                        return@DetailPostOfNoticeContent
+                    }
+
+                    selectedCommentIndex = if (selectedCommentIndex != it) it else -1
+                },
+                onBackBtnClick = onBackBtnClick
+            )
+        }
+
+        DetailPostOfRoomNoticeState.Loading -> {
+            LoadingScreen()
+        }
+    }
 }
 
 @Composable

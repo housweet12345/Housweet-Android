@@ -35,6 +35,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.common.GuideText
 import com.housweet.presentation.ui.common.LoadingScreen
@@ -50,23 +54,26 @@ fun WriteRuleOfRoomScreen(
     onSuccessPostRule: () -> Unit,
     writeRuleOfRoomViewModel: WriteRuleOfRoomViewModel = hiltViewModel()
 ) {
-    val uiState by writeRuleOfRoomViewModel.uiState.collectAsState()
+    val uiState by writeRuleOfRoomViewModel.uiState.collectAsStateWithLifecycle()
     val snackBarHostState = remember { SnackbarHostState() }
     var contentValue by remember { mutableStateOf(TextFieldValue("")) }
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
 
     LaunchedEffect(Unit) {
-        writeRuleOfRoomViewModel.event.collect { event ->
-            when (event) {
-                WriteRuleOfRoomEvent.CurseFiltering -> {
-                    snackBarHostState.showSnackbar(
-                        message = "부적절한 내용이 포함되어있습니다!",
-                        actionLabel = "닫기",
-                        duration = SnackbarDuration.Short
-                    )
-                }
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            writeRuleOfRoomViewModel.event.collect { event ->
+                when (event) {
+                    WriteRuleOfRoomEvent.CurseFiltering -> {
+                        snackBarHostState.showSnackbar(
+                            message = "부적절한 내용이 포함되어있습니다!",
+                            actionLabel = "닫기",
+                            duration = SnackbarDuration.Short
+                        )
+                    }
 
-                WriteRuleOfRoomEvent.Error -> {
+                    WriteRuleOfRoomEvent.Error -> {
 
+                    }
                 }
             }
         }
