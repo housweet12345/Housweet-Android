@@ -6,9 +6,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -89,10 +92,10 @@ fun ChatScreen(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                windowInsets = WindowInsets(
-                    top = 0.dp,
-                    bottom = 0.dp
-                ),
+//                windowInsets = WindowInsets(
+//                    top = 0.dp,
+//                    bottom = 0.dp
+//                ),
                 title = { Text(chatName, fontSize = 14.sp) },
                 navigationIcon = {
                     Icon(
@@ -123,7 +126,13 @@ fun ChatScreen(
             )
         },
         bottomBar = {
-            Column {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.White)
+                    .navigationBarsPadding()   // 하단 시스템 바 높이만큼 패딩
+                    .imePadding()              // 키보드가 뜰 때 그 높이만큼 위로
+            ) {
                 ChatInput(
                     senderId = senderId,
                     receiverId = receiverId,
@@ -206,6 +215,7 @@ fun ChatScreenContent(
             .background(Color.White)
             .padding(horizontal = 12.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp),
+        contentPadding = PaddingValues(bottom = 12.dp), // 마지막 아이템이 인풋에 가려지지 않게
         state = listState
     ) {
         item { WarningBanner() }
