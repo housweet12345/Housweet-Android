@@ -1,4 +1,4 @@
-package com.housweet.presentation.ui.noticePage.detailPostOfNoticePage
+package com.housweet.presentation.ui.roomNoticePage.detailPostOfRoomNoticePage
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
@@ -9,13 +9,19 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -29,6 +35,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -59,6 +66,7 @@ import com.housweet.presentation.ui.theme.Purple
 import com.housweet.presentation.ui.theme.White
 import com.housweet.presentation.ui.theme.White_F8F8F8
 import com.housweet.presentation.ui.theme.nanumSquareFontFamily
+import kotlinx.coroutines.launch
 
 data class TempComment(
     val comment: String,
@@ -66,28 +74,42 @@ data class TempComment(
 )
 
 @Composable
-private fun DetailPostOfNoticeScreen() {
+fun DetailPostOfNoticeScreen(
+    onBackBtnClick: () -> Unit
+) {
     var commentTextValue by remember { mutableStateOf(TextFieldValue("")) }
     var commentList by remember { mutableStateOf(listOf(TempComment("확인", mutableStateListOf("ㅁㅁㅁ")))) }
     var isMenuExpanded by remember { mutableStateOf(false) }
     var selectedCommentIndex by remember { mutableIntStateOf(-1) }
+
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+
     DetailPostOfNoticeContent(
         commentTextValue = commentTextValue,
         commentList = commentList,
         isMenuExpanded = isMenuExpanded,
         selectedCommentIndex = selectedCommentIndex,
+        listState = listState,
         onCommentTextChanged = {
             commentTextValue = it
         },
         onAddNewComment = {
             if (commentTextValue.text.isEmpty()) return@DetailPostOfNoticeContent
-            if (selectedCommentIndex == -1) {
+
+            val targetIndex = if (selectedCommentIndex == -1) {
                 commentList = commentList + TempComment(commentTextValue.text, mutableStateListOf())
+                commentList.lastIndex + 4
             } else {
                 commentList[selectedCommentIndex].replies.add(commentTextValue.text)
+                selectedCommentIndex + 4
             }
 
             commentTextValue = TextFieldValue("")
+
+            coroutineScope.launch {
+                listState.animateScrollToItem(targetIndex)
+            }
         },
         onMenuClick = {
             isMenuExpanded = !isMenuExpanded
@@ -102,7 +124,8 @@ private fun DetailPostOfNoticeScreen() {
             }
 
             selectedCommentIndex = if (selectedCommentIndex != it) it else -1
-        }
+        },
+        onBackBtnClick = onBackBtnClick
     )
 }
 
@@ -112,11 +135,13 @@ private fun DetailPostOfNoticeContent(
     commentList: List<TempComment>,
     isMenuExpanded: Boolean,
     selectedCommentIndex: Int,
+    listState: LazyListState,
     onCommentTextChanged: (TextFieldValue) -> Unit,
     onAddNewComment: () -> Unit,
     onMenuClick: () -> Unit,
     onScreenClick: () -> Unit,
-    onReplyBtnClick: (index: Int) -> Unit
+    onReplyBtnClick: (index: Int) -> Unit,
+    onBackBtnClick: () -> Unit
 ) {
     Scaffold(
         modifier = Modifier
@@ -128,19 +153,9 @@ private fun DetailPostOfNoticeContent(
             },
         containerColor = White,
         topBar = {
-            DetailPostOfNoticeTopBar {
-                onMenuClick()
-            }
-        },
-        bottomBar = {
-            DetailPostOfNoticeBottom(
-                commentTextValue = commentTextValue,
-                onCommentTextChanged = {
-                    onCommentTextChanged(it)
-                },
-                onAddNewComment = {
-                    onAddNewComment()
-                }
+            DetailPostOfNoticeTopBar(
+                onMenuClick = onMenuClick,
+                onBackBtnClick = onBackBtnClick
             )
         }
     ) { innerPadding ->
@@ -148,6 +163,14 @@ private fun DetailPostOfNoticeContent(
             modifier = Modifier.padding(innerPadding),
             commentList = commentList,
             selectedCommentIndex = selectedCommentIndex,
+            commentTextValue = commentTextValue,
+            listState = listState,
+            onCommentTextChanged = {
+                onCommentTextChanged(it)
+            },
+            onAddNewComment = {
+                onAddNewComment()
+            },
             onReplyBtnClick = {
                 onReplyBtnClick(it)
             }
@@ -167,7 +190,8 @@ private fun DetailPostOfNoticeContent(
 
 @Composable
 private fun DetailPostOfNoticeTopBar(
-    onMenuClick: () -> Unit
+    onMenuClick: () -> Unit,
+    onBackBtnClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -183,7 +207,7 @@ private fun DetailPostOfNoticeTopBar(
             modifier = Modifier
                 .padding(top = 12.dp)
                 .clip(CircleShape)
-                .clickable {},
+                .clickable { onBackBtnClick() },
             tint = Black,
         )
 
@@ -249,12 +273,144 @@ private fun MenuDropdownMenu(
 }
 
 @Composable
+private fun PostOfNoticeContent(
+    modifier: Modifier,
+    commentList: List<TempComment>,
+    selectedCommentIndex: Int,
+    commentTextValue: TextFieldValue,
+    listState: LazyListState,
+    onCommentTextChanged: (TextFieldValue) -> Unit,
+    onAddNewComment: () -> Unit,
+    onReplyBtnClick: (index: Int) -> Unit
+) {
+    val context = LocalContext.current
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .consumeWindowInsets(WindowInsets.navigationBars)
+            .imePadding()
+    ) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+            state = listState
+        ) {
+            // 게시글 제목
+            item {
+                GuideText(
+                    modifier = Modifier.padding(start = 20.dp, top = 20.dp),
+                    color = Black,
+                    text = "오늘 집에 일찍 들어오기",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    lineHeight = 16.sp,
+                    textAlign = TextAlign.Start
+                )
+            }
+
+            // 게시글 내용
+            item {
+                GuideText(
+                    modifier = Modifier.padding(start = 20.dp, top = 8.dp),
+                    color = Black,
+                    text = "저녁 같이 먹어야함\n필수필수",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Normal,
+                    lineHeight = 18.sp,
+                    textAlign = TextAlign.Start
+                )
+            }
+
+            // 작성자 정보
+            item {
+                Row(
+                    modifier = Modifier.padding(
+                        start = 20.dp,
+                        end = 20.dp,
+                        top = 28.dp,
+                        bottom = 16.dp
+                    ),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    AsyncImage(
+                        model = ImageRequest
+                            .Builder(context)
+                            .data("https://picsum.photos/300/300")
+                            .build(),
+                        contentDescription = "profileImage",
+                        modifier = Modifier
+                            .size(30.dp)
+                            .clip(CircleShape)
+                    )
+
+                    Column {
+                        GuideText(
+                            modifier = Modifier.padding(start = 8.dp),
+                            color = Black,
+                            text = "홍길동",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            lineHeight = 12.sp,
+                            textAlign = TextAlign.Start
+                        )
+
+                        GuideText(
+                            modifier = Modifier.padding(start = 8.dp),
+                            color = Gray_A5A5A5,
+                            text = "2024.09.12",
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Normal,
+                            lineHeight = 18.sp,
+                            textAlign = TextAlign.Start
+                        )
+                    }
+                }
+            }
+
+            // 구분선
+            item {
+                Divider(
+                    modifier = Modifier.fillMaxWidth(),
+                    thickness = 1.dp,
+                    color = Gray_CBCBCB
+                )
+            }
+
+            // 댓글 목록
+            itemsIndexed(items = commentList) { index, comment ->
+                CommentItemWithReplies(
+                    index = index,
+                    comment = comment,
+                    selectedCommentIndex = selectedCommentIndex,
+                ) {
+                    onReplyBtnClick(it)
+                }
+            }
+        }
+
+        DetailPostOfNoticeBottom(
+            modifier = Modifier.fillMaxWidth(),
+            commentTextValue = commentTextValue,
+            onCommentTextChanged = {
+                onCommentTextChanged(it)
+            },
+            onAddNewComment = {
+                onAddNewComment()
+            }
+        )
+    }
+}
+
+@Composable
 private fun DetailPostOfNoticeBottom(
+    modifier: Modifier,
     commentTextValue: TextFieldValue,
     onCommentTextChanged: (TextFieldValue) -> Unit,
     onAddNewComment: () -> Unit
 ) {
     CommentTextField(
+        modifier = modifier,
         textValue = commentTextValue,
         onCommentTextChanged = {
             onCommentTextChanged(it)
@@ -267,11 +423,14 @@ private fun DetailPostOfNoticeBottom(
 
 @Composable
 private fun CommentTextField(
+    modifier: Modifier,
     textValue: TextFieldValue,
     onCommentTextChanged: (TextFieldValue) -> Unit,
     onAddNewComment: () -> Unit
 ) {
-    Column {
+    Column(
+        modifier = modifier.background(color = White)
+    ) {
         Divider(
             modifier = Modifier
                 .fillMaxWidth(),
@@ -344,106 +503,6 @@ private fun CommentTextField(
                     lineHeight = 18.sp,
                     textAlign = TextAlign.Center
                 )
-            }
-        }
-    }
-}
-
-@Composable
-private fun PostOfNoticeContent(
-    modifier: Modifier,
-    commentList: List<TempComment>,
-    selectedCommentIndex: Int,
-    onReplyBtnClick: (index: Int) -> Unit
-) {
-    val context = LocalContext.current
-    LazyColumn(
-        modifier = modifier.fillMaxSize()
-    ) {
-        // 게시글 제목
-        item {
-            GuideText(
-                modifier = Modifier.padding(start = 20.dp, top = 20.dp),
-                color = Black,
-                text = "오늘 집에 일찍 들어오기",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.ExtraBold,
-                lineHeight = 16.sp,
-                textAlign = TextAlign.Start
-            )
-        }
-
-        // 게시글 내용
-        item {
-            GuideText(
-                modifier = Modifier.padding(start = 20.dp, top = 8.dp),
-                color = Black,
-                text = "저녁 같이 먹어야함\n필수필수",
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Normal,
-                lineHeight = 18.sp,
-                textAlign = TextAlign.Start
-            )
-        }
-
-        // 작성자 정보
-        item {
-            Row(
-                modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 28.dp, bottom = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                AsyncImage(
-                    model = ImageRequest
-                        .Builder(context)
-                        .data("https://picsum.photos/300/300")
-                        .build(),
-                    contentDescription = "profileImage",
-                    modifier = Modifier
-                        .size(30.dp)
-                        .clip(CircleShape)
-                )
-
-                Column {
-                    GuideText(
-                        modifier = Modifier.padding(start = 8.dp),
-                        color = Black,
-                        text = "홍길동",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        lineHeight = 12.sp,
-                        textAlign = TextAlign.Start
-                    )
-
-                    GuideText(
-                        modifier = Modifier.padding(start = 8.dp),
-                        color = Gray_A5A5A5,
-                        text = "2024.09.12",
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Normal,
-                        lineHeight = 18.sp,
-                        textAlign = TextAlign.Start
-                    )
-                }
-            }
-        }
-
-        // 구분선
-        item {
-            Divider(
-                modifier = Modifier.fillMaxWidth(),
-                thickness = 1.dp,
-                color = Gray_CBCBCB
-            )
-        }
-
-        // 댓글 목록
-        itemsIndexed(items = commentList) { index, comment ->
-            CommentItemWithReplies(
-                index = index,
-                comment = comment,
-                selectedCommentIndex = selectedCommentIndex,
-            ) {
-                onReplyBtnClick(it)
             }
         }
     }
@@ -622,7 +681,19 @@ private fun ReplyItem(
 @Preview(showBackground = true)
 @Composable
 private fun DetailPostOfNoticeScreenPreview() {
-    DetailPostOfNoticeScreen()
+    DetailPostOfNoticeContent(
+        commentTextValue = TextFieldValue(""),
+        commentList = listOf(),
+        isMenuExpanded = false,
+        selectedCommentIndex = -1,
+        listState = rememberLazyListState(),
+        onCommentTextChanged = {},
+        onAddNewComment = {},
+        onMenuClick = {},
+        onScreenClick = {},
+        onReplyBtnClick = {},
+        onBackBtnClick = {}
+    )
 }
 
 @Preview

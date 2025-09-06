@@ -1,4 +1,4 @@
-package com.housweet.presentation.ui.noticePage.writePostOfNoticePage
+package com.housweet.presentation.ui.roomNoticePage.writePostOfRoomNoticePage
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,7 +12,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,42 +35,96 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.common.GuideText
+import com.housweet.presentation.ui.common.LoadingScreen
 import com.housweet.presentation.ui.theme.Black
 import com.housweet.presentation.ui.theme.Gray_7E7E7E
 import com.housweet.presentation.ui.theme.White
 import com.housweet.presentation.ui.theme.nanumSquareFontFamily
+import com.vane.badwordfiltering.BadWordFiltering
 
 @Composable
-fun WritePostOfNoticeScreen() {
+fun WritePostOfNoticeScreen(
+    onBackBtnClick: () -> Unit,
+    onSuccessPostNotice: () -> Unit,
+    writePostOfNoticeViewModel: WritePostOfRoomNoticeViewModel = hiltViewModel()
+) {
+    val uiState by writePostOfNoticeViewModel.uiState.collectAsState()
+    val snackBarHostState = remember { SnackbarHostState() }
     var titleValue by remember { mutableStateOf(TextFieldValue("")) }
     var contentValue by remember { mutableStateOf(TextFieldValue("")) }
-    WritePostOfNoticeContent(
-        titleValue = titleValue,
-        contentValue = contentValue,
-        onTitleTextChanged = {
-            titleValue = it
-        },
-        onContentTextChanged = {
-            contentValue = it
+
+    LaunchedEffect(Unit) {
+        writePostOfNoticeViewModel.event.collect { event ->
+            when (event) {
+                WritePostOfNoticeEvent.CurseFiltering -> {
+                    snackBarHostState.showSnackbar(
+                        message = "부적절한 내용이 포함되어있습니다!",
+                        actionLabel = "닫기",
+                        duration = SnackbarDuration.Short
+                    )
+                }
+
+                WritePostOfNoticeEvent.Error -> {
+
+                }
+            }
         }
-    )
+    }
+
+    when(uiState) {
+        WritePostOfNoticeState.Idle -> {
+            WritePostOfNoticeContent(
+                titleValue = titleValue,
+                contentValue = contentValue,
+                snackBarHostState = snackBarHostState,
+                onTitleTextChanged = {
+                    if (it.text.length > 20) return@WritePostOfNoticeContent
+                    titleValue = it
+                },
+                onContentTextChanged = {
+                    if (it.text.length > 100) return@WritePostOfNoticeContent
+                    contentValue = it
+                },
+                onBackBtnClick = onBackBtnClick,
+                onFinishBtnClick = {
+                    if (BadWordFiltering().blankCheck(titleValue.text) || BadWordFiltering().blankCheck(contentValue.text)) {
+                        writePostOfNoticeViewModel.curseError()
+                        return@WritePostOfNoticeContent
+                    }
+                    onSuccessPostNotice()
+                }
+            )
+        }
+
+        WritePostOfNoticeState.Loading -> {
+            LoadingScreen()
+        }
+    }
 }
 
 @Composable
 private fun WritePostOfNoticeContent(
     titleValue: TextFieldValue,
     contentValue: TextFieldValue,
+    snackBarHostState: SnackbarHostState,
     onTitleTextChanged: (TextFieldValue) -> Unit,
-    onContentTextChanged: (TextFieldValue) -> Unit
+    onContentTextChanged: (TextFieldValue) -> Unit,
+    onBackBtnClick: () -> Unit,
+    onFinishBtnClick: () -> Unit
 ) {
     Scaffold(
         modifier = Modifier
             .fillMaxSize(),
         topBar = {
-            WritePostOfNoticeTopBar()
+            WritePostOfNoticeTopBar(
+                onBackBtnClick = onBackBtnClick,
+                onFinishBtnClick = onFinishBtnClick
+            )
         },
+        snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
         containerColor = White
     ) { innerPadding ->
         PostOfNoticeContent(
@@ -83,7 +142,10 @@ private fun WritePostOfNoticeContent(
 }
 
 @Composable
-private fun WritePostOfNoticeTopBar() {
+private fun WritePostOfNoticeTopBar(
+    onBackBtnClick: () -> Unit,
+    onFinishBtnClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .background(White)
@@ -97,7 +159,7 @@ private fun WritePostOfNoticeTopBar() {
             contentDescription = "back",
             modifier = Modifier
                 .clip(CircleShape)
-                .clickable {},
+                .clickable { onBackBtnClick() },
             tint = Black
         )
 
@@ -111,6 +173,7 @@ private fun WritePostOfNoticeTopBar() {
         )
 
         GuideText(
+            modifier = Modifier.clickable { onFinishBtnClick() },
             color = Black,
             text = "완료",
             fontWeight = FontWeight.Bold,
@@ -202,5 +265,13 @@ private fun PostOfNoticeTextField(
 @Preview(showBackground = true)
 @Composable
 private fun WritePostOfNoticeScreenPreview() {
-    WritePostOfNoticeScreen()
+    WritePostOfNoticeContent(
+        titleValue = TextFieldValue(""),
+        contentValue = TextFieldValue(""),
+        snackBarHostState = remember { SnackbarHostState() },
+        onTitleTextChanged = { },
+        onContentTextChanged = { },
+        onBackBtnClick = { },
+        onFinishBtnClick = { }
+    )
 }

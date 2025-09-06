@@ -137,6 +137,8 @@ dependencies {
     implementation (libs.naver.map.compose)
 
     implementation(libs.lottie.compose)
+
+    implementation("io.github.vaneproject:badwordfiltering:1.0.0")
 }
 
 kapt {

@@ -67,6 +67,10 @@ import com.housweet.presentation.ui.navigation.BottomNavigation
 import com.housweet.presentation.ui.navigation.CoordinateType
 import com.housweet.presentation.ui.navigation.NavigationManager
 import com.housweet.presentation.ui.navigation.Route
+import com.housweet.presentation.ui.roomNoticePage.detailPostOfRoomNoticePage.DetailPostOfNoticeScreen
+import com.housweet.presentation.ui.roomNoticePage.roomNoticePostsPage.NoticePostsScreen
+import com.housweet.presentation.ui.roomNoticePage.writePostOfRoomNoticePage.WritePostOfNoticeScreen
+import com.housweet.presentation.ui.roomNoticePage.writeRuleOfRoomPage.WriteRuleOfRoomScreen
 import com.housweet.presentation.ui.notification.NotificationScreen
 import com.housweet.presentation.ui.profile.route.EditProfileKeyWordRoute
 import com.housweet.presentation.ui.profile.route.EditProfileRoute
@@ -673,14 +677,55 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                     composable(BottomNavItem.Notice.route) {
-                        Column(modifier = Modifier.fillMaxSize()) {
-                            ComingSoonScreen(
-                                modifier = Modifier.weight(1f)
-                            )
-                            BottomNavigation(
-                                navController = navController
-                            )
-                        }
+                        NoticePostsScreen(
+                            modifier = Modifier,
+                            navController = navController,
+                            onNoticeClick = {
+                                navigationManager.navigateTo(Route.RoomNoticePageRoute.DetailPostOfRoomNotice)
+                            },
+                            onWritePostClick = {
+                                navigationManager.navigateTo(Route.RoomNoticePageRoute.WritePostOfNotice)
+                            },
+                            onWriteRuleClick = {
+                                navigationManager.navigateTo(Route.RoomNoticePageRoute.WriteRuleOfRoom)
+                            }
+                        )
+                    }
+
+                    composable<Route.RoomNoticePageRoute.DetailPostOfRoomNotice> {
+                        DetailPostOfNoticeScreen(
+                            onBackBtnClick = {
+                                navController.popBackStack()
+                            }
+                        )
+                    }
+
+                    composable<Route.RoomNoticePageRoute.WritePostOfNotice> {
+                        WritePostOfNoticeScreen(
+                            onBackBtnClick = {
+                                navController.popBackStack()
+                            },
+                            onSuccessPostNotice = {
+                                navigationManager.navigateOneWay(
+                                    Route.RoomNoticePageRoute.WritePostOfNotice,
+                                    BottomNavItem.Notice.route
+                                )
+                            }
+                        )
+                    }
+
+                    composable<Route.RoomNoticePageRoute.WriteRuleOfRoom> {
+                        WriteRuleOfRoomScreen(
+                            onBackBtnClick = {
+                                navController.popBackStack()
+                            },
+                            onSuccessPostRule = {
+                                navigationManager.navigateOneWay(
+                                    Route.RoomNoticePageRoute.WriteRuleOfRoom,
+                                    BottomNavItem.Notice.route
+                                )
+                            }
+                        )
                     }
 
                     composable<Route.HouseRegisterRoute.Step1> {

@@ -1,4 +1,4 @@
-package com.housweet.presentation.ui.noticePage.writeRuleOfRoomPage
+package com.housweet.presentation.ui.roomNoticePage.writeRuleOfRoomPage
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,7 +12,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,34 +34,88 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.common.GuideText
+import com.housweet.presentation.ui.common.LoadingScreen
 import com.housweet.presentation.ui.theme.Black
 import com.housweet.presentation.ui.theme.Gray_7E7E7E
 import com.housweet.presentation.ui.theme.White
 import com.housweet.presentation.ui.theme.nanumSquareFontFamily
+import com.vane.badwordfiltering.BadWordFiltering
 
 @Composable
-fun WriteRuleOfRoomScreen() {
+fun WriteRuleOfRoomScreen(
+    onBackBtnClick: () -> Unit,
+    onSuccessPostRule: () -> Unit,
+    writeRuleOfRoomViewModel: WriteRuleOfRoomViewModel = hiltViewModel()
+) {
+    val uiState by writeRuleOfRoomViewModel.uiState.collectAsState()
+    val snackBarHostState = remember { SnackbarHostState() }
     var contentValue by remember { mutableStateOf(TextFieldValue("")) }
-    WriteRuleOfRoomContent(
-        contentValue = contentValue
-    ) {
-        contentValue = it
+
+    LaunchedEffect(Unit) {
+        writeRuleOfRoomViewModel.event.collect { event ->
+            when (event) {
+                WriteRuleOfRoomEvent.CurseFiltering -> {
+                    snackBarHostState.showSnackbar(
+                        message = "부적절한 내용이 포함되어있습니다!",
+                        actionLabel = "닫기",
+                        duration = SnackbarDuration.Short
+                    )
+                }
+
+                WriteRuleOfRoomEvent.Error -> {
+
+                }
+            }
+        }
+    }
+
+    when (uiState) {
+        WriteRuleOfRoomUiState.Idle -> {
+            WriteRuleOfRoomContent(
+                contentValue = contentValue,
+                snackBarHostState = snackBarHostState,
+                onContentTextChanged = {
+                    if (it.text.length > 100) return@WriteRuleOfRoomContent
+                    contentValue = it
+                },
+                onBackBtnClick = onBackBtnClick,
+                onFinishBtnClick = {
+                    if (BadWordFiltering().blankCheck(contentValue.text)) {
+                        writeRuleOfRoomViewModel.curseError()
+                        return@WriteRuleOfRoomContent
+                    }
+                    onSuccessPostRule()
+                }
+            )
+        }
+
+        WriteRuleOfRoomUiState.Loading -> {
+            LoadingScreen()
+        }
     }
 }
 
 @Composable
 private fun WriteRuleOfRoomContent(
     contentValue: TextFieldValue,
-    onContentTextChanged: (TextFieldValue) -> Unit
+    snackBarHostState: SnackbarHostState,
+    onContentTextChanged: (TextFieldValue) -> Unit,
+    onBackBtnClick: () -> Unit,
+    onFinishBtnClick: () -> Unit
 ) {
     Scaffold(
         modifier = Modifier
             .fillMaxSize(),
         topBar = {
-            WriteRuleOfRoomTopBar()
+            WriteRuleOfRoomTopBar(
+                onBackBtnClick = onBackBtnClick,
+                onFinishBtnClick = onFinishBtnClick
+            )
         },
+        snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
         containerColor = White
     ) { innerPadding ->
         RuleOfRoomContent(
@@ -69,7 +128,10 @@ private fun WriteRuleOfRoomContent(
 }
 
 @Composable
-private fun WriteRuleOfRoomTopBar() {
+private fun WriteRuleOfRoomTopBar(
+    onBackBtnClick: () -> Unit,
+    onFinishBtnClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .background(White)
@@ -83,7 +145,7 @@ private fun WriteRuleOfRoomTopBar() {
             contentDescription = "back",
             modifier = Modifier
                 .clip(CircleShape)
-                .clickable {},
+                .clickable { onBackBtnClick() },
             tint = Black
         )
 
@@ -97,6 +159,7 @@ private fun WriteRuleOfRoomTopBar() {
         )
 
         GuideText(
+            modifier = Modifier.clickable { onFinishBtnClick() },
             color = Black,
             text = "완료",
             fontWeight = FontWeight.Bold,
@@ -157,5 +220,11 @@ private fun RuleOfRoomContent(
 @Preview(showBackground = true)
 @Composable
 private fun WriteRuleOfRoomScreenPreview() {
-    WriteRuleOfRoomScreen()
+    WriteRuleOfRoomContent(
+        contentValue = TextFieldValue(""),
+        snackBarHostState = remember { SnackbarHostState() },
+        onContentTextChanged = { },
+        onBackBtnClick = { },
+        onFinishBtnClick = { }
+    )
 }

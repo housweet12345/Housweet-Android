@@ -1,4 +1,4 @@
-package com.housweet.presentation.ui.noticePage.noticePostsPage
+package com.housweet.presentation.ui.roomNoticePage.roomNoticePostsPage
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -43,10 +44,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.common.GuideText
+import com.housweet.presentation.ui.navigation.BottomNavigation
 import com.housweet.presentation.ui.theme.Black
 import com.housweet.presentation.ui.theme.Gray_7E7E7E
 import com.housweet.presentation.ui.theme.Gray_A5A5A5
@@ -56,70 +59,103 @@ import com.housweet.presentation.ui.theme.White
 
 @Composable
 fun NoticePostsScreen(
+    modifier: Modifier,
+    navController: NavController,
+    onNoticeClick: () -> Unit,
+    onWritePostClick: () -> Unit,
+    onWriteRuleClick: () -> Unit
 ) {
     var roomOfRulesExpanded by remember { mutableStateOf(false) }
     NoticePostsContent(
-        modifier = Modifier,
+        modifier = modifier,
+        navController = navController,
         roomOfRulesExpanded = roomOfRulesExpanded,
-    ) {
-        roomOfRulesExpanded = !roomOfRulesExpanded
-    }
+        onExpandBtnClick = {
+            roomOfRulesExpanded = !roomOfRulesExpanded
+        },
+        onNoticeClick = onNoticeClick,
+        onWritePostClick = onWritePostClick,
+        onWriteRuleClick = onWriteRuleClick
+    )
 }
 
 @Composable
 private fun NoticePostsContent(
     modifier: Modifier,
+    navController: NavController,
     roomOfRulesExpanded: Boolean,
-    onExpandBtnClick: () -> Unit
+    onExpandBtnClick: () -> Unit,
+    onNoticeClick: () -> Unit,
+    onWritePostClick: () -> Unit,
+    onWriteRuleClick: () -> Unit
 ) {
-    var roomBarHeight by remember { mutableStateOf(0.dp) }
+    var roomBarHeight by remember { mutableStateOf(48.0.dp) }
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(color = White)
-            .padding(start = 20.dp, end = 20.dp, top = 20.dp)
-    ) {
-        RoomOfRulesBar(
-            roomOfRulesExpanded = roomOfRulesExpanded,
-            onExpandBtnClick = onExpandBtnClick,
-            onSizeChange = {
-                roomBarHeight = it
-            }
-        )
-
-        NoticePostItems(
-            modifier = Modifier
-                .zIndex(-1f)
-                .padding(top = if (roomBarHeight == 0.dp) 64.dp else roomBarHeight - 6.dp))
-
+    Scaffold(
+        modifier = modifier,
+        bottomBar = {
+            BottomNavigation(navController = navController)
+        }
+    ) { innerPadding ->
         Box(
             modifier = Modifier
-                .padding(bottom = 20.dp)
-                .align(Alignment.BottomEnd)
-                .size(45.dp)
-                .background(color = Purple, shape = CircleShape)
-                .clip(CircleShape)
-                .clickable {  },
-            contentAlignment = Alignment.Center
+                .fillMaxSize()
+                .background(color = White)
+                .padding(innerPadding)
+                .padding(top = 20.dp)
         ) {
-            Icon(
-                painter = painterResource(id = R.drawable.wrtie),
-                contentDescription = "Add",
-                tint = White
+            RoomOfRulesBar(
+                modifier = Modifier.padding(start = 20.dp, end = 20.dp),
+                roomOfRulesExpanded = roomOfRulesExpanded,
+                onExpandBtnClick = onExpandBtnClick,
+                onSizeChange = {
+                    roomBarHeight = it
+                },
+                onWriteRuleClick = onWriteRuleClick
             )
+
+            NoticePostItems(
+                modifier = Modifier
+                    .zIndex(-1f)
+                    .padding(
+                        top = roomBarHeight - 6.dp,
+                        start = 20.dp,
+                        end = 20.dp
+                    ),
+                onNoticeClick = onNoticeClick
+            )
+
+            Box(
+                modifier = Modifier
+                    .padding(start = 20.dp, end = 20.dp, bottom = 20.dp)
+                    .align(Alignment.BottomEnd)
+                    .size(45.dp)
+                    .background(color = Purple, shape = CircleShape)
+                    .clip(CircleShape)
+                    .clickable { onWritePostClick() },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.wrtie),
+                    contentDescription = "Add",
+                    tint = White
+                )
+            }
         }
     }
 }
+
 @Composable
 private fun RoomOfRulesBar(
+    modifier: Modifier,
     roomOfRulesExpanded: Boolean,
     onExpandBtnClick: () -> Unit,
-    onSizeChange: (Dp) -> Unit
+    onSizeChange: (Dp) -> Unit,
+    onWriteRuleClick: () -> Unit
 ) {
     val density = LocalDensity.current
     Box(
-        modifier = Modifier
+        modifier = modifier
             .onSizeChanged {
                 val height = with(density) { it.height.toDp() }
                 onSizeChange(height)
@@ -168,13 +204,16 @@ private fun RoomOfRulesBar(
         }
 
         if (roomOfRulesExpanded) {
-            RoomOfRulesContent()
+            RoomOfRulesContent(
+                onWriteRuleClick = onWriteRuleClick
+            )
         }
     }
 }
 
 @Composable
 private fun RoomOfRulesContent(
+    onWriteRuleClick: () -> Unit
 ) {
     Surface (
         modifier = Modifier
@@ -214,7 +253,7 @@ private fun RoomOfRulesContent(
                                 start = Offset(0f, verticalOffset),
                                 end = Offset(size.width, verticalOffset)
                             )
-                        },
+                        }.clickable { onWriteRuleClick() },
                     color = Gray_7E7E7E,
                     text = "수정하기",
                     fontSize = 10.sp,
@@ -229,27 +268,33 @@ private fun RoomOfRulesContent(
 
 @Composable
 private fun NoticePostItems(
-    modifier: Modifier
+    modifier: Modifier,
+    onNoticeClick: () -> Unit,
 ) {
     LazyColumn(
         modifier = modifier
     ) {
-        itemsIndexed(listOf("", "", "", "", "", "", "", "", "", "", "")) { index, _ ->
+        val temp = listOf("", "", "", "", "", "", "", "", "", "", "")
+        itemsIndexed(temp) { index, _ ->
             if (index == 0) {
                 Spacer(modifier = Modifier.height(22.dp))
             }
 
-            NoticePostItem()
+            NoticePostItem(
+                onNoticeClick = onNoticeClick
+            )
 
-            if (index != 9) {
-                Spacer(modifier = Modifier.height(10.dp))
-            }
+            Spacer(modifier = Modifier.height(
+                if(index != temp.lastIndex) 10.dp else 22.dp)
+            )
         }
     }
 }
 
 @Composable
-private fun NoticePostItem() {
+private fun NoticePostItem(
+    onNoticeClick: () -> Unit,
+) {
     val context = LocalContext.current
     Surface(
         modifier = Modifier
@@ -258,7 +303,7 @@ private fun NoticePostItem() {
                 elevation = 4.dp,
                 spotColor = Gray_A5A5A5,
                 ambientColor = Gray_CBCBCB
-            ),
+            ).clickable { onNoticeClick() },
         shape = RoundedCornerShape(6.dp),
         color = White,
         border = BorderStroke(width = 1.dp, color = Gray_CBCBCB)
@@ -336,11 +381,19 @@ private fun NoticePostItem() {
 @Preview(showBackground = true)
 @Composable
 private fun NoticePostsScreenPreview() {
-    NoticePostsScreen()
+    NoticePostsContent(
+        modifier = Modifier,
+        navController = NavController(LocalContext.current),
+        roomOfRulesExpanded = false,
+        onExpandBtnClick = {},
+        onNoticeClick = {},
+        onWritePostClick = {},
+        onWriteRuleClick = {}
+    )
 }
 
 @Preview
 @Composable
 private fun NoticePostItemPreview() {
-    NoticePostItem()
+    NoticePostItem {}
 }

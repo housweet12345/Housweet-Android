@@ -53,6 +53,17 @@ sealed interface Route {
         }
     }
 
+    sealed interface RoomNoticePageRoute : Route {
+        @Serializable
+        data object DetailPostOfRoomNotice : RoomNoticePageRoute
+
+        @Serializable
+        data object WritePostOfNotice : RoomNoticePageRoute
+
+        @Serializable
+        data object WriteRuleOfRoom : RoomNoticePageRoute
+    }
+
     sealed interface HouseRegisterRoute : Route {
         @Serializable
         data class Step1(
