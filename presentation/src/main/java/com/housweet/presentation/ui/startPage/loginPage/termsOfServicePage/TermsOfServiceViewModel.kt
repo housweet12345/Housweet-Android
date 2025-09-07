@@ -2,7 +2,7 @@ package com.housweet.presentation.ui.startPage.loginPage.termsOfServicePage
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.housweet.domain.usecase.UseCases
+import com.housweet.domain.usecase.start.AgreeTermsOfServiceUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,7 +13,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class TermsOfServiceViewModel @Inject constructor(
-    private val useCase: UseCases
+    private val agreeTermsOfServiceUseCase: AgreeTermsOfServiceUseCase
 ): ViewModel() {
     private val _uiState = MutableStateFlow<TermsOfServiceState>(TermsOfServiceState.Idle)
     val uiState = _uiState.asStateFlow()
@@ -24,7 +24,7 @@ class TermsOfServiceViewModel @Inject constructor(
     fun agreeTerms() {
         isLoading()
         viewModelScope.launch {
-            useCase.agreeTermsOfServiceUseCase().collect {
+            agreeTermsOfServiceUseCase().collect {
                 it.onSuccess {
                     success()
                 }

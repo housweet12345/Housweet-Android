@@ -2,7 +2,9 @@ package com.housweet.presentation.ui.startPage.loginPage.loginScreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.housweet.domain.usecase.UseCases
+import com.housweet.domain.usecase.start.IsBelongToRoomUseCase
+import com.housweet.domain.usecase.start.IsSetProfileUseCase
+import com.housweet.domain.usecase.start.LoginWithKakaoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -14,7 +16,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val useCases: UseCases
+    private val loginWithKakaoUseCase: LoginWithKakaoUseCase,
+    private val isSetProfileUseCase: IsSetProfileUseCase,
+    private val isBelongToRoomUseCase: IsBelongToRoomUseCase
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<LoginUiState>(LoginUiState.Idle)
     val uiState = _uiState.asStateFlow()
@@ -24,7 +28,7 @@ class LoginViewModel @Inject constructor(
 
     fun login(socialId: String, accessToken: String, email: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            useCases.loginWithKakaoUseCase(
+            loginWithKakaoUseCase(
                 socialId = socialId,
                 accessToken = accessToken,
                 email = email
@@ -40,7 +44,7 @@ class LoginViewModel @Inject constructor(
     }
 
     private suspend fun isSetProfile(isTermsOfServiceAgreed: Boolean) {
-        useCases.isSetProfileUseCase().collect {
+        isSetProfileUseCase().collect {
             it.onSuccess { isSetProfile ->
                 isBelongToRoom(isSetProfile, isTermsOfServiceAgreed)
             }
@@ -53,7 +57,7 @@ class LoginViewModel @Inject constructor(
     }
 
     private suspend fun isBelongToRoom(isSetProfile: Boolean, isTermsOfServiceAgreed: Boolean) {
-        useCases.isBelongToRoomUseCase().collect {
+        isBelongToRoomUseCase().collect {
             it.onSuccess { isBelongToRoom ->
                 loginSuccess(isTermsOfServiceAgreed, isSetProfile, isBelongToRoom)
             }

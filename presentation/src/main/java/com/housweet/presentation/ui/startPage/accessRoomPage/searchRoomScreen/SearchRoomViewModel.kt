@@ -2,7 +2,7 @@ package com.housweet.presentation.ui.startPage.accessRoomPage.searchRoomScreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.housweet.domain.usecase.UseCases
+import com.housweet.domain.usecase.start.AccessRoomWithInviteCodeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,7 +13,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SearchRoomViewModel @Inject constructor(
-    private val useCases: UseCases
+    private val accessRoomWithInviteCodeUseCase: AccessRoomWithInviteCodeUseCase
 ): ViewModel() {
     private val _uiState = MutableStateFlow<SearchRoomState>(SearchRoomState.Idle)
     val uiState = _uiState.asStateFlow()
@@ -24,7 +24,7 @@ class SearchRoomViewModel @Inject constructor(
     fun accessRoomWithInviteCode(inviteCode: String) {
         isLoading()
         viewModelScope.launch {
-            useCases.accessRoomWithInviteCodeUseCase(inviteCode).collect {
+            accessRoomWithInviteCodeUseCase(inviteCode).collect {
                 it.onSuccess { success ->
                     if (success) success() else error()
                 }.onFailure {

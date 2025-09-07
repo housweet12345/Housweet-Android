@@ -1,10 +1,10 @@
 package com.housweet.data.repository
 
-import com.housweet.data.network.CommunityRemoteDataSource
-import com.housweet.data.network.dto.toRoomPostDetailDataModel
-import com.housweet.data.network.dto.toNearByPostCountDataModel
-import com.housweet.data.network.dto.toDomain
-import com.housweet.data.network.dto.toRoomPostsByLocationDataModel
+import com.housweet.data.datasource.CommunityRemoteDataSource
+import com.housweet.data.response.toRoomPostDetailDataModel
+import com.housweet.data.response.toNearByPostCountDataModel
+import com.housweet.data.response.toDomain
+import com.housweet.data.response.toRoomPostsByLocationDataModel
 import com.housweet.domain.model.RoomPostDetailDataModel
 import com.housweet.domain.model.NearByPostCountDataModel
 import com.housweet.domain.model.BookmarkItem

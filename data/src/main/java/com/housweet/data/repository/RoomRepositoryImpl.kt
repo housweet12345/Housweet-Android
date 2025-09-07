@@ -1,10 +1,10 @@
 package com.housweet.data.repository
 
 import com.housweet.data.BuildConfig
-import com.housweet.data.dto.RoomHomeResponseDto
-import com.housweet.data.dto.RoomMemberDto
-import com.housweet.data.dto.UpdateMoodRequestDto
 import com.housweet.data.network.KtorService
+import com.housweet.data.request.UpdateMoodRequest
+import com.housweet.data.response.RoomHomeResponse
+import com.housweet.data.response.RoomMemberResponse
 import com.housweet.domain.model.home.RoomHomeModel
 import com.housweet.domain.model.home.RoomMemberModel
 import com.housweet.domain.repository.RoomRepository
@@ -48,23 +48,23 @@ class RoomRepositoryImpl @Inject constructor(
 
     override suspend fun getRoomHome(): Result<RoomHomeModel> {
         val res: HttpResponse = client.get("$base/room/home/")   // 슬래시 O
-        return res.parseOrFail<RoomHomeResponseDto>("getRoomHome")
+        return res.parseOrFail<RoomHomeResponse>("getRoomHome")
             .map { it.mapToRoomHomeModel() }
     }
 
     override suspend fun getRoomMembers(roomId: Int): Result<List<RoomMemberModel>> {
         val res: HttpResponse = client.get("$base/room/rooms/$roomId/members/") // ✅ 슬래시 추가
-        return res.parseOrFail<List<RoomMemberDto>>("getRoomMembers($roomId)")
+        return res.parseOrFail<List<RoomMemberResponse>>("getRoomMembers($roomId)")
             .map { list -> list.map { it.mapToRoomMemberModel() } }
     }
 
     override suspend fun updateMood(memberId: Int, feeling: String): Result<RoomMemberModel> {
-        val req = UpdateMoodRequestDto(feeling = feeling)
+        val req = UpdateMoodRequest(feeling = feeling)
         val res: HttpResponse = client.patch("$base/room/room-members/$memberId/") { // 슬래시 O
             contentType(ContentType.Application.Json)
             setBody(req)
         }
-        return res.parseOrFail<RoomMemberDto>("updateMood($memberId)")
+        return res.parseOrFail<RoomMemberResponse>("updateMood($memberId)")
             .map { it.mapToRoomMemberModel() }
     }
 }

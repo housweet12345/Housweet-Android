@@ -1,12 +1,7 @@
 package com.housweet.domain.usecase.start
 
-import com.housweet.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.Flow
 
-class IsBelongToRoomUseCase(
-    private val authRepository: AuthRepository
-) {
-    suspend operator fun invoke(): Flow<Result<Boolean>> {
-        return authRepository.isBelongToRoom()
-    }
+fun interface IsBelongToRoomUseCase {
+    suspend operator fun invoke(): Flow<Result<Boolean>>
 }

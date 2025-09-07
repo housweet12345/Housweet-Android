@@ -1,10 +1,10 @@
 package com.housweet.data.mapper
 
-import com.housweet.data.network.dto.ProfileUpdateDto
+import com.housweet.data.request.ProfileUpdateRequest
 import com.housweet.domain.model.profile.ProfileUpdateModel
 
-fun ProfileUpdateModel.toProfilePatchDto(): ProfileUpdateDto {
-    return ProfileUpdateDto(
+fun ProfileUpdateModel.toProfilePatchDto(): ProfileUpdateRequest {
+    return ProfileUpdateRequest(
         gender = gender,
         introduce = introduce,
         mbti = mbti,

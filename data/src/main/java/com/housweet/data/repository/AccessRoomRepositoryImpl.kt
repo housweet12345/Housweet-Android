@@ -1,6 +1,6 @@
 package com.housweet.data.repository
 
-import com.housweet.data.network.AccessRoomRemoteDataSource
+import com.housweet.data.datasource.AccessRoomRemoteDataSource
 import com.housweet.domain.repository.AccessRoomRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
