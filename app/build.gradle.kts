@@ -6,10 +6,19 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     id("com.google.dagger.hilt.android")
     kotlin("kapt")
+    id("com.google.firebase.crashlytics")
+    id("com.google.gms.google-services")
 }
 
 val properties = Properties().apply {
     load(FileInputStream("${rootDir}/local.properties"))
+}
+
+val keystoreProps = Properties().apply {
+    val f = File("${rootDir}/keystore.properties")
+    if (f.exists()) {
+        load(FileInputStream(f))
+    }
 }
 
 val kakaoApiKey = properties["kakaoLogin_api_key"] as? String ?: ""
@@ -23,8 +32,8 @@ android {
         applicationId = "com.housweet.app"
         minSdk = 28
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 9
+        versionName = "1.8"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -38,17 +47,27 @@ android {
                 "Kakao_Redirect_URI" to "kakao$kakaoApiKey"
             )
         )
-
-
     }
 
     buildFeatures {
         buildConfig = true
     }
 
+    signingConfigs {
+        create("release") {
+            // keystore.properties를 기준으로 설정
+            storeFile = file(keystoreProps["storeFile"] as String)
+            storePassword = keystoreProps["storePassword"] as String
+            keyAlias = keystoreProps["keyAlias"] as String
+            keyPassword = keystoreProps["keyPassword"] as String
+        }
+    }
+
     buildTypes {
         release {
-            isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -78,8 +97,9 @@ dependencies {
     implementation(libs.androidx.storage)
 
     //Firebase
-    implementation(platform("com.google.firebase:firebase-bom:33.12.0"))
+    implementation(platform("com.google.firebase:firebase-bom:34.2.0"))
     implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-crashlytics-ndk")
 
     //Hilt
     implementation("com.google.dagger:hilt-android:2.55")
@@ -110,6 +130,8 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    implementation ("com.google.accompanist:accompanist-navigation-animation:0.36.0")
 }
 
 // Allow references to generated code

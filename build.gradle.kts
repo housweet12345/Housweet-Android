@@ -8,4 +8,6 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.jvm) apply false
     id("com.google.dagger.hilt.android") version "2.55" apply false
     alias(libs.plugins.compose.compiler) apply false
+    id("com.google.firebase.crashlytics") version "3.0.6" apply false
+    id("com.google.gms.google-services") version "4.4.3" apply false
 }

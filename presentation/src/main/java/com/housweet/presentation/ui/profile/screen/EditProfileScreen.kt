@@ -3,6 +3,7 @@ package com.housweet.presentation.ui.profile.screen
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -24,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.housweet.presentation.ui.profile.component.BottomButton
@@ -70,31 +73,44 @@ fun EditProfileScreen(
                 "여성" -> 2
                 "남자" -> 1
                 "여자" -> 2
-                else -> 1
+                else -> 3
             }
         )
     }
 
-    // gender 파라미터가 변경될 때 selectedOption 업데이트
+    // gender 파라미터가 변경될 때 selectedOption 업데이트 (초기 로딩 시에만)
     LaunchedEffect(gender) {
-        selectedOption = when (gender) {
+        if (selectedOption == 3) { // 아직 선택되지 않은 상태일 때만 업데이트
+            selectedOption = when (gender) {
+                "남성" -> 1
+                "여성" -> 2
+                "남자" -> 1
+                "여자" -> 2
+                else -> 3
+            }
+        }
+    }
+
+    // genderState 변경 시 selectedOption도 동기화
+    LaunchedEffect(genderState) {
+        selectedOption = when (genderState) {
             "남성" -> 1
             "여성" -> 2
             "남자" -> 1
             "여자" -> 2
-            else -> 1
+            else -> 3
         }
     }
 
-    // 성별 상태 동기화 (UI용 "남자"/"여자"로 설정)
-    LaunchedEffect(selectedOption) {
-        genderState = if (selectedOption == 1) "남자" else "여자"
-    }
 
     // 유효성 검사 - 필수 필드가 모두 입력되었는지 확인
-    val isFormValid = nameState.isNotBlank() && 
-                     yearOfBirthState.isNotBlank() && 
-                     genderState.isNotBlank()
+    val isFormValid by remember {
+        derivedStateOf {
+            nameState.isNotBlank() && 
+            yearOfBirthState.isNotBlank() && 
+            genderState.isNotBlank()
+        }
+    }
 
     Scaffold(
         contentWindowInsets = WindowInsets(0.dp), // 상단 여백 제거
@@ -111,6 +127,7 @@ fun EditProfileScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(Color.White)
                 .padding(paddingValues)
                 .padding(horizontal = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -173,7 +190,7 @@ fun EditProfileScreen(
                     modifier = Modifier.weight(1f),
                     selectedYear = yearOfBirthState,
                     onYearSelected = { yearOfBirthState = it },
-                    enabled = yearOfBirth.isEmpty() && yearOfBirthState.isEmpty() // 기존 데이터와 현재 상태 모두 비어있을 때만 활성화
+                    enabled = yearOfBirth.isEmpty() // 기존 데이터와 현재 상태 모두 비어있을 때만 활성화
                 )
                 Spacer(Modifier.width(10.dp))
                 ToggleButtonGroup(
@@ -181,8 +198,15 @@ fun EditProfileScreen(
                     option1 = "남자",
                     option2 = "여자",
                     selectedOption = selectedOption,
-                    onOptionSelected = { selectedOption = it },
-                    enabled = gender.isEmpty() && genderState.isEmpty() // 기존 값과 현재 상태 모두 비어있을 때만 활성화
+                    onOptionSelected = { option ->
+                        selectedOption = option
+                        genderState = when (option) {
+                            1 -> "남자"
+                            2 -> "여자"
+                            else -> ""
+                        }
+                    },
+                    enabled = gender.isEmpty()  // 기존 값과 현재 상태 모두 비어있을 때만 활성화
                 )
             }
 

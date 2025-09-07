@@ -2,6 +2,7 @@ package com.housweet.presentation.viewmodel.userlist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.housweet.domain.usecase.auth.GetCurrentUserIdUseCase
 import com.housweet.domain.usecase.home.GetRoomHomeUseCase
 import com.housweet.domain.usecase.home.GetRoomMembersUseCase
 import com.housweet.presentation.ui.userlist.state.UserItem
@@ -17,11 +18,20 @@ import javax.inject.Inject
 @HiltViewModel
 class UserListViewModel @Inject constructor(
     private val getRoomHomeUseCase: GetRoomHomeUseCase,
-    private val getRoomMembersUseCase: GetRoomMembersUseCase
+    private val getRoomMembersUseCase: GetRoomMembersUseCase,
+    private val getCurrentUserIdUseCase: GetCurrentUserIdUseCase
 ) : ViewModel() {
 
     private val _userListState = MutableStateFlow<UserListState>(UserListState.Loading)
     val userListState: StateFlow<UserListState> = _userListState.asStateFlow()
+
+    var currentUserId: Int = -1
+
+    init {
+        viewModelScope.launch {
+            currentUserId = getCurrentUserIdUseCase() ?: -1
+        }
+    }
 
     fun loadUsers() {
         viewModelScope.launch {

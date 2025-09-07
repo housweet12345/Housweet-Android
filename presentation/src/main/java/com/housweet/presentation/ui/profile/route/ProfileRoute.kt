@@ -20,11 +20,12 @@ fun ProfileRoute(
     userId: String?,
     viewModel: ProfileInfoViewModel = hiltViewModel(),
     navigateEditProfile: () -> Unit = {},
-    onBackClick: () -> Unit = {},
-    navigateChatting: () -> Unit = {}
+    onBackClick: (isBlocked: Boolean) -> Unit = {},
+    navigateChatting: (Int, String) -> Unit
 ) {
     val state = viewModel.profileState.collectAsStateWithLifecycle()
     val reportResult = viewModel.reportResult.collectAsStateWithLifecycle()
+    val blockResult = viewModel.blockResult.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
@@ -47,15 +48,33 @@ fun ProfileRoute(
         }
     }
 
+    LaunchedEffect(key1 = blockResult.value) {
+        blockResult.value?.let { result ->
+            when (result) {
+                is ProfileInfoViewModel.BlockResult.Success -> {
+                    Toast.makeText(context, "사용자가 차단되었습니다.", Toast.LENGTH_SHORT).show()
+                    onBackClick(true) // 차단 후 이전 화면으로 이동
+                }
+                is ProfileInfoViewModel.BlockResult.Error -> {
+                    Toast.makeText(context, "차단 실패: ${result.exception.message}", Toast.LENGTH_SHORT).show()
+                }
+                is ProfileInfoViewModel.BlockResult.Loading -> {
+                    // Optionally show a loading indicator
+                }
+            }
+        }
+    }
+
     when (state.value) {
         is ProfileInfoState.Success -> {
             val profile = (state.value as ProfileInfoState.Success).profileInfo
             ProfileScreen(
                 profileInfo = profile,
-                onBackClick = onBackClick,
+                onBackClick = { onBackClick(false) },
                 navigateEditProfile = navigateEditProfile,
                 navigateChatting = navigateChatting,
-                onReportClick = { type, id -> viewModel.report(type, id) }
+                onReportClick = { type, id -> viewModel.report(type, id) },
+                onBlockClick = { userId -> viewModel.blockUser(userId) }
             )
         }
         is ProfileInfoState.Loading -> {

@@ -2,10 +2,9 @@ package com.housweet.data.repository
 
 import android.util.Log
 import com.housweet.data.local.AuthLocalDataSource
-import com.housweet.data.network.AuthRemoteDataSource
-import com.housweet.data.network.RoomRepository
-import com.housweet.data.network.dto.LoginResponseDto
-import com.housweet.data.network.dto.toAuthToken
+import com.housweet.data.datasource.AuthRemoteDataSource
+import com.housweet.data.response.LoginResponse
+import com.housweet.data.response.toAuthToken
 import com.housweet.data.utils.NetworkConnectionManager
 import com.housweet.data.utils.NoInternetException
 import com.housweet.data.utils.TokenUtils
@@ -37,7 +36,7 @@ class AuthRepositoryImpl @Inject constructor(
                 accessToken = accessToken,
                 email = email
             )
-            val responseBody = response.body<LoginResponseDto>()
+            val responseBody = response.body<LoginResponse>()
 
             val authToken = responseBody.toAuthToken()
             Log.d("TokenCheck", "Housweet accessToken: ${authToken.accessToken}")
@@ -59,6 +58,7 @@ class AuthRepositoryImpl @Inject constructor(
                 throw NoInternetException()
             }
             authLocalDataSource.clearAuthToken()
+            authRemoteDataSource.recreateHttpClient()
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -113,7 +113,6 @@ class AuthRepositoryImpl @Inject constructor(
             val isSetProfile = authRemoteDataSource.isSetProfile(userId)
             emit(Result.success(isSetProfile))
         } catch (e: Exception) {
-            if (e.message.toString().contains("Text: \"<!DOCTYPE html>")) emit(Result.success(false))
             emit(Result.failure(e))
         }
     }
@@ -124,7 +123,7 @@ class AuthRepositoryImpl @Inject constructor(
             emit(Result.success(isBelongToRoom))
         } catch (e: Exception) {
             if (e.message.toString().contains("Room not found")) emit(Result.success(false))
-            emit(Result.failure(e))
+            else emit(Result.failure(e))
         }
     }
 
@@ -137,6 +136,19 @@ class AuthRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Log.e("AuthRepository", "Failed to get current user ID", e)
             null
+        }
+    }
+
+    override suspend fun deleteAccount(): Flow<Result<Boolean>> = flow {
+        try {
+            val successDeleteAccount = authRemoteDataSource.deleteAccount()
+            if (successDeleteAccount) {
+                authLocalDataSource.clearAuthToken()
+            }
+
+            emit(Result.success(successDeleteAccount))
+        } catch (e: Exception) {
+            emit(Result.failure(e))
         }
     }
 }

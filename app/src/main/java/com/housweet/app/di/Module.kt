@@ -6,29 +6,31 @@ import com.housweet.data.datasource.ImageUploadRemoteDataSourceImpl
 import com.housweet.data.local.AuthLocalDataSource
 import com.housweet.data.local.AuthLocalDataSourceImpl
 import com.housweet.data.local.RoomLocalDataSourceImpl
-import com.housweet.data.network.AccessRoomRemoteDataSource
-import com.housweet.data.network.AccessRoomRemoteDataSourceImpl
-import com.housweet.data.network.AppSettingRemoteDataSource
-import com.housweet.data.network.AuthRemoteDataSource
-import com.housweet.data.network.AuthRemoteDataSourceImpl
-import com.housweet.data.network.ChatRemoteDataSource
-import com.housweet.data.network.ChatRemoteDataSourceImpl
-import com.housweet.data.network.CommunityRemoteDataSource
-import com.housweet.data.network.CommunityRemoteDataSourceImpl
-import com.housweet.data.network.HouseRegisterRemoteDataSource
-import com.housweet.data.network.HouseRegisterRemoteDataSourceImpl
-import com.housweet.data.network.ImageUploadRemoteDataSource
+import com.housweet.data.datasource.AccessRoomRemoteDataSource
+import com.housweet.data.datasource.AccessRoomRemoteDataSourceImpl
+import com.housweet.data.datasource.AppSettingRemoteDataSource
+import com.housweet.data.datasource.AuthRemoteDataSource
+import com.housweet.data.datasource.AuthRemoteDataSourceImpl
+import com.housweet.data.datasource.ChatRemoteDataSource
+import com.housweet.data.datasource.ChatRemoteDataSourceImpl
+import com.housweet.data.datasource.CommunityRemoteDataSource
+import com.housweet.data.datasource.CommunityRemoteDataSourceImpl
+import com.housweet.data.datasource.HouseRegisterRemoteDataSource
+import com.housweet.data.datasource.HouseRegisterRemoteDataSourceImpl
+import com.housweet.data.datasource.ImageUploadRemoteDataSource
 import com.housweet.data.network.KtorService
-import com.housweet.data.network.NoticeRemoteDataSource
-import com.housweet.data.network.NoticeRemoteDataSourceImpl
-import com.housweet.data.network.NotificationRemoteDataSource
-import com.housweet.data.network.NotificationRemoteDataSourceImpl
-import com.housweet.data.network.ReportRemoteDataSource
-import com.housweet.data.network.ReportRemoteDataSourceImpl
-import com.housweet.data.network.RoomPostingRepositoryImpl
-import com.housweet.data.network.RoomRemoteDataSource
-import com.housweet.data.network.RoomRemoteDataSourceImpl
-import com.housweet.data.network.dto.AppSettingRemoteDataSourceImpl
+import com.housweet.data.datasource.MyHouseRemoteDataSource
+import com.housweet.data.datasource.MyHouseRemoteDataSourceImpl
+import com.housweet.data.datasource.NoticeRemoteDataSource
+import com.housweet.data.datasource.NoticeRemoteDataSourceImpl
+import com.housweet.data.datasource.NotificationRemoteDataSource
+import com.housweet.data.datasource.NotificationRemoteDataSourceImpl
+import com.housweet.data.datasource.ReportRemoteDataSource
+import com.housweet.data.datasource.ReportRemoteDataSourceImpl
+import com.housweet.data.datasource.RoomPostingRepositoryImpl
+import com.housweet.data.datasource.RoomRemoteDataSource
+import com.housweet.data.datasource.RoomRemoteDataSourceImpl
+import com.housweet.data.datasource.AppSettingRemoteDataSourceImpl
 import com.housweet.data.repository.AccessRoomRepositoryImpl
 import com.housweet.data.repository.AppSettingRepositoryImpl
 import com.housweet.data.repository.AuthRepositoryImpl
@@ -36,6 +38,7 @@ import com.housweet.data.repository.ChatRepositoryImpl
 import com.housweet.data.repository.CommunityRepositoryImpl
 import com.housweet.data.repository.HouseRegisterRepositoryImpl
 import com.housweet.data.repository.ImageUploadRepositoryImpl
+import com.housweet.data.repository.MyHouseRepositoryImpl
 import com.housweet.data.repository.ReportRepositoryImpl
 import com.housweet.data.repository.NoticeRepositoryImpl
 import com.housweet.data.utils.CryptoManager
@@ -51,9 +54,12 @@ import com.housweet.domain.repository.HouseRegisterRepository
 import com.housweet.domain.repository.ImageUploadRepository
 import com.housweet.domain.repository.NotificationRepository
 import com.housweet.data.repository.NotificationRepositoryImpl
+import com.housweet.data.usecase.GetMyRoomIdUseCaseImpl
+import com.housweet.domain.repository.MyHouseRepository
 import com.housweet.domain.repository.NoticeRepository
 import com.housweet.domain.repository.ReportRepository
 import com.housweet.domain.repository.RoomPostingRepository
+import com.housweet.domain.usecase.GetMyRoomIdUseCase
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -207,6 +213,23 @@ abstract class Module {
         impl: ReportRepositoryImpl
     ): ReportRepository
 
+    @Binds
+    @Singleton
+    abstract fun bindMyHouseRemoteDataSource(
+        impl: MyHouseRemoteDataSourceImpl
+    ): MyHouseRemoteDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindMyHouseRepository(
+        impl: MyHouseRepositoryImpl
+    ): MyHouseRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindGetMyRoomIdUseCase(
+        impl: GetMyRoomIdUseCaseImpl
+    ): GetMyRoomIdUseCase
 
     companion object {
         @Provides
@@ -234,8 +257,8 @@ abstract class Module {
 
         @Provides
         @Singleton
-        fun provideReportApi(httpClient: HttpClient): ReportApi {
-            return ReportApi(httpClient)
+        fun provideReportApi(ktorService: KtorService): ReportApi {
+            return ReportApi(ktorService)
         }
 
         @Provides

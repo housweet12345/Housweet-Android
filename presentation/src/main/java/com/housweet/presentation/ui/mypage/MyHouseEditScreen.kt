@@ -1,17 +1,13 @@
 package com.housweet.presentation.ui.mypage
 
-import android.R.attr.contentDescription
-import android.R.attr.text
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,14 +16,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.housweet.presentation.R
-import com.housweet.presentation.ui.notification.NotificationScreen
-import com.housweet.presentation.ui.notification.sampleNotifications
+import com.housweet.presentation.navigation.goToMyPageAfterDelete
+import com.housweet.presentation.ui.navigation.BottomNavItem
+import com.housweet.presentation.viewmodel.mypage.MyHouseEditEffect
+import com.housweet.presentation.viewmodel.mypage.MyHouseEditViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,7 +39,58 @@ fun MyHouseEditScreen(
     onCodeRefresh: () -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
-    var name by remember { mutableStateOf(houseName) }
+    val viewModel: MyHouseEditViewModel = hiltViewModel()
+    val uiState by viewModel.uiState.collectAsState()
+
+    // 스낵바
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    // 최초 로드
+    LaunchedEffect(Unit) { viewModel.load() }
+
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { e ->
+            when (e) {
+                is MyHouseEditEffect.ShowMessage -> {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(e.msg, duration = SnackbarDuration.Short)
+                    }
+                }
+                is MyHouseEditEffect.CloseWithRefresh -> {
+                    val key = "MY_HOUSE_REFRESH"
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set(key, true)
+
+                    val popped = navController.popBackStack()
+                    if (!popped) {
+                        navController.navigate("myhousedetail") {
+                            launchSingleTop = true
+                            restoreState = false
+                        }
+                    }
+                }
+                is MyHouseEditEffect.Deleted -> {
+                    navController.navigate("mypage?afterDelete=true") {
+                        popUpTo(BottomNavItem.Home.route) { inclusive = true }
+                        launchSingleTop = true
+                        restoreState = false
+                    }
+                }
+            }
+        }
+    }
+
+    BackHandler {
+        val popped = navController.popBackStack()
+        if (!popped) {
+            navController.navigate("myhousedetail") {
+                launchSingleTop = true
+                restoreState = false
+            }
+        }
+    }
 
     Scaffold (
         topBar = {
@@ -66,11 +115,12 @@ fun MyHouseEditScreen(
                     )
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color.White // ✅ 배경색 흰색 지정
+                    containerColor = Color.White
                 )
             )
         },
-        containerColor = Color.White
+        containerColor = Color.White,
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -112,10 +162,8 @@ fun MyHouseEditScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             OutlinedTextField(
-                value = name,
-                onValueChange = {
-                    if (it.length <= 10) name = it
-                },
+                value = uiState.name,
+                onValueChange = {viewModel.onNameChange(it)},
                 placeholder = { Text("10자 이내로 입력해주세요.", fontSize = 12.sp) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
@@ -136,7 +184,7 @@ fun MyHouseEditScreen(
             ) {
                 Text(text = "방 시작일", fontSize = 14.sp)
                 Spacer(modifier = Modifier.weight(1f))
-                Text(text = startDate, fontSize = 14.sp)
+                Text(text = uiState.startDate, fontSize = 14.sp)
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -153,10 +201,12 @@ fun MyHouseEditScreen(
                     contentDescription = "refresh",
                     modifier = Modifier
                         .size(20.dp)
-                        .clickable { onCodeRefresh() }
+                        .clickable(enabled = !uiState.isLoading) {
+                            viewModel.refreshInviteCode()
+                        }
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = inviteCode, fontSize = 14.sp)
+                Text(text = uiState.inviteCode, fontSize = 14.sp)
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -165,7 +215,9 @@ fun MyHouseEditScreen(
             Text(
                 text = "방 삭제하기",
                 color = Color.Red,
-                modifier = Modifier.clickable { onDelete() },
+                modifier = Modifier.clickable(enabled = !uiState.isLoading) {
+                        viewModel.deleteMyHouse()
+                },
                 fontSize = 14.sp
             )
 
@@ -173,15 +225,31 @@ fun MyHouseEditScreen(
 
             // 완료 버튼
             Button(
-                onClick = { /* TODO: 마이하우스 수정 완료 */ },
+                onClick = {
+                    if (!uiState.isLoading && uiState.roomId != null) {
+                        viewModel.submit()
+                    } else {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                if (uiState.isLoading) "처리 중입니다..." else "방 정보를 불러오는 중입니다.",
+                                duration = SnackbarDuration.Short
+                            )
+                        }
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
                     .height(56.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF665ED3)),
-                shape = RoundedCornerShape(6.dp)
+                shape = RoundedCornerShape(6.dp),
+                enabled = !uiState.isLoading && uiState.roomId != null
             ) {
-                androidx.compose.material3.Text("완료", color = Color(0xFFF8F8F8), fontSize = 15.sp)
+                androidx.compose.material3.Text(
+                    if (uiState.isLoading) "저장 중..." else "완료",
+                    color = Color(0xFFF8F8F8),
+                    fontSize = 15.sp
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))

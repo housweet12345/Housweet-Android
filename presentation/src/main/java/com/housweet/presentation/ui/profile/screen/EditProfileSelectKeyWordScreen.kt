@@ -1,5 +1,6 @@
 package com.housweet.presentation.ui.profile.screen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -48,7 +49,7 @@ fun EditProfileSelectKeyWordScreen(
     showSkipButton: Boolean = false, // 건너뛰기 버튼 표시 여부
     onBackClick: () -> Unit = {},
     onNextClick: (ProfileUpdateModel) -> Unit = {},
-    onSkipClick: () -> Unit = {}
+    onSkipClick: (ProfileUpdateModel) -> Unit = {}
 ) {
     // 각 섹션별 선택된 태그를 관리하는 상태
     var lifePatternTags by remember { mutableStateOf(setOf<String>()) }
@@ -61,9 +62,15 @@ fun EditProfileSelectKeyWordScreen(
     }
 
     // 키워드 목록
-    val lifePatternKeywords = listOf("아침형", "저녁형", "밤샘 OK", "음주를 즐기는 편", "비흡연자", "흡연자", "요리를 자주 함", "배달음식 선호", "일찍 귀가", "늦게 귀가")
-    val organizationHabitKeywords = listOf("깔끔한 편", "정리도 적당히", "청결 중시", "물건이 많음", "단순함 선호", "정리를 자주함", "규칙적인 생활", "즉흥적인 생활")
-    val personalityKeywords = listOf("조용한 편", "활발한 편", "대화를 좋아함", "혼자 있는 시간 필요", "계획적", "즉흥적", "감성적", "이성적", "사교적", "내향적")
+    val lifePatternKeywords = listOf(
+        "미흡연자", "저녁형", "조용한 환경 선호", "음악, 소음 OK", "전화를 자주함", "비흡연자",
+        "흡연자", "술은 적당히", "술을 즐기는 편", "요리를 자주 함", "음식은 사먹는 편", "냉장고 음식 공유 가능"
+    )
+    val organizationHabitKeywords = listOf(
+        "깔끔한 스타일", "청소를 자주하는 편", "정리는 적당히", "공용 공간 정리 철저",
+        "빨래를 자주 돌림", "설거지를 자주함"
+    )
+    val personalityKeywords = listOf("대화를 좋아함", "혼자있는 걸 좋아함")
 
     // 다음 버튼 클릭 처리
     val handleNextClick = {
@@ -83,6 +90,21 @@ fun EditProfileSelectKeyWordScreen(
         onNextClick(profileUpdateModel)
     }
 
+    // Skip 버튼 클릭 처리 (키워드 설정 화면에서 보내는건 스킵 처리)
+    val handleSkipClick = {
+
+        val profileUpdateModel = ProfileUpdateModel(
+            gender = currentProfile.gender, // 기존 정보 유지
+            introduce = currentProfile.introduce, // 기존 정보 유지
+            mbti = "XXXX",
+            nickname = currentProfile.nickname, // 기존 정보 유지
+            tags = emptyList(),
+            yearOfBirth = currentProfile.yearOfBirth // 기존 정보 유지
+        )
+
+        onSkipClick(profileUpdateModel)
+    }
+
     Scaffold(
         contentWindowInsets = WindowInsets(0.dp), // 상단 여백 제거
         bottomBar = {
@@ -91,7 +113,7 @@ fun EditProfileSelectKeyWordScreen(
                     leftText = "완료",
                     rightText = "건너뛰기",
                     onLeftClick = handleNextClick,
-                    onRightClick = onSkipClick
+                    onRightClick = handleSkipClick
                 )
             } else {
                 BottomButton(
@@ -104,6 +126,7 @@ fun EditProfileSelectKeyWordScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(Color.White)
                 .padding(paddingValues)
                 .padding(horizontal = 20.dp)
                 .verticalScroll(rememberScrollState()), // 스크롤 가능하도록 설정

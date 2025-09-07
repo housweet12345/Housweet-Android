@@ -1,5 +1,6 @@
 package com.housweet.presentation.ui.chatlist
 
+import android.R.attr.onClick
 import android.R.id.input
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -34,10 +35,12 @@ import com.housweet.presentation.viewmodel.chatlist.ChatListViewModel
 import kotlin.collections.filter
 import android.util.Base64
 import androidx.compose.foundation.layout.WindowInsets
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.util.Locale
+import androidx.compose.runtime.remember
+import kotlin.String
 import kotlin.io.encoding.ExperimentalEncodingApi
+import com.housweet.presentation.ui.chat.toKstKoreanFull
+import com.housweet.presentation.ui.chatlist.ChatListContent
+
 
 @Composable
 fun ChatListScreen(
@@ -49,20 +52,26 @@ fun ChatListScreen(
         onBackClick()
     }
 
+    val myIdState = viewModel.myUserId.collectAsState()
     val chatUsersState = viewModel.chatUsers.collectAsState()
-    ChatListContent(navController = navController, chatUsers = chatUsersState.value, onBackClick = onBackClick)
+
+    val myId = myIdState.value ?: run { return }
+
+    val visibleUsers = remember(chatUsersState.value) {
+        chatUsersState.value.filter { !it.is_blocked }      // 차단 숨김
+    }
+
+    ChatListContent(navController = navController, senderId = myId, chatUsers = visibleUsers, onBackClick = onBackClick)
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalEncodingApi::class)
 @Composable
 fun ChatListContent(
     navController: NavController,
+    senderId: Int,
     chatUsers: List<ChatUser>,
     onBackClick: () -> Unit,
 ) {
-//    val myUserId = 3
-//    val filteredUsers = chatUsers.filter { it.id != myUserId }
-
     Scaffold(
         containerColor = Color.White,
         topBar = {
@@ -97,27 +106,32 @@ fun ChatListContent(
             LazyColumn(
                 modifier = Modifier.background(Color.White)
             ) {
-//                itemsIndexed(filteredUsers) { _, user ->
                 itemsIndexed(chatUsers) { _, user ->
-                    val dateTime = LocalDateTime.parse(user.updated_at)
-                    val formatter = DateTimeFormatter.ofPattern("M월 d일 a h시 m분", Locale.KOREAN)
-                    val formatted = dateTime.format(formatter)
+                    val formatted = runCatching<String> {
+                        user.last_message_created_at.toKstKoreanFull()
+                    }.getOrDefault(user.last_message_created_at)
+
+                    val last = user.last_message_content.ifBlank { "대화를 시작해보세요" }
+                    val time = user.last_message_created_at
+                        .takeIf { it.isNotBlank() }                                         // 비어있으면 건너뜀
+                        ?.let { runCatching { it.toKstKoreanFull() }.getOrNull() }          // 포맷 실패도 안전
+                        .orEmpty()
+
                     ChatListItem(
                             chat = ChatPreview(
-                            name = user.receiver_nickname.toString(),
-                            lastMessage = "",
-//                            lastMessage = "",
-                            time = formatted,
-//                            time = "",
+                            name = user.receiver_nickname,
+                            lastMessage = last,
+                            time = time,
                             profileImageUrl = "",
                             unread = false
                         ),
                         onClick = {
+                            val displayName = user.counterpart_nickname
                             val encodedName = Base64.encodeToString(
-                                user.receiver_nickname.toString().toByteArray(),
+                                displayName.toByteArray(),
                                 Base64.URL_SAFE or Base64.NO_WRAP
                             )
-                            navController.navigate("chat_detail/${user.sender_id}/$encodedName")
+                            navController.navigate("chat_detail/$senderId/${user.counterpart_id}/${user.room_id}/$encodedName")
                         }
                     )
                 }
@@ -130,6 +144,7 @@ fun ChatListContent(
 @Composable
 fun ChatListScreenPreview() {
     val navController = rememberNavController()
+    val mockSenderId = 3
     val mockUsers = listOf(
         ChatUser(
             room_id = 1,
@@ -142,9 +157,11 @@ fun ChatListScreenPreview() {
             sender_nickname = "테스트3",
             receiver_nickname = "테스트1",
             counterpart_nickname = "테스트1",
+            last_message_content = "어쩌라구요",
+            last_message_created_at = "2025.08.15",
         ),
         ChatUser(
-            room_id = 1,
+            room_id = 2,
             sender_id = 3,
             receiver_id = 2,
             created_at = "2025-08-15T09:38:19",
@@ -154,9 +171,11 @@ fun ChatListScreenPreview() {
             sender_nickname = "테스트3",
             receiver_nickname = "테스트2",
             counterpart_nickname = "테스트2",
+            last_message_content = "어쩌라구요2",
+            last_message_created_at = "2025.08.15",
         ),
         ChatUser(
-            room_id = 1,
+            room_id = 3,
             sender_id = 3,
             receiver_id = 4,
             created_at = "2025-08-15T09:38:19",
@@ -166,8 +185,10 @@ fun ChatListScreenPreview() {
             sender_nickname = "테스트3",
             receiver_nickname = "테스트4",
             counterpart_nickname = "테스트4",
+            last_message_content = "어쩌라구요4",
+            last_message_created_at = "2025.08.15",
         )
     )
 
-    ChatListContent(navController = navController, chatUsers = mockUsers, onBackClick = {})
+    ChatListContent(navController = navController, senderId = mockSenderId, chatUsers = mockUsers, onBackClick = {})
 }

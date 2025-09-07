@@ -8,4 +8,5 @@ interface UserRepository {
     suspend fun getMyProfile(): Result<ProfileModel>
     suspend fun getOtherUserProfile(userId: String): Result<ProfileModel>
     suspend fun updateProfile(userId: String, updatedProfile: ProfileUpdateModel): Result<ProfileUpdateResponseModel>
+    suspend fun blockUser(blockedUserId: Int): Result<Boolean>
 }

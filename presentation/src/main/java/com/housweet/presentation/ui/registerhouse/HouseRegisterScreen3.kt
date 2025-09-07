@@ -11,19 +11,25 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,7 +37,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.housweet.presentation.R
 import com.housweet.presentation.model.RegisterModel
-import com.housweet.presentation.ui.common.StepIndicator
 import com.housweet.presentation.ui.common.TopBarWithBackButton
 import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModelBase
 import androidx.core.graphics.createBitmap
@@ -45,11 +50,15 @@ fun HouseRegisterScreen3(
     onBackClick: () -> Unit,
     viewModel: HouseRegisterViewModelBase
 ) {
+    BackHandler {
+        onBackClick()
+    }
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
     val selectedBitmap = viewModel.imageBitmap
+    val imageUrl = viewModel.imageUrl
 
     BackHandler {
         if (selectedBitmap != null) viewModel.clearImages()
@@ -84,97 +93,118 @@ fun HouseRegisterScreen3(
         }
     }
 
+    val isStep3Valid by remember(selectedBitmap, imageUrl) {
+        derivedStateOf { selectedBitmap != null || !imageUrl.isNullOrBlank() }
+    }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .padding(horizontal = 16.dp)
-    ) {
-        TopBarWithBackButton(
-            title = if (mode == RegisterModel.EDIT) "글 수정하기" else "하우스 올리기",
-            onBackClick = {
-                if (selectedBitmap != null) viewModel.clearImages()
-                onBackClick()
-            }
-        )
-
-        StepIndicator(currentStep = 3)
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text(
-                text = "실제 사진을 첨부해주세요.",
-                color = Color(0xFF6C4DFF),
-                fontSize = 12.sp,
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Text(
-            text = "사진 첨부",
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(120.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .border(1.dp, Color(0xFFCBCDD2), shape = RoundedCornerShape(12.dp))
-                .clickable{
-                    singlePicker.launch("image/*")
+    Scaffold(
+        topBar = {
+            TopBarWithBackButton(
+                title = if (mode == RegisterModel.EDIT) "글 수정하기" else "하우스 올리기",
+                currentStep = 3,
+                onBackClick = {
+                    if (selectedBitmap != null) viewModel.clearImages()
+                    onBackClick()
                 },
-            contentAlignment = Alignment.Center
-        ) {
-            if (selectedBitmap == null) {
-                Icon(
-                    painter = painterResource(id = R.drawable.camera_icon_gray),
-                    contentDescription = "사진 선택",
-                    tint = Color.Gray,
-                    modifier = Modifier.size(48.dp)
-                )
-            } else {
-                Image(
-                    bitmap = selectedBitmap.asImageBitmap(),
-                    contentDescription = "선택 이미지",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.matchParentSize()
-                )
+            )
+        },
+        contentWindowInsets = WindowInsets(0)
+    )
+    { innerPadding ->
+        KeyboardClosableContainer {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .imePadding()
+                    .background(Color.White)
+                    .padding(innerPadding)
+            ) {
+                Column(
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Text(
+                            text = "실제 사진을 첨부해주세요.",
+                            color = Color(0xFF6C4DFF),
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(vertical = 16.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = "사진 첨부",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(120.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .border(0.5.dp, Color(0xFFCBCDD2), shape = RoundedCornerShape(12.dp))
+                            .clickable {
+                                singlePicker.launch("image/*")
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (selectedBitmap == null) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.camera_icon_gray),
+                                contentDescription = "사진 선택",
+                                tint = Color.Gray,
+                                modifier = Modifier.size(48.dp)
+                            )
+                        } else {
+                            Image(
+                                bitmap = selectedBitmap.asImageBitmap(),
+                                contentDescription = "선택 이미지",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.matchParentSize()
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Button(
+                    enabled = isStep3Valid,
+                    onClick = {
+                        val hasSelectedImage = viewModel.imageBitmap != null
+
+                        if (!hasSelectedImage) {
+                            return@Button
+                        }
+
+                        onNextClick()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    shape = RectangleShape,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF665ED3),
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text(
+                        text = "다음",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        Button(
-            onClick = onNextClick,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            shape = RoundedCornerShape(6.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF665ED3),
-                contentColor = Color.White
-            )
-        ) {
-            Text(
-                text = "다음",
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
@@ -204,3 +234,15 @@ fun HouseRegisterScreen3Preview() {
 }
 
 class PreviewHouseRegisterViewModel3 : HouseRegisterViewModelBase()
+
+@Composable private fun KeyboardClosableContainer(content: @Composable () -> Unit) {
+    val fm = LocalFocusManager.current
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .imePadding() // 키보드 높이만큼 안전 패딩
+        .navigationBarsPadding() // 제스처/네비바 대응
+        .pointerInput(Unit) {
+            detectTapGestures(onTap = { fm.clearFocus() }) // 바깥 탭 → 키보드 닫힘
+        }
+    ) { content() }
+}

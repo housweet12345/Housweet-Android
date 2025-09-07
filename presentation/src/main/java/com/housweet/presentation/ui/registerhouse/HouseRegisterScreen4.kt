@@ -1,29 +1,32 @@
 package com.housweet.presentation.ui.registerhouse
 
 import android.util.Log
-import androidx.compose.foundation.BorderStroke
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Surface
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,17 +34,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.housweet.presentation.model.RegisterModel
-import com.housweet.presentation.ui.common.StepIndicator
 import com.housweet.presentation.ui.common.TopBarWithBackButton
-import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModel
 import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModelBase
 
 @Composable
@@ -50,8 +51,13 @@ fun HouseRegisterScreen4(
     postingId: Int?,
     onBackClick: () -> Unit,
     onCompleteClick: () -> Unit,
-    viewModel: HouseRegisterViewModelBase
+    viewModel: HouseRegisterViewModelBase,
+    onShowSnackbar: (String) -> Unit = {}
 ) {
+    BackHandler {
+        onBackClick()
+    }
+
     // 1) 섹션 정의
     val sections = listOf(
         "생활 패턴" to listOf(
@@ -73,148 +79,169 @@ fun HouseRegisterScreen4(
     }
 
     // 3) 검증 & 다이얼로그 상태
-    var showDialog by remember { mutableStateOf(false) }
     var missingSectionName by remember { mutableStateOf<String?>(null) }
 
     fun firstMissingSectionOrNull(): String? =
-        sections.firstOrNull { (title, _) -> selectedBySection[title].isNullOrEmpty() }?.first
+        sections.firstOrNull { (title, _) ->
+            selectedBySection[title].isNullOrEmpty()
+        }?.first
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .padding(horizontal = 16.dp)
-    ) {
-        TopBarWithBackButton(
-            title = if (mode == RegisterModel.EDIT) "글 수정하기" else "하우스 올리기",
-            onBackClick = onBackClick
-        )
+    // 실패 알림 메세지
+    var resultMessage by remember { mutableStateOf("") }
 
-        StepIndicator(currentStep = 4)
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text(
-                text = "선호하는 사람에 대한 키워드를 선택해주세요.",
-                color = Color(0xFF6C4DFF),
-                fontSize = 12.sp,
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
+    val isStep4Valid by remember {
+        derivedStateOf {
+            sections.all { (title, _) -> selectedBySection[title]?.isNotEmpty() == true }
         }
-        Spacer(modifier = Modifier.height(12.dp))
+    }
 
-        LazyColumn(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            sections.forEach { (title, tags) ->
-                item {
+    Scaffold (
+        topBar = {
+            TopBarWithBackButton(
+                title = if (mode == RegisterModel.EDIT) "글 수정하기" else "하우스 올리기",
+                currentStep = 4,
+                onBackClick = onBackClick,
+            )
+        },
+        contentWindowInsets = WindowInsets(0)
+    ){ innerPadding ->
+        KeyboardClosableContainer{
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .imePadding()
+                    .background(Color.White)
+                    .padding(innerPadding)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
                     Text(
-                        text = title,
-                        fontWeight = FontWeight.Bold,
+                        text = "선호하는 사람에 대한 키워드를 선택해주세요.",
+                        color = Color(0xFF6C4DFF),
                         fontSize = 12.sp,
-                        modifier = Modifier.padding(vertical = 4.dp)
+                        modifier = Modifier.padding(vertical = 16.dp)
                     )
                 }
 
-                item {
-                    FlowRow(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        tags.forEach { tag ->
-                            val isSelected = selectedBySection[title]?.contains(tag) == true
+                Spacer(modifier = Modifier.height(12.dp))
 
-                            Box(
-                                modifier = Modifier
-                                    .clickable {
-                                        val current = selectedBySection[title]?.toMutableSet() ?: mutableSetOf()
-                                        if (isSelected) current.remove(tag) else current.add(tag)
-                                        selectedBySection[title] = current
-                                    }
-                                    .border(
-                                        width = 1.dp,
-                                        color = Color(0xFF665ED3),
-                                        shape = RoundedCornerShape(12.dp)
-                                    )
-                                    .background(
-                                        color = if (isSelected) Color(0xFF665ED3) else Color.White,
-                                        shape = RoundedCornerShape(12.dp)
-                                    )
-                                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    sections.forEach { (title, tags) ->
+                        item {
+                            Text(
+                                text = title,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 12.sp,
+                                modifier = Modifier.padding(vertical = 4.dp)
+                            )
+                        }
+
+                        item {
+                            FlowRow(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                Text(
-                                    text = tag,
-                                    fontSize = 12.sp,
-                                    color = if (isSelected) Color.White else Color.Black
-                                )
+                                tags.forEach { tag ->
+                                    val isSelected = selectedBySection[title]?.contains(tag) == true
+
+                                    Box(
+                                        modifier = Modifier
+                                            .clickable {
+                                                val current = selectedBySection[title]?.toMutableSet() ?: mutableSetOf()
+                                                if (isSelected) current.remove(tag) else current.add(tag)
+                                                selectedBySection[title] = current
+                                            }
+                                            .border(
+                                                width = 0.5.dp,
+                                                color = Color(0xFF665ED3),
+                                                shape = RoundedCornerShape(12.dp)
+                                            )
+                                            .background(
+                                                color = if (isSelected) Color(0xFF665ED3) else Color.White,
+                                                shape = RoundedCornerShape(12.dp)
+                                            )
+                                            .padding(horizontal = 12.dp, vertical = 8.dp)
+                                    ) {
+                                        Text(
+                                            text = tag,
+                                            fontSize = 12.sp,
+                                            color = if (isSelected) Color.White else Color.Black
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
                 }
-            }
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-        Button(onClick = {
-            if (mode == RegisterModel.EDIT) {
-                viewModel.submitEdit(
-                    onSuccess = onCompleteClick,
-                    onError = { /* 스낵바/토스트 */ }
-                )
-            } else {
-                viewModel.submitHouseRegister(
-                    onSuccess = onCompleteClick,
-                    onError = { /* 스낵바/토스트 */ }
-                )
-            }
-        },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            shape = RoundedCornerShape(6.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF665ED3),
-                contentColor = Color.White
-            )
-        ) {
-            Text(
-                text = "완료",
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
+                Button(
+                    enabled = isStep4Valid,
+                    onClick = {
+                        val missing = firstMissingSectionOrNull()
+                        if (missing != null) {
+                            missingSectionName = missing
+                            return@Button
+                        }
 
-        Spacer(modifier = Modifier.height(16.dp))
-    }
+                        val life   = selectedBySection["생활 패턴"]?.toList() ?: emptyList()
+                        val tidy   = selectedBySection["정리 습관"]?.toList() ?: emptyList()
+                        val person = selectedBySection["성격"]?.toList() ?: emptyList()
 
-    if (showDialog) {
-        Dialog(onDismissRequest = { showDialog = false }) {
-            Surface(
-                shape = RoundedCornerShape(12.dp),
-                color = Color.White,
-                tonalElevation = 2.dp,
-                border = BorderStroke(1.dp, Color(0xFF665ED3))
-            ) {
-                Column(
-                    modifier = Modifier.padding(20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        // 2) ViewModel에 반영
+                        viewModel.updateLifePatternTags(life)
+                        viewModel.updateTidyingUpHabitTags(tidy)
+                        viewModel.updatePreferredTags(person)
+
+                        val onSuccessWrapped = {
+                            Log.d("HouseRegister4", "✅ onSuccess 호출됨")
+                            onCompleteClick()
+                        }
+                        val onErrorWrapped: (Throwable) -> Unit = { e ->
+                            Log.e("HouseRegister4", "❌ submit 실패: ${e.message}", e)
+                            // 모드별 안내문구
+                            resultMessage = if (mode == RegisterModel.EDIT) "방 수정에 실패했습니다" else "방 생성에 실패했습니다"
+                            onShowSnackbar(resultMessage)
+                        }
+
+                        if (mode == RegisterModel.EDIT) {
+                            viewModel.submitEdit(
+                                onSuccess = onSuccessWrapped,
+                                onError = onErrorWrapped
+                            )
+                        } else {
+                            viewModel.submitHouseRegister(
+                                onSuccess = onSuccessWrapped,
+                                onError = onErrorWrapped
+                            )
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    shape = RectangleShape,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF665ED3),
+                        contentColor = Color.White
+                    )
                 ) {
                     Text(
-                        text = "${missingSectionName ?: "항목"} 을(를) 선택해주세요.",
-                        textAlign = TextAlign.Center,
-                        fontSize = 14.sp
+                        text = "완료",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold
                     )
-                    Spacer(Modifier.height(12.dp))
-                    TextButton(onClick = { showDialog = false }) {
-                        Text("확인")
-                    }
                 }
             }
         }
@@ -241,4 +268,16 @@ class PreviewHouseRegisterViewModel4 : HouseRegisterViewModelBase() {
         println("🏠 하우스 등록 요청 (프리뷰용)")
         onSuccess()  // 성공 콜백만 호출
     }
+}
+
+@Composable private fun KeyboardClosableContainer(content: @Composable () -> Unit) {
+    val fm = LocalFocusManager.current
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .imePadding() // 키보드 높이만큼 안전 패딩
+        .navigationBarsPadding() // 제스처/네비바 대응
+        .pointerInput(Unit) {
+            detectTapGestures(onTap = { fm.clearFocus() }) // 바깥 탭 → 키보드 닫힘
+        }
+    ) { content() }
 }

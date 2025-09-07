@@ -1,49 +1,70 @@
 package com.housweet.data.repository
 
 import com.housweet.data.BuildConfig
-import com.housweet.data.dto.RoomHomeResponseDto
-import com.housweet.data.dto.RoomMemberDto
-import com.housweet.data.dto.UpdateMoodRequestDto
 import com.housweet.data.network.KtorService
+import com.housweet.data.request.UpdateMoodRequest
+import com.housweet.data.response.RoomHomeResponse
+import com.housweet.data.response.RoomMemberResponse
 import com.housweet.domain.model.home.RoomHomeModel
 import com.housweet.domain.model.home.RoomMemberModel
 import com.housweet.domain.repository.RoomRepository
+import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.patch
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import io.ktor.http.isSuccess
 import javax.inject.Inject
 
 class RoomRepositoryImpl @Inject constructor(
     private val ktorService: KtorService
 ): RoomRepository {
+    private val client: HttpClient
+        get() = ktorService.getHttpClient()
+    private val base = BuildConfig.BASE_URL
 
-    private val client by lazy { ktorService.createHttpClient() }
+    private suspend inline fun <reified T> HttpResponse.parseOrFail(op: String): Result<T> {
+        return if (status.isSuccess()) {
+            runCatching { body<T>() }.mapFailureWithRaw(this, op)
+        } else {
+            Result.failure(IllegalStateException("$op failed: $status ${runCatching { bodyAsText() }.getOrNull()}"))
+        }
+    }
+
+    private suspend inline fun <T> Result<T>.mapFailureWithRaw(
+        res: HttpResponse,
+        op: String
+    ): Result<T> = this.fold(
+        onSuccess = { Result.success(it) },
+        onFailure = { ex ->
+            val raw = runCatching { res.bodyAsText() }.getOrNull()
+            Result.failure(IllegalStateException("$op parse error: ${ex.message}\nraw=$raw", ex))
+        }
+    )
 
     override suspend fun getRoomHome(): Result<RoomHomeModel> {
-        return runCatching {
-            val response: RoomHomeResponseDto = client.get("${BuildConfig.BASE_URL}/room/home/").body()
-            response.mapToRoomHomeModel()
-        }
+        val res: HttpResponse = client.get("$base/room/home/")   // 슬래시 O
+        return res.parseOrFail<RoomHomeResponse>("getRoomHome")
+            .map { it.mapToRoomHomeModel() }
     }
 
     override suspend fun getRoomMembers(roomId: Int): Result<List<RoomMemberModel>> {
-        return runCatching {
-            val response: List<RoomMemberDto> = client.get("${BuildConfig.BASE_URL}/room/rooms/$roomId/members").body()
-            response.map { it.mapToRoomMemberModel() }
-        }
+        val res: HttpResponse = client.get("$base/room/rooms/$roomId/members/") // ✅ 슬래시 추가
+        return res.parseOrFail<List<RoomMemberResponse>>("getRoomMembers($roomId)")
+            .map { list -> list.map { it.mapToRoomMemberModel() } }
     }
 
-    override suspend fun updateMood(roomId: Int, feeling: String): Result<RoomMemberModel> {
-        return runCatching {
-            val requestDto = UpdateMoodRequestDto(feeling = feeling)
-            val response: RoomMemberDto = client.patch("${BuildConfig.BASE_URL}/room/room-members/$roomId/") {
-                contentType(ContentType.Application.Json)
-                setBody(requestDto)
-            }.body()
-            response.mapToRoomMemberModel()
+    override suspend fun updateMood(memberId: Int, feeling: String): Result<RoomMemberModel> {
+        val req = UpdateMoodRequest(feeling = feeling)
+        val res: HttpResponse = client.patch("$base/room/room-members/$memberId/") { // 슬래시 O
+            contentType(ContentType.Application.Json)
+            setBody(req)
         }
+        return res.parseOrFail<RoomMemberResponse>("updateMood($memberId)")
+            .map { it.mapToRoomMemberModel() }
     }
 }

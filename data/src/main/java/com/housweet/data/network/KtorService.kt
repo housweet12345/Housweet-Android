@@ -3,8 +3,8 @@ package com.housweet.data.network
 import android.util.Log
 import com.housweet.data.BuildConfig
 import com.housweet.data.local.AuthLocalDataSource
-import com.housweet.data.network.dto.RefreshTokenRequest
-import com.housweet.data.network.dto.RefreshResponseDto
+import com.housweet.data.request.RefreshTokenRequest
+import com.housweet.data.response.RefreshResponse
 import com.housweet.domain.event.AuthEvent
 import com.housweet.domain.event.AuthEventBus
 import com.housweet.domain.model.AuthToken
@@ -56,6 +56,22 @@ class KtorService @Inject constructor(
         ignoreUnknownKeys = true
     }
 
+    private var _httpClient: HttpClient? = null
+
+    fun getHttpClient(): HttpClient {
+        // 기존 클라이언트가 없거나 토큰이 변경된 경우 새로 생성
+        if (_httpClient == null) {
+            _httpClient = createHttpClient()
+        }
+        return _httpClient!!
+    }
+
+    // 토큰 변경 시 클라이언트 재생성을 위한 메서드
+    fun recreateHttpClient() {
+        _httpClient?.close()  // 기존 클라이언트 종료
+        _httpClient = null    // 다음 호출 시 새로 생성되도록
+    }
+
     fun createHttpClient(): HttpClient {
         return HttpClient(OkHttp) {
             engine {
@@ -82,7 +98,7 @@ class KtorService @Inject constructor(
                 }
             }
 
-            expectSuccess = true
+            expectSuccess = false
 
             install(ContentNegotiation) {
                 json(json)
@@ -135,7 +151,7 @@ class KtorService @Inject constructor(
 
                     sendWithoutRequest { request ->
                         // 로그인, 토큰 갱신 같은 인증 관련 엔드포인트는 제외
-                        val authExcluded = request.url.pathSegments.lastOrNull() == "login"
+                        val authExcluded = request.url.pathSegments.lastOrNull() == "login" || request.url.pathSegments.contains("chat")
                         !authExcluded
                     }
                 }
@@ -184,7 +200,7 @@ class KtorService @Inject constructor(
         }
 
         val tokenResponseDto = runBlocking {
-            refreshResponse.body<RefreshResponseDto>()
+            refreshResponse.body<RefreshResponse>()
         }
 
         runBlocking {

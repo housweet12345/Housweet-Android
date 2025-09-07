@@ -4,7 +4,9 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.housweet.domain.model.RoomPostsByLocationDataModel
-import com.housweet.domain.usecase.UseCases
+import com.housweet.domain.usecase.community.ClickBookMarkUseCase
+import com.housweet.domain.usecase.community.GetRoomPostsByLocationUseCase
+import com.housweet.domain.usecase.community.UnClickBookMarkUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +19,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PostsViewModel @Inject constructor(
-    private val useCases: UseCases,
+    private val getRoomPostsByLocationUseCase: GetRoomPostsByLocationUseCase,
+    private val clickBookMarkUseCase: ClickBookMarkUseCase,
+    private val unClickBookMarkUseCase: UnClickBookMarkUseCase,
     savedStateHandle: SavedStateHandle
 ): ViewModel() {
     private val _uiState = MutableStateFlow<PostsState>(PostsState.Idle)
@@ -29,10 +33,15 @@ class PostsViewModel @Inject constructor(
     private val _posts = MutableStateFlow<Map<String, List<RoomPostsByLocationDataModel>>>(mapOf())
     val posts: StateFlow<Map<String, List<RoomPostsByLocationDataModel>>> = _posts.asStateFlow()
 
-    val postRegions = savedStateHandle.get<String>("postRegions")?.split(",") ?: emptyList()
+    val postRegions = savedStateHandle.get<String>("postRegions")?.let {
+        if (it.isEmpty()) emptyList()
+        else it.split(",")
+    } ?: emptyList()
 
     init {
-        getPostsByLocation(postRegions)
+        if (postRegions.isNotEmpty()) {
+            getPostsByLocation(postRegions)
+        }
     }
 
     private fun getPostsByLocation(postRegions: List<String>) {
@@ -41,7 +50,7 @@ class PostsViewModel @Inject constructor(
             val posts = mutableMapOf<String, List<RoomPostsByLocationDataModel>>()
 
             postRegions.forEach { postRegion ->
-                useCases.getRoomPostsByLocationUsaCase(postRegion).collect { result ->
+                getRoomPostsByLocationUseCase(postRegion).collect { result ->
                     result.onSuccess {
                         posts[postRegion] = it
                     }
@@ -55,6 +64,19 @@ class PostsViewModel @Inject constructor(
             _posts.value = posts
             _uiState.value = PostsState.Idle
         }
+    }
+
+    fun updatePostBookmark(updatedPostId: Int) {
+        val updatedPosts = _posts.value.mapValues { (_, postList) ->
+            postList.map { post ->
+                if (post.id == updatedPostId) {
+                    post.copy(isBookmarked = !post.isBookmarked)
+                } else {
+                    post
+                }
+            }
+        }
+        _posts.value = updatedPosts
     }
 
     fun toggleLike(postRegion: String, postIndex: Int) {
@@ -72,14 +94,14 @@ class PostsViewModel @Inject constructor(
 
         viewModelScope.launch {
             if (isBookmarked) {
-                useCases.clickBookMarkUseCase(originalPost.id).collect { result ->
+                clickBookMarkUseCase(originalPost.id).collect { result ->
                     result.onFailure {
                         rollbackBookMark(postRegion, postIndex, originalPost)
                         _event.emit(PostsEvent.Error)
                     }
                 }
             } else {
-                useCases.unClickBookMarkUseCase(originalPost.id).collect { result ->
+                unClickBookMarkUseCase(originalPost.id).collect { result ->
                     result.onFailure {
                         rollbackBookMark(postRegion, postIndex, originalPost)
                         _event.emit(PostsEvent.Error)

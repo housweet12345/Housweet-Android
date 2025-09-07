@@ -1,7 +1,7 @@
 package com.housweet.data.repository
 
-import com.housweet.data.network.NoticeRemoteDataSource
-import com.housweet.data.network.dto.toDomain
+import com.housweet.data.datasource.NoticeRemoteDataSource
+import com.housweet.data.response.toDomain
 import com.housweet.domain.model.Notice
 import com.housweet.domain.repository.NoticeRepository
 import javax.inject.Inject

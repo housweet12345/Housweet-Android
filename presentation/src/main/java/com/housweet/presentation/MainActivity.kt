@@ -5,7 +5,14 @@ import android.os.Bundle
 import android.util.Base64
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -13,11 +20,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -32,6 +43,7 @@ import com.housweet.presentation.model.RegisterModel
 import com.housweet.presentation.ui.chat.ChatScreen
 import com.housweet.presentation.ui.chatlist.ChatListScreen
 import com.housweet.presentation.ui.common.ComingSoonScreen
+import com.housweet.presentation.ui.communityPage.GuideToCreateRoomScreen
 import com.housweet.presentation.ui.communityPage.mapScreen.MapScreen
 import com.housweet.presentation.ui.communityPage.postScreen.detailPostScreen.DetailPostScreen
 import com.housweet.presentation.ui.communityPage.postScreen.postsScreen.PostsScreen
@@ -49,6 +61,7 @@ import com.housweet.presentation.ui.mypage.NoticeScreen
 import com.housweet.presentation.ui.mypage.TermsConditionsPolicies
 import com.housweet.presentation.ui.mypage.TermsLocationInformationPolies
 import com.housweet.presentation.ui.mypage.TermsPrivacyPolicies
+import com.housweet.presentation.ui.mypage.deleteAccount.DeleteAccountScreen
 import com.housweet.presentation.ui.navigation.BottomNavItem
 import com.housweet.presentation.ui.navigation.BottomNavigation
 import com.housweet.presentation.ui.navigation.CoordinateType
@@ -72,6 +85,7 @@ import com.housweet.presentation.ui.startPage.loginPage.loginScreen.LoginScreen
 import com.housweet.presentation.ui.startPage.loginPage.termsOfServicePage.TermsOfServiceScreen
 import com.housweet.presentation.ui.startPage.splashPage.SplashScreen
 import com.housweet.presentation.ui.userlist.route.UserListRoute
+import com.housweet.presentation.viewmodel.chatlist.ChatListViewModel
 import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -86,6 +100,10 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        enableEdgeToEdge()
+        WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = true
+
 
         val isFailedRefreshToken = intent.getBooleanExtra("isFailedRefreshToken", false)
         val isLogout = intent.getBooleanExtra("isLogout", false)
@@ -110,6 +128,8 @@ class MainActivity : ComponentActivity() {
             val houseRegisterViewModel: HouseRegisterViewModel = hiltViewModel()
             val navigationManager = NavigationManager(navController)
 
+            val scope = rememberCoroutineScope()
+
             LaunchedEffect(Unit) {
                 if (isFailedRefreshToken) {
                     snackBarHostState.showSnackbar(
@@ -121,14 +141,119 @@ class MainActivity : ComponentActivity() {
             }
 
             Scaffold(
-                snackbarHost = { SnackbarHost(hostState = snackBarHostState) }
+                modifier = Modifier.fillMaxSize(),
+                snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
+                containerColor = Color.White
             ) { paddingValues ->
                 NavHost(
                     navController = navController,
                     startDestination = if (!isFailedRefreshToken && !isLogout && !isDeleteAccount) Route.StartPageRoute.Splash else Route.StartPageRoute.LoginRoute.Login,
+
                     // access_token Log 확인 테스트용
                     // startDestination = Route.StartPageRoute.LoginRoute.Login,
-                    modifier = Modifier.padding(top = paddingValues.calculateTopPadding())
+//                     startDestination = Route.StartPageRoute.LoginRoute.Login,
+//                    startDestination= "mypage",
+                    modifier = Modifier.padding(top = paddingValues.calculateTopPadding()),
+                    enterTransition = {
+                        val bottomNavCase = listOf(
+                            BottomNavItem.Home.route,
+                            BottomNavItem.Notice.route,
+                            BottomNavItem.Calendar.route,
+                            BottomNavItem.FinanceLedger.route,
+                        )
+
+                        val afterDeleteRoomCase = listOf(
+                            "mypage?afterDelete={afterDelete}",
+                            "com.housweet.presentation.ui.navigation.Route.StartPageRoute.AccessRoomRoute.AccessRoom"
+                        )
+
+                        val isBottomNavItem = bottomNavCase.contains(navController.currentBackStackEntry?.destination?.route)
+                        val isAfterDeleteRoom = afterDeleteRoomCase.contains(navController.currentBackStackEntry?.destination?.route)
+                                || navController.currentBackStackEntry?.toRoute<Route.StartPageRoute.AccessRoomRoute.AccessRoom>()?.isAfterDelete == true
+
+                        when {
+                            (navController.previousBackStackEntry == null || isBottomNavItem) && !isAfterDeleteRoom -> {
+                                EnterTransition.None
+                            }
+                            navController.previousBackStackEntry == null && isAfterDeleteRoom -> {
+                                slideInHorizontally(
+                                    initialOffsetX = { fullWidth -> -fullWidth },
+                                    animationSpec = tween(
+                                        durationMillis = 300,
+                                        easing = FastOutSlowInEasing
+                                    )
+                                )
+                            }
+                            else -> {
+                                slideInHorizontally(
+                                    initialOffsetX = { fullWidth -> fullWidth },
+                                    animationSpec = tween(
+                                        durationMillis = 300,
+                                        easing = FastOutSlowInEasing
+                                    )
+                                )
+                            }
+                        }
+                    },
+                    exitTransition = {
+                        val bottomNavCase = listOf(
+                            BottomNavItem.Home.route,
+                            BottomNavItem.Notice.route,
+                            BottomNavItem.Calendar.route,
+                            BottomNavItem.FinanceLedger.route,
+                        )
+
+                        val afterDeleteRoomCase = listOf(
+                            "mypage?afterDelete={afterDelete}",
+                            "com.housweet.presentation.ui.navigation.Route.StartPageRoute.AccessRoomRoute.AccessRoom"
+                        )
+
+                        val isBottomNavItem = bottomNavCase.contains(navController.currentBackStackEntry?.destination?.route)
+                        val isAfterDeleteRoom = afterDeleteRoomCase.contains(navController.currentBackStackEntry?.destination?.route)
+                                || navController.currentBackStackEntry?.toRoute<Route.StartPageRoute.AccessRoomRoute.AccessRoom>()?.isAfterDelete == true
+
+                        when {
+                            (navController.previousBackStackEntry == null || isBottomNavItem) && !isAfterDeleteRoom -> {
+                                ExitTransition.None
+                            }
+                            navController.previousBackStackEntry == null && isAfterDeleteRoom -> {
+                                slideOutHorizontally(
+                                    targetOffsetX = { fullWidth -> fullWidth },
+                                    animationSpec = tween(
+                                        durationMillis = 300,
+                                        easing = FastOutSlowInEasing
+                                    )
+                                )
+                            }
+                            else -> {
+                                slideOutHorizontally(
+                                    targetOffsetX = { fullWidth -> -fullWidth },
+                                    animationSpec = tween(
+                                        durationMillis = 300,
+                                        easing = FastOutSlowInEasing
+                                    )
+                                )
+                            }
+                        }
+                    },
+                    popEnterTransition = {
+                        slideInHorizontally(
+                            initialOffsetX = { fullWidth -> -fullWidth },
+                            animationSpec = tween(
+                                durationMillis = 300,
+                                easing = FastOutSlowInEasing
+                            )
+                        )
+                    },
+                    popExitTransition = {
+                        slideOutHorizontally(
+                            targetOffsetX = { fullWidth -> fullWidth },
+                            animationSpec = tween(
+                                durationMillis = 300,
+                                easing = FastOutSlowInEasing
+                            )
+                        )
+                    }
                 ) {
                     composable<Route.StartPageRoute.Splash> {
                         SplashScreen(
@@ -155,7 +280,7 @@ class MainActivity : ComponentActivity() {
                                     if (!isBelongToRoom) {
                                         navigationManager.navigateOneWay(
                                             Route.StartPageRoute.Splash,
-                                            Route.StartPageRoute.AccessRoomRoute.AccessRoom
+                                            Route.StartPageRoute.AccessRoomRoute.AccessRoom()
                                         )
 
                                         return@SplashScreen
@@ -216,7 +341,7 @@ class MainActivity : ComponentActivity() {
                                 else -> {
                                     navigationManager.navigateOneWay(
                                         Route.StartPageRoute.LoginRoute.Login,
-                                        Route.StartPageRoute.AccessRoomRoute.AccessRoom
+                                        Route.StartPageRoute.AccessRoomRoute.AccessRoom()
                                     )
                                 }
                             }
@@ -280,7 +405,7 @@ class MainActivity : ComponentActivity() {
                                             isSetProfile = true,
                                             isBelongToRoom = false
                                         ),
-                                        Route.StartPageRoute.AccessRoomRoute.AccessRoom
+                                        Route.StartPageRoute.AccessRoomRoute.AccessRoom()
                                     )
 
                                     return@TermsOfServiceScreen
@@ -315,7 +440,7 @@ class MainActivity : ComponentActivity() {
                             },
                             onFindRoomMateScreen = {
                                 navigationManager.navigateTo(
-                                    Route.CommunityPageRoute.Map()
+                                    Route.CommunityPageRoute.Map(userRoomStateNum = 0)
                                 )
                             },
                             onCreateRoomScreen = {
@@ -333,33 +458,40 @@ class MainActivity : ComponentActivity() {
 
                     composable<Route.StartPageRoute.AccessRoomRoute.CreateRoom> {
                         CreateRoomScreen(
-                            modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
-                        ){
-                            navigationManager.navigateOneWay(
-                                Route.StartPageRoute.AccessRoomRoute.AccessRoom,
-                                BottomNavItem.Home.route
-                            )
-                        }
+                            modifier = Modifier,
+                            onBackBtnClick = {
+                                navController.popBackStack()
+                            },
+                            onSuccessCreateRoom = {
+                                repeat(2) { navController.popBackStack() }
+                                navigationManager.navigateTo(BottomNavItem.Home.route)
+                            }
+                        )
                     }
 
                     composable<Route.StartPageRoute.AccessRoomRoute.SearchRoom> {
                         SearchRoomScreen(
-                            modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
-                        ){
-                            navigationManager.navigateOneWay(
-                                Route.StartPageRoute.AccessRoomRoute.AccessRoom,
-                                BottomNavItem.Home.route
-                            )
-                        }
+                            modifier = Modifier,
+                            onBackBtnClick = {
+                                navController.popBackStack()
+                            },
+                            onSuccessSearchRoom = {
+                                repeat(2) { navController.popBackStack() }
+                                navigationManager.navigateTo(BottomNavItem.Home.route)
+                            }
+                        )
                     }
 
                     composable<Route.CommunityPageRoute.Map>(
                         typeMap = mapOf(typeOf<Coordinate?>() to CoordinateType)
                     ) {
                         val coordinate = it.toRoute<Route.CommunityPageRoute.Map>().coordinate
+                        val userRoomStateNum = it.toRoute<Route.CommunityPageRoute.Map>().userRoomStateNum
+
                         MapScreen(
                             modifier = Modifier,
                             searchRegion = coordinate,
+                            userRoomStateNum = userRoomStateNum,
                             onMarkerClick = { postRegion ->
                                 navigationManager.navigateTo(Route.CommunityPageRoute.PostRoute.Posts(postRegion))
                             },
@@ -369,7 +501,12 @@ class MainActivity : ComponentActivity() {
                             onSearchBtnClick = {
                                 navigationManager.navigateTo(Route.CommunityPageRoute.SearchRegion)
                             },
-                            onWritePostBtnClick = {
+                            onWritePostBtnClick = { isNotBelongToRoom ->
+                                if (isNotBelongToRoom) {
+                                    navigationManager.navigateTo(Route.CommunityPageRoute.GuideToCreateRoom)
+                                    return@MapScreen
+                                }
+
                                 navigationManager.navigateTo(Route.HouseRegisterRoute.Step1(mode = RegisterModel.CREATE))
                             },
                             onChatClick = {
@@ -380,6 +517,23 @@ class MainActivity : ComponentActivity() {
                             },
                             onMyPageClick = {
                                 navigationManager.navigateTo("mypage")
+                            },
+                            onHouseClick = {
+                                navController.popBackStack()
+                            }
+                        )
+                    }
+
+                    composable<Route.CommunityPageRoute.GuideToCreateRoom> {
+                        GuideToCreateRoomScreen(
+                            onGuideClick = {
+                                navigationManager.navigateTo(Route.StartPageRoute.AccessRoomRoute.CreateRoom)
+                            },
+                            onBackBtnClick = {
+                                navigationManager.navigateOneWay(
+                                    Route.CommunityPageRoute.GuideToCreateRoom,
+                                    Route.CommunityPageRoute.Map()
+                                )
                             }
                         )
                     }
@@ -403,30 +557,83 @@ class MainActivity : ComponentActivity() {
 
                     composable<Route.CommunityPageRoute.PostRoute.Posts> {
                         val postRegions = it.toRoute<Route.CommunityPageRoute.PostRoute.Posts>().postRegions
+                        val updatePostId = it.toRoute<Route.CommunityPageRoute.PostRoute.Posts>().updatePostId
+                        val blockedUserId = it.toRoute<Route.CommunityPageRoute.PostRoute.Posts>().blockedUserId
+
                         PostsScreen(
-                            onPostClick = { id ->
-                                navigationManager.navigateTo(Route.CommunityPageRoute.PostRoute.DetailPost(id))
+                            updatePostId = updatePostId,
+                            blockedUserId = blockedUserId,
+                            onPostClick = { id, lastRegion ->
+                                navigationManager.navigateTo(Route.CommunityPageRoute.PostRoute.DetailPost(id, lastRegion))
                             },
                             onBackBtnClick = {
                                 navigationManager.navigateOneWay(
-                                    Route.CommunityPageRoute.PostRoute.Posts(postRegions),
+                                    Route.CommunityPageRoute.PostRoute.Posts(postRegions, updatePostId, blockedUserId),
                                     Route.CommunityPageRoute.Map()
                                 )
-                            }
+                            },
                         )
                     }
 
                     composable<Route.CommunityPageRoute.PostRoute.DetailPost> {
+                        val postId = it.toRoute<Route.CommunityPageRoute.PostRoute.DetailPost>().postId
+                        val lastRegion = it.toRoute<Route.CommunityPageRoute.PostRoute.DetailPost>().lastRegion
+                        val blockedUserId = it.toRoute<Route.CommunityPageRoute.PostRoute.DetailPost>().blockedUserId
+                        val chatListViewModel: ChatListViewModel = hiltViewModel()
+                        val myId by chatListViewModel.myUserId.collectAsStateWithLifecycle()
+
+                        // 필요 시 초기 로드
+                        LaunchedEffect(Unit) {
+                            if (myId == null) chatListViewModel.refreshMyUserIdAndUsers()
+                        }
+
+                        blockedUserId?.let {
+                            navigationManager.navigateOneWay(
+                                Route.CommunityPageRoute.PostRoute.DetailPost(postId, lastRegion, blockedUserId),
+                                Route.CommunityPageRoute.PostRoute.Posts(blockedUserId = blockedUserId)
+                            )
+
+                            return@composable
+                        }
+
                         DetailPostScreen(
                             modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
-                            onChatScreen = {
-                                navigationManager.navigateTo("chat_detail/${it}")
+                            onChatScreen = { receiverId, nickName ->
+                                val sender = myId ?: run {
+                                    // 스낵바 등으로 로그인 필요 메시지 처리
+                                    return@DetailPostScreen
+                                }
+                                chatListViewModel.createRoomAndShow(
+                                    senderId = sender,
+                                    receiverId = receiverId,
+                                    counterpartNickname = nickName
+                                ) { roomId ->
+                                    val encoded = android.util.Base64.encodeToString(
+                                        nickName.toByteArray(),
+                                        android.util.Base64.URL_SAFE or android.util.Base64.NO_WRAP or android.util.Base64.NO_PADDING // ← 패딩 제거
+                                    )
+                                    navigationManager.navigateTo("chat_detail/$sender/$receiverId/$roomId/$encoded")
+                                }
                             },
-                            onProfileScreen = {
-                                navigationManager.navigateTo("profile/${it}")
-                            },
-                            onBackBtnClick = {
-                                navController.popBackStack()
+                            onProfileScreen = { userId -> navigationManager.navigateTo("profile/$userId") },
+                            onBackBtnClick = { isBookmarkChanged ->
+                                val previousRoute = navController.previousBackStackEntry?.destination?.route
+                                if (previousRoute?.contains("bookmark") == true) {
+                                    navController.popBackStack()
+                                    return@DetailPostScreen
+                                }
+
+                                if (isBookmarkChanged) {
+                                    navigationManager.navigateOneWay(
+                                        Route.CommunityPageRoute.PostRoute.DetailPost(postId, lastRegion, blockedUserId),
+                                        Route.CommunityPageRoute.PostRoute.Posts(updatePostId = postId)
+                                    )
+                                } else {
+                                    navigationManager.navigateOneWay(
+                                        Route.CommunityPageRoute.PostRoute.DetailPost(postId, lastRegion, blockedUserId),
+                                        Route.CommunityPageRoute.PostRoute.Posts()
+                                    )
+                                }
                             }
                         )
                     }
@@ -434,7 +641,7 @@ class MainActivity : ComponentActivity() {
                     composable(BottomNavItem.Home.route) {
                         HomeRoute(
                             navigateToChat = { navController.navigate("chat_list") },
-                            navigateToNotification = { /* TODO: 알림 화면 */ },
+                            navigateToNotification = { navController.navigate("notification") },
 //                            navigateToProfile = { navController.navigate("profile/me") },
                             navigateToMyPage = { navController.navigate("mypage") },
                             navigateToNoticeDetail = { noticeId -> /* TODO: 공지사항 상세 */ },
@@ -466,8 +673,14 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                     composable(BottomNavItem.Notice.route) {
-                        //공지사항 화면
-                        Text("공지사항")
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            ComingSoonScreen(
+                                modifier = Modifier.weight(1f)
+                            )
+                            BottomNavigation(
+                                navController = navController
+                            )
+                        }
                     }
 
                     composable<Route.HouseRegisterRoute.Step1> {
@@ -480,14 +693,28 @@ class MainActivity : ComponentActivity() {
                             postingId = postingId,
                             onNextClick = { navController.navigate(Route.HouseRegisterRoute.Step2(mode)) },
                             onBackClick = {
-                                val previousRoute = navController.previousBackStackEntry?.destination?.route
-                                if (previousRoute?.contains("CommunityPageRoute.Map") == true) {
-                                    navigationManager.navigateOneWay(
-                                        Route.HouseRegisterRoute.Step1(mode),
-                                        Route.CommunityPageRoute.Map()
-                                    )
+                                if (mode == RegisterModel.EDIT) {
+                                    // 1) 백스택에 이미 MyPostedRoomScreen 이 있으면 거기로 '직행' (중간 스텝들 모두 제거)
+                                    val popped = navController.popBackStack("posted_my_room", /* inclusive = */ false)
+                                    if (!popped) {
+                                        // 2) 없으면 새로 띄우되, 현재 Step1(EDIT) 자체는 지우고 단일 상단으로 정리
+                                        navController.navigate("posted_my_room") {
+                                            // 그래프 시작점까지 정리하거나, 필요 시 특정 지점으로 조정 가능
+                                            popUpTo(navController.graph.startDestinationId) { inclusive = false }
+                                            launchSingleTop = true
+                                        }
+                                    }
                                 } else {
-                                    navController.popBackStack()
+                                    // 기존 CREATE 플로우 동작 유지
+                                    val previousRoute = navController.previousBackStackEntry?.destination?.route
+                                    if (previousRoute?.contains("CommunityPageRoute.Map") == true) {
+                                        navigationManager.navigateOneWay(
+                                            Route.HouseRegisterRoute.Step1(mode),
+                                            Route.CommunityPageRoute.Map()
+                                        )
+                                    } else {
+                                        navController.popBackStack()
+                                    }
                                 }
                             },
                           viewModel = houseRegisterViewModel
@@ -502,7 +729,7 @@ class MainActivity : ComponentActivity() {
                             mode = mode,
                             postingId = postingId,
                             onNextClick = { navController.navigate(Route.HouseRegisterRoute.Step3(mode)) },
-                            onBackClick = { navController.navigate(Route.HouseRegisterRoute.Step1(mode)) },
+                            onBackClick = { navController.popBackStack() },
                             viewModel = houseRegisterViewModel
                         )
                     }
@@ -515,7 +742,7 @@ class MainActivity : ComponentActivity() {
                             mode = mode,
                             postingId = postingId,
                             onNextClick = { navController.navigate(Route.HouseRegisterRoute.Step4(mode)) },
-                            onBackClick = { navController.navigate(Route.HouseRegisterRoute.Step2(mode)) },
+                            onBackClick = { navController.popBackStack() },
                             viewModel = houseRegisterViewModel
                         )
                     }
@@ -527,32 +754,104 @@ class MainActivity : ComponentActivity() {
                         HouseRegisterScreen4(
                             mode = mode,
                             postingId = postingId,
-                            onBackClick = { navController.navigate(Route.HouseRegisterRoute.Step3(mode)) },
-                            onCompleteClick = {},
-                            viewModel = houseRegisterViewModel
+                            onBackClick = { navController.popBackStack() },
+                            onCompleteClick = {
+                                scope.launch {
+                                    if (mode == RegisterModel.EDIT) {
+                                        // 알림
+                                        snackBarHostState.showSnackbar(
+                                            message = "방 공고 수정이 완료 되었습니다.",
+                                            duration = SnackbarDuration.Short
+                                        )
+
+                                        // 이동: 올린 방 관리
+                                        repeat(4) { navController.popBackStack() } // Step4→3→2→1 제거
+                                        navController.navigate("posted_my_room") {
+                                            launchSingleTop = true
+                                        }
+                                    } else {
+                                        // 알림
+                                        snackBarHostState.showSnackbar(
+                                            message = "방 공고 생성이 완료 되었습니다.",
+                                            duration = SnackbarDuration.Short
+                                        )
+                                        // 이동: 지도 화면
+                                        repeat(4) { navController.popBackStack() } // Step4→3→2→1 제거
+                                        navController.navigate(Route.CommunityPageRoute.Map()) {
+                                            launchSingleTop = true
+                                        }
+                                    }
+                                }
+                            },
+                            viewModel = houseRegisterViewModel,
+                            onShowSnackbar = { msg ->
+                                scope.launch {
+                                    snackBarHostState.showSnackbar(
+                                        message = msg,
+                                        duration = SnackbarDuration.Short
+                                    )
+                                }
+                            }
                         )
                     }
 
-                    composable("mypage") {
-                        MyPageScreen(
-                            navController
-                        ) {
-                            val previousRoute = navController.previousBackStackEntry?.destination?.route
-                            if (previousRoute?.contains("CommunityPageRoute.Map") == true) {
-                                navigationManager.navigateOneWay(
-                                    "mypage",
-                                    Route.CommunityPageRoute.Map()
-                                )
-                            } else {
-                                navController.popBackStack()
+                    composable(
+                        route = "mypage?afterDelete={afterDelete}",
+                        arguments = listOf(
+                            navArgument("afterDelete") {
+                                type = NavType.BoolType
+                                defaultValue = false
                             }
-                        }
+                        )
+                    ) { backStackEntry ->
+                        val afterDelete = backStackEntry.arguments?.getBoolean("afterDelete") ?: false
+                        MyPageScreen(
+                            navController = navController,
+                            onBackClick = {
+                                if (afterDelete) {
+                                    // ✅ 삭제 플로우로 진입했으면 Home 대신 AccessRoom으로
+                                    navigationManager.navigateOneWay(
+                                        "mypage?afterDelete=$afterDelete",
+                                        Route.StartPageRoute.AccessRoomRoute.AccessRoom(isAfterDelete = true)
+                                    )
+                                } else {
+                                    // 기존 동작 유지
+                                    val previousRoute = navController.previousBackStackEntry?.destination?.route
+                                    if (previousRoute?.contains("CommunityPageRoute.Map") == true) {
+                                        navigationManager.navigateOneWay(
+                                            "mypage",
+                                            Route.CommunityPageRoute.Map()
+                                        )
+                                    } else {
+                                        navController.popBackStack()
+                                    }
+                                }
+                            },
+                            onLogoutClick = {
+                                startViewModel.logout { handleLogout() }
+                            },
+                            onDeleteAccountClick = {
+                                navigationManager.navigateTo("deleteAccount")
+                            }
+                        )
+                    }
+
+                    composable("deleteAccount") {
+                        DeleteAccountScreen(
+                            onBackClick = { navController.popBackStack() },
+                            onSuccessDeleteAccount = { handleDeleteAccount() }
+                        )
                     }
 
                     composable("bookmark") {
                         BookmarkScreen(
-                            onItemClick = { /* TODO: 상세 페이지로 이동 등 처리 */ },
-                            navController = navController
+                            navController = navController,
+                            onItemClick = { uiItem ->
+                                // 타입세이프 라우트로 디테일 이동
+                                navigationManager.navigateTo(
+                                    Route.CommunityPageRoute.PostRoute.DetailPost(uiItem.id)
+                                )
+                            }
                         )
                     }
 
@@ -637,26 +936,28 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable(
-                        route = "chat_detail/{receiverId}/{chatName}",
+                        route = "chat_detail/{senderId}/{receiverId}/{roomId}/{chatName}",
                         arguments = listOf(
+                            navArgument("senderId") {type = NavType.IntType},
                             navArgument("receiverId") { type = NavType.IntType },
-                            navArgument("chatName") { defaultValue = "Unknown" }
+                            navArgument ( "roomId" ) { type = NavType.IntType},
+                            navArgument("chatName") { type = NavType.StringType }
                         )
                     )
                     { backStackEntry ->
+                        val senderId = backStackEntry.arguments?.getInt("senderId") ?: -1
                         val receiverId = backStackEntry.arguments?.getInt("receiverId") ?: -1
-                        val encodedName =
-                            backStackEntry.arguments?.getString("chatName") ?: "Unknown"
-                        val chatName = String(
-                            Base64.decode(
-                                encodedName,
-                                Base64.URL_SAFE or Base64.NO_WRAP
-                            )
-                        ) // ✅ 여기서 디코딩
+                        val roomId     = backStackEntry.arguments?.getInt("roomId") ?: -1
+                        val encodedName = backStackEntry.arguments?.getString("chatName") ?: ""
+                        val chatName = runCatching {
+                            String(Base64.decode(encodedName, Base64.URL_SAFE or Base64.NO_WRAP))
+                        }.getOrElse { encodedName } // 혹시 디코딩 실패하면 원문 사용
                         ChatScreen(
                             chatName = chatName,
-                            receiverId = receiverId,
                             navController = navController,
+                            senderId = senderId,
+                            receiverId = receiverId,
+                            roomId = roomId
                         )
                     }
 
@@ -690,11 +991,49 @@ class MainActivity : ComponentActivity() {
                         arguments = listOf(navArgument("userId") { type = NavType.StringType })
                     ) {
                         val userId = it.arguments?.getString("userId")
+                        val chatListViewModel: com.housweet.presentation.viewmodel.chatlist.ChatListViewModel = hiltViewModel()
+                        val myId by chatListViewModel.myUserId.collectAsStateWithLifecycle()
+
+                        // 필요 시 초기 로드
+                        LaunchedEffect(Unit) {
+                            if (myId == null) chatListViewModel.refreshMyUserIdAndUsers()
+                        }
+
                         ProfileRoute(
                             userId = userId,
                             navigateEditProfile = { navController.navigate("profile/edit?fromTerms=false") },
-                            onBackClick = { navController.popBackStack() },
-                            navigateChatting = { }
+                            onBackClick = { isBlocked ->
+                                if (isBlocked) {
+                                    val previousRoute = navController.previousBackStackEntry?.destination?.route
+                                    if (previousRoute?.contains("CommunityPageRoute.PostRoute.DetailPost") == true) {
+                                        navigationManager.navigateOneWay(
+                                            "profile/$userId",
+                                            Route.CommunityPageRoute.PostRoute.DetailPost(blockedUserId = userId?.toInt() ?: -1)
+                                        )
+                                    } else {
+                                        navController.popBackStack()
+                                    }
+                                } else {
+                                    navController.popBackStack()
+                                }
+                            },
+                            navigateChatting = { receiverId, nickName ->
+                                val sender = myId ?: run {
+                                    // 스낵바 등으로 로그인 필요 메시지 처리
+                                    return@ProfileRoute
+                                }
+                                chatListViewModel.createRoomAndShow(
+                                    senderId = sender,
+                                    receiverId = receiverId,
+                                    counterpartNickname = nickName
+                                ) { roomId ->
+                                    val encoded = android.util.Base64.encodeToString(
+                                        nickName.toByteArray(),
+                                        android.util.Base64.URL_SAFE or android.util.Base64.NO_WRAP or android.util.Base64.NO_PADDING // ← 패딩 제거
+                                    )
+                                    navigationManager.navigateTo("chat_detail/$sender/$receiverId/$roomId/$encoded")
+                                }
+                            }
                         )
                     }
 
@@ -759,7 +1098,7 @@ class MainActivity : ComponentActivity() {
                                 if (fromTerms) {
                                     navigationManager.navigateOneWay(
                                         "profile/edit_keyword?fromTerms=$fromTerms",
-                                        Route.StartPageRoute.AccessRoomRoute.AccessRoom
+                                        Route.StartPageRoute.AccessRoomRoute.AccessRoom()
                                     )
                                 } else {
                                     navigationManager.navigateOneWay(
@@ -775,7 +1114,10 @@ class MainActivity : ComponentActivity() {
                         UserListRoute(
                             onBackClick = { navController.popBackStack() },
                             navigateToProfile = { navController.navigate("profile/$it") },
-                            onWorkspaceInvite = { navController.navigate(Route.CommunityPageRoute.Map()) }
+                            onWorkspaceInvite = { isHost ->
+                                navController.navigate(Route.CommunityPageRoute.Map(userRoomStateNum = 1)
+                                )
+                            }
                         )
                     }
                 }

@@ -20,7 +20,7 @@ fun UserListRoute(
     viewModel: UserListViewModel = hiltViewModel(),
     onBackClick: () -> Unit = {},
     navigateToProfile: (String) -> Unit = {},
-    onWorkspaceInvite: () -> Unit = {}
+    onWorkspaceInvite: (isHost: Boolean) -> Unit = {}
 ) {
     val state = viewModel.userListState.collectAsStateWithLifecycle()
     
@@ -33,6 +33,7 @@ fun UserListRoute(
             val users = (state.value as UserListState.Success).userItems
             UserListScreen(
                 userItems = users,
+                currentUserId = viewModel.currentUserId,
                 onBackClick = onBackClick,
                 navigateToProfile = navigateToProfile,
                 onWorkspaceInvite = onWorkspaceInvite

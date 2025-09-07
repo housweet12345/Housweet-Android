@@ -48,9 +48,10 @@ import com.housweet.presentation.ui.home.state.MoodType
 @Composable
 fun UserListScreen(
     userItems: List<UserItem>,
+    currentUserId: Int,
     onBackClick: () -> Unit = {},
     navigateToProfile: (String) -> Unit = {},
-    onWorkspaceInvite: () -> Unit = {}
+    onWorkspaceInvite: (isHost: Boolean) -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -107,7 +108,7 @@ fun UserListScreen(
             item {
                 // 하단 버튼
                 Button(
-                    onClick = onWorkspaceInvite,
+                    onClick = { onWorkspaceInvite(userItems.find { it.userId == currentUserId }?.isHost ?: false) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(40.dp)
@@ -212,6 +213,7 @@ fun UserListScreenPreview() {
 
     UserListScreen(
         userItems = mockUserItems,
+        currentUserId = -1,
         onBackClick = {},
         navigateToProfile = {},
         onWorkspaceInvite = {}

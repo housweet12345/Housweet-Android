@@ -10,6 +10,7 @@ import com.housweet.domain.local.RoomLocalDataSource
 import com.housweet.domain.model.HouseRegisterModel
 import com.housweet.domain.repository.HouseRegisterRepository
 import com.housweet.domain.repository.ImageUploadRepository
+import com.housweet.domain.usecase.GetMyRoomIdUseCase
 import com.housweet.presentation.model.Region
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -23,25 +24,45 @@ import javax.inject.Inject
 class HouseRegisterViewModel @Inject constructor(
     private val houseRegisterRepository: HouseRegisterRepository,
     private val roomLocalDataSource: RoomLocalDataSource,
-    private val imageUploadRepository: ImageUploadRepository
+    private val imageUploadRepository: ImageUploadRepository,
+    private val getMyRoomId: GetMyRoomIdUseCase,
 ) : HouseRegisterViewModelBase() {
 
     override var currentPostingId by mutableStateOf<Int?>(null)
 
+    private suspend fun ensureRoomId(): Int {
+        // 서버 최신값 → 로컬 반영
+        val live = getMyRoomId()
+        roomLocalDataSource.saveRoomId(live)
+        return live
+    }
+
     // Room ID 로깅용 함수
     override fun logRoomId() {
         viewModelScope.launch {
-            val roomId = roomLocalDataSource.getRoomId()
-            Log.d("HouseRegister", "Room ID: $roomId")
+            val local = roomLocalDataSource.getRoomId()
+            runCatching { getMyRoomId() }
+                .onSuccess { live ->
+                    Log.d("HouseRegister", "RoomId(local)=$local / RoomId(server)=$live")
+                }
+                .onFailure {
+                    Log.e("HouseRegister", "RoomId(server) fetch 실패", it)
+                }
         }
     }
 
     // Step 1: 교통/인프라 등 태그
-    override var houseTags by mutableStateOf<List<String>>(emptyList())
-        set
-    override fun updateHouseTags(tags: List<String>) {
-        houseTags = tags
-    }
+    override var trafficTags by mutableStateOf<List<String>>(emptyList())
+        protected set
+    override var sizeOfHouseTags by mutableStateOf<List<String>>(emptyList())
+        protected set
+    override var infraTags by mutableStateOf<List<String>>(emptyList())
+        protected set
+
+    override fun updateTrafficTags(tags: List<String>) { trafficTags = tags }          // 교통
+    override fun updateSizeOfHouseTags(tags: List<String>) { sizeOfHouseTags = tags } // 집 상태
+    override fun updateInfraTags(tags: List<String>) { infraTags = tags }          // 인프라
+
 
     // Step 2: 주소, 제목, 설명, 금액 등
     override var region: Region? by mutableStateOf(null)
@@ -113,11 +134,16 @@ class HouseRegisterViewModel @Inject constructor(
         }
 
     // Step 4: 선호 태그
-    override var preferredTags by mutableStateOf<List<String>>(emptyList())
-        set
-    override fun updatePreferredTags(tags: List<String>) {
-        preferredTags = tags
-    }
+    override var lifePatternTags by mutableStateOf<List<String>>(emptyList())
+        protected set
+    override var tidyingUpHabitTags by mutableStateOf<List<String>>(emptyList())
+        protected set
+    override var preferredTags by mutableStateOf<List<String>>(emptyList()) // 성격
+        protected set
+
+    override fun updateLifePatternTags(tags: List<String>) { lifePatternTags = tags }
+    override fun updateTidyingUpHabitTags(tags: List<String>) { tidyingUpHabitTags = tags }
+    override fun updatePreferredTags(tags: List<String>) { preferredTags = tags }
 
     // 등록 요청
     override fun submitHouseRegister(
@@ -126,8 +152,7 @@ class HouseRegisterViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             try {
-                val roomId = roomLocalDataSource.getRoomId()
-                    ?: throw Exception("Room ID not found")
+                val roomId = ensureRoomId()
 
                 val bitmap: Bitmap = imageBitmap ?: throw Exception("이미지 없음: 최소 한 장을 선택해주세요.")
 
@@ -146,16 +171,15 @@ class HouseRegisterViewModel @Inject constructor(
                     title = title.ifBlank { throw Exception("제목 누락") },
                     content = description.ifBlank { throw Exception("설명 누락") },
                     imageUri = url,
-//                    images = urls,
-                    trafficTags = houseTags, // 용도에 따라 분리 필요하면 분기
-                    sizeOfHouseTags = emptyList(),
-                    infraTags = emptyList(),
-                    lifePatternTags = emptyList(),
-                    tidyingUpHabitTags = emptyList(),
+                    trafficTags = trafficTags, // 용도에 따라 분리 필요하면 분기
+                    sizeOfHouseTags = sizeOfHouseTags,
+                    infraTags = infraTags,
+                    lifePatternTags = lifePatternTags,
+                    tidyingUpHabitTags = tidyingUpHabitTags,
                     personalityTags = preferredTags,
-                    rent = monthlyRent.toIntOrNull() ?: 0,
-                    deposit = deposit.toIntOrNull() ?: 0,
-                    managementFee = managementFee.toIntOrNull() ?: 0,
+                    rent = monthlyRent.toWonOrZero() ?: 0,
+                    deposit = deposit.toWonOrZero() ?: 0,
+                    managementFee = managementFee.toWonOrZero() ?: 0,
                     availableFrom = moveInDate
                 )
                 Log.d("HouseRegister", "🚀 submit 직전 title: $title")
@@ -169,6 +193,7 @@ class HouseRegisterViewModel @Inject constructor(
                 houseRegisterRepository.registerHouse(model)
                 Log.d("HouseRegister", "하우스 등록 성공: $model")
                 onSuccess()
+                resetAll()
             } catch (e: Exception) {
                 Log.e("HouseRegister", "등록 실패", e)
                 onError(e)
@@ -200,7 +225,7 @@ class HouseRegisterViewModel @Inject constructor(
         moveInDate = detail.availableFrom.orEmpty()
 
         // 태그: 서버 스키마에 맞춰 합치거나 분리
-        houseTags = (detail.trafficTags ?: emptyList()) +
+        trafficTags = (detail.trafficTags ?: emptyList()) +
                 (detail.infraTags ?: emptyList())
         preferredTags = (detail.personalityTags ?: emptyList())
 
@@ -217,7 +242,8 @@ class HouseRegisterViewModel @Inject constructor(
     override fun submitEdit(onSuccess: () -> Unit, onError: (Throwable) -> Unit) {
         viewModelScope.launch {
             try {
-                val postingId = currentPostingId ?: throw IllegalStateException("postingId 없음")
+                val postingId = currentPostingId ?: error("postingId 없음")
+                val roomId = ensureRoomId() // 서버에서 최신값 동기화
 
                 val finalUrl: String = if (imageBitmap != null) {
                     val file = convertBitmapToFile(imageBitmap!!)
@@ -227,7 +253,7 @@ class HouseRegisterViewModel @Inject constructor(
                     ?: throw Exception("편집에 사용할 이미지 URL이 없습니다.")
                 }
 
-                val model = buildModel(finalUrl)
+                val model = buildModel(roomId, finalUrl)
                 houseRegisterRepository.updateHouse(postingId, model)
 
                 onSuccess()
@@ -237,25 +263,61 @@ class HouseRegisterViewModel @Inject constructor(
         }
     }
 
-    private fun buildModel(url: String) = HouseRegisterModel(
-        room = currentPostingId ?: 0, // 서버 스펙에 맞게 조정 필요
+    private fun buildModel(roomId: Int, url: String) = HouseRegisterModel(
+        room = roomId, // 서버 스펙에 맞게 조정 필요
         si = region?.sidoCode ?: "",
         gu = region?.sigunguCode ?: "",
         dong = region?.dongCode ?: "",
         title = title,
         content = description,
-        imageUri = url,     // ✅ 배열
-//        images = urls,
-
-        trafficTags = houseTags,
+        imageUri = url,
+        trafficTags = trafficTags,
         sizeOfHouseTags = emptyList(),
         infraTags = emptyList(),
         lifePatternTags = emptyList(),
         tidyingUpHabitTags = emptyList(),
         personalityTags = preferredTags,
-        rent = monthlyRent.toIntOrNull() ?: 0,
-        deposit = deposit.toIntOrNull() ?: 0,
-        managementFee = managementFee.toIntOrNull() ?: 0,
+        rent = monthlyRent.toWonOrZero() ?: 0,
+        deposit = deposit.toWonOrZero() ?: 0,
+        managementFee = managementFee.toWonOrZero() ?: 0,
         availableFrom = moveInDate
     )
+
+    private fun String.toWonOrZero(): Int {
+        val cleaned = this.replace(",", "").trim()
+        val man = cleaned.toLongOrNull() ?: return 0
+        val won = man * 10_000L
+        // 도메인 모델이 Int이면 범위 방어
+        return when {
+            won > Int.MAX_VALUE -> Int.MAX_VALUE
+            won < Int.MIN_VALUE -> Int.MIN_VALUE
+            else -> won.toInt()
+        }
+    }
+
+    open fun resetAll() {
+        currentPostingId = null
+
+        // step1
+        trafficTags = emptyList()
+        sizeOfHouseTags = emptyList()
+        infraTags = emptyList()
+
+        // step2
+        region = null
+        title = ""
+        description = ""
+        deposit = ""
+        monthlyRent = ""
+        managementFee = ""
+        moveInDate = ""
+
+        // step3
+        clearImages() // imageBitmap/imageUrl 둘 다 null로
+
+        // step4
+        lifePatternTags = emptyList()
+        tidyingUpHabitTags = emptyList()
+        preferredTags = emptyList()
+    }
 }

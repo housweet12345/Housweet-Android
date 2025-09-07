@@ -1,6 +1,7 @@
 package com.housweet.presentation.ui.common
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,7 +32,8 @@ fun StepIndicator(currentStep: Int) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 16.dp),
+            .padding(vertical = 8.dp, horizontal = 16.dp)
+            .background(Color.White),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         steps.forEachIndexed { index, title ->

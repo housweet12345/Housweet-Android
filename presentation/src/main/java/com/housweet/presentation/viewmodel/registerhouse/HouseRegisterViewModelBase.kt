@@ -18,12 +18,16 @@ open class HouseRegisterViewModelBase : ViewModel() {
     }
 
     // Step 1
-    open var houseTags by mutableStateOf<List<String>>(emptyList())
+    open var trafficTags by mutableStateOf<List<String>>(emptyList())
+        protected set
+    open var sizeOfHouseTags by mutableStateOf<List<String>>(emptyList())
+        protected set
+    open var infraTags by mutableStateOf<List<String>>(emptyList())
         protected set
 
-    open fun updateHouseTags(tags: List<String>) {
-        houseTags = tags
-    }
+    open fun updateTrafficTags(tags: List<String>) { trafficTags = tags }          // 교통
+    open fun updateSizeOfHouseTags(tags: List<String>) { sizeOfHouseTags = tags } // 집 상태
+    open fun updateInfraTags(tags: List<String>) { infraTags = tags }          // 인프라
 
     open fun logRoomId() {}
 
@@ -73,12 +77,17 @@ open class HouseRegisterViewModelBase : ViewModel() {
     open suspend fun uploadUris(context: Context, uris: List<Uri>): String? = null
 
     // Step 4 (예정용)
-    open var preferredTags by mutableStateOf<List<String>>(emptyList())
+    open var lifePatternTags by mutableStateOf<List<String>>(emptyList())
+        protected set
+    open var tidyingUpHabitTags by mutableStateOf<List<String>>(emptyList())
+        protected set
+    open var preferredTags by mutableStateOf<List<String>>(emptyList()) // 성격
         protected set
 
-    open fun updatePreferredTags(tags: List<String>) {
-        preferredTags = tags
-    }
+    open fun updateLifePatternTags(tags: List<String>) { lifePatternTags = tags }
+    open fun updateTidyingUpHabitTags(tags: List<String>) { tidyingUpHabitTags = tags }
+    open fun updatePreferredTags(tags: List<String>) { preferredTags = tags }
+
     open fun submitHouseRegister(
         onSuccess: () -> Unit,
         onError: (Throwable) -> Unit

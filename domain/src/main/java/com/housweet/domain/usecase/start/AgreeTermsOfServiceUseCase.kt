@@ -1,12 +1,7 @@
 package com.housweet.domain.usecase.start
 
-import com.housweet.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.Flow
 
-class AgreeTermsOfServiceUseCase(
-    private val authRepository: AuthRepository
-) {
-    suspend operator fun invoke(): Flow<Result<Boolean>> {
-        return authRepository.agreeTermsOfService()
-    }
+fun interface AgreeTermsOfServiceUseCase {
+    suspend operator fun invoke(): Flow<Result<Boolean>>
 }

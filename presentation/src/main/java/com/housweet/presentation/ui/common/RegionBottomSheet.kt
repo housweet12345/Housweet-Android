@@ -28,13 +28,6 @@ fun RegionBottomSheet(
 
     fun norm(s: String?) = s?.replace("\uFEFF", "")?.trim().orEmpty()
 
-//    val districtList = selectedCity?.let { districtMap[it] } ?: emptyList()
-//    val neighborhoodList = selectedCity?.let { city ->
-//        selectedDistrict?.let { district ->
-//            neighborhoodMap[city to district]
-//        }
-//    } ?: emptyList()
-
     val districtList = selectedCity?.let { city ->
         districtMap[norm(city)] ?: emptyList()
     } ?: emptyList()
@@ -122,21 +115,6 @@ fun RegionBottomSheet(
                                         val city = norm(selectedCity)
                                         val district = norm(selectedDistrict)
 
-                                        // 이름 → 코드(Int) 매핑
-//                                        val siCode = citiesWithCodes.firstOrNull {
-//                                            norm(it["name"]) == city
-//                                        }?.let { norm(it["code"]).toIntOrNull() } ?: return@clickable
-//
-//                                        val guCode = districtsWithCodes.firstOrNull {
-//                                            norm(it["si__name"]) == city && norm(it["name"]) == district
-//                                        }?.let { norm(it["code"]).toIntOrNull() } ?: return@clickable
-//
-//                                        val dongCode = neighborhoodsWithCodes.firstOrNull {
-//                                            norm(it["si__name"]) == city &&
-//                                                    norm(it["gu__name"]) == district &&
-//                                                    norm(it["name"]) == neighborhood
-//                                        }?.let { norm(it["code"]).toLongOrNull() } ?: return@clickable
-
                                         val siCode: String = citiesWithCodes.firstOrNull {
                                             norm(it["name"]) == city
                                         }?.let { norm(it["code"]) }
@@ -168,25 +146,6 @@ fun RegionBottomSheet(
                                                 dongCode = dongCode
                                             )
                                         )
-//                                        selectedCity?.let { city ->
-//                                            selectedDistrict?.let { district ->
-//                                                onRegionSelected(
-//                                                    Region(
-//                                                        sido = city,
-//                                                        sigungu = district,
-//                                                        dong = neighborhood,
-//                                                        sidoCode = citiesWithCodes.find { it["name"] == city }?.get("code") ?: "",
-//                                                        sigunguCode = districtsWithCodes.find {
-//                                                            it["si__name"] == city && it["name"] == district
-//                                                        }?.get("code") ?: "",
-//                                                        dongCode = neighborhoodsWithCodes.find {
-//                                                            it["si__name"] == city && it["gu__name"] == district && it["name"] == neighborhood
-//                                                        }?.get("code") ?: ""
-//                                                    )
-//                                                )
-//
-//                                            }
-//                                        }
                                     }
                                     .padding(8.dp)
                             )

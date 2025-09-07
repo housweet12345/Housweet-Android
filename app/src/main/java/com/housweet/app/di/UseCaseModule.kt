@@ -1,5 +1,6 @@
 package com.housweet.app.di
 
+import com.housweet.data.local.AuthLocalDataSource
 import com.housweet.data.network.KtorService
 import com.housweet.data.repository.FakeUserRepositoryImpl
 import com.housweet.data.repository.RoomRepositoryImpl
@@ -7,21 +8,24 @@ import com.housweet.data.repository.UserRepositoryImpl
 import com.housweet.domain.repository.AccessRoomRepository
 import com.housweet.domain.repository.AuthRepository
 import com.housweet.domain.repository.CommunityRepository
+import com.housweet.domain.repository.ReportRepository
 import com.housweet.domain.repository.RoomRepository
 import com.housweet.domain.repository.UserRepository
+import com.housweet.domain.usecase.DeleteAccountUseCase
 import com.housweet.domain.usecase.GetBookmarkedPostingsUseCase
 import com.housweet.domain.usecase.LogoutUseCase
-import com.housweet.domain.usecase.UseCases
+import com.housweet.domain.usecase.ReportUseCase
 import com.housweet.domain.usecase.auth.GetCurrentUserIdUseCase
 import com.housweet.domain.usecase.community.ClickBookMarkUseCase
 import com.housweet.domain.usecase.community.GetNearbyPostCountUseCase
 import com.housweet.domain.usecase.community.GetRoomPostDetailUseCase
-import com.housweet.domain.usecase.community.GetRoomPostsByLocationUsaCase
+import com.housweet.domain.usecase.community.GetRoomPostsByLocationUseCase
 import com.housweet.domain.usecase.community.ReportRoomPostUseCase
 import com.housweet.domain.usecase.community.UnClickBookMarkUseCase
 import com.housweet.domain.usecase.home.GetRoomHomeUseCase
 import com.housweet.domain.usecase.home.GetRoomMembersUseCase
 import com.housweet.domain.usecase.home.UpdateMoodUseCase
+import com.housweet.domain.usecase.profile.BlockUserUseCase
 import com.housweet.domain.usecase.profile.GetMyProfileUseCase
 import com.housweet.domain.usecase.profile.GetOtherUserProfileUseCase
 import com.housweet.domain.usecase.profile.UpdateProfileUseCase
@@ -32,7 +36,6 @@ import com.housweet.domain.usecase.start.CreateRoomUseCase
 import com.housweet.domain.usecase.start.IsBelongToRoomUseCase
 import com.housweet.domain.usecase.start.IsSetProfileUseCase
 import com.housweet.domain.usecase.start.IsTermsOfServiceAgreedUseCase
-import com.housweet.domain.usecase.start.LoginWithKakaoUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -43,43 +46,18 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object UseCaseModule {
 
-    @Provides
-    @Singleton
-    fun provideUseCase(
-        authRepository: AuthRepository,
-        accessRoomRepository: AccessRoomRepository,
-        communityRepository: CommunityRepository
-    ): UseCases {
-        return UseCases(
-            loginWithKakaoUseCase = LoginWithKakaoUseCase(authRepository),
-            logoutUseCase = LogoutUseCase(authRepository),
-            checkLoginUseCase = CheckLoginUseCase(authRepository),
-            createRoomUseCase = CreateRoomUseCase(accessRoomRepository),
-            getNearbyPostCountUseCase = GetNearbyPostCountUseCase(communityRepository),
-            getRoomPostsByLocationUsaCase = GetRoomPostsByLocationUsaCase(communityRepository),
-            clickBookMarkUseCase = ClickBookMarkUseCase(communityRepository),
-            unClickBookMarkUseCase = UnClickBookMarkUseCase(communityRepository),
-            getRoomPostDetailUseCase = GetRoomPostDetailUseCase(communityRepository),
-            accessRoomWithInviteCodeUseCase = AccessRoomWithInviteCodeUseCase(accessRoomRepository),
-            agreeTermsOfServiceUseCase = AgreeTermsOfServiceUseCase(authRepository),
-            isTermsOfServiceAgreedUseCase = IsTermsOfServiceAgreedUseCase(authRepository),
-            isSetProfileUseCase = IsSetProfileUseCase(authRepository),
-            isBelongToRoomUseCase = IsBelongToRoomUseCase(authRepository),
-            reportRoomPostUseCase = ReportRoomPostUseCase(communityRepository),
-            getBookmarkedPostingsUseCase = GetBookmarkedPostingsUseCase(communityRepository),
-        )
-    }
 
     @Provides
     @Singleton
     fun provideUserRepository(
-        ktorService: KtorService
+        ktorService: KtorService,
+        authLocalDataSource: AuthLocalDataSource,
     ): UserRepository {
         val isFake = false
         return if (isFake) {
             FakeUserRepositoryImpl()
         } else {
-            UserRepositoryImpl(ktorService)
+            UserRepositoryImpl(ktorService, authLocalDataSource)
         }
     }
 
@@ -119,11 +97,98 @@ object UseCaseModule {
     @Provides
     fun provideGetCurrentUserIdUseCase(
         repository: AuthRepository
-    ): GetCurrentUserIdUseCase = GetCurrentUserIdUseCase(repository)
+    ): GetCurrentUserIdUseCase = GetCurrentUserIdUseCase(repository::getCurrentUserId)
 
     @Provides
     fun provideUpdateMoodUseCase(
         repository: RoomRepository
-    ): UpdateMoodUseCase = UpdateMoodUseCase(repository)
+    ): UpdateMoodUseCase = UpdateMoodUseCase(repository::updateMood)
+
+    @Provides
+    fun provideBlockUserUseCase(
+        repository: UserRepository
+    ): BlockUserUseCase = BlockUserUseCase(repository::blockUser)
+
+    @Provides
+    fun provideLogoutUseCase(
+        repository: AuthRepository
+    ): LogoutUseCase = LogoutUseCase(repository::logout)
+
+    @Provides
+    fun provideReportUseCase(
+        repository: ReportRepository
+    ): ReportUseCase = ReportUseCase(repository::report)
+
+    @Provides
+    fun provideDeleteAccountUseCase(
+        repository: AuthRepository
+    ): DeleteAccountUseCase = DeleteAccountUseCase(repository::deleteAccount)
+
+    @Provides
+    fun provideCheckLoginUseCase(
+        repository: AuthRepository
+    ): CheckLoginUseCase = CheckLoginUseCase(repository::checkLogin)
+
+    @Provides
+    fun provideAgreeTermsOfServiceUseCase(
+        repository: AuthRepository
+    ): AgreeTermsOfServiceUseCase = AgreeTermsOfServiceUseCase(repository::agreeTermsOfService)
+
+    @Provides
+    fun provideIsTermsOfServiceAgreedUseCase(
+        repository: AuthRepository
+    ): IsTermsOfServiceAgreedUseCase = IsTermsOfServiceAgreedUseCase(repository::isTermsOfServiceAgreed)
+
+    @Provides
+    fun provideIsSetProfileUseCase(
+        repository: AuthRepository
+    ): IsSetProfileUseCase = IsSetProfileUseCase(repository::isSetProfile)
+
+    @Provides
+    fun provideIsBelongToRoomUseCase(
+        repository: AuthRepository
+    ): IsBelongToRoomUseCase = IsBelongToRoomUseCase(repository::isBelongToRoom)
+
+    @Provides
+    fun provideCreateRoomUseCase(
+        repository: AccessRoomRepository
+    ): CreateRoomUseCase = CreateRoomUseCase(repository::createRoom)
+
+    @Provides
+    fun provideAccessRoomWithInviteCodeUseCase(
+        repository: AccessRoomRepository
+    ): AccessRoomWithInviteCodeUseCase = AccessRoomWithInviteCodeUseCase(repository::accessRoomWithInviteCode)
+
+    // Community UseCases
+    @Provides
+    fun provideClickBookMarkUseCase(
+        repository: CommunityRepository
+    ): ClickBookMarkUseCase = ClickBookMarkUseCase(repository::clickBookMark)
+
+    @Provides
+    fun provideUnClickBookMarkUseCase(
+        repository: CommunityRepository
+    ): UnClickBookMarkUseCase = UnClickBookMarkUseCase(repository::unClickBookMark)
+
+    @Provides
+    fun provideGetNearbyPostCountUseCase(
+        repository: CommunityRepository
+    ): GetNearbyPostCountUseCase = GetNearbyPostCountUseCase(repository::getNearbyPostCount)
+
+    @Provides
+    fun provideGetRoomPostDetailUseCase(
+        repository: CommunityRepository
+    ): GetRoomPostDetailUseCase = GetRoomPostDetailUseCase(repository::getRoomPostDetail)
+
+    @Provides
+    fun provideGetRoomPostsByLocationUseCase(
+        repository: CommunityRepository
+    ): GetRoomPostsByLocationUseCase = GetRoomPostsByLocationUseCase(repository::getRoomPostsByLocation)
+
+    @Provides
+    fun provideReportRoomPostUseCase(
+        repository: CommunityRepository
+    ): ReportRoomPostUseCase = ReportRoomPostUseCase(repository::reportRoomPost)
+
 
 }

@@ -24,7 +24,7 @@ sealed interface Route {
 
         sealed interface AccessRoomRoute : StartPageRoute {
             @Serializable
-            data object AccessRoom : AccessRoomRoute
+            data class AccessRoom(val isAfterDelete: Boolean = false) : AccessRoomRoute
 
             @Serializable
             data object CreateRoom : AccessRoomRoute
@@ -36,17 +36,20 @@ sealed interface Route {
 
     sealed interface CommunityPageRoute: Route {
         @Serializable
-        data class Map(val coordinate: Coordinate? = null) : CommunityPageRoute
+        data class Map(val coordinate: Coordinate? = null, val userRoomStateNum: Int? = null) : CommunityPageRoute
 
         @Serializable
         data object SearchRegion : CommunityPageRoute
 
+        @Serializable
+        data object GuideToCreateRoom : CommunityPageRoute
+
         sealed interface PostRoute : CommunityPageRoute {
             @Serializable
-            data class DetailPost(val postId: Int? = null) : PostRoute
+            data class DetailPost(val postId: Int? = null, val lastRegion: String? = null, val blockedUserId: Int? = null) : PostRoute
 
             @Serializable
-            data class Posts(val postRegions: String? = null): PostRoute
+            data class Posts(val postRegions: String? = null, val updatePostId: Int? = null, val blockedUserId: Int? = null): PostRoute
         }
     }
 
