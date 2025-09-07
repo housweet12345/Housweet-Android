@@ -2,10 +2,9 @@ package com.housweet.data.repository
 
 import android.util.Log
 import com.housweet.data.local.AuthLocalDataSource
-import com.housweet.data.network.AuthRemoteDataSource
-import com.housweet.data.network.RoomRepository
-import com.housweet.data.network.dto.LoginResponseDto
-import com.housweet.data.network.dto.toAuthToken
+import com.housweet.data.datasource.AuthRemoteDataSource
+import com.housweet.data.response.LoginResponse
+import com.housweet.data.response.toAuthToken
 import com.housweet.data.utils.NetworkConnectionManager
 import com.housweet.data.utils.NoInternetException
 import com.housweet.data.utils.TokenUtils
@@ -37,7 +36,7 @@ class AuthRepositoryImpl @Inject constructor(
                 accessToken = accessToken,
                 email = email
             )
-            val responseBody = response.body<LoginResponseDto>()
+            val responseBody = response.body<LoginResponse>()
 
             val authToken = responseBody.toAuthToken()
             Log.d("TokenCheck", "Housweet accessToken: ${authToken.accessToken}")

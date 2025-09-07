@@ -1,6 +1,6 @@
 package com.housweet.data.repository
 
-import com.housweet.data.network.MyHouseRemoteDataSource
+import com.housweet.data.datasource.MyHouseRemoteDataSource
 import com.housweet.domain.model.MyHouse
 import com.housweet.domain.repository.MyHouseRepository
 import javax.inject.Inject

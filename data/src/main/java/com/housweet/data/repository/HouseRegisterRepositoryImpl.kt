@@ -1,9 +1,9 @@
 package com.housweet.data.repository
 
-import com.housweet.data.model.request.RegisterHouseRequest
-import com.housweet.data.network.HouseRegisterRemoteDataSource
-import com.housweet.data.network.dto.UpdateHouseRequest
-import com.housweet.data.network.dto.toDomain
+import com.housweet.data.request.RegisterHouseRequest
+import com.housweet.data.datasource.HouseRegisterRemoteDataSource
+import com.housweet.data.request.UpdateHouseRequest
+import com.housweet.data.response.toDomain
 import com.housweet.domain.model.HouseRegisterModel
 import com.housweet.domain.model.RoomPostingDetail
 import com.housweet.domain.repository.HouseRegisterRepository

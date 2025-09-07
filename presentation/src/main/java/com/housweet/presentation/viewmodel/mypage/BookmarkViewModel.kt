@@ -2,7 +2,8 @@ package com.housweet.presentation.viewmodel.mypage
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.housweet.domain.usecase.UseCases
+import com.housweet.domain.usecase.GetBookmarkedPostingsUseCase
+import com.housweet.domain.usecase.community.UnClickBookMarkUseCase
 import com.housweet.presentation.ui.mypage.BookmarkUiItem
 import com.housweet.presentation.ui.mypage.toUi
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,7 +15,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BookmarkViewModel @Inject constructor(
-    private val useCases: UseCases
+    private val getBookmarkedPostingsUseCase: GetBookmarkedPostingsUseCase,
+    private val unClickBookMarkUseCase: UnClickBookMarkUseCase
 ) : ViewModel() {
 
     private val _bookmarks = MutableStateFlow<List<BookmarkUiItem>>(emptyList())
@@ -26,7 +28,7 @@ class BookmarkViewModel @Inject constructor(
     fun load() {
         viewModelScope.launch {
             _isLoading.value = true
-            useCases.getBookmarkedPostingsUseCase().collect { result ->
+            getBookmarkedPostingsUseCase().collect { result ->
                 result.onSuccess { domainList ->
                     _bookmarks.value = domainList.map { it.toUi() }
                 }.onFailure {
@@ -47,7 +49,7 @@ class BookmarkViewModel @Inject constructor(
         _bookmarks.value = current
 
         viewModelScope.launch {
-            useCases.unClickBookMarkUseCase(item.id).collect { r ->
+            unClickBookMarkUseCase(item.id).collect { r ->
                 r.onFailure {
                     // 롤백
                     val rollback = _bookmarks.value.toMutableList()
