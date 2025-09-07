@@ -189,13 +189,19 @@ fun MyPageScreen(
 
                     is ProfileInfoState.Success -> {
                         lastProfile = s.profileInfo                 // ✅ 직전 성공값 캐시
-                        ProfileHeaderContent(s.profileInfo)
+                        ProfileHeaderContent(
+                            profileInfo = s.profileInfo,
+                            onClick = { navController.navigate("profile/me") }
+                        )
                     }
 
                     is ProfileInfoState.EditSuccess -> {            // ✅ 이 상태엔 profileInfo 없음
                         LaunchedEffect(s) { viewModel.loadProfile("me") } // 수정 후 최신 정보 재로딩
                         lastProfile?.let {                          // 캐시가 있으면 임시로 보여주기
-                            ProfileHeaderContent(it)
+                            ProfileHeaderContent(
+                                profileInfo = it,
+                                onClick = { navController.navigate("profile/me") } // 캐시 표시 중에도 허용 가능
+                            )
                         } ?: run {
                             Column {
                                 Text("업데이트 완료", fontSize = 14.sp, fontWeight = FontWeight.Bold)
@@ -382,26 +388,35 @@ fun MyPageScreenPreview() {
 }
 
 @Composable
-private fun ProfileHeaderContent(profileInfo: ProfileInfo) {
-
-    AsyncImage(
-        model = ImageRequest.Builder(LocalContext.current)
-            .data(profileInfo.profileImageUrl)
-            .error(R.drawable.default_profile_img)// ✅ 서버에서 내려오는 profile_image
-            .build(),
-        contentDescription = "방 이미지",
+private fun ProfileHeaderContent(
+    profileInfo: ProfileInfo,
+    onClick: (() -> Unit)? = null
+) {
+    Row(
         modifier = Modifier
-            .size(58.dp)
-            .clip(shape = CircleShape),
-        contentScale = ContentScale.Crop      // 이미지 꽉 차게
-    )
-    Spacer(modifier = Modifier.width(16.dp))
-    Column {
-        Text(text = profileInfo.nickname, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-        Text(
-            text = "${profileInfo.age} ${profileInfo.gender}",
-            fontSize = 12.sp,
-            color = Color.Gray
+            .fillMaxWidth()
+            .clickable(enabled = onClick != null) { onClick?.invoke() },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(profileInfo.profileImageUrl)
+                .error(R.drawable.default_profile_img)// ✅ 서버에서 내려오는 profile_image
+                .build(),
+            contentDescription = "방 이미지",
+            modifier = Modifier
+                .size(58.dp)
+                .clip(shape = CircleShape),
+            contentScale = ContentScale.Crop      // 이미지 꽉 차게
         )
+        Spacer(modifier = Modifier.width(16.dp))
+        Column {
+            Text(text = profileInfo.nickname, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+            Text(
+                text = "${profileInfo.age} ${profileInfo.gender}",
+                fontSize = 12.sp,
+                color = Color.Gray
+            )
+        }
     }
 }

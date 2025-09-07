@@ -43,7 +43,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -135,6 +134,7 @@ fun DetailPostScreen(
                 lastRegion = detailPostViewModel.lastRegion,
                 snackBarHostState = snackBarHostState,
                 isMenuExpanded = isMenuExpanded,
+                currentUserId = detailPostViewModel.currentUserId,
                 onChatScreen = onChatScreen,
                 onProfileScreen = onProfileScreen,
                 onBackBtnClick = {
@@ -170,6 +170,7 @@ private fun DetailPostContent(
     lastRegion: String,
     snackBarHostState: SnackbarHostState,
     isMenuExpanded: Boolean,
+    currentUserId: Int?,
     onChatScreen: (userId: Int, nickName: String) -> Unit,
     onProfileScreen: (userId: Int) -> Unit,
     onBackBtnClick: () -> Unit,
@@ -200,6 +201,7 @@ private fun DetailPostContent(
             BottomBar(
                 roomPostDetail = roomPostDetail,
                 lastRegion = lastRegion,
+                currentUserId = currentUserId,
                 onChatScreen = onChatScreen
             )
         },
@@ -562,6 +564,7 @@ private fun FeatureBox(
 private fun BottomBar(
     roomPostDetail: RoomPostDetailDataModel,
     lastRegion: String,
+    currentUserId: Int?,
     onChatScreen: (userId: Int, nickName: String) -> Unit
 ) {
     Box(
@@ -607,25 +610,32 @@ private fun BottomBar(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            Button(
-                onClick = { if (roomPostDetail.userId != -1) onChatScreen(roomPostDetail.userId, roomPostDetail.nickName) },
-                modifier = Modifier
-                    .width(68.dp)
-                    .height(30.dp),
-                shape = RoundedCornerShape(6.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Purple
-                ),
-                contentPadding = PaddingValues(0.dp)
-            ) {
-                GuideText(
-                    color = White,
-                    text = "채팅하기",
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 12.sp,
-                    lineHeight = 12.sp,
-                    textAlign = TextAlign.Center
-                )
+            if (roomPostDetail.userId != currentUserId) {
+                Button(
+                    onClick = {
+                        if (roomPostDetail.userId != -1) onChatScreen(
+                            roomPostDetail.userId,
+                            roomPostDetail.nickName
+                        )
+                    },
+                    modifier = Modifier
+                        .width(68.dp)
+                        .height(30.dp),
+                    shape = RoundedCornerShape(6.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Purple
+                    ),
+                    contentPadding = PaddingValues(0.dp)
+                ) {
+                    GuideText(
+                        color = White,
+                        text = "채팅하기",
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 12.sp,
+                        lineHeight = 12.sp,
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
         }
     }
@@ -665,6 +675,7 @@ private fun DetailPostScreenPreview() {
         lastRegion = "",
         snackBarHostState = remember { SnackbarHostState() },
         isMenuExpanded = isMenuExpanded,
+        currentUserId = -1,
         onChatScreen = { _, _ -> },
         onProfileScreen = {},
         onBackBtnClick = {},

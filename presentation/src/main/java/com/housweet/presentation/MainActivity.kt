@@ -1,11 +1,16 @@
 package com.housweet.presentation
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Base64
+import android.view.WindowInsetsController
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -18,6 +23,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -35,7 +42,10 @@ import com.housweet.presentation.ui.chat.ChatScreen
 import com.housweet.presentation.ui.chatlist.ChatListScreen
 import com.housweet.presentation.ui.common.ComingSoonScreen
 import com.housweet.presentation.ui.common.LoadingScreen
+import com.housweet.presentation.ui.communityPage.GuideToCreateRoomScreen
 import com.housweet.presentation.ui.communityPage.mapScreen.MapScreen
+import com.housweet.presentation.ui.communityPage.mapScreen.MapUiState
+import com.housweet.presentation.ui.communityPage.mapScreen.UserRoomState
 import com.housweet.presentation.ui.communityPage.postScreen.detailPostScreen.DetailPostScreen
 import com.housweet.presentation.ui.communityPage.postScreen.postsScreen.PostsScreen
 import com.housweet.presentation.ui.communityPage.searchRegionScreen.SearchRegionScreen
@@ -75,6 +85,8 @@ import com.housweet.presentation.ui.startPage.loginPage.WelcomeScreen
 import com.housweet.presentation.ui.startPage.loginPage.loginScreen.LoginScreen
 import com.housweet.presentation.ui.startPage.loginPage.termsOfServicePage.TermsOfServiceScreen
 import com.housweet.presentation.ui.startPage.splashPage.SplashScreen
+import com.housweet.presentation.ui.theme.Black
+import com.housweet.presentation.ui.theme.White
 import com.housweet.presentation.ui.userlist.route.UserListRoute
 import com.housweet.presentation.viewmodel.chatlist.ChatListViewModel
 import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModel
@@ -91,6 +103,10 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        enableEdgeToEdge()
+        WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = true
+
 
         val isFailedRefreshToken = intent.getBooleanExtra("isFailedRefreshToken", false)
         val isLogout = intent.getBooleanExtra("isLogout", false)
@@ -128,7 +144,9 @@ class MainActivity : ComponentActivity() {
             }
 
             Scaffold(
-                snackbarHost = { SnackbarHost(hostState = snackBarHostState) }
+                modifier = Modifier.fillMaxSize(),
+                snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
+                containerColor = Color.White
             ) { paddingValues ->
                 NavHost(
                     navController = navController,
@@ -138,7 +156,9 @@ class MainActivity : ComponentActivity() {
                     // startDestination = Route.StartPageRoute.LoginRoute.Login,
 //                     startDestination = Route.StartPageRoute.LoginRoute.Login,
 //                    startDestination= "mypage",
-                    modifier = Modifier.padding(top = paddingValues.calculateTopPadding())
+                    modifier = Modifier.padding(top = paddingValues.calculateTopPadding()),
+                    enterTransition = { EnterTransition.None },
+                    exitTransition = { ExitTransition.None }
                 ) {
                     composable<Route.StartPageRoute.Splash> {
                         SplashScreen(
@@ -325,7 +345,7 @@ class MainActivity : ComponentActivity() {
                             },
                             onFindRoomMateScreen = {
                                 navigationManager.navigateTo(
-                                    Route.CommunityPageRoute.Map()
+                                    Route.CommunityPageRoute.Map(userRoomStateNum = 0)
                                 )
                             },
                             onCreateRoomScreen = {
@@ -343,33 +363,44 @@ class MainActivity : ComponentActivity() {
 
                     composable<Route.StartPageRoute.AccessRoomRoute.CreateRoom> {
                         CreateRoomScreen(
-                            modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
-                        ){
-                            navigationManager.navigateOneWay(
-                                Route.StartPageRoute.AccessRoomRoute.AccessRoom,
-                                BottomNavItem.Home.route
-                            )
-                        }
+                            modifier = Modifier,
+                            onBackBtnClick = {
+                                navController.popBackStack()
+                            },
+                            onSuccessCreateRoom = {
+                                navigationManager.navigateOneWay(
+                                    Route.StartPageRoute.AccessRoomRoute.AccessRoom,
+                                    BottomNavItem.Home.route
+                                )
+                            }
+                        )
                     }
 
                     composable<Route.StartPageRoute.AccessRoomRoute.SearchRoom> {
                         SearchRoomScreen(
-                            modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
-                        ){
-                            navigationManager.navigateOneWay(
-                                Route.StartPageRoute.AccessRoomRoute.AccessRoom,
-                                BottomNavItem.Home.route
-                            )
-                        }
+                            modifier = Modifier,
+                            onBackBtnClick = {
+                                navController.popBackStack()
+                            },
+                            onSuccessSearchRoom = {
+                                navigationManager.navigateOneWay(
+                                    Route.StartPageRoute.AccessRoomRoute.AccessRoom,
+                                    BottomNavItem.Home.route
+                                )
+                            }
+                        )
                     }
 
                     composable<Route.CommunityPageRoute.Map>(
                         typeMap = mapOf(typeOf<Coordinate?>() to CoordinateType)
                     ) {
                         val coordinate = it.toRoute<Route.CommunityPageRoute.Map>().coordinate
+                        val userRoomStateNum = it.toRoute<Route.CommunityPageRoute.Map>().userRoomStateNum
+
                         MapScreen(
                             modifier = Modifier,
                             searchRegion = coordinate,
+                            userRoomStateNum = userRoomStateNum,
                             onMarkerClick = { postRegion ->
                                 navigationManager.navigateTo(Route.CommunityPageRoute.PostRoute.Posts(postRegion))
                             },
@@ -379,7 +410,12 @@ class MainActivity : ComponentActivity() {
                             onSearchBtnClick = {
                                 navigationManager.navigateTo(Route.CommunityPageRoute.SearchRegion)
                             },
-                            onWritePostBtnClick = {
+                            onWritePostBtnClick = { isNotBelongToRoom ->
+                                if (isNotBelongToRoom) {
+                                    navigationManager.navigateTo(Route.CommunityPageRoute.GuideToCreateRoom)
+                                    return@MapScreen
+                                }
+
                                 navigationManager.navigateTo(Route.HouseRegisterRoute.Step1(mode = RegisterModel.CREATE))
                             },
                             onChatClick = {
@@ -390,6 +426,23 @@ class MainActivity : ComponentActivity() {
                             },
                             onMyPageClick = {
                                 navigationManager.navigateTo("mypage")
+                            },
+                            onHouseClick = {
+                                navController.popBackStack()
+                            }
+                        )
+                    }
+
+                    composable<Route.CommunityPageRoute.GuideToCreateRoom> {
+                        GuideToCreateRoomScreen(
+                            onGuideClick = {
+                                navigationManager.navigateTo(Route.StartPageRoute.AccessRoomRoute.CreateRoom)
+                            },
+                            onBackBtnClick = {
+                                navigationManager.navigateOneWay(
+                                    Route.CommunityPageRoute.GuideToCreateRoom,
+                                    Route.CommunityPageRoute.Map()
+                                )
                             }
                         )
                     }
@@ -415,6 +468,7 @@ class MainActivity : ComponentActivity() {
                         val postRegions = it.toRoute<Route.CommunityPageRoute.PostRoute.Posts>().postRegions
                         val updatePostId = it.toRoute<Route.CommunityPageRoute.PostRoute.Posts>().updatePostId
                         val blockedUserId = it.toRoute<Route.CommunityPageRoute.PostRoute.Posts>().blockedUserId
+
                         PostsScreen(
                             updatePostId = updatePostId,
                             blockedUserId = blockedUserId,
@@ -472,6 +526,12 @@ class MainActivity : ComponentActivity() {
                             },
                             onProfileScreen = { userId -> navigationManager.navigateTo("profile/$userId") },
                             onBackBtnClick = { isBookmarkChanged ->
+                                val previousRoute = navController.previousBackStackEntry?.destination?.route
+                                if (previousRoute?.contains("bookmark") == true) {
+                                    navController.popBackStack()
+                                    return@DetailPostScreen
+                                }
+
                                 if (isBookmarkChanged) {
                                     navigationManager.navigateOneWay(
                                         Route.CommunityPageRoute.PostRoute.DetailPost(postId, lastRegion, blockedUserId),
@@ -964,7 +1024,10 @@ class MainActivity : ComponentActivity() {
                         UserListRoute(
                             onBackClick = { navController.popBackStack() },
                             navigateToProfile = { navController.navigate("profile/$it") },
-                            onWorkspaceInvite = { navController.navigate(Route.CommunityPageRoute.Map()) }
+                            onWorkspaceInvite = { isHost ->
+                                navController.navigate(Route.CommunityPageRoute.Map(userRoomStateNum = 1)
+                                )
+                            }
                         )
                     }
                 }

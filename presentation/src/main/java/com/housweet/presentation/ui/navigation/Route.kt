@@ -36,10 +36,13 @@ sealed interface Route {
 
     sealed interface CommunityPageRoute: Route {
         @Serializable
-        data class Map(val coordinate: Coordinate? = null) : CommunityPageRoute
+        data class Map(val coordinate: Coordinate? = null, val userRoomStateNum: Int? = null) : CommunityPageRoute
 
         @Serializable
         data object SearchRegion : CommunityPageRoute
+
+        @Serializable
+        data object GuideToCreateRoom : CommunityPageRoute
 
         sealed interface PostRoute : CommunityPageRoute {
             @Serializable
