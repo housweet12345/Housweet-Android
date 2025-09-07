@@ -661,7 +661,7 @@ fun getRelativeTime(dateTimeString: String): String {
 }
 
 fun getRelativeMoney(money: Int): Int {
-    return if (money >=10000) money / 10000
+    return if (money >= 10000) money / 10000
     else money
 }
 

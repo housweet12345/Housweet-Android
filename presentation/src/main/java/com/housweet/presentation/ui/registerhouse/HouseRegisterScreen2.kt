@@ -487,7 +487,7 @@ private fun RegisterCostTextField(
     modifier: Modifier,
     text: String,
     height: Dp,
-    textLength: Int = 10,
+    textLength: Int = 4,
     textColor: Color = Black,
     singleLine: Boolean = true,
     onValueChange: (String) -> Unit
