@@ -104,6 +104,7 @@ fun HomeScreen(
                         IconButton(onClick = onChatClick) {
                             Icon(
                                 painter = painterResource(R.drawable.ic_navigate_chat),
+                                modifier = Modifier.size(30.dp),
                                 contentDescription = "채팅"
                             )
                         }
@@ -111,12 +112,14 @@ fun HomeScreen(
                     IconButton(onClick = onNotificationClick) {
                         Icon(
                             painter = painterResource(R.drawable.ic_navigate_notification),
+                            modifier = Modifier.size(30.dp),
                             contentDescription = "알림"
                         )
                     }
                     IconButton(onClick = onMyPageClick) {
                         Icon(
                             painter = painterResource(R.drawable.ic_navigate_profile),
+                            modifier = Modifier.size(30.dp),
                             contentDescription = "프로필"
                         )
                     }
