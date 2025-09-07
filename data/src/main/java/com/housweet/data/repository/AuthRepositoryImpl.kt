@@ -9,7 +9,7 @@ import com.housweet.data.utils.NetworkConnectionManager
 import com.housweet.data.utils.NoInternetException
 import com.housweet.data.utils.TokenUtils
 import com.housweet.domain.local.RoomLocalDataSource
-import com.housweet.domain.model.AuthToken
+import com.housweet.domain.model.start.AuthToken
 import com.housweet.domain.repository.AuthRepository
 import io.ktor.client.call.body
 import kotlinx.coroutines.flow.Flow

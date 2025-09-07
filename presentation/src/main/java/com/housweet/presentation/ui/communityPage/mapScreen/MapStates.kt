@@ -2,7 +2,7 @@ package com.housweet.presentation.ui.communityPage.mapScreen
 
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.snapshots.SnapshotStateMap
-import com.housweet.domain.model.NearByPostCountDataModel
+import com.housweet.domain.model.community.NearByPostCountDataModel
 import com.naver.maps.map.compose.MarkerState
 
 @Stable

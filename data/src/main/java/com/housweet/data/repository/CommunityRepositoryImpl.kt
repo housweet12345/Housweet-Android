@@ -5,10 +5,10 @@ import com.housweet.data.response.toRoomPostDetailDataModel
 import com.housweet.data.response.toNearByPostCountDataModel
 import com.housweet.data.response.toDomain
 import com.housweet.data.response.toRoomPostsByLocationDataModel
-import com.housweet.domain.model.RoomPostDetailDataModel
-import com.housweet.domain.model.NearByPostCountDataModel
+import com.housweet.domain.model.community.RoomPostDetailDataModel
+import com.housweet.domain.model.community.NearByPostCountDataModel
 import com.housweet.domain.model.BookmarkItem
-import com.housweet.domain.model.RoomPostsByLocationDataModel
+import com.housweet.domain.model.community.RoomPostsByLocationDataModel
 import com.housweet.domain.repository.CommunityRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow

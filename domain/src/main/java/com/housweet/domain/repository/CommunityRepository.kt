@@ -1,9 +1,9 @@
 package com.housweet.domain.repository
 
-import com.housweet.domain.model.NearByPostCountDataModel
-import com.housweet.domain.model.RoomPostDetailDataModel
+import com.housweet.domain.model.community.NearByPostCountDataModel
+import com.housweet.domain.model.community.RoomPostDetailDataModel
 import com.housweet.domain.model.BookmarkItem
-import com.housweet.domain.model.RoomPostsByLocationDataModel
+import com.housweet.domain.model.community.RoomPostsByLocationDataModel
 import kotlinx.coroutines.flow.Flow
 
 interface CommunityRepository {

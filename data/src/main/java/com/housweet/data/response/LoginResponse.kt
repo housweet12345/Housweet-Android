@@ -1,6 +1,6 @@
 package com.housweet.data.response
 
-import com.housweet.domain.model.AuthToken
+import com.housweet.domain.model.start.AuthToken
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

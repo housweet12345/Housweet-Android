@@ -3,7 +3,7 @@ package com.housweet.presentation.ui.communityPage.mapScreen
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.housweet.domain.model.NearByPostCountDataModel
+import com.housweet.domain.model.community.NearByPostCountDataModel
 import com.housweet.domain.usecase.community.GetNearbyPostCountUseCase
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.compose.MarkerState

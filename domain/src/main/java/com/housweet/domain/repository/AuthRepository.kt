@@ -1,6 +1,6 @@
 package com.housweet.domain.repository
 
-import com.housweet.domain.model.AuthToken
+import com.housweet.domain.model.start.AuthToken
 import kotlinx.coroutines.flow.Flow
 
 interface AuthRepository {

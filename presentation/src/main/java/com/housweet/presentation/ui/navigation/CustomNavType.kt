@@ -3,7 +3,7 @@ package com.housweet.presentation.ui.navigation
 import android.net.Uri
 import android.os.Bundle
 import androidx.navigation.NavType
-import com.housweet.domain.model.Coordinate
+import com.housweet.domain.model.community.Coordinate
 import kotlinx.serialization.json.Json
 
 val CoordinateType = object : NavType<Coordinate?>(isNullableAllowed = true) {

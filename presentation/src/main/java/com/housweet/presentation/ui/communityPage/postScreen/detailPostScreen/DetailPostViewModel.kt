@@ -3,7 +3,7 @@ package com.housweet.presentation.ui.communityPage.postScreen.detailPostScreen
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.housweet.domain.model.RoomPostDetailDataModel
+import com.housweet.domain.model.community.RoomPostDetailDataModel
 import com.housweet.domain.usecase.auth.GetCurrentUserIdUseCase
 import com.housweet.domain.usecase.community.ClickBookMarkUseCase
 import com.housweet.domain.usecase.community.GetRoomPostDetailUseCase
