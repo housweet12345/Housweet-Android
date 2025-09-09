@@ -29,6 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.housweet.presentation.ui.common.TopBar
 import com.housweet.presentation.viewmodel.mypage.BookmarkViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -66,29 +67,9 @@ private fun BookmarkContent(
             .fillMaxSize()
             .background(Color.White)
     ) {
-        CenterAlignedTopAppBar(
-            windowInsets = WindowInsets(
-                top = 0.dp,
-                bottom = 0.dp
-            ),
-            title = {
-                androidx.compose.material.Text(
-                    text = "북마크",
-                    fontSize = 14.sp
-                )
-            },
-            navigationIcon = {
-                Icon(
-                    painter = painterResource(id = R.drawable.back_black),
-                    contentDescription = "뒤로가기",
-                    modifier = Modifier
-                        .padding(start = 16.dp)
-                        .clickable { onBack() }
-                )
-            },
-            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                containerColor = Color.White
-            )
+        TopBar(
+            text = "북마크",
+            onBackBtnClick = onBack
         )
 
         if (isLoading) {

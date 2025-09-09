@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.housweet.domain.model.community.RoomPostsByLocationDataModel
+import com.housweet.domain.usecase.auth.GetCurrentUserIdUseCase
 import com.housweet.domain.usecase.community.ClickBookMarkUseCase
 import com.housweet.domain.usecase.community.GetRoomPostsByLocationUseCase
 import com.housweet.domain.usecase.community.UnClickBookMarkUseCase
@@ -22,6 +23,7 @@ class PostsViewModel @Inject constructor(
     private val getRoomPostsByLocationUseCase: GetRoomPostsByLocationUseCase,
     private val clickBookMarkUseCase: ClickBookMarkUseCase,
     private val unClickBookMarkUseCase: UnClickBookMarkUseCase,
+    private val getCurrentUserIdUseCase: GetCurrentUserIdUseCase,
     savedStateHandle: SavedStateHandle
 ): ViewModel() {
     private val _uiState = MutableStateFlow<PostsState>(PostsState.Idle)
@@ -38,9 +40,14 @@ class PostsViewModel @Inject constructor(
         else it.split(",")
     } ?: emptyList()
 
+    var currentUserId: Int? = null
+
     init {
-        if (postRegions.isNotEmpty()) {
-            getPostsByLocation(postRegions)
+        viewModelScope.launch {
+            if (postRegions.isNotEmpty()) {
+                currentUserId = getCurrentUserIdUseCase()
+                getPostsByLocation(postRegions)
+            }
         }
     }
 

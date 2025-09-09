@@ -3,39 +3,49 @@ package com.housweet.presentation.ui.mypage
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Icon
+import androidx.compose.material.Text
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.housweet.presentation.R
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.housweet.presentation.R
+import com.housweet.presentation.ui.common.CustomMenu
+import com.housweet.presentation.ui.common.MenuItem
+import com.housweet.presentation.ui.common.TopBar
 import com.housweet.presentation.ui.mypage.state.MyHouseUiState
+import com.housweet.presentation.ui.theme.Black
 import com.housweet.presentation.viewmodel.mypage.MyHouseViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,6 +64,20 @@ fun MyHouseDetailScreen(
 
     // 성공 상태일 때만 메뉴 노출
     val showMenu = state is MyHouseUiState.Success
+
+    val menuItems = buildList {
+        if (isHost) {
+            add(MenuItem(text = "하우스 수정") {
+                navController.navigate("edit_my_house")
+                expanded = false
+            })
+        } else {
+            add(MenuItem(text = "하우스 나가기") {
+                // 나가기 로직 여기에 작성 (예: 다이얼로그 띄우기 등)
+                expanded = false
+            })
+        }
+    }
 
     // 메뉴 숨길 때 드롭다운도 닫아두기(상태 전환 시 안전)
     LaunchedEffect(showMenu) { if (!showMenu) expanded = false }
@@ -76,63 +100,22 @@ fun MyHouseDetailScreen(
     Scaffold(
         containerColor = Color.White,
         topBar = {
-            CenterAlignedTopAppBar(
-                windowInsets = WindowInsets(
-                    top = 0.dp,
-                    bottom = 0.dp
-                ),
-                title={
-                    Text(
-                        text = "마이하우스",
-                        fontSize = 14.sp
+            if (showMenu) {
+                TopBar(
+                    text = "마이하우스",
+                    onBackBtnClick = { navController.popBackStack() }
+                ) { modifier ->
+                    Icon(
+                        painter = painterResource(id = R.drawable.menu),
+                        contentDescription = "menu",
+                        modifier = modifier
+                            .padding(end = 20.dp)
+                            .clip(CircleShape)
+                            .clickable { expanded = !expanded },
+                        tint = Black
                     )
-                },
-                navigationIcon = {
-                    IconButton(onClick = {
-                        val popped = navController.popBackStack()
-                        if (!popped) onBackClick()
-                    }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.back_black),
-                            contentDescription = "뒤로가기",
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color.White // ✅ 배경색 흰색 지정
-                ),
-                actions = {
-                    if (showMenu) {
-                        IconButton(onClick = { expanded = true }) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_more_vert),
-                                contentDescription = "메뉴"
-                            )
-                        }
-
-                        DropdownMenu(
-                            expanded = expanded,
-                            onDismissRequest = { expanded = false }
-                        ) {
-                            if (isHost) {
-                                DropdownMenuItem(onClick = {
-                                    navController.navigate("edit_my_house")
-                                    expanded = false
-                                }) {
-                                    Text("하우스 수정", fontSize = 12.sp)
-                                }
-                            } else {
-                                DropdownMenuItem(onClick = {
-                                    // 나가기 로직 여기에 작성 (예: 다이얼로그 띄우기 등)
-                                    expanded = false
-                                }) {
-                                    Text("하우스 나가기")
-                                }
-                            }
-                        }
-                    }
                 }
-            )
+            }
         }
     ) { paddingValues ->
         when (val s = state) {
@@ -182,46 +165,77 @@ fun MyHouseDetailScreen(
 
             is MyHouseUiState.Success -> {
                 val data = s.data
-                Column(
+                Box(
                     modifier = Modifier
-                        .padding(paddingValues)
                         .fillMaxSize()
-                        .padding(horizontal = 24.dp)
-                        .background(Color.White),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .padding(paddingValues)
                 ) {
-                    Spacer(Modifier.height(60.dp))
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_house_smile),
-                        contentDescription = null,
-                        modifier = Modifier.size(120.dp)
-                    )
-                    Spacer(Modifier.height(32.dp))
-                    Text(text = data.name, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    Box(
+                        modifier = Modifier.fillMaxWidth().zIndex(1f)
+                    ) {
+                        if (expanded) {
+                            CustomMenu(
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false },
+                                menuItems = menuItems,
+                                modifier = Modifier.align(Alignment.TopEnd)
 
-                    Spacer(Modifier.height(8.dp))
-                    Text(
-                        text = "+01일째 함께 하는 중!",
-                        color = Color(0xFF6C5CE7),
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
+                            )
+                        }
+                    }
 
-                    if (isHost) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 24.dp)
+                            .background(Color.White),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Spacer(Modifier.height(60.dp))
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_house_smile),
+                            contentDescription = null,
+                            modifier = Modifier.size(120.dp)
+                        )
                         Spacer(Modifier.height(32.dp))
-                        Surface(
-                            shape = RoundedCornerShape(12.dp),
-                            tonalElevation = 0.dp,
-                            shadowElevation = 0.dp,
-                            color = Color.White
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
-                                verticalAlignment = Alignment.CenterVertically
+                        Text(text = data.name, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            text = "+01일째 함께 하는 중!",
+                            color = Color(0xFF6C5CE7),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+
+                        if (isHost) {
+                            Spacer(Modifier.height(32.dp))
+                            Surface(
+                                shape = RoundedCornerShape(12.dp),
+                                tonalElevation = 0.dp,
+                                shadowElevation = 0.dp,
+                                color = Color.White
                             ) {
-                                Text("초대 코드", fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color.Black)
-                                Spacer(Modifier.width(8.dp))
-                                Text(text = data.inviteCode, fontSize = 12.sp, color = Color.Gray)
+                                Row(
+                                    modifier = Modifier.padding(
+                                        horizontal = 16.dp,
+                                        vertical = 10.dp
+                                    ),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        "초대 코드",
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Medium,
+                                        color = Color.Black
+                                    )
+                                    Spacer(Modifier.width(8.dp))
+                                    Text(
+                                        text = data.inviteCode,
+                                        fontSize = 12.sp,
+                                        color = Color.Gray
+                                    )
+                                }
                             }
                         }
                     }

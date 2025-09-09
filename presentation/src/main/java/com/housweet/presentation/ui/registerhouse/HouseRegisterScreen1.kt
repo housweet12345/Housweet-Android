@@ -105,7 +105,7 @@ fun HouseRegisterScreen1(
                     Text(
                         text = "집에 대한 키워드를 선택해주세요.",
                         color = Color(0xFF6C4DFF),
-                        modifier = Modifier.padding(vertical = 16.dp),
+                        modifier = Modifier.padding(bottom = 32.dp),
                         fontSize = 12.sp
                     )
 

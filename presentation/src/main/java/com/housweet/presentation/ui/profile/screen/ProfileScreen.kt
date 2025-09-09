@@ -42,6 +42,12 @@ fun ProfileScreen(
     var showBlockDialog by remember { mutableStateOf(false) }
 
     val menuItems = buildList {
+        // 신고하기 메뉴 아이템
+        add(MenuItem(text = "신고하기") {
+            onReportClick( "user", profileInfo.userId)
+            menuExpanded = false
+        })
+
         // 차단 관련 메뉴 아이템
         if (profileInfo.isBlockedUser == true) {
             add(MenuItem(text = "차단해지") {
@@ -54,12 +60,6 @@ fun ProfileScreen(
                 menuExpanded = false
             })
         }
-        
-        // 신고하기 메뉴 아이템
-        add(MenuItem(text = "신고하기") {
-            onReportClick( "user", profileInfo.userId)
-            menuExpanded = false
-        })
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -68,7 +68,6 @@ fun ProfileScreen(
                 .fillMaxSize()
                 .background(Color.White)
                 .windowInsetsPadding(WindowInsets.navigationBars)
-                .padding(horizontal = 20.dp)
         ) {
             // 상단 앱바
             ProfileTopBar(
@@ -77,28 +76,36 @@ fun ProfileScreen(
                 onBackClick = onBackClick,
                 onMoreClick = { menuExpanded = true }
             )
-            // 프로필 정보
-            ProfileInfoSection(
-                nickname = profileInfo.nickname,
-                age = profileInfo.age,
-                gender = profileInfo.gender,
-                introduction = profileInfo.introduce,
-                imageUrl = profileInfo.profileImageUrl,
-                isBlockedUser = profileInfo.isBlockedUser == true
-            )
-            if (profileInfo.isBlockedUser != true) {
-                Spacer(modifier = Modifier.height(16.dp))
-                // 태그 섹션
-                TagSection(mbti = profileInfo.mbti, tags = profileInfo.tags)
-                Spacer(modifier = Modifier.height(24.dp))
-                // 하단 버튼
-                EditProfileButton(
-                    isMyProfile = profileInfo.myProfile,
-                    editButtonOnClick = navigateEditProfile,
-                    chatButtonOnClick = {
-                        navigateChatting(profileInfo.userId, profileInfo.nickname)
-                    }
+
+            Column(
+                modifier = Modifier.padding(horizontal = 20.dp)
+            ) {
+                // 프로필 정보
+                ProfileInfoSection(
+                    nickname = profileInfo.nickname,
+                    age = profileInfo.age,
+                    gender = profileInfo.gender,
+                    introduction = profileInfo.introduce,
+                    imageUrl = profileInfo.profileImageUrl,
+                    isBlockedUser = profileInfo.isBlockedUser == true
                 )
+                if (profileInfo.isBlockedUser != true) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    // 태그 섹션
+                    TagSection(
+                        mbti = profileInfo.mbti,
+                        tags = profileInfo.tags,
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+                    // 하단 버튼
+                    EditProfileButton(
+                        isMyProfile = profileInfo.myProfile,
+                        editButtonOnClick = navigateEditProfile,
+                        chatButtonOnClick = {
+                            navigateChatting(profileInfo.userId, profileInfo.nickname)
+                        }
+                    )
+                }
             }
         }
 
@@ -109,7 +116,7 @@ fun ProfileScreen(
                 menuItems = menuItems,
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .padding(top = 60.dp, end = 20.dp)
+                    .padding(top = 45.dp)
             )
         }
 

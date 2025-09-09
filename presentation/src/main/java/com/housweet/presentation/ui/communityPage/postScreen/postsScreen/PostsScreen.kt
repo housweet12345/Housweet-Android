@@ -48,6 +48,7 @@ import com.housweet.domain.model.community.RoomPostsByLocationDataModel
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.common.GuideText
 import com.housweet.presentation.ui.common.LoadingScreen
+import com.housweet.presentation.ui.common.TopBar
 import com.housweet.presentation.ui.startPage.loginPage.loginScreen.Guide
 import com.housweet.presentation.ui.theme.Black
 import com.housweet.presentation.ui.theme.Gray_A5A5A5
@@ -104,6 +105,7 @@ fun PostsScreen(
                 postRegions = postsViewModel.postRegions,
                 posts = posts,
                 blockedUserId = blockedUserId,
+                currentUserId = postsViewModel.currentUserId,
                 snackBarHostState = snackBarHostState,
                 onPostClick = onPostClick,
                 onToggleLike = { postRegion, postIndex ->
@@ -124,6 +126,7 @@ private fun PostsContent(
     postRegions: List<String>,
     posts: Map<String, List<RoomPostsByLocationDataModel>>,
     blockedUserId: Int?,
+    currentUserId: Int?,
     snackBarHostState: SnackbarHostState,
     onPostClick: (postId: Int, lastRegion: String) -> Unit,
     onToggleLike: (postRegion: String, postIndex: Int) -> Unit,
@@ -131,8 +134,8 @@ private fun PostsContent(
 ) {
     Scaffold(
         topBar = {
-            PostsTopBar(
-                regions = when {
+            TopBar(
+                text = when {
                     postRegions.size > 3 -> {
                         postRegions.take(3).joinToString(", ") { it.split(" ").last() } + "..."
                     }
@@ -190,6 +193,7 @@ private fun PostsContent(
                         if (postInfo.isVisible && postInfo.userId != blockedUserId) {
                             PostItem(
                                 postInfo = postInfo,
+                                currentUserId = currentUserId,
                                 postRegion = "${regionParts[1]} ${regionParts[2]}",
                                 onPostClick = { onPostClick(postInfo.id, regionParts[2]) },
                                 onToggleLike = { onToggleLike(postRegion, postIndex) }
@@ -203,42 +207,9 @@ private fun PostsContent(
 }
 
 @Composable
-private fun PostsTopBar(
-    regions: String,
-    onBackBtnClick: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .background(White)
-            .fillMaxWidth()
-            .height(48.dp)
-    ) {
-        Icon(
-            painter = painterResource(id = R.drawable.back),
-            contentDescription = "back",
-            modifier = Modifier
-                .padding(start = 20.dp)
-                .align(Alignment.CenterStart)
-                .clip(CircleShape)
-                .clickable { onBackBtnClick() },
-            tint = Black
-        )
-
-        GuideText(
-            modifier = Modifier.align(Alignment.Center),
-            color = Black,
-            text = regions,
-            fontWeight = FontWeight.Bold,
-            fontSize = 14.sp,
-            lineHeight = 14.sp,
-            textAlign = TextAlign.Center
-        )
-    }
-}
-
-@Composable
 private fun PostItem(
     postInfo: RoomPostsByLocationDataModel,
+    currentUserId: Int?,
     postRegion: String,
     onPostClick: () -> Unit,
     onToggleLike: () -> Unit
@@ -282,14 +253,16 @@ private fun PostItem(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                Image(
-                    painter = painterResource(id = if (postInfo.isBookmarked) R.drawable.like else R.drawable.unlike),
-                    contentDescription = "favorite",
-                    modifier = Modifier
-                        .padding(start = 25.1.dp)
-                        .clip(CircleShape)
-                        .clickable { onToggleLike() }
-                )
+                if (currentUserId != postInfo.userId) {
+                    Image(
+                        painter = painterResource(id = if (postInfo.isBookmarked) R.drawable.like else R.drawable.unlike),
+                        contentDescription = "favorite",
+                        modifier = Modifier
+                            .padding(start = 25.1.dp)
+                            .clip(CircleShape)
+                            .clickable { onToggleLike() }
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -376,6 +349,7 @@ private fun PostsScreenPreview() {
             )
         ),
         blockedUserId = 0,
+        currentUserId = 0,
         snackBarHostState = remember { SnackbarHostState() },
         onPostClick = { _, _ -> },
         onToggleLike = { _, _ -> },

@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.housweet.presentation.model.Region
+import com.housweet.presentation.ui.theme.White
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,7 +39,10 @@ fun RegionBottomSheet(
         }
     } ?: emptyList()
 
-    ModalBottomSheet(onDismissRequest = onDismissRequest) {
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequest,
+        containerColor = White
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxHeight(0.8f)

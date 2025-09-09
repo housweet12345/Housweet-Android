@@ -128,7 +128,6 @@ fun EditProfileSelectKeyWordScreen(
                 .fillMaxSize()
                 .background(Color.White)
                 .padding(paddingValues)
-                .padding(horizontal = 20.dp)
                 .verticalScroll(rememberScrollState()), // 스크롤 가능하도록 설정
         ) {
             ProfileTopBar(
@@ -137,77 +136,81 @@ fun EditProfileSelectKeyWordScreen(
                 onBackClick = onBackClick
             )
 
-            // 상단 단계 표시
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp),
-                horizontalArrangement = Arrangement.Center
+            Column(
+                modifier = Modifier.padding(horizontal = 20.dp),
             ) {
-                ProfileEditCaseNumber(
-                    isCurrent = false,
-                    number = 1,
-                    description = "프로필 설정"
+                // 상단 단계 표시
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 16.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    ProfileEditCaseNumber(
+                        isCurrent = false,
+                        number = 1,
+                        description = "프로필 설정"
+                    )
+                    Spacer(modifier = Modifier.width(36.dp))
+                    ProfileEditCaseNumber(
+                        isCurrent = true,
+                        number = 2,
+                        description = "키워드 선택"
+                    )
+                }
+
+                // 안내 텍스트
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = "나를 표현하는 키워드를 체크해주세요.",
+                    fontSize = 14.sp,
+                    style = TextStyle(
+                        color = ColorGroup.Primary
+                    ),
+                    fontWeight = Bold,
+                    textAlign = TextAlign.Center
                 )
-                Spacer(modifier = Modifier.width(36.dp))
-                ProfileEditCaseNumber(
-                    isCurrent = true,
-                    number = 2,
-                    description = "키워드 선택"
+
+                Spacer(Modifier.height(16.dp))
+
+                // 생활 패턴 섹션
+                SectionTitle(title = "생활 패턴")
+                MultiSelectableTagSection(
+                    tags = lifePatternKeywords,
+                    selectedTags = lifePatternTags,
+                    onSelectionChanged = { lifePatternTags = it },
+                )
+
+                Spacer(Modifier.height(16.dp))
+
+                // 정리 습관 섹션
+                SectionTitle(title = "정리 습관")
+                MultiSelectableTagSection(
+                    tags = organizationHabitKeywords,
+                    selectedTags = organizationHabitTags,
+                    onSelectionChanged = { organizationHabitTags = it },
+                )
+
+                Spacer(Modifier.height(16.dp))
+
+                // 성격 섹션
+                SectionTitle(title = "성격")
+                MultiSelectableTagSection(
+                    tags = personalityKeywords,
+                    selectedTags = personalityTags,
+                    onSelectionChanged = { personalityTags = it },
+                )
+
+                Spacer(Modifier.height(16.dp))
+
+                // MBTI 섹션
+                SectionTitle(title = "MBTI")
+                Spacer(modifier = Modifier.height(8.dp))
+                MbtiSection(
+                    initialMbti = mbtiState,
+                    onMbtiChanged = { mbtiState = it }
                 )
             }
-
-            // 안내 텍스트
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = "나를 표현하는 키워드를 체크해주세요.",
-                fontSize = 14.sp,
-                style = TextStyle(
-                    color = ColorGroup.Primary
-                ),
-                fontWeight = Bold,
-                textAlign = TextAlign.Center
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            // 생활 패턴 섹션
-            SectionTitle(title = "생활 패턴")
-            MultiSelectableTagSection(
-                tags = lifePatternKeywords,
-                selectedTags = lifePatternTags,
-                onSelectionChanged = { lifePatternTags = it },
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            // 정리 습관 섹션
-            SectionTitle(title = "정리 습관")
-            MultiSelectableTagSection(
-                tags = organizationHabitKeywords,
-                selectedTags = organizationHabitTags,
-                onSelectionChanged = { organizationHabitTags = it },
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            // 성격 섹션
-            SectionTitle(title = "성격")
-            MultiSelectableTagSection(
-                tags = personalityKeywords,
-                selectedTags = personalityTags,
-                onSelectionChanged = { personalityTags = it },
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            // MBTI 섹션
-            SectionTitle(title = "MBTI")
-            Spacer(modifier = Modifier.height(8.dp))
-            MbtiSection(
-                initialMbti = mbtiState,
-                onMbtiChanged = { mbtiState = it }
-            )
         }
     }
 }

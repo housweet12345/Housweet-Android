@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.housweet.presentation.ui.common.TopBar
 import com.housweet.presentation.ui.profile.component.BottomButton
 import com.housweet.presentation.ui.profile.component.InfoMessage
 import com.housweet.presentation.ui.profile.component.ProfileEditCaseNumber
@@ -128,8 +129,7 @@ fun EditProfileScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.White)
-                .padding(paddingValues)
-                .padding(horizontal = 20.dp),
+                .padding(paddingValues),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             ProfileTopBar(
@@ -138,95 +138,100 @@ fun EditProfileScreen(
                 onBackClick = onBackClick
             )
 
-            // 상단 단계 표시 (1단계, 2단계)
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp),
-                horizontalArrangement = Arrangement.Center
+            Column(
+                modifier = Modifier.padding(horizontal = 20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                ProfileEditCaseNumber(
-                    isCurrent = true,
-                    number = 1,
-                    description = "프로필 설정"
-                )
-                Spacer(modifier = Modifier.width(36.dp))
-                ProfileEditCaseNumber(
-                    isCurrent = false,
-                    number = 2,
-                    description = "키워드 선택"
-                )
-            }
+                // 상단 단계 표시 (1단계, 2단계)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 16.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    ProfileEditCaseNumber(
+                        isCurrent = true,
+                        number = 1,
+                        description = "프로필 설정"
+                    )
+                    Spacer(modifier = Modifier.width(36.dp))
+                    ProfileEditCaseNumber(
+                        isCurrent = false,
+                        number = 2,
+                        description = "키워드 선택"
+                    )
+                }
 
-            // 프로필 이미지
-            Box(
-                modifier = Modifier
-                    .padding(top = 16.dp, bottom = 24.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                ProfileImage(
-                    imageUrl = selectedImageUri?.toString() ?: profileImageUrl,
-                    showCameraIcon = true,
-                    onCameraClick = {
-                        imagePickerLauncher.launch("image/*")
-                    }
-                )
-            }
-
-            ProfileEditNameTextField(
-                hint = "이름을 입력해주세요",
-                value = nameState,
-                onValueChange = { nameState = it } // 상태 업데이트
-            )
-
-            Spacer(Modifier.height(10.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth().height(30.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                YearPickerDropdown(
-                    modifier = Modifier.weight(1f),
-                    selectedYear = yearOfBirthState,
-                    onYearSelected = { yearOfBirthState = it },
-                    enabled = yearOfBirth.isEmpty() // 기존 데이터와 현재 상태 모두 비어있을 때만 활성화
-                )
-                Spacer(Modifier.width(10.dp))
-                ToggleButtonGroup(
-                    modifier = Modifier.weight(1f),
-                    option1 = "남자",
-                    option2 = "여자",
-                    selectedOption = selectedOption,
-                    onOptionSelected = { option ->
-                        selectedOption = option
-                        genderState = when (option) {
-                            1 -> "남자"
-                            2 -> "여자"
-                            else -> ""
+                // 프로필 이미지
+                Box(
+                    modifier = Modifier
+                        .padding(top = 16.dp, bottom = 24.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    ProfileImage(
+                        imageUrl = selectedImageUri?.toString() ?: profileImageUrl,
+                        showCameraIcon = true,
+                        onCameraClick = {
+                            imagePickerLauncher.launch("image/*")
                         }
-                    },
-                    enabled = gender.isEmpty()  // 기존 값과 현재 상태 모두 비어있을 때만 활성화
+                    )
+                }
+
+                ProfileEditNameTextField(
+                    hint = "이름을 입력해주세요",
+                    value = nameState,
+                    onValueChange = { nameState = it } // 상태 업데이트
+                )
+
+                Spacer(Modifier.height(10.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth().height(30.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    YearPickerDropdown(
+                        modifier = Modifier.weight(1f),
+                        selectedYear = yearOfBirthState,
+                        onYearSelected = { yearOfBirthState = it },
+                        enabled = yearOfBirth.isEmpty() // 기존 데이터와 현재 상태 모두 비어있을 때만 활성화
+                    )
+                    Spacer(Modifier.width(10.dp))
+                    ToggleButtonGroup(
+                        modifier = Modifier.weight(1f),
+                        option1 = "남자",
+                        option2 = "여자",
+                        selectedOption = selectedOption,
+                        onOptionSelected = { option ->
+                            selectedOption = option
+                            genderState = when (option) {
+                                1 -> "남자"
+                                2 -> "여자"
+                                else -> ""
+                            }
+                        },
+                        enabled = gender.isEmpty()  // 기존 값과 현재 상태 모두 비어있을 때만 활성화
+                    )
+                }
+
+                // 안내 메시지
+                if (gender.isEmpty() && yearOfBirth.isEmpty() && genderState.isEmpty() && yearOfBirthState.isEmpty()) {
+                    InfoMessage(
+                        message = "나이와 성별은 한 번 선택 후 변경이 불가능합니다.\n신중하게 선택해 주세요.",
+                        modifier = Modifier.padding(top = 12.dp)
+                    )
+                }
+
+                Spacer(Modifier.height(10.dp))
+
+                ProfileEditNameTextField(
+                    contentAlignment = Alignment.TopStart,
+                    modifier = Modifier.height(90.dp),
+                    hint = "자기소개를 입력해주세요.",
+                    value = introductionState,
+                    onValueChange = { introductionState = it } // 상태 업데이트
                 )
             }
-
-            // 안내 메시지
-            if (gender.isEmpty() && yearOfBirth.isEmpty() && genderState.isEmpty() && yearOfBirthState.isEmpty()){
-                InfoMessage(
-                    message = "나이와 성별은 한 번 선택 후 변경이 불가능합니다.\n신중하게 선택해 주세요.",
-                    modifier = Modifier.padding(top = 12.dp)
-                )
-            }
-
-            Spacer(Modifier.height(10.dp))
-
-            ProfileEditNameTextField(
-                contentAlignment = Alignment.TopStart,
-                modifier = Modifier.height(90.dp),
-                hint = "자기소개를 입력해주세요.",
-                value = introductionState,
-                onValueChange = { introductionState = it } // 상태 업데이트
-            )
         }
     }
 }

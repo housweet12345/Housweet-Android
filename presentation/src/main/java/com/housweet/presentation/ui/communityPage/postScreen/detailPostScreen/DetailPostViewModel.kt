@@ -21,7 +21,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DetailPostViewModel @Inject constructor(
-    private val currentUserIdUseCase: GetCurrentUserIdUseCase,
+    private val getCurrentUserIdUseCase: GetCurrentUserIdUseCase,
     private val getRoomPostDetailUseCase: GetRoomPostDetailUseCase,
     private val clickBookMarkUseCase: ClickBookMarkUseCase,
     private val unClickBookMarkUseCase: UnClickBookMarkUseCase,
@@ -45,7 +45,7 @@ class DetailPostViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            currentUserId = currentUserIdUseCase()
+            currentUserId = getCurrentUserIdUseCase()
             postId?.let { getRoomPostDetail(it) }
         }
     }

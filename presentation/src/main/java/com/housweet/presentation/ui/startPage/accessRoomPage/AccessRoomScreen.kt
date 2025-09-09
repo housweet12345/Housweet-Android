@@ -71,7 +71,7 @@ private fun AccessRoomContent(
         .fillMaxSize()
         .background(White)
     ) {
-        Setting(
+        AccessRoomTopBar(
             onChatBtnClick = onChatBtnClick,
             onAlarmBtnClick = onAlarmBtnClick,
             onMyPageBtnClick = onMyPageBtnClick
@@ -114,7 +114,7 @@ private fun AccessRoomContent(
 }
 
 @Composable
-private fun Setting(
+private fun AccessRoomTopBar(
     onChatBtnClick: () -> Unit,
     onAlarmBtnClick: () -> Unit,
     onMyPageBtnClick: () -> Unit,

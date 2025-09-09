@@ -1,5 +1,6 @@
 package com.housweet.presentation.ui.mypage
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -18,16 +19,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.OutlinedButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Divider
-import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material.OutlinedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -38,22 +38,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.housweet.presentation.R
-import androidx.compose.ui.window.Dialog
-import androidx.compose.material3.Surface
-import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.AnnotatedString
-import android.widget.Toast
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.ui.text.style.TextDecoration
+import com.housweet.presentation.ui.common.TopBar
 
 private data class Faq(val q: String, val a: String)
 
@@ -123,29 +121,7 @@ fun HelpScreen(navController: NavController) {
     Scaffold(
         containerColor = Color.White,
         topBar = {
-            CenterAlignedTopAppBar(
-                windowInsets = WindowInsets(
-                    top = 0.dp,
-                    bottom = 0.dp
-                ),
-                title={
-                    androidx.compose.material.Text(
-                        text = "도움말",
-                        fontSize = 14.sp
-                    )
-                },
-                navigationIcon = {
-                    androidx.compose.material.Icon(
-                        painter = painterResource(id = R.drawable.back_black),
-                        contentDescription = "뒤로가기",
-                        modifier = Modifier
-                            .padding(start = 16.dp)
-                            .clickable { navController.popBackStack() }
-                    )
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color.White // ✅ 배경색 흰색 지정
-                )
+            TopBar(text = "도움말", onBackBtnClick = { navController.popBackStack() }
             )
         }
     ) { paddingValues ->

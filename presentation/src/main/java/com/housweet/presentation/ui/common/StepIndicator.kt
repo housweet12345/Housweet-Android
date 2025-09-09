@@ -32,7 +32,7 @@ fun StepIndicator(currentStep: Int) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp, horizontal = 16.dp)
+            .padding(top = 24.dp, bottom = 16.dp, start = 28.dp, end = 28.dp)
             .background(Color.White),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -42,7 +42,7 @@ fun StepIndicator(currentStep: Int) {
                 Image(
                     painter = painterResource(id = if(isActive) stepImages[index].first else stepImages[index].second),
                     contentDescription = "Step ${index + 1}",
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(20.dp)
                 )
 
                 Text(
@@ -50,7 +50,7 @@ fun StepIndicator(currentStep: Int) {
                     fontSize = 10.sp,
                     color = if (isActive) Color(0xFF6C4DFF) else Color.Gray,
                     fontWeight = if (isActive) FontWeight.Bold else FontWeight.Normal,
-                    modifier = Modifier.padding(top=4.dp)
+                    modifier = Modifier.padding(top= 8.dp)
                 )
             }
         }

@@ -1,5 +1,6 @@
 package com.housweet.presentation.ui.profile.component
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -59,25 +60,22 @@ fun ProfileEditCaseNumber(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         val currentColor = if (isCurrent) ColorGroup.Primary else ColorGroup.Gray_CBCBCB
-        Box(
-            modifier = Modifier
-                .clip(RoundedCornerShape(6.dp))
-                .background(currentColor)
-                .padding(horizontal = 5.dp, vertical = 1.dp)
-        ) {
-            Text(
-                text = "$number",
-                style = TextStyle(
-                    color = ColorGroup.White_F8F8F8,
-                    platformStyle = PlatformTextStyle(
-                        includeFontPadding = false
-                    )
-                )
-            )
-        }
+        val stepImages = listOf(
+            Pair(R.drawable.btn_purple_1, R.drawable.btn_gray_1),
+            Pair(R.drawable.btn_purple_2, R.drawable.btn_gray_2)
+        )
+
+        Image(
+            painter = painterResource(id = if (isCurrent) stepImages[number - 1].first else stepImages[number - 1].second),
+            contentDescription = "Step $number",
+            modifier = Modifier.size(20.dp)
+        )
+
         Spacer(Modifier.height(8.dp))
         Text(
             text = description,
+            fontSize = 10.sp,
+            fontWeight = FontWeight.Bold,
             color = currentColor
         )
     }
