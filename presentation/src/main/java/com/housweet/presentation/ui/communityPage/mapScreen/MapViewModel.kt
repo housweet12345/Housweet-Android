@@ -38,18 +38,17 @@ class MapViewModel @Inject constructor(
 
     fun getDongPostInfo(latitude: Double, longitude: Double, zoomLevel: Double) {
         viewModelScope.launch {
-            getNearbyPostCountUseCase(
+            val result = getNearbyPostCountUseCase(
                 latitude,
                 longitude,
                 getFilteringDistance(zoomLevel = zoomLevel)
-            ).collect { result ->
-                result.onSuccess {
-                    setMarkerStates(it)
-                }
+            )
+            result.onSuccess {
+                setMarkerStates(it)
+            }
 
-                result.onFailure {
-                    _event.emit(MapEvent.Error)
-                }
+            result.onFailure {
+                _event.emit(MapEvent.Error)
             }
         }
     }

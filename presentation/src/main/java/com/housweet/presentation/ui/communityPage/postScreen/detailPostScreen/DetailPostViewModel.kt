@@ -52,17 +52,16 @@ class DetailPostViewModel @Inject constructor(
 
     private fun getRoomPostDetail(postId: Int) {
         viewModelScope.launch {
-            getRoomPostDetailUseCase(postId).collect { result ->
-                result.onSuccess {
-                    _uiState.value = DetailPostState.Idle
-                    _roomPostDetail.value = it
-                    originalBookMarkState = it.isBookmarked
-                }
+            val result = getRoomPostDetailUseCase(postId)
+            result.onSuccess {
+                _uiState.value = DetailPostState.Idle
+                _roomPostDetail.value = it
+                originalBookMarkState = it.isBookmarked
+            }
 
-                result.onFailure {
-                    _uiState.value = DetailPostState.Idle
-                    _event.emit(DetailPostEvent.Error)
-                }
+            result.onFailure {
+                _uiState.value = DetailPostState.Idle
+                _event.emit(DetailPostEvent.Error)
             }
         }
     }
@@ -77,18 +76,16 @@ class DetailPostViewModel @Inject constructor(
 
         viewModelScope.launch {
             if (!originalPost.isBookmarked) {
-                clickBookMarkUseCase(originalPost.id).collect { result ->
-                    result.onFailure {
-                        rollbackBookMark(originalPost)
-                        _event.emit(DetailPostEvent.Error)
-                    }
+                val result = clickBookMarkUseCase(originalPost.id)
+                result.onFailure {
+                    rollbackBookMark(originalPost)
+                    _event.emit(DetailPostEvent.Error)
                 }
             } else {
-                unClickBookMarkUseCase(originalPost.id).collect { result ->
-                    result.onFailure {
-                        rollbackBookMark(originalPost)
-                        _event.emit(DetailPostEvent.Error)
-                    }
+                val result = unClickBookMarkUseCase(originalPost.id)
+                result.onFailure {
+                    rollbackBookMark(originalPost)
+                    _event.emit(DetailPostEvent.Error)
                 }
             }
         }
@@ -100,14 +97,13 @@ class DetailPostViewModel @Inject constructor(
 
     fun reportRoom() {
         viewModelScope.launch {
-            reportRoomPostUseCase(_roomPostDetail.value.id).collect { result ->
-                result.onSuccess {
-                    _event.emit(DetailPostEvent.ReportRoom("신고 접수가 완료되었습니다."))
-                }
+            val result = reportRoomPostUseCase(_roomPostDetail.value.id)
+            result.onSuccess {
+                _event.emit(DetailPostEvent.ReportRoom("신고 접수가 완료되었습니다."))
+            }
 
-                result.onFailure {
-                    _event.emit(DetailPostEvent.ReportRoom("신고 접수에 실패했습니다."))
-                }
+            result.onFailure {
+                _event.emit(DetailPostEvent.ReportRoom("신고 접수에 실패했습니다."))
             }
         }
     }

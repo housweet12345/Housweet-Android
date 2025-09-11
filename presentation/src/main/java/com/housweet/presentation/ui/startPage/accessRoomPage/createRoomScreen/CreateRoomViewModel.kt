@@ -24,12 +24,11 @@ class CreateRoomViewModel @Inject constructor(
     fun createRoom(name: String) {
         isLoading()
         viewModelScope.launch {
-            createRoomUseCase(name).collect {
-                it.onSuccess { success ->
-                    if (success) success() else error()
-                }.onFailure {
-                    error()
-                }
+            val result = createRoomUseCase(name)
+            result.onSuccess { success ->
+                if (success) success() else error()
+            }.onFailure {
+                error()
             }
         }
     }

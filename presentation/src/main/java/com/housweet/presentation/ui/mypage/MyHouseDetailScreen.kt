@@ -42,11 +42,15 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.common.CustomMenu
+import com.housweet.presentation.ui.common.LoadingScreen
 import com.housweet.presentation.ui.common.MenuItem
 import com.housweet.presentation.ui.common.TopBar
 import com.housweet.presentation.ui.mypage.state.MyHouseUiState
 import com.housweet.presentation.ui.theme.Black
 import com.housweet.presentation.viewmodel.mypage.MyHouseViewModel
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -120,12 +124,7 @@ fun MyHouseDetailScreen(
     ) { paddingValues ->
         when (val s = state) {
             is MyHouseUiState.Loading -> {
-                Box(
-                    Modifier.fillMaxSize().padding(paddingValues),
-                    contentAlignment = Alignment.Center
-                ) {
-                    androidx.compose.material.CircularProgressIndicator()
-                }
+                LoadingScreen()
             }
 
             is MyHouseUiState.Empty -> {  // ✅ 추가
@@ -202,10 +201,10 @@ fun MyHouseDetailScreen(
 
                         Spacer(Modifier.height(8.dp))
                         Text(
-                            text = "+01일째 함께 하는 중!",
+                            text = "+${getDateOfJoinedFromToday(date = data.dateOfJoined)}일째 함께 하는 중!",
                             color = Color(0xFF6C5CE7),
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.SemiBold
+                            fontWeight = FontWeight.ExtraBold
                         )
 
                         if (isHost) {
@@ -243,4 +242,11 @@ fun MyHouseDetailScreen(
             }
         }
     }
+}
+
+private fun getDateOfJoinedFromToday(date: String): String {
+    val pastDate = LocalDate.parse(date) // yyyy-MM-dd 형태 자동 파싱
+    val today = LocalDate.now()
+    val days = ChronoUnit.DAYS.between(pastDate, today) + 1
+    return days.toString().padStart(2, '0')
 }

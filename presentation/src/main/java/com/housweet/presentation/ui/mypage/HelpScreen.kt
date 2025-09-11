@@ -24,7 +24,6 @@ import androidx.compose.material.Divider
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -52,6 +51,9 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.common.TopBar
+import com.housweet.presentation.ui.theme.Black
+import com.housweet.presentation.ui.theme.Gray_CBCBCB
+import com.housweet.presentation.ui.theme.White_F8F8F8
 
 private data class Faq(val q: String, val a: String)
 
@@ -135,13 +137,12 @@ fun HelpScreen(navController: NavController) {
                 .fillMaxSize()
                 .background(Color.White),
             state = listState,
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp)
-
+            contentPadding = PaddingValues(vertical = 12.dp)
         ) {
             item{
                 // 카테고리 버튼
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     categories.forEachIndexed { index, label ->
@@ -153,21 +154,20 @@ fun HelpScreen(navController: NavController) {
                         OutlinedButton(
                             onClick = { selectedIndex = index },
                             modifier = Modifier
-                                .defaultMinSize(minHeight = 38.dp) // 높이만 보장, 폭은 내용만큼
-                                .padding(vertical = 2.dp),
-                            shape = RoundedCornerShape(12.dp),
-                            border = BorderStroke(1.dp, stroke),
+                                .defaultMinSize(minHeight = 38.dp), // 높이만 보장, 폭은 내용만큼
+                            shape = RoundedCornerShape(6.dp),
+                            border = BorderStroke(0.5.dp, stroke),
                             colors = ButtonDefaults.outlinedButtonColors(
                                 backgroundColor = bg
                             ),
-                            contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp)
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
                         ) {
-                            Text(label, fontSize = 14.sp, color = text)
+                            Text(label, fontSize = 14.sp, color = text, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 // FAQ 리스트
                 faqList.forEachIndexed { index, item ->
@@ -175,10 +175,9 @@ fun HelpScreen(navController: NavController) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable { expandedStates[index] = !expandedStates[index] }
-                            .padding(vertical = 10.dp)
                     ) {
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp, horizontal = 20.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -187,8 +186,8 @@ fun HelpScreen(navController: NavController) {
                                 modifier = Modifier
                                     .weight(1f)              // 남은 영역만큼만 차지
                                     .padding(end = 8.dp),     // 아이콘과 간격
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontSize = 15.sp
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp
                             )
                             Icon(
                                 painter = if (expandedStates[index]) painterResource(id = R.drawable.arrow_up)
@@ -200,16 +199,34 @@ fun HelpScreen(navController: NavController) {
                         }
 
                         if (expandedStates[index]) {
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = item.a,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Color(0xFF757575),
-                                fontSize = 13.sp
-                            )
+                            Column {
+                                Divider(
+                                    color = Gray_CBCBCB,
+                                    thickness = 0.5.dp
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .background(White_F8F8F8)
+                                        .fillMaxWidth()
+                                        .padding(vertical = 16.dp)
+                                ) {
+                                    Text(
+                                        text = item.a,
+                                        modifier = Modifier.padding(horizontal = 20.dp),
+                                        color = Black,
+                                        fontWeight = FontWeight.Normal,
+                                        fontSize = 13.sp,
+                                        lineHeight = 18.sp,
+                                    )
+                                }
+                            }
                         }
+
+                        Divider(
+                            color = Gray_CBCBCB,
+                            thickness = 0.5.dp
+                        )
                     }
-                    Divider()
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))
@@ -218,27 +235,27 @@ fun HelpScreen(navController: NavController) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(8.dp))
+                        .padding(horizontal = 20.dp)
+                        .background(White_F8F8F8)
+                        .clip(RoundedCornerShape(6.dp))
                         .border(
-                            width = 1.dp,
+                            width = 0.5.dp,
                             color = Color(0xFF5B51FE),
-                            shape = RoundedCornerShape(8.dp)
+                            shape = RoundedCornerShape(6.dp)
                         )
                         .clickable { showContactDialog = true }
-                        .padding(16.dp)
+                        .padding(horizontal = 16.dp, vertical = 12.dp)
                 ) {
                     Column {
                         Text(
                             text = "그 외 궁금한 점이 있으신가요?",
                             color = Color(0xFF665ED3),
-                            style = MaterialTheme.typography.bodyMedium,
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.ExtraBold
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "1:1 문의로 해결하세요!",
-                            style = MaterialTheme.typography.bodyMedium,
                             color = Color(0xFF665ED3),
                             fontSize = 12.sp
                         )

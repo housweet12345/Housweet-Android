@@ -57,14 +57,13 @@ class PostsViewModel @Inject constructor(
             val posts = mutableMapOf<String, List<RoomPostsByLocationDataModel>>()
 
             postRegions.forEach { postRegion ->
-                getRoomPostsByLocationUseCase(postRegion).collect { result ->
-                    result.onSuccess {
-                        posts[postRegion] = it
-                    }
+                val result = getRoomPostsByLocationUseCase(postRegion)
+                result.onSuccess {
+                    posts[postRegion] = it
+                }
 
-                    result.onFailure {
-                        _event.emit(PostsEvent.Error)
-                    }
+                result.onFailure {
+                    _event.emit(PostsEvent.Error)
                 }
             }
 
@@ -101,18 +100,16 @@ class PostsViewModel @Inject constructor(
 
         viewModelScope.launch {
             if (isBookmarked) {
-                clickBookMarkUseCase(originalPost.id).collect { result ->
-                    result.onFailure {
-                        rollbackBookMark(postRegion, postIndex, originalPost)
-                        _event.emit(PostsEvent.Error)
-                    }
+                val result = clickBookMarkUseCase(originalPost.id)
+                result.onFailure {
+                    rollbackBookMark(postRegion, postIndex, originalPost)
+                    _event.emit(PostsEvent.Error)
                 }
             } else {
-                unClickBookMarkUseCase(originalPost.id).collect { result ->
-                    result.onFailure {
-                        rollbackBookMark(postRegion, postIndex, originalPost)
-                        _event.emit(PostsEvent.Error)
-                    }
+                val result = unClickBookMarkUseCase(originalPost.id)
+                result.onFailure {
+                    rollbackBookMark(postRegion, postIndex, originalPost)
+                    _event.emit(PostsEvent.Error)
                 }
             }
         }

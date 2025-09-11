@@ -207,11 +207,12 @@ fun RoomTitleSection(
             color = Color.Black
         )
         
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(12.dp))
         
         Text(
-            text = "+${daysLiving}일째 함께 하는 중!",
-            fontSize = 16.sp,
+            text = "+${daysLiving.toString().padStart(2, '0')}일째 함께 하는 중!",
+            fontSize = 13.sp,
+            fontWeight = FontWeight.ExtraBold,
             color = ColorGroup.Primary
         )
     }

@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Divider
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material3.Button
@@ -66,6 +67,7 @@ import com.housweet.domain.repository.RoomPostingRepository
 import com.housweet.presentation.model.RegisterModel
 import com.housweet.presentation.ui.common.TopBar
 import com.housweet.presentation.ui.navigation.Route
+import com.housweet.presentation.ui.theme.Gray_CBCBCB
 import com.housweet.presentation.viewmodel.roomposting.RoomPostingViewModel
 import kotlinx.coroutines.launch
 
@@ -309,105 +311,121 @@ fun RoomItem(
     onUnhideClick: () -> Unit
 ) {
     Column(
-        Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
+        Modifier.fillMaxWidth()
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                Modifier
-                    .size(80.dp)
-                    .clip(RoundedCornerShape(6.dp))
-                    .background(Color.LightGray)
-            ) {
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(roomPost.imageUri)           // ✅ 서버에서 내려오는 image_uri
-                        .crossfade(true)                   // 페이드 효과
-                        .build(),
-                    contentDescription = "방 이미지",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop      // 이미지 꽉 차게
-                )
-            }
-            Spacer(Modifier.width(12.dp))
-
-            Column(Modifier.weight(1f)) {
-                Text(roomPost.title, fontSize = 12.sp)
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(verticalAlignment = Alignment.CenterVertically){
-                    Text("보증금 ${roomPost.deposit}", fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                    Spacer(Modifier.width(6.dp))
-                    Text("월세 ${roomPost.rent}", fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(verticalAlignment = Alignment.CenterVertically){
-                    Text(roomPost.areaText.toString(), fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                    Spacer(Modifier.width(8.dp))
-                    Text(roomPost.ageRangeAndGender, fontSize = 10.sp, color = Color.Gray)
-                }
-            }
-        }
-
-        Spacer(Modifier.height(12.dp))
-
-        Box(
-            modifier = Modifier.fillMaxWidth(),
-            contentAlignment = Alignment.Center
+        Column(
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
         ) {
-            Row (
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
-            ){
-                if (!roomPost.isHidden) {
-                    Button(
-                        onClick = onEditClick,
-                        modifier = Modifier
-                            .weight(4.5f)
-                            .height(36.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF7F7F7)),
-                        shape = RoundedCornerShape(6.dp),
-                        contentPadding = PaddingValues(0.dp)
-                    ) {
-                        Text("글 수정하기", color = Color.Black, fontSize = 12.sp)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    Modifier
+                        .size(80.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(Color.LightGray)
+                ) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(roomPost.imageUri)           // ✅ 서버에서 내려오는 image_uri
+                            .crossfade(true)                   // 페이드 효과
+                            .build(),
+                        contentDescription = "방 이미지",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop      // 이미지 꽉 차게
+                    )
+                }
+                Spacer(Modifier.width(12.dp))
+
+                Column(Modifier.weight(1f)) {
+                    Text(roomPost.title, fontSize = 12.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            "보증금 ${roomPost.deposit}",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(Modifier.width(6.dp))
+                        Text("월세 ${roomPost.rent}", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
-                } else {
-                    Button(
-                        onClick = onUnhideClick,
-                        modifier = Modifier.width(250.dp).height(36.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF7F7F7)),
-                        shape = RoundedCornerShape(6.dp)
-                    ) {
-                        Text("숨김 해제", color = Color.Black, fontSize = 12.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            roomPost.areaText.toString(),
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(roomPost.ageRangeAndGender, fontSize = 10.sp, color = Color.Gray)
                     }
                 }
+            }
 
-                Spacer(modifier = Modifier.width(18.dp))
+            Spacer(Modifier.height(12.dp))
 
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(36.dp)
-                        .clip(RoundedCornerShape(6.dp)) // ✅ radius 설정
-                        .background(Color(0xFFF7F7F7)),  // ✅ 배경색
-                    contentAlignment = Alignment.Center) {
-                    IconButton(
-                        onClick = onMenuClick,
-                        modifier = Modifier.fillMaxSize(),
-                        colors = IconButtonDefaults.iconButtonColors(
-                            containerColor = Color.Transparent // ✅ 배경 투명으로
-                        )
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    if (!roomPost.isHidden) {
+                        Button(
+                            onClick = onEditClick,
+                            modifier = Modifier
+                                .weight(4.5f)
+                                .height(36.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF7F7F7)),
+                            shape = RoundedCornerShape(6.dp),
+                            contentPadding = PaddingValues(0.dp)
+                        ) {
+                            Text("글 수정하기", color = Color.Black, fontSize = 12.sp)
+                        }
+                    } else {
+                        Button(
+                            onClick = onUnhideClick,
+                            modifier = Modifier.width(250.dp).height(36.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF7F7F7)),
+                            shape = RoundedCornerShape(6.dp)
+                        ) {
+                            Text("숨김 해제", color = Color.Black, fontSize = 12.sp)
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.width(18.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(36.dp)
+                            .clip(RoundedCornerShape(6.dp)) // ✅ radius 설정
+                            .background(Color(0xFFF7F7F7)),  // ✅ 배경색
+                        contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.MoreHoriz,
-                            contentDescription = "More",
-                            modifier = Modifier.size(12.dp) // ← 아이콘 크기 조절
-                        )
+                        IconButton(
+                            onClick = onMenuClick,
+                            modifier = Modifier.fillMaxSize(),
+                            colors = IconButtonDefaults.iconButtonColors(
+                                containerColor = Color.Transparent // ✅ 배경 투명으로
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.MoreHoriz,
+                                contentDescription = "More",
+                                modifier = Modifier.size(12.dp) // ← 아이콘 크기 조절
+                            )
+                        }
                     }
                 }
             }
         }
+
+        Divider(
+            thickness = 0.5.dp,
+            color = Gray_CBCBCB
+        )
     }
 }
 

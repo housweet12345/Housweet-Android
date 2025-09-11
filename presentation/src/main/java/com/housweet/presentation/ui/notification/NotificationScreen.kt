@@ -2,6 +2,8 @@ package com.housweet.presentation.ui.notification
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -30,6 +32,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.housweet.domain.model.NotificationModel
 import com.housweet.presentation.ui.common.TopBar
+import com.housweet.presentation.ui.theme.Gray_CBCBCB
 import com.housweet.presentation.viewmodel.mypage.NotificationViewModel
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -75,6 +78,7 @@ fun NotificationScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .padding(top = 8.dp)
         ) {
             items(
                 items = displayList,
@@ -91,31 +95,44 @@ fun NotificationItem(notification: NotificationModel) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .padding(vertical = 8.dp)
     ) {
-        Text(
-            text = when (notification.type) {
-                "room_mate" -> "룸메이트 찾기"
-                "my_house" -> "마이 하우스"
-                else -> "알림"
-            },
-            color = Color(0xFF665ED3),
-            fontSize = 10.sp
+        Row(
+            modifier = Modifier.padding(horizontal = 20.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column {
+                Text(
+                    text = when (notification.type) {
+                        "room_mate" -> "룸메이트 찾기"
+                        "my_house" -> "마이 하우스"
+                        else -> "알림"
+                    },
+                    color = Color(0xFF665ED3),
+                    fontSize = 10.sp
+                )
+                Text(
+                    text = notification.content,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Text(
+                text = formatDate(notification.createdAt),
+                color = Color.Gray,
+                fontSize = 10.sp,
+                modifier = Modifier
+                    .padding(top = 4.dp)
+            )
+        }
+        Divider(
+            modifier = Modifier.padding(top = 16.dp),
+            color = Gray_CBCBCB,
+            thickness = 0.5.dp
         )
-        Text(
-            text = notification.content,
-            fontSize = 12.sp,
-            modifier = Modifier.padding(top = 4.dp)
-        )
-        Text(
-            text = formatDate(notification.createdAt),
-            color = Color.Gray,
-            fontSize = 10.sp,
-            modifier = Modifier
-                .align(Alignment.End)
-                .padding(top = 4.dp)
-        )
-        Divider(modifier = Modifier.padding(top = 12.dp))
     }
 }
 

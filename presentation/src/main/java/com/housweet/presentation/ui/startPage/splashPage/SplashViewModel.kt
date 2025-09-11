@@ -34,57 +34,51 @@ class SplashViewModel @Inject constructor(
 
     fun checkLogin() {
         viewModelScope.launch {
-            checkLoginUseCase().collect {
-                delay(1500)
-                it.onSuccess { isAutoLogin ->
-                    if (isAutoLogin) isTermsOfServiceAgreed()
-                    else _event.emit(SplashEvent.IsNotAutoLogin)
-                }
-                it.onFailure { e ->
-                    e.printStackTrace()
-                    _event.emit(SplashEvent.Error)
-                }
+            delay(1500)
+            val result = checkLoginUseCase()
+            result.onSuccess { isAutoLogin ->
+                if (isAutoLogin) isTermsOfServiceAgreed()
+                else _event.emit(SplashEvent.IsNotAutoLogin)
+            }
+            result.onFailure { e ->
+                e.printStackTrace()
+                _event.emit(SplashEvent.Error)
             }
         }
     }
 
     private suspend fun isTermsOfServiceAgreed() {
-        isTermsOfServiceAgreedUseCase().collect {
-            it.onSuccess { isAgreeTermsOfService ->
-                isProfileSet(isAgreeTermsOfService)
-            }
-            it.onFailure { e ->
-                e.printStackTrace()
-                _event.emit(SplashEvent.Error)
-            }
+        val result = isTermsOfServiceAgreedUseCase()
+        result.onSuccess { isAgreeTermsOfService ->
+            isProfileSet(isAgreeTermsOfService)
+        }
+        result.onFailure { e ->
+            e.printStackTrace()
+            _event.emit(SplashEvent.Error)
         }
     }
 
     private suspend fun isProfileSet(isAgreeTermsOfService: Boolean) {
-        isSetProfileUseCase().collect {
-            it.onSuccess { isSetProfile ->
-                isBelongToRoom(isAgreeTermsOfService, isSetProfile)
-            }
-
-            it.onFailure { e ->
-                e.printStackTrace()
-                _event.emit(SplashEvent.Error)
-            }
+        val result = isSetProfileUseCase()
+        result.onSuccess { isSetProfile ->
+            isBelongToRoom(isAgreeTermsOfService, isSetProfile)
+        }
+        result.onFailure { e ->
+            e.printStackTrace()
+            _event.emit(SplashEvent.Error)
         }
     }
 
     private suspend fun isBelongToRoom(isAgreeTermsOfService: Boolean, isSetProfile: Boolean) {
-        isBelongToRoomUseCase().collect {
-            it.onSuccess { isBelongToRoom ->
-                _event.emit(
-                    SplashEvent.IsAutoLogin(isAgreeTermsOfService, isSetProfile, isBelongToRoom)
-                )
-            }
-
-            it.onFailure { e ->
-                e.printStackTrace()
-                _event.emit(SplashEvent.Error)
-            }
+        val result = isBelongToRoomUseCase()
+        result.onSuccess { isBelongToRoom ->
+            _event.emit(
+                SplashEvent.IsAutoLogin(isAgreeTermsOfService, isSetProfile, isBelongToRoom)
+            )
+        }
+        result.onFailure { e ->
+            e.printStackTrace()
+            _event.emit(SplashEvent.Error)
         }
     }
 }

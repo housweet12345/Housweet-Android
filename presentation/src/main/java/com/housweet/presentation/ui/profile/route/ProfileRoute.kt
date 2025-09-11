@@ -1,16 +1,12 @@
 package com.housweet.presentation.ui.profile.route
 
 import android.widget.Toast
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.housweet.presentation.ui.common.LoadingScreen
 import com.housweet.presentation.ui.profile.screen.ProfileScreen
 import com.housweet.presentation.ui.profile.state.ProfileInfoState
 import com.housweet.presentation.viewmodel.profile.ProfileInfoViewModel
@@ -79,9 +75,7 @@ fun ProfileRoute(
         }
         is ProfileInfoState.Loading -> {
             // 로딩 화면
-            Box(modifier = Modifier.fillMaxSize()) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            }
+            LoadingScreen()
         }
         else -> {
 

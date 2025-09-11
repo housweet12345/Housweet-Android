@@ -7,8 +7,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -27,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -36,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -166,9 +171,7 @@ fun ChatScreen(
 
             ChatScreenContent(
                 chatItems = chatItems,
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .fillMaxSize(),
+                modifier = Modifier.fillMaxSize(),
                 listState = listState,
                 navController = navController,
                 chatName = "채팅 미리보기"
@@ -356,8 +359,8 @@ fun ChatScreenPreview() {
             chatItems = chatItems,
             navController = navController,
             modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize(),
+                .fillMaxSize()
+                .padding(innerPadding),
             listState = listState
         )
     }

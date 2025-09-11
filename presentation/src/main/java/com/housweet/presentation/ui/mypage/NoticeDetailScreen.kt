@@ -75,7 +75,7 @@ fun NoticeDetailScreen(
                 Column(
                     modifier = Modifier
                         .padding(innerPadding)
-                        .padding(horizontal = 16.dp, vertical = 24.dp)
+                        .padding(horizontal = 30.dp, vertical = 30.dp)
                         .fillMaxSize()
                         .background(Color.White)
                 ) {
