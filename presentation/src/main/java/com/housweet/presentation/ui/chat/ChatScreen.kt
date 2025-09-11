@@ -105,7 +105,7 @@ fun ChatScreen(
     // 최신 메시지로 스크롤
     LaunchedEffect(chatItems.size) {
         if (chatItems.isNotEmpty()) {
-            listState.animateScrollToItem(chatItems.size - 1)
+            listState.animateScrollToItem(0)
         }
     }
 
@@ -234,11 +234,11 @@ fun ChatScreenContent(
             .background(Color.White)
             .padding(horizontal = 12.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp),
-        contentPadding = PaddingValues(bottom = 12.dp), // 마지막 아이템이 인풋에 가려지지 않게
-        state = listState
+        contentPadding = PaddingValues(top = 12.dp), // 마지막 아이템이 인풋에 가려지지 않게
+        state = listState,
+        reverseLayout = true
     ) {
-        item { WarningBanner() }
-        items(chatItems) { item ->
+        items(chatItems.reversed()) { item ->
             when (item) {
                 is ChatItem.TextMessage -> {
                     ChatBubble(
@@ -260,6 +260,8 @@ fun ChatScreenContent(
                 else -> Unit
             }
         }
+
+        item { WarningBanner() }
     }
 }
 
