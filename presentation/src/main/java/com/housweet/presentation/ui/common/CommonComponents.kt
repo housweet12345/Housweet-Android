@@ -245,7 +245,7 @@ fun BackOnPressed() {
             (context as Activity).finish() // 앱 종료
         } else {
             // 특정한 시간 이상으로 차이가 난다면 토스트로 한 번 더 버튼을 누르라고 알림
-            Toast.makeText(context, "한 번 더 누르면 앱이 종료됩니다.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "빠르게 두 번 누르면 앱이 종료됩니다.", Toast.LENGTH_SHORT).show()
         }
         // 뒤로가기 버튼을 눌렀던 시간을 저장
         backPressedTime = System.currentTimeMillis()
