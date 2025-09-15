@@ -1,5 +1,6 @@
 package com.housweet.presentation.ui.common
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -43,6 +44,10 @@ fun RegionDialog(
     neighborhoodsWithCodes: List<Map<String, String>> // 동 정보
 ) {
     fun norm(s: String?) = s?.replace("\uFEFF", "")?.trim().orEmpty()
+
+    BackHandler {
+        onDismissRequest()
+    }
 
     val context = LocalContext.current
 

@@ -42,7 +42,7 @@ class AuthRepositoryImpl @Inject constructor(
 
             //로그인 하자마자 roomId 저장
             val roomId = roomRepository.getMyRoomId()
-            roomLocalDataSource.saveRoomId(roomId)
+            if (roomId != -1) roomLocalDataSource.saveRoomId(roomId)
             
             Result.success(responseBody.isTermsOfServiceAgreed)
         } catch (e: Exception) {

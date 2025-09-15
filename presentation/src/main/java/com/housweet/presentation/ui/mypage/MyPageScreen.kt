@@ -57,6 +57,7 @@ import coil.request.ImageRequest
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.common.CustomAlertDialog
 import com.housweet.presentation.ui.common.TopBar
+import com.housweet.presentation.ui.navigation.NavigationManager
 import com.housweet.presentation.ui.profile.state.ProfileInfo
 import com.housweet.presentation.ui.profile.state.ProfileInfoState
 import com.housweet.presentation.ui.theme.Gray_CBCBCB
@@ -65,7 +66,7 @@ import com.housweet.presentation.viewmodel.profile.ProfileInfoViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyPageScreen(
-    navController: NavController,
+    navigationManager: NavigationManager,
     onBackClick: () -> Unit,
     onLogoutClick: () -> Unit,
     onDeleteAccountClick: () -> Unit
@@ -172,7 +173,7 @@ fun MyPageScreen(
                         lastProfile = s.profileInfo                 // ✅ 직전 성공값 캐시
                         ProfileHeaderContent(
                             profileInfo = s.profileInfo,
-                            onClick = { navController.navigate("profile/me") }
+                            onClick = { navigationManager.navigateTo("profile/me") }
                         )
                     }
 
@@ -181,7 +182,7 @@ fun MyPageScreen(
                         lastProfile?.let {                          // 캐시가 있으면 임시로 보여주기
                             ProfileHeaderContent(
                                 profileInfo = it,
-                                onClick = { navController.navigate("profile/me") } // 캐시 표시 중에도 허용 가능
+                                onClick = { navigationManager.navigateTo("profile/me") } // 캐시 표시 중에도 허용 가능
                             )
                         } ?: run {
                             Column {
@@ -196,18 +197,18 @@ fun MyPageScreen(
             // Roommate Section
             SectionTitle("하우스잇")
             MyPageMenuItem("북마크") {
-                navController.navigate("bookmark")
+                navigationManager.navigateTo("bookmark")
             }
             MyPageMenuItem("올린 방 관리") {
-                navController.navigate("posted_my_room")
+                navigationManager.navigateTo("posted_my_room")
             }
             MyPageMenuItem("마이하우스") {
-                navController.navigate("myhousedetail")
+                navigationManager.navigateTo("myhousedetail")
             }
             MyPageMenuItem("앱 설정") {
                 Log.d("MyPage", "navigate to app_setting")
                 try {
-                    navController.navigate("app_setting")
+                    navigationManager.navigateTo("app_setting")
                 } catch (e: Exception) {
                     Log.e("MyPage", "Navigation error", e)
                 }
@@ -218,24 +219,24 @@ fun MyPageScreen(
             // Support Section
             SectionTitle("고객 지원")
             MyPageMenuItem("공지사항") {
-                navController.navigate("notice") {
+                navigationManager.navigateTo("notice") {
                     launchSingleTop = true
                 }
             }
             MyPageMenuItem("도움말") {
-                navController.navigate("help")
+                navigationManager.navigateTo("help")
             }
 
             MyPageMenuItem("개인정보처리방침") {
-                navController.navigate("terms_privacy_policies")
+                navigationManager.navigateTo("terms_privacy_policies")
             }
 
             MyPageMenuItem("서비스 이용약관") {
-                navController.navigate("terms_conditions_policies")
+                navigationManager.navigateTo("terms_conditions_policies")
             }
 
             MyPageMenuItem("위치정보 이용약관") {
-                navController.navigate("terms_location_information_policies")
+                navigationManager.navigateTo("terms_location_information_policies")
             }
 
             Divider(color = Color(0xFFEEEEEE), thickness = 1.dp)
@@ -360,7 +361,7 @@ private fun ContactDialog(onDismiss: () -> Unit) {
 fun MyPageScreenPreview() {
     val navController = rememberNavController()
     MyPageScreen(
-        navController = navController,
+        navigationManager = NavigationManager(navController),
         onBackClick = {},
         onLogoutClick = {},
         onDeleteAccountClick = {}

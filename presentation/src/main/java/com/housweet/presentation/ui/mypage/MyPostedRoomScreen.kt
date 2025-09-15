@@ -66,6 +66,7 @@ import com.housweet.domain.model.RoomPost
 import com.housweet.domain.repository.RoomPostingRepository
 import com.housweet.presentation.model.RegisterModel
 import com.housweet.presentation.ui.common.TopBar
+import com.housweet.presentation.ui.navigation.NavigationManager
 import com.housweet.presentation.ui.navigation.Route
 import com.housweet.presentation.ui.theme.Gray_CBCBCB
 import com.housweet.presentation.viewmodel.roomposting.RoomPostingViewModel
@@ -74,7 +75,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyPostedRoomScreen(
-    navController: NavController,
+    navigationManager: NavigationManager,
     viewModel: RoomPostingViewModel = hiltViewModel()
 ) {
     var selectedTab by remember { mutableStateOf(0) } // 0: 게시중, 1: 숨김
@@ -128,7 +129,7 @@ fun MyPostedRoomScreen(
         topBar = {
             TopBar(
                 text = "내가 올린 방 관리",
-                onBackBtnClick = { navController.popBackStack() }
+                onBackBtnClick = { navigationManager.popBackStack() }
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -175,7 +176,7 @@ fun MyPostedRoomScreen(
                             },
                             onEditClick = {
                                 if (!room.isHidden) {
-                                    navController.navigate(
+                                    navigationManager.navigateTo(
                                         Route.HouseRegisterRoute.Step1(
                                             mode = RegisterModel.EDIT,
                                             postingId = room.id
@@ -262,7 +263,7 @@ fun MyPostedRoomScreen(
                                 .fillMaxWidth()
                                 .clickable {
                                     val id = selectedPost?.id ?: return@clickable
-                                    navController.navigate(
+                                    navigationManager.navigateTo(
                                         Route.HouseRegisterRoute.Step1(
                                             mode = RegisterModel.EDIT,
                                             postingId = id
@@ -472,7 +473,7 @@ fun MyPostedRoomScreenPreview() {
     }
 
     MyPostedRoomScreen(
-        navController = rememberNavController(),
+        navigationManager = NavigationManager(rememberNavController()),
         viewModel = previewViewModel
     )
 }

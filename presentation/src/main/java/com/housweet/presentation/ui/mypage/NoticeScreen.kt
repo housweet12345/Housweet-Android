@@ -37,6 +37,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.common.TopBar
+import com.housweet.presentation.ui.navigation.NavigationManager
 import com.housweet.presentation.ui.theme.Gray_CBCBCB
 import com.housweet.presentation.util.isoToDotDate
 import com.housweet.presentation.viewmodel.mypage.NoticeUiState
@@ -47,7 +48,7 @@ import java.util.UUID
 @Composable
 fun NoticeScreen(
     onBackClick: () -> Unit = {},
-    navController: NavController,
+    navigationManager: NavigationManager,
     viewModel: NoticeViewModel? = null // 기본 값
 ) {
     val isPreview = LocalInspectionMode.current
@@ -55,7 +56,7 @@ fun NoticeScreen(
     // 프리뷰일때: 목데이터로 바로 그리기
     if (isPreview) {
         NoticeScaffold(
-            navController = navController,
+            navigationManager = navigationManager,
             state = NoticeUiState.Success(
                 notices = listOf(
                     com.housweet.domain.model.Notice(
@@ -85,7 +86,7 @@ fun NoticeScreen(
     LaunchedEffect(Unit) { vm.load() }
 
     NoticeScaffold(
-        navController = navController,
+        navigationManager = navigationManager,
         state = state
     )
 }
@@ -142,12 +143,12 @@ fun NoticeItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun NoticeScaffold(
-    navController: NavController,
+    navigationManager: NavigationManager,
     state: NoticeUiState
 ) {
     Scaffold(
         topBar = {
-            TopBar(text = "공지사항", onBackBtnClick = { navController.popBackStack() })
+            TopBar(text = "공지사항", onBackBtnClick = { navigationManager.popBackStack() })
         }
     ) { innerPadding ->
         when (state) {
@@ -195,7 +196,7 @@ private fun NoticeScaffold(
                                     content = notice.content
                                 ),
                                 isLatest = notice.id == latestId,
-                                onClick = { navController.navigate("notice_detail/${notice.id}") }
+                                onClick = { navigationManager.navigateTo("notice_detail/${notice.id}") }
                             )
                         }
                     }
@@ -218,6 +219,6 @@ data class NoticeUi(
 fun NoticeScreenPreview() {
     val navController = rememberNavController()
     NoticeScreen(
-        navController = navController
+        navigationManager = NavigationManager(navController)
     )
 }

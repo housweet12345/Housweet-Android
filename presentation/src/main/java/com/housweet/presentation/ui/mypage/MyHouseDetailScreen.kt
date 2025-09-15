@@ -46,6 +46,7 @@ import com.housweet.presentation.ui.common.LoadingScreen
 import com.housweet.presentation.ui.common.MenuItem
 import com.housweet.presentation.ui.common.TopBar
 import com.housweet.presentation.ui.mypage.state.MyHouseUiState
+import com.housweet.presentation.ui.navigation.NavigationManager
 import com.housweet.presentation.ui.theme.Black
 import com.housweet.presentation.viewmodel.mypage.MyHouseViewModel
 import java.time.LocalDate
@@ -55,7 +56,7 @@ import java.time.temporal.ChronoUnit
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyHouseDetailScreen(
-    navController: NavController,
+    navigationManager: NavigationManager,
     isHost: Boolean, // ✅ 방장 여부
     onBackClick: () -> Unit = {},
     onMenuClick: () -> Unit = {},
@@ -72,7 +73,7 @@ fun MyHouseDetailScreen(
     val menuItems = buildList {
         if (isHost) {
             add(MenuItem(text = "하우스 수정") {
-                navController.navigate("edit_my_house")
+                navigationManager.navigateTo("edit_my_house")
                 expanded = false
             })
         } else {
@@ -104,11 +105,11 @@ fun MyHouseDetailScreen(
     Scaffold(
         containerColor = Color.White,
         topBar = {
-            if (showMenu) {
-                TopBar(
-                    text = "마이하우스",
-                    onBackBtnClick = { navController.popBackStack() }
-                ) { modifier ->
+            TopBar(
+                text = "마이하우스",
+                onBackBtnClick = { navigationManager.popBackStack() }
+            ) { modifier ->
+                if (showMenu) {
                     Icon(
                         painter = painterResource(id = R.drawable.menu),
                         contentDescription = "menu",

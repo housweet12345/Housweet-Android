@@ -26,12 +26,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.housweet.domain.model.AppSettingItem
 import com.housweet.presentation.ui.common.TopBar
+import com.housweet.presentation.ui.navigation.NavigationManager
 import com.housweet.presentation.viewmodel.mypage.AppSettingViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppNotificationSettingsScreen(
-    navController: NavController
+    navigationManager: NavigationManager
 ) {
     val viewModel: AppSettingViewModel = hiltViewModel()
 
@@ -48,7 +49,7 @@ fun AppNotificationSettingsScreen(
         topBar = {
             TopBar(
                 text = "앱 설정",
-                onBackBtnClick = { navController.popBackStack() }
+                onBackBtnClick = { navigationManager.popBackStack() }
             )
         }
     ) { innerPadding ->

@@ -32,6 +32,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.housweet.domain.model.NotificationModel
 import com.housweet.presentation.ui.common.TopBar
+import com.housweet.presentation.ui.navigation.NavigationManager
 import com.housweet.presentation.ui.theme.Gray_CBCBCB
 import com.housweet.presentation.viewmodel.mypage.NotificationViewModel
 import java.time.ZonedDateTime
@@ -47,7 +48,7 @@ val sampleNotifications = listOf(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun NotificationScreen(
-    navController: NavController,
+    navigationManager: NavigationManager,
     viewModel: NotificationViewModel? = if (!LocalInspectionMode.current) hiltViewModel() else null,
     previewData: List<NotificationModel>? = null,
     onBackClick: () -> Unit,
@@ -150,7 +151,7 @@ fun formatDate(date: String): String {
 @Composable
 fun NotificationScreenPreview() {
     NotificationScreen(
-        navController = rememberNavController(),
+        navigationManager = NavigationManager(rememberNavController()),
         previewData = sampleNotifications,
         onBackClick = {}
     )

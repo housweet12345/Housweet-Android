@@ -3,6 +3,7 @@ package com.housweet.presentation
 import android.content.Intent
 import android.os.Bundle
 import android.util.Base64
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -13,6 +14,9 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -22,10 +26,14 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.zIndex
 import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -92,6 +100,9 @@ import com.housweet.presentation.ui.userlist.route.UserListRoute
 import com.housweet.presentation.viewmodel.chatlist.ChatListViewModel
 import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.reflect.typeOf
@@ -126,13 +137,31 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
+            val scope = rememberCoroutineScope()
             val snackBarHostState = remember { SnackbarHostState() }
             val navController = rememberNavController()
             // ✅ 전역으로 ViewModel 생성
             val houseRegisterViewModel: HouseRegisterViewModel = hiltViewModel()
-            val navigationManager = NavigationManager(navController)
+            var isNavigating by remember { mutableStateOf(false) }
+            val navigationManager = NavigationManager(
+                navController = navController,
+                onNavigate = {
+                    scope.launch {
+                        isNavigating = true
+                        delay(500)
+                        isNavigating = false
+                    }
+                }
+            )
 
-            val scope = rememberCoroutineScope()
+            LaunchedEffect(navController) {
+                navController.currentBackStackEntryFlow
+                    .collect() {
+                        delay(100) // 안정화
+                        isNavigating = false // 빠른 해제!
+                    }
+            }
+
 
             LaunchedEffect(Unit) {
                 if (isFailedRefreshToken) {
@@ -142,6 +171,23 @@ class MainActivity : ComponentActivity() {
                         duration = SnackbarDuration.Short
                     )
                 }
+            }
+
+            if (isNavigating) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Transparent)
+                        .pointerInput(Unit) {
+                            awaitPointerEventScope {
+                                while (true) {
+                                    val event = awaitPointerEvent()
+                                    event.changes.forEach { it.consume() }
+                                }
+                            }
+                        }
+                        .zIndex(1f)
+                )
             }
 
             Scaffold(
@@ -434,7 +480,7 @@ class MainActivity : ComponentActivity() {
                     composable<Route.StartPageRoute.AccessRoomRoute.AccessRoom> {
                         AccessRoomScreen(
                             onChatScreen = {
-                                navController.navigate("chat_list")
+                                navigationManager.navigateTo("chat_list")
                             },
                             onAlarmScreen = {
                                 navigationManager.navigateTo("notification")
@@ -464,10 +510,10 @@ class MainActivity : ComponentActivity() {
                         CreateRoomScreen(
                             modifier = Modifier,
                             onBackBtnClick = {
-                                navController.popBackStack()
+                                navigationManager.popBackStack()
                             },
                             onSuccessCreateRoom = {
-                                repeat(2) { navController.popBackStack() }
+                                repeat(2) { navigationManager.popBackStack() }
                                 navigationManager.navigateTo(BottomNavItem.Home.route)
                             }
                         )
@@ -477,10 +523,10 @@ class MainActivity : ComponentActivity() {
                         SearchRoomScreen(
                             modifier = Modifier,
                             onBackBtnClick = {
-                                navController.popBackStack()
+                                navigationManager.popBackStack()
                             },
                             onSuccessSearchRoom = {
-                                repeat(2) { navController.popBackStack() }
+                                repeat(2) { navigationManager.popBackStack() }
                                 navigationManager.navigateTo(BottomNavItem.Home.route)
                             }
                         )
@@ -523,7 +569,7 @@ class MainActivity : ComponentActivity() {
                                 navigationManager.navigateTo("mypage")
                             },
                             onHouseClick = {
-                                navController.popBackStack()
+                                navigationManager.popBackStack()
                             }
                         )
                     }
@@ -623,7 +669,7 @@ class MainActivity : ComponentActivity() {
                             onBackBtnClick = { isBookmarkChanged ->
                                 val previousRoute = navController.previousBackStackEntry?.destination?.route
                                 if (previousRoute?.contains("bookmark") == true) {
-                                    navController.popBackStack()
+                                    navigationManager.popBackStack()
                                     return@DetailPostScreen
                                 }
 
@@ -644,12 +690,12 @@ class MainActivity : ComponentActivity() {
 
                     composable(BottomNavItem.Home.route) {
                         HomeRoute(
-                            navigateToChat = { navController.navigate("chat_list") },
-                            navigateToNotification = { navController.navigate("notification") },
-//                            navigateToProfile = { navController.navigate("profile/me") },
-                            navigateToMyPage = { navController.navigate("mypage") },
+                            navigateToChat = { navigationManager.navigateTo("chat_list") },
+                            navigateToNotification = { navigationManager.navigateTo("notification") },
+//                            navigateToProfile = { navigationManager.navigateTo("profile/me") },
+                            navigateToMyPage = { navigationManager.navigateTo("mypage") },
                             navigateToNoticeDetail = { noticeId -> /* TODO: 공지사항 상세 */ },
-                            navigateToTodoDetail = { navController.navigate(BottomNavItem.Calendar.route) },
+                            navigateToTodoDetail = { navigationManager.navigateTo(BottomNavItem.Calendar.route) },
                             navigateToUserList = { navigationManager.navigateTo("roommate/userlist") },
                             navController = navController
                         )
@@ -736,14 +782,14 @@ class MainActivity : ComponentActivity() {
                         HouseRegisterScreen1(
                             mode = mode,
                             postingId = postingId,
-                            onNextClick = { navController.navigate(Route.HouseRegisterRoute.Step2(mode)) },
+                            onNextClick = { navigationManager.navigateTo(Route.HouseRegisterRoute.Step2(mode)) },
                             onBackClick = {
                                 if (mode == RegisterModel.EDIT) {
                                     // 1) 백스택에 이미 MyPostedRoomScreen 이 있으면 거기로 '직행' (중간 스텝들 모두 제거)
                                     val popped = navController.popBackStack("posted_my_room", /* inclusive = */ false)
                                     if (!popped) {
                                         // 2) 없으면 새로 띄우되, 현재 Step1(EDIT) 자체는 지우고 단일 상단으로 정리
-                                        navController.navigate("posted_my_room") {
+                                        navigationManager.navigateTo("posted_my_room") {
                                             // 그래프 시작점까지 정리하거나, 필요 시 특정 지점으로 조정 가능
                                             popUpTo(navController.graph.startDestinationId) { inclusive = false }
                                             launchSingleTop = true
@@ -758,7 +804,7 @@ class MainActivity : ComponentActivity() {
                                             Route.CommunityPageRoute.Map()
                                         )
                                     } else {
-                                        navController.popBackStack()
+                                        navigationManager.popBackStack()
                                     }
                                 }
                             },
@@ -773,8 +819,8 @@ class MainActivity : ComponentActivity() {
                         HouseRegisterScreen2(
                             mode = mode,
                             postingId = postingId,
-                            onNextClick = { navController.navigate(Route.HouseRegisterRoute.Step3(mode)) },
-                            onBackClick = { navController.popBackStack() },
+                            onNextClick = { navigationManager.navigateTo(Route.HouseRegisterRoute.Step3(mode)) },
+                            onBackClick = { navigationManager.popBackStack() },
                             viewModel = houseRegisterViewModel
                         )
                     }
@@ -786,8 +832,8 @@ class MainActivity : ComponentActivity() {
                         HouseRegisterScreen3(
                             mode = mode,
                             postingId = postingId,
-                            onNextClick = { navController.navigate(Route.HouseRegisterRoute.Step4(mode)) },
-                            onBackClick = { navController.popBackStack() },
+                            onNextClick = { navigationManager.navigateTo(Route.HouseRegisterRoute.Step4(mode)) },
+                            onBackClick = { navigationManager.popBackStack() },
                             viewModel = houseRegisterViewModel
                         )
                     }
@@ -799,7 +845,7 @@ class MainActivity : ComponentActivity() {
                         HouseRegisterScreen4(
                             mode = mode,
                             postingId = postingId,
-                            onBackClick = { navController.popBackStack() },
+                            onBackClick = { navigationManager.popBackStack() },
                             onCompleteClick = {
                                 scope.launch {
                                     if (mode == RegisterModel.EDIT) {
@@ -810,8 +856,8 @@ class MainActivity : ComponentActivity() {
                                         )
 
                                         // 이동: 올린 방 관리
-                                        repeat(4) { navController.popBackStack() } // Step4→3→2→1 제거
-                                        navController.navigate("posted_my_room") {
+                                        repeat(4) { navigationManager.popBackStack() } // Step4→3→2→1 제거
+                                        navigationManager.navigateTo("posted_my_room") {
                                             launchSingleTop = true
                                         }
                                     } else {
@@ -821,8 +867,8 @@ class MainActivity : ComponentActivity() {
                                             duration = SnackbarDuration.Short
                                         )
                                         // 이동: 지도 화면
-                                        repeat(4) { navController.popBackStack() } // Step4→3→2→1 제거
-                                        navController.navigate(Route.CommunityPageRoute.Map()) {
+                                        repeat(4) { navigationManager.popBackStack() } // Step4→3→2→1 제거
+                                        navigationManager.navigateTo(Route.CommunityPageRoute.Map()) {
                                             launchSingleTop = true
                                         }
                                     }
@@ -851,7 +897,7 @@ class MainActivity : ComponentActivity() {
                     ) { backStackEntry ->
                         val afterDelete = backStackEntry.arguments?.getBoolean("afterDelete") ?: false
                         MyPageScreen(
-                            navController = navController,
+                            navigationManager = navigationManager,
                             onBackClick = {
                                 if (afterDelete) {
                                     // ✅ 삭제 플로우로 진입했으면 Home 대신 AccessRoom으로
@@ -868,7 +914,7 @@ class MainActivity : ComponentActivity() {
                                             Route.CommunityPageRoute.Map()
                                         )
                                     } else {
-                                        navController.popBackStack()
+                                        navigationManager.popBackStack()
                                     }
                                 }
                             },
@@ -883,14 +929,14 @@ class MainActivity : ComponentActivity() {
 
                     composable("deleteAccount") {
                         DeleteAccountScreen(
-                            onBackClick = { navController.popBackStack() },
+                            onBackClick = { navigationManager.popBackStack() },
                             onSuccessDeleteAccount = { handleDeleteAccount() }
                         )
                     }
 
                     composable("bookmark") {
                         BookmarkScreen(
-                            navController = navController,
+                            navigationManager = navigationManager,
                             onItemClick = { uiItem ->
                                 // 타입세이프 라우트로 디테일 이동
                                 navigationManager.navigateTo(
@@ -902,54 +948,54 @@ class MainActivity : ComponentActivity() {
 
                     composable("posted_my_room") {
                         MyPostedRoomScreen(
-                            navController
+                            navigationManager
                         )
                     }
 
                     composable("myhousedetail") {
                         MyHouseDetailScreen(
-                            navController,
+                            navigationManager,
                             isHost = true,
-                            onBackClick = { navController.popBackStack() },
+                            onBackClick = { navigationManager.popBackStack() },
                             onMenuClick = {},
                             inviteCode = "000112320",
                         )
                     }
 
                     composable("app_setting") {
-                        AppNotificationSettingsScreen(navController)
+                        AppNotificationSettingsScreen(navigationManager)
                     }
 
                     composable("notice") {
                         NoticeScreen(
-                            onBackClick = { navController.popBackStack() },
-                            navController,
+                            onBackClick = { navigationManager.popBackStack() },
+                            navigationManager,
                         )
                     }
 
                     composable("help") {
-                        HelpScreen(navController)
+                        HelpScreen(navigationManager)
                     }
 
                     composable("terms_conditions_policies") {
-                        TermsConditionsPolicies(navController)
+                        TermsConditionsPolicies(navigationManager)
                     }
 
                     composable("terms_privacy_policies") {
                         TermsPrivacyPolicies {
-                            navController.popBackStack()
+                            navigationManager.popBackStack()
                         }
                     }
 
                     composable("terms_location_information_policies") {
                         TermsLocationInformationPolies {
-                            navController.popBackStack()
+                            navigationManager.popBackStack()
                         }
                     }
 
                     composable("notification") {
                         NotificationScreen(
-                            navController
+                            navigationManager
                         ) {
                             val previousRoute = navController.previousBackStackEntry?.destination?.route
                             if (previousRoute?.contains("CommunityPageRoute.Map") == true) {
@@ -958,14 +1004,14 @@ class MainActivity : ComponentActivity() {
                                     Route.CommunityPageRoute.Map()
                                 )
                             } else {
-                                navController.popBackStack()
+                                navigationManager.popBackStack()
                             }
                         }
                     }
 
                     composable("chat_list") {
                         ChatListScreen(
-                            navController,
+                            navigationManager,
                             onBackClick = {
                                 val previousRoute = navController.previousBackStackEntry?.destination?.route
                                 if (previousRoute?.contains("CommunityPageRoute.Map") == true) {
@@ -974,7 +1020,7 @@ class MainActivity : ComponentActivity() {
                                         Route.CommunityPageRoute.Map()
                                     )
                                 } else {
-                                    navController.popBackStack()
+                                    navigationManager.popBackStack()
                                 }
                             }
                         )
@@ -999,7 +1045,7 @@ class MainActivity : ComponentActivity() {
                         }.getOrElse { encodedName } // 혹시 디코딩 실패하면 원문 사용
                         ChatScreen(
                             chatName = chatName,
-                            navController = navController,
+                            navigationManager = navigationManager,
                             senderId = senderId,
                             receiverId = receiverId,
                             roomId = roomId
@@ -1008,14 +1054,15 @@ class MainActivity : ComponentActivity() {
 
                     composable("edit_my_house") {
                         MyHouseEditScreen(
-                            navController,
+                            navigationManager = navigationManager,
+                            navController = navController,
                             houseName = "곰돌이방",
                             startDate = "2025.01.05",
                             inviteCode = "000112320",
                             onDelete = { /* 삭제 로직 */ },
-                            onComplete = { navController.popBackStack() },
+                            onComplete = { navigationManager.popBackStack() },
                             onCodeRefresh = {},
-                            onBackClick = { navController.popBackStack() }
+                            onBackClick = { navigationManager.popBackStack() }
                         )
                     }
 
@@ -1027,7 +1074,7 @@ class MainActivity : ComponentActivity() {
                         val id = backStackEntry.arguments?.getInt("id") ?: return@composable
                         NoticeDetailScreen(
                             id = id,
-                            onBackClick = { navController.popBackStack() }
+                            onBackClick = { navigationManager.popBackStack() }
                         )
                     }
 
@@ -1046,7 +1093,7 @@ class MainActivity : ComponentActivity() {
 
                         ProfileRoute(
                             userId = userId,
-                            navigateEditProfile = { navController.navigate("profile/edit?fromTerms=false") },
+                            navigateEditProfile = { navigationManager.navigateTo("profile/edit?fromTerms=false") },
                             onBackClick = { isBlocked ->
                                 if (isBlocked) {
                                     val previousRoute = navController.previousBackStackEntry?.destination?.route
@@ -1056,10 +1103,10 @@ class MainActivity : ComponentActivity() {
                                             Route.CommunityPageRoute.PostRoute.DetailPost(blockedUserId = userId?.toInt() ?: -1)
                                         )
                                     } else {
-                                        navController.popBackStack()
+                                        navigationManager.popBackStack()
                                     }
                                 } else {
-                                    navController.popBackStack()
+                                    navigationManager.popBackStack()
                                 }
                             },
                             navigateChatting = { receiverId, nickName ->
@@ -1091,22 +1138,22 @@ class MainActivity : ComponentActivity() {
                     ) { backStackEntry ->
                         val fromTerms = backStackEntry.arguments?.getBoolean("fromTerms") ?: false
                         EditProfileRoute(
-                            onBackClick = { navController.popBackStack() },
+                            onBackClick = { navigationManager.popBackStack() },
                             onSuccessNavigateBack = {
                                 if (fromTerms) {
-                                    navController.navigate(Route.StartPageRoute.AccessRoomRoute.AccessRoom) {
+                                    navigationManager.navigateTo(Route.StartPageRoute.AccessRoomRoute.AccessRoom()) {
                                         popUpTo("profile/edit?fromTerms=$fromTerms") { inclusive = true }
                                         launchSingleTop = true
                                     }
                                 } else {
-                                    navController.navigate("profile/1") {
+                                    navigationManager.navigateTo("profile/1") {
                                         popUpTo("profile/edit?fromTerms=$fromTerms") { inclusive = true }
                                         launchSingleTop = true
                                     }
                                 }
                             },
                             navigateEditKeyword = {
-                                navController.navigate("profile/edit_keyword?fromTerms=$fromTerms")
+                                navigationManager.navigateTo("profile/edit_keyword?fromTerms=$fromTerms")
                             }
                         )
                     }
@@ -1123,17 +1170,17 @@ class MainActivity : ComponentActivity() {
                             navController.getBackStackEntry("profile/edit?fromTerms=$fromTerms")
                         }
                         EditProfileKeyWordRoute(
-                            onBackClick = { navController.popBackStack() },
+                            onBackClick = { navigationManager.popBackStack() },
                             viewModel = hiltViewModel(parentEntry),
                             showSkipButton = fromTerms,
                             onSuccessNavigateBack = {
                                 if (fromTerms) {
-                                    navController.navigate(Route.StartPageRoute.AccessRoomRoute.AccessRoom) {
+                                    navigationManager.navigateTo(Route.StartPageRoute.AccessRoomRoute.AccessRoom()) {
                                         popUpTo("profile/edit?fromTerms=$fromTerms") { inclusive = true }
                                         launchSingleTop = true
                                     }
                                 } else {
-                                    navController.navigate("profile/me") {
+                                    navigationManager.navigateTo("profile/me") {
                                         popUpTo("profile/edit?fromTerms=$fromTerms") { inclusive = true }
                                         launchSingleTop = true
                                     }
@@ -1157,11 +1204,10 @@ class MainActivity : ComponentActivity() {
 
                     composable("roommate/userlist") {
                         UserListRoute(
-                            onBackClick = { navController.popBackStack() },
-                            navigateToProfile = { navController.navigate("profile/$it") },
+                            onBackClick = { navigationManager.popBackStack() },
+                            navigateToProfile = { navigationManager.navigateTo("profile/$it") },
                             onWorkspaceInvite = { isHost ->
-                                navController.navigate(Route.CommunityPageRoute.Map(userRoomStateNum = 1)
-                                )
+                                navigationManager.navigateTo(Route.CommunityPageRoute.Map(userRoomStateNum = 1))
                             }
                         )
                     }

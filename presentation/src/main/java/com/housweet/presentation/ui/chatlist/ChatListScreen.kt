@@ -26,13 +26,14 @@ import com.housweet.domain.model.ChatPreview
 import com.housweet.domain.model.ChatUser
 import com.housweet.presentation.ui.chat.toKstKoreanFull
 import com.housweet.presentation.ui.common.TopBar
+import com.housweet.presentation.ui.navigation.NavigationManager
 import com.housweet.presentation.viewmodel.chatlist.ChatListViewModel
 import kotlin.io.encoding.ExperimentalEncodingApi
 
 
 @Composable
 fun ChatListScreen(
-    navController: NavController,
+    navigationManager: NavigationManager,
     onBackClick: () -> Unit,
     viewModel: ChatListViewModel = hiltViewModel()
 ) {
@@ -49,13 +50,13 @@ fun ChatListScreen(
         chatUsersState.value.filter { !it.is_blocked }      // 차단 숨김
     }
 
-    ChatListContent(navController = navController, senderId = myId, chatUsers = visibleUsers, onBackClick = onBackClick)
+    ChatListContent(navigationManager = navigationManager, senderId = myId, chatUsers = visibleUsers, onBackClick = onBackClick)
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalEncodingApi::class)
 @Composable
 fun ChatListContent(
-    navController: NavController,
+    navigationManager: NavigationManager,
     senderId: Int,
     chatUsers: List<ChatUser>,
     onBackClick: () -> Unit,
@@ -105,7 +106,7 @@ fun ChatListContent(
                                 displayName.toByteArray(),
                                 Base64.URL_SAFE or Base64.NO_WRAP
                             )
-                            navController.navigate("chat_detail/$senderId/${user.counterpart_id}/${user.room_id}/$encodedName")
+                            navigationManager.navigateTo("chat_detail/$senderId/${user.counterpart_id}/${user.room_id}/$encodedName")
                         }
                     )
                 }
@@ -164,5 +165,5 @@ fun ChatListScreenPreview() {
         )
     )
 
-    ChatListContent(navController = navController, senderId = mockSenderId, chatUsers = mockUsers, onBackClick = {})
+    ChatListContent(navigationManager = NavigationManager(navController), senderId = mockSenderId, chatUsers = mockUsers, onBackClick = {})
 }
