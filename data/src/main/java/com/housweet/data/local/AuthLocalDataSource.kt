@@ -1,6 +1,6 @@
 package com.housweet.data.local
 
-import com.housweet.domain.model.AuthToken
+import com.housweet.domain.model.start.AuthToken
 
 interface AuthLocalDataSource {
     suspend fun saveAuthToken(token: AuthToken)

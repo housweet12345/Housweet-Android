@@ -32,16 +32,15 @@ class DeleteAccountViewModel @Inject constructor(
     private fun isBelongToRoom() {
         _uiState.value = DeleteAccountUiState.IsLoading
         viewModelScope.launch {
-            isBelongToRoomUseCase().collect {
-                _uiState.value = DeleteAccountUiState.Idle
-                it.onSuccess { isBelongToRoom ->
-                    _event.emit(DeleteAccountEvent.IsBelongToRoom(isBelongToRoom))
-                }
+            val result = isBelongToRoomUseCase()
+            _uiState.value = DeleteAccountUiState.Idle
+            result.onSuccess { isBelongToRoom ->
+                _event.emit(DeleteAccountEvent.IsBelongToRoom(isBelongToRoom))
+            }
 
-                it.onFailure { e ->
-                    e.printStackTrace()
-                    _event.emit(DeleteAccountEvent.Error("방의 가입 여부를 불러오는데 실패했어요."))
-                }
+            result.onFailure { e ->
+                e.printStackTrace()
+                _event.emit(DeleteAccountEvent.Error("방의 가입 여부를 불러오는데 실패했어요."))
             }
         }
     }
@@ -56,17 +55,16 @@ class DeleteAccountViewModel @Inject constructor(
             }
 
             viewModelScope.launch {
-                deleteAccountUseCase().collect {
-                    _uiState.value = DeleteAccountUiState.Idle
-                    it.onSuccess { successDelete ->
-                        if (successDelete) _event.emit(DeleteAccountEvent.DeleteAccountSuccess)
-                        else _event.emit(DeleteAccountEvent.Error("회원 탙퇴에 실패했어요."))
-                    }
+                val result = deleteAccountUseCase()
+                _uiState.value = DeleteAccountUiState.Idle
+                result.onSuccess { successDelete ->
+                    if (successDelete) _event.emit(DeleteAccountEvent.DeleteAccountSuccess)
+                    else _event.emit(DeleteAccountEvent.Error("회원 탙퇴에 실패했어요."))
+                }
 
-                    it.onFailure { e ->
-                        e.printStackTrace()
-                        _event.emit(DeleteAccountEvent.Error("회원 탙퇴에 실패했어요."))
-                    }
+                result.onFailure { e ->
+                    e.printStackTrace()
+                    _event.emit(DeleteAccountEvent.Error("회원 탙퇴에 실패했어요."))
                 }
             }
         }

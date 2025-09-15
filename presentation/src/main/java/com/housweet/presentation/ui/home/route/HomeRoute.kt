@@ -2,14 +2,12 @@ package com.housweet.presentation.ui.home.route
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.housweet.presentation.ui.common.LoadingScreen
 import com.housweet.presentation.ui.home.HomeScreen
 import com.housweet.presentation.ui.home.state.HomeState
 import com.housweet.presentation.viewmodel.home.HomeViewModel
@@ -46,9 +44,7 @@ fun HomeRoute(
             )
         }
         is HomeState.Loading -> {
-            Box(modifier = Modifier.fillMaxSize()) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            }
+            LoadingScreen()
         }
         is HomeState.Error -> {
             // TODO: 에러 화면 구현

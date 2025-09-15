@@ -1,6 +1,6 @@
 package com.housweet.data.response
 
-import com.housweet.domain.model.NearByPostCountDataModel
+import com.housweet.domain.model.community.NearByPostCountDataModel
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

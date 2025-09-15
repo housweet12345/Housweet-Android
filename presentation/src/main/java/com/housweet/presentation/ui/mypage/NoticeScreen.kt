@@ -4,26 +4,28 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -34,12 +36,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.housweet.presentation.R
+import com.housweet.presentation.ui.common.TopBar
+import com.housweet.presentation.ui.theme.Gray_CBCBCB
 import com.housweet.presentation.util.isoToDotDate
 import com.housweet.presentation.viewmodel.mypage.NoticeUiState
 import com.housweet.presentation.viewmodel.mypage.NoticeViewModel
 import java.util.UUID
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.platform.LocalInspectionMode
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
@@ -94,37 +96,45 @@ fun NoticeItem(
     isLatest: Boolean,
     onClick: () -> Unit,
 ) {
-    Row(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
             .background(Color.White)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            painter = painterResource(id = R.drawable.ic_notice_inactive),
-            contentDescription = "Notice",
-            tint = if (isLatest) Color(0xFF665ED3) else Color(0xFFA5A5A5),
-            modifier = Modifier
-                .size(20.dp)
-                .padding(end = 8.dp)
-        )
+        Row(
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_notice_inactive),
+                contentDescription = "Notice",
+                tint = if (isLatest) Color(0xFF665ED3) else Color(0xFFA5A5A5),
+                modifier = Modifier.size(24.dp)
+            )
 
-        Column {
-            Text(
-                text = notice.date.isoToDotDate(),
-                color = Color.Gray,
-                fontSize = 12.sp
-            )
-            Text(
-                text = notice.title,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column {
+                Text(
+                    text = notice.date.isoToDotDate(),
+                    color = Color.Gray,
+                    fontSize = 12.sp
+                )
+                Text(
+                    text = notice.title,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
+
+        Divider(
+            color = Gray_CBCBCB,
+            thickness = 0.5.dp,
+        )
     }
 }
 
@@ -137,22 +147,7 @@ private fun NoticeScaffold(
 ) {
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                windowInsets = WindowInsets(top = 0.dp, bottom = 0.dp),
-                title = { Text(text = "공지사항", fontSize = 14.sp) },
-                navigationIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.back_black),
-                        contentDescription = "뒤로가기",
-                        modifier = Modifier
-                            .padding(start = 16.dp)
-                            .clickable { navController.popBackStack() }
-                    )
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color.White
-                )
-            )
+            TopBar(text = "공지사항", onBackBtnClick = { navController.popBackStack() })
         }
     ) { innerPadding ->
         when (state) {

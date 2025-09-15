@@ -1,5 +1,5 @@
 package com.housweet.presentation.ui.navigation
-import com.housweet.domain.model.Coordinate
+import com.housweet.domain.model.community.Coordinate
 import com.housweet.presentation.model.RegisterModel
 import kotlinx.serialization.Serializable
 

@@ -30,7 +30,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -46,8 +45,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
-import com.housweet.domain.model.Coordinate
-import com.housweet.domain.model.NearByPostCountDataModel
+import com.housweet.domain.model.community.Coordinate
+import com.housweet.domain.model.community.NearByPostCountDataModel
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.common.GuideText
 import com.housweet.presentation.ui.theme.Gray_A5A5A5
@@ -55,7 +54,6 @@ import com.housweet.presentation.ui.theme.Gray_CBCBCB
 import com.housweet.presentation.ui.theme.Purple
 import com.housweet.presentation.ui.theme.White
 import com.housweet.presentation.ui.theme.White_F8F8F8
-import com.kakao.sdk.user.model.User
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.geometry.LatLngBounds
 import com.naver.maps.map.CameraPosition
@@ -301,7 +299,7 @@ private fun MapTopBar(
                 painter = painterResource(id = R.drawable.chat),
                 contentDescription = "chat",
                 modifier = Modifier
-                    .size(24.dp)
+                    .size(30.dp)
                     .padding(1.dp)
                     .clip(CircleShape)
                     .clickable {
@@ -314,7 +312,7 @@ private fun MapTopBar(
                 painter = painterResource(id = R.drawable.alarm),
                 contentDescription = "alarm",
                 modifier = Modifier
-                    .size(24.dp)
+                    .size(30.dp)
                     .padding(1.dp)
                     .clip(CircleShape)
                     .clickable {
@@ -327,7 +325,7 @@ private fun MapTopBar(
                 painter = painterResource(id = R.drawable.mypage),
                 contentDescription = "mypage",
                 modifier = Modifier
-                    .size(24.dp)
+                    .size(30.dp)
                     .padding(1.dp)
                     .clip(CircleShape)
                     .clickable {

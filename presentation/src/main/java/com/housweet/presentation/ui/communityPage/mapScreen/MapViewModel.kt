@@ -3,7 +3,7 @@ package com.housweet.presentation.ui.communityPage.mapScreen
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.housweet.domain.model.NearByPostCountDataModel
+import com.housweet.domain.model.community.NearByPostCountDataModel
 import com.housweet.domain.usecase.community.GetNearbyPostCountUseCase
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.compose.MarkerState
@@ -38,18 +38,17 @@ class MapViewModel @Inject constructor(
 
     fun getDongPostInfo(latitude: Double, longitude: Double, zoomLevel: Double) {
         viewModelScope.launch {
-            getNearbyPostCountUseCase(
+            val result = getNearbyPostCountUseCase(
                 latitude,
                 longitude,
                 getFilteringDistance(zoomLevel = zoomLevel)
-            ).collect { result ->
-                result.onSuccess {
-                    setMarkerStates(it)
-                }
+            )
+            result.onSuccess {
+                setMarkerStates(it)
+            }
 
-                result.onFailure {
-                    _event.emit(MapEvent.Error)
-                }
+            result.onFailure {
+                _event.emit(MapEvent.Error)
             }
         }
     }

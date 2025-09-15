@@ -1,8 +1,6 @@
 package com.housweet.domain.repository
 
-import kotlinx.coroutines.flow.Flow
-
 interface AccessRoomRepository {
-    suspend fun createRoom(name: String): Flow<Result<Boolean>>
-    suspend fun accessRoomWithInviteCode(inviteCode: String): Flow<Result<Boolean>>
+    suspend fun createRoom(name: String): Result<Boolean>
+    suspend fun accessRoomWithInviteCode(inviteCode: String): Result<Boolean>
 }

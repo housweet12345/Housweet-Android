@@ -131,7 +131,7 @@ fun HouseRegisterScreen3(
                             text = "실제 사진을 첨부해주세요.",
                             color = Color(0xFF6C4DFF),
                             fontSize = 12.sp,
-                            modifier = Modifier.padding(vertical = 16.dp)
+                            modifier = Modifier.padding(bottom = 16.dp)
                         )
                     }
 

@@ -1,4 +1,4 @@
-package com.housweet.domain.model
+package com.housweet.domain.model.start
 
 import java.util.Base64
 import org.json.JSONObject

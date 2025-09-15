@@ -4,13 +4,13 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -24,11 +24,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -58,9 +56,11 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.common.CustomAlertDialog
+import com.housweet.presentation.ui.common.TopBar
 import com.housweet.presentation.ui.profile.state.ProfileInfo
-import com.housweet.presentation.viewmodel.profile.ProfileInfoViewModel
 import com.housweet.presentation.ui.profile.state.ProfileInfoState
+import com.housweet.presentation.ui.theme.Gray_CBCBCB
+import com.housweet.presentation.viewmodel.profile.ProfileInfoViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -89,29 +89,9 @@ fun MyPageScreen(
     Scaffold (
         containerColor = Color.White,
         topBar = {
-            CenterAlignedTopAppBar(
-                windowInsets = WindowInsets(
-                    top = 0.dp,
-                    bottom = 0.dp
-                ),
-                title={
-                    Text(
-                        text = "마이페이지",
-                        fontSize = 14.sp
-                    )
-                },
-                navigationIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.back_black),
-                        contentDescription = "뒤로가기",
-                        modifier = Modifier
-                            .padding(start = 16.dp)
-                            .clickable { onBackClick() }
-                    )
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color.White // ✅ 배경색 흰색 지정
-                )
+            TopBar(
+                text = "마이페이지",
+                onBackBtnClick = onBackClick
             )
         }
     ){ innerPadding ->
@@ -140,8 +120,9 @@ fun MyPageScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .padding(start = 20.dp, end = 20.dp, top = 8.dp)
                     .background(Color(0xFFF7F7F7), shape = RoundedCornerShape(12.dp))
+                    .border(0.5.dp, Gray_CBCBCB, shape = RoundedCornerShape(12.dp))
                     .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -293,7 +274,7 @@ fun SectionTitle(title: String) {
         text = title,
         fontWeight = FontWeight.Bold,
         fontSize = 12.sp,
-        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+        modifier = Modifier.padding(top = 20.dp, bottom = 16.dp, start = 20.dp, end = 20.dp)
     )
 }
 
@@ -303,7 +284,7 @@ fun MyPageMenuItem(text: String, onClick: () -> Unit = {}) {
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(horizontal = 16.dp, vertical = 16.dp),
+            .padding(horizontal = 20.dp, vertical = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -312,8 +293,7 @@ fun MyPageMenuItem(text: String, onClick: () -> Unit = {}) {
         Icon(
             painter = painterResource(id = R.drawable.right_back_black),
             contentDescription = "메뉴이동",
-            modifier = Modifier
-                .padding(start = 16.dp)
+            modifier = Modifier.padding(start = 16.dp)
         )
     }
 }
@@ -412,6 +392,7 @@ private fun ProfileHeaderContent(
         Spacer(modifier = Modifier.width(16.dp))
         Column {
             Text(text = profileInfo.nickname, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = "${profileInfo.age} ${profileInfo.gender}",
                 fontSize = 12.sp,

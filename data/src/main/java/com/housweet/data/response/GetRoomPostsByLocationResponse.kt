@@ -1,6 +1,6 @@
 package com.housweet.data.response
 
-import com.housweet.domain.model.RoomPostsByLocationDataModel
+import com.housweet.domain.model.community.RoomPostsByLocationDataModel
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

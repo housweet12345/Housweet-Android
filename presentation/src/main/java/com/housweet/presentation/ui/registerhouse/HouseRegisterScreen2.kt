@@ -47,6 +47,7 @@ import com.housweet.presentation.model.Region
 import com.housweet.presentation.model.RegisterModel
 import com.housweet.presentation.ui.common.GuideText
 import com.housweet.presentation.ui.common.RegionBottomSheet
+import com.housweet.presentation.ui.common.RegionDialog
 import com.housweet.presentation.ui.common.TopBarWithBackButton
 import com.housweet.presentation.ui.theme.Black
 import com.housweet.presentation.ui.theme.Gray_7E7E7E
@@ -188,7 +189,7 @@ fun HouseRegisterScreen2(
                             text = "자세한 정보를 입력해주세요.",
                             color = Color(0xFF6C4DFF),
                             fontSize = 12.sp,
-                            modifier = Modifier.padding(vertical = 16.dp)
+                            modifier = Modifier.padding(bottom = 16.dp)
                         )
                     }
 
@@ -406,7 +407,19 @@ fun HouseRegisterScreen2(
     }
 
     if (showBottomSheet) {
-        RegionBottomSheet(
+        RegionDialog(
+            onRegionSelected = {
+                selectedRegion = it
+                showBottomSheet = false
+            },
+            onDismissRequest = {
+                showBottomSheet = false
+            },
+            citiesWithCodes = regionBundle.siList,
+            districtsWithCodes = regionBundle.guList,
+            neighborhoodsWithCodes = regionBundle.dongList
+        )
+        /* RegionBottomSheet(
             cities = regionBundle.cities,
             districtMap = regionBundle.districtMap,
             neighborhoodMap = regionBundle.neighborhoodMap,
@@ -420,7 +433,7 @@ fun HouseRegisterScreen2(
             onDismissRequest = {
                 showBottomSheet = false
             }
-        )
+        ) */
     }
 }
 
@@ -487,7 +500,7 @@ private fun RegisterCostTextField(
     modifier: Modifier,
     text: String,
     height: Dp,
-    textLength: Int = 10,
+    textLength: Int = 4,
     textColor: Color = Black,
     singleLine: Boolean = true,
     onValueChange: (String) -> Unit

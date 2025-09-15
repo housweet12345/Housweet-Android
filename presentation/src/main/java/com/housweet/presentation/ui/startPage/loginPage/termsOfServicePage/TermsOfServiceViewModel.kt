@@ -24,13 +24,12 @@ class TermsOfServiceViewModel @Inject constructor(
     fun agreeTerms() {
         isLoading()
         viewModelScope.launch {
-            agreeTermsOfServiceUseCase().collect {
-                it.onSuccess {
-                    success()
-                }
-                it.onFailure {
-                    error()
-                }
+            val result = agreeTermsOfServiceUseCase()
+            result.onSuccess {
+                success()
+            }
+            result.onFailure {
+                error()
             }
         }
     }

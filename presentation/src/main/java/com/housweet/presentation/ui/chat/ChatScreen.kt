@@ -8,14 +8,19 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -25,27 +30,30 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material3.IconButton
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.housweet.presentation.R
+import com.housweet.presentation.ui.common.CustomMenu
+import com.housweet.presentation.ui.common.MenuItem
+import com.housweet.presentation.ui.common.TopBar
+import com.housweet.presentation.ui.theme.Black
 import com.housweet.presentation.viewmodel.chatlist.ChatListViewModel
 import kotlinx.coroutines.delay
 
@@ -67,6 +75,18 @@ fun ChatScreen(
     var showReportConfirm by remember { mutableStateOf(false) }
     val listState = rememberLazyListState()
 
+    val menuItems = buildList {
+        add(MenuItem(text = "채팅방 삭제하기") {
+            showDeleteConfirm
+            expanded = false
+        })
+
+        add(MenuItem(text = "신고하기") {
+            showReportConfirm = true
+            expanded = false
+        })
+    }
+
     // 채팅 메시지 polling
     LaunchedEffect(Unit) {
         while (true) {
@@ -85,45 +105,26 @@ fun ChatScreen(
     // 최신 메시지로 스크롤
     LaunchedEffect(chatItems.size) {
         if (chatItems.isNotEmpty()) {
-            listState.animateScrollToItem(chatItems.size - 1)
+            listState.animateScrollToItem(0)
         }
     }
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-//                windowInsets = WindowInsets(
-//                    top = 0.dp,
-//                    bottom = 0.dp
-//                ),
-                title = { Text(chatName, fontSize = 14.sp) },
-                navigationIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.back_black),
-                        contentDescription = "뒤로가기",
-                        modifier = Modifier
-                            .padding(start = 16.dp)
-                            .clickable { navController.popBackStack() }
-                    )
-                },
-                actions = {
-                    IconButton(onClick = { expanded = true }) {
-                        Icon(painter=painterResource(id = R.drawable.ic_more_vert), contentDescription = "메뉴")
-                    }
-                    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                        DropdownMenuItem(onClick = {
-                            expanded = false
-                            showDeleteConfirm = true
-                        }) { Text("채팅방 삭제하기", fontSize = 12.sp) }
-
-                        DropdownMenuItem(onClick = {
-                            expanded = false
-                            showReportConfirm = true
-                        }) { Text("신고하기", fontSize = 12.sp) }
-                    }
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.White)
-            )
+            TopBar(
+                text = chatName,
+                onBackBtnClick = { navController.popBackStack() }
+            ) { modifier ->
+                Icon(
+                    painter = painterResource(id = R.drawable.menu),
+                    contentDescription = "menu",
+                    modifier = modifier
+                        .padding(end = 20.dp)
+                        .clip(CircleShape)
+                        .clickable { expanded = !expanded },
+                    tint = Black
+                )
+            }
         },
         bottomBar = {
             Column(
@@ -149,55 +150,73 @@ fun ChatScreen(
         },
         containerColor = Color.White
     ) { innerPadding ->
-        ChatScreenContent(
-            chatItems = chatItems,
+        Box(
             modifier = Modifier
+                .fillMaxSize()
                 .padding(innerPadding)
-                .fillMaxSize(),
-            listState = listState,
-            navController = navController,
-            chatName = "채팅 미리보기"
-        )
+        ) {
+            Box(
+                modifier = Modifier.fillMaxWidth().zIndex(1f)
+            ) {
+                if (expanded) {
+                    CustomMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        menuItems = menuItems,
+                        modifier = Modifier.align(Alignment.TopEnd)
 
-        // 삭제 확인 다이얼로그
-        if (showDeleteConfirm) {
-            ConfirmDialog(
-                title = "채팅방 삭제",
-                message = "이 채팅방을 삭제할까요?",
-                onConfirm = {
-                    showDeleteConfirm = false
-                    viewModel.deleteChatRoom(roomId) { ok, err ->
-                        if (ok) {
-                            // 스낵바/토스트 노출 후 리스트로 이동
-                            navController.popBackStack()
-                        } else {
-                            // 에러 메시지 노출
-                            Log.e("Chat", "삭제 실패: $err")
-                        }
-                    }
-                },
-                onDismiss = { showDeleteConfirm = false }
-            )
-        }
+                    )
+                }
+            }
 
-        // 신고 확인 다이얼로그
-        if (showReportConfirm) {
-            ConfirmDialog(
-                title = "신고하기",
-                message = "이 채팅방을 신고(차단)할까요?",
-                onConfirm = {
-                    showReportConfirm = false
-                    viewModel.reportChatRoom(roomId) { ok, err ->
-                        if (ok) {
-                            viewModel.refreshChatUsers(senderId = senderId)         // ✅ 신고 후 새로고침
-                            navController.popBackStack()
-                        } else {
-                            Log.e("Chat", "신고 실패: $err")
-                        }
-                    }
-                },
-                onDismiss = { showReportConfirm = false }
+            ChatScreenContent(
+                chatItems = chatItems,
+                modifier = Modifier.fillMaxSize(),
+                listState = listState,
+                navController = navController,
+                chatName = "채팅 미리보기"
             )
+
+            // 삭제 확인 다이얼로그
+            if (showDeleteConfirm) {
+                ConfirmDialog(
+                    title = "채팅방 삭제",
+                    message = "이 채팅방을 삭제할까요?",
+                    onConfirm = {
+                        showDeleteConfirm = false
+                        viewModel.deleteChatRoom(roomId) { ok, err ->
+                            if (ok) {
+                                // 스낵바/토스트 노출 후 리스트로 이동
+                                navController.popBackStack()
+                            } else {
+                                // 에러 메시지 노출
+                                Log.e("Chat", "삭제 실패: $err")
+                            }
+                        }
+                    },
+                    onDismiss = { showDeleteConfirm = false }
+                )
+            }
+
+            // 신고 확인 다이얼로그
+            if (showReportConfirm) {
+                ConfirmDialog(
+                    title = "신고하기",
+                    message = "이 채팅방을 신고(차단)할까요?",
+                    onConfirm = {
+                        showReportConfirm = false
+                        viewModel.reportChatRoom(roomId) { ok, err ->
+                            if (ok) {
+                                viewModel.refreshChatUsers(senderId = senderId)         // ✅ 신고 후 새로고침
+                                navController.popBackStack()
+                            } else {
+                                Log.e("Chat", "신고 실패: $err")
+                            }
+                        }
+                    },
+                    onDismiss = { showReportConfirm = false }
+                )
+            }
         }
     }
 }
@@ -215,11 +234,11 @@ fun ChatScreenContent(
             .background(Color.White)
             .padding(horizontal = 12.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp),
-        contentPadding = PaddingValues(bottom = 12.dp), // 마지막 아이템이 인풋에 가려지지 않게
-        state = listState
+        contentPadding = PaddingValues(top = 12.dp), // 마지막 아이템이 인풋에 가려지지 않게
+        state = listState,
+        reverseLayout = true
     ) {
-        item { WarningBanner() }
-        items(chatItems) { item ->
+        items(chatItems.reversed()) { item ->
             when (item) {
                 is ChatItem.TextMessage -> {
                     ChatBubble(
@@ -241,6 +260,8 @@ fun ChatScreenContent(
                 else -> Unit
             }
         }
+
+        item { WarningBanner() }
     }
 }
 
@@ -340,8 +361,8 @@ fun ChatScreenPreview() {
             chatItems = chatItems,
             navController = navController,
             modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize(),
+                .fillMaxSize()
+                .padding(innerPadding),
             listState = listState
         )
     }

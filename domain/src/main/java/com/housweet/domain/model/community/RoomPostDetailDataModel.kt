@@ -1,4 +1,4 @@
-package com.housweet.domain.model
+package com.housweet.domain.model.community
 
 data class RoomPostDetailDataModel(
     val id: Int = 0,

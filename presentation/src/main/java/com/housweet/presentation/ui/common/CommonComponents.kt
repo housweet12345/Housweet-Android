@@ -6,6 +6,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,15 +16,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -245,6 +249,43 @@ fun BackOnPressed() {
         }
         // 뒤로가기 버튼을 눌렀던 시간을 저장
         backPressedTime = System.currentTimeMillis()
+    }
+}
+
+@Composable
+fun TopBar(
+    text: String,
+    onBackBtnClick: () -> Unit,
+    content: @Composable (modifier: Modifier) -> Unit = { }
+) {
+    Box(
+        modifier = Modifier
+            .background(White)
+            .fillMaxWidth()
+            .height(48.dp)
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.back),
+            contentDescription = "back",
+            modifier = Modifier
+                .padding(start = 20.dp)
+                .align(Alignment.CenterStart)
+                .clip(CircleShape)
+                .clickable { onBackBtnClick() },
+            tint = Black
+        )
+
+        GuideText(
+            modifier = Modifier.align(Alignment.Center),
+            color = Black,
+            text = text,
+            fontWeight = FontWeight.Bold,
+            fontSize = 14.sp,
+            lineHeight = 14.sp,
+            textAlign = TextAlign.Center
+        )
+
+        content(Modifier.align(Alignment.CenterEnd))
     }
 }
 

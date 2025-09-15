@@ -3,7 +3,8 @@ package com.housweet.presentation.ui.communityPage.postScreen.postsScreen
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.housweet.domain.model.RoomPostsByLocationDataModel
+import com.housweet.domain.model.community.RoomPostsByLocationDataModel
+import com.housweet.domain.usecase.auth.GetCurrentUserIdUseCase
 import com.housweet.domain.usecase.community.ClickBookMarkUseCase
 import com.housweet.domain.usecase.community.GetRoomPostsByLocationUseCase
 import com.housweet.domain.usecase.community.UnClickBookMarkUseCase
@@ -22,6 +23,7 @@ class PostsViewModel @Inject constructor(
     private val getRoomPostsByLocationUseCase: GetRoomPostsByLocationUseCase,
     private val clickBookMarkUseCase: ClickBookMarkUseCase,
     private val unClickBookMarkUseCase: UnClickBookMarkUseCase,
+    private val getCurrentUserIdUseCase: GetCurrentUserIdUseCase,
     savedStateHandle: SavedStateHandle
 ): ViewModel() {
     private val _uiState = MutableStateFlow<PostsState>(PostsState.Idle)
@@ -38,9 +40,14 @@ class PostsViewModel @Inject constructor(
         else it.split(",")
     } ?: emptyList()
 
+    var currentUserId: Int? = null
+
     init {
-        if (postRegions.isNotEmpty()) {
-            getPostsByLocation(postRegions)
+        viewModelScope.launch {
+            if (postRegions.isNotEmpty()) {
+                currentUserId = getCurrentUserIdUseCase()
+                getPostsByLocation(postRegions)
+            }
         }
     }
 
@@ -50,14 +57,13 @@ class PostsViewModel @Inject constructor(
             val posts = mutableMapOf<String, List<RoomPostsByLocationDataModel>>()
 
             postRegions.forEach { postRegion ->
-                getRoomPostsByLocationUseCase(postRegion).collect { result ->
-                    result.onSuccess {
-                        posts[postRegion] = it
-                    }
+                val result = getRoomPostsByLocationUseCase(postRegion)
+                result.onSuccess {
+                    posts[postRegion] = it
+                }
 
-                    result.onFailure {
-                        _event.emit(PostsEvent.Error)
-                    }
+                result.onFailure {
+                    _event.emit(PostsEvent.Error)
                 }
             }
 
@@ -94,18 +100,16 @@ class PostsViewModel @Inject constructor(
 
         viewModelScope.launch {
             if (isBookmarked) {
-                clickBookMarkUseCase(originalPost.id).collect { result ->
-                    result.onFailure {
-                        rollbackBookMark(postRegion, postIndex, originalPost)
-                        _event.emit(PostsEvent.Error)
-                    }
+                val result = clickBookMarkUseCase(originalPost.id)
+                result.onFailure {
+                    rollbackBookMark(postRegion, postIndex, originalPost)
+                    _event.emit(PostsEvent.Error)
                 }
             } else {
-                unClickBookMarkUseCase(originalPost.id).collect { result ->
-                    result.onFailure {
-                        rollbackBookMark(postRegion, postIndex, originalPost)
-                        _event.emit(PostsEvent.Error)
-                    }
+                val result = unClickBookMarkUseCase(originalPost.id)
+                result.onFailure {
+                    rollbackBookMark(postRegion, postIndex, originalPost)
+                    _event.emit(PostsEvent.Error)
                 }
             }
         }

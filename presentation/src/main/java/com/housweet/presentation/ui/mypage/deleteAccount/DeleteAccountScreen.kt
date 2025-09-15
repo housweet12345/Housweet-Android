@@ -1,26 +1,21 @@
 package com.housweet.presentation.ui.mypage.deleteAccount
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -52,7 +47,7 @@ import com.housweet.presentation.ui.common.BottomButton
 import com.housweet.presentation.ui.common.CustomAlertDialog
 import com.housweet.presentation.ui.common.GuideText
 import com.housweet.presentation.ui.common.LoadingScreen
-import com.housweet.presentation.ui.startPage.loginPage.loginScreen.LoginEvent
+import com.housweet.presentation.ui.common.TopBar
 import com.housweet.presentation.ui.theme.Black
 import com.housweet.presentation.ui.theme.Purple
 import com.housweet.presentation.ui.theme.nanumSquareFontFamily
@@ -137,32 +132,7 @@ private fun DeleteAccountContent(
     Scaffold(
         modifier = Modifier,
         topBar = {
-            CenterAlignedTopAppBar(
-                windowInsets = WindowInsets(
-                    top = 0.dp,
-                    bottom = 0.dp
-                ),
-                title = {
-                    Text(
-                        text = "탈퇴하기",
-                        fontSize = 14.sp
-                    )
-                },
-                navigationIcon = {
-                    if (!isSuccessful) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.back_black),
-                            contentDescription = "뒤로가기",
-                            modifier = Modifier
-                                .padding(start = 16.dp)
-                                .clickable { onBackClick() }
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color.White // ✅ 배경색 흰색 지정
-                )
-            )
+            TopBar(text = "탈퇴하기", onBackBtnClick = onBackClick)
         },
         snackbarHost = { SnackbarHost(hostState = snackBarHostState) }
     ) { innerPadding ->

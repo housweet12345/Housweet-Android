@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.common.BottomButton
 import com.housweet.presentation.ui.common.GuideText
+import com.housweet.presentation.ui.common.TopBar
 import com.housweet.presentation.ui.theme.Black
 import com.housweet.presentation.ui.theme.Purple
 import com.housweet.presentation.ui.theme.Purple_4B3AAC
@@ -43,7 +44,8 @@ fun GuideToCreateRoomScreen(
 
     Scaffold(
         topBar = {
-            GuideToCreateRoomTopBar(
+            TopBar(
+                text = "하우스 올리기",
                 onBackBtnClick = onBackBtnClick
             )
         },
@@ -92,39 +94,6 @@ fun GuideToCreateRoomScreen(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun GuideToCreateRoomTopBar(
-    onBackBtnClick: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .background(White)
-            .fillMaxWidth()
-            .height(48.dp)
-    ) {
-        Icon(
-            painter = painterResource(id = R.drawable.back),
-            contentDescription = "back",
-            modifier = Modifier
-                .padding(start = 20.dp)
-                .align(Alignment.CenterStart)
-                .clip(CircleShape)
-                .clickable { onBackBtnClick() },
-            tint = Black
-        )
-
-        GuideText(
-            modifier = Modifier.align(Alignment.Center),
-            color = Black,
-            text = "하우스 올리기",
-            fontWeight = FontWeight.Bold,
-            fontSize = 14.sp,
-            lineHeight = 14.sp,
-            textAlign = TextAlign.Center
-        )
     }
 }
 

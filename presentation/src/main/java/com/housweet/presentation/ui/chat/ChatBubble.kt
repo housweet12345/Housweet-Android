@@ -35,9 +35,9 @@ fun ChatBubble(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 4.dp),
+            .padding(bottom = 8.dp),
         horizontalArrangement = if (isMine) Arrangement.End else Arrangement.Start,
-        verticalAlignment = Alignment.Bottom
+        verticalAlignment = Alignment.Top
     ) {
         if (!isMine) {
             if (profileImage != null) {
@@ -47,7 +47,7 @@ fun ChatBubble(
                     contentDescription = "상대방 프로필",
                     modifier = Modifier
                         .padding(end = 8.dp)
-                        .size(32.dp)
+                        .size(40.dp)
                         .clip(CircleShape)
                 )
             } else {
@@ -55,7 +55,7 @@ fun ChatBubble(
                 Box(
                     modifier = Modifier
                         .padding(end = 8.dp)
-                        .size(32.dp)
+                        .size(40.dp)
                         .clip(CircleShape)
                         .background(Color(0xFFF2F2F2))
                 )
@@ -65,14 +65,16 @@ fun ChatBubble(
         Box(
             modifier = Modifier
                 .widthIn(max = 180.dp)
+                .padding(top = 4.dp)
                 .background(
                     color = if (isMine) Color(0xFF6F3DD2) else Color(0xFFF2F2F2),
-                    shape = RoundedCornerShape(16.dp)
+                    shape = RoundedCornerShape(15.dp)
                 )
-                .padding(horizontal = 14.dp, vertical = 10.dp)
+                .padding(horizontal = 12.dp, vertical = 8.dp)
         ) {
             Text(
                 text = message,
+                modifier = Modifier.align(Alignment.Center),
                 color = if (isMine) Color.White else Color.Black,
                 fontSize = 12.sp
             )

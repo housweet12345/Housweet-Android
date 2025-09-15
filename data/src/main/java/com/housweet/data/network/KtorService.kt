@@ -7,7 +7,7 @@ import com.housweet.data.request.RefreshTokenRequest
 import com.housweet.data.response.RefreshResponse
 import com.housweet.domain.event.AuthEvent
 import com.housweet.domain.event.AuthEventBus
-import com.housweet.domain.model.AuthToken
+import com.housweet.domain.model.start.AuthToken
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.okhttp.OkHttp

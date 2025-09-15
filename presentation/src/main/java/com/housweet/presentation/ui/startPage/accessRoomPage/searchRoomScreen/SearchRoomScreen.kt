@@ -40,6 +40,7 @@ import com.housweet.presentation.R
 import com.housweet.presentation.ui.common.BottomButton
 import com.housweet.presentation.ui.common.GuideText
 import com.housweet.presentation.ui.common.LoadingScreen
+import com.housweet.presentation.ui.common.TopBar
 import com.housweet.presentation.ui.common.WarningText
 import com.housweet.presentation.ui.common.WriteTextFiled
 import com.housweet.presentation.ui.theme.Black
@@ -110,7 +111,7 @@ private fun SearchRoomContent(
 ) {
     Scaffold (
         modifier = modifier,
-        topBar = { SearchRoomTopBar( onBackBtnClick = onBackBtnClick) },
+        topBar = { TopBar(text = "하우스 찾기", onBackBtnClick = onBackBtnClick) },
         containerColor = White
     ) { innerPadding ->
         Column(
@@ -156,39 +157,6 @@ private fun SearchRoomContent(
                 onBtnClick(code)
             }
         }
-    }
-}
-
-@Composable
-private fun SearchRoomTopBar(
-    onBackBtnClick: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .background(White)
-            .fillMaxWidth()
-            .height(48.dp)
-    ) {
-        Icon(
-            painter = painterResource(id = R.drawable.back),
-            contentDescription = "back",
-            modifier = Modifier
-                .padding(start = 20.dp)
-                .align(Alignment.CenterStart)
-                .clip(CircleShape)
-                .clickable { onBackBtnClick() },
-            tint = Black
-        )
-
-        GuideText(
-            modifier = Modifier.align(Alignment.Center),
-            color = Black,
-            text = "하우스 찾기",
-            fontWeight = FontWeight.Bold,
-            fontSize = 14.sp,
-            lineHeight = 14.sp,
-            textAlign = TextAlign.Center
-        )
     }
 }
 
