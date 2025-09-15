@@ -1,6 +1,5 @@
 package com.housweet.domain.usecase.community
 
-import com.housweet.domain.model.RoomPostDetailDataModel
-import kotlinx.coroutines.flow.Flow
+import com.housweet.domain.model.community.RoomPostDetailDataModel
 
-fun interface GetRoomPostDetailUseCase : suspend (Int) -> Flow<Result<RoomPostDetailDataModel>>
+fun interface GetRoomPostDetailUseCase : suspend (Int) -> Result<RoomPostDetailDataModel>

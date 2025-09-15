@@ -52,6 +52,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -59,10 +60,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.housweet.domain.model.RoomPostDetailDataModel
+import com.housweet.domain.model.community.RoomPostDetailDataModel
 import com.housweet.presentation.R
+import com.housweet.presentation.ui.common.CustomMenu
 import com.housweet.presentation.ui.common.GuideText
 import com.housweet.presentation.ui.common.LoadingScreen
+import com.housweet.presentation.ui.common.MenuItem
+import com.housweet.presentation.ui.common.TopBar
 import com.housweet.presentation.ui.theme.Black
 import com.housweet.presentation.ui.theme.Gray_7E7E7E
 import com.housweet.presentation.ui.theme.Gray_A5A5A5
@@ -181,6 +185,12 @@ private fun DetailPostContent(
 ) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
+    val menuItems = buildList {
+        add(MenuItem(text = "신고하기") {
+            onReportClick()
+        })
+    }
+
     Scaffold(
         modifier = modifier
             .fillMaxSize()
@@ -190,12 +200,22 @@ private fun DetailPostContent(
                 }
             },
         topBar = {
-            DetailPostTopBar(
-                roomPostDetail = roomPostDetail,
-                lastRegion = lastRegion,
-                onBackBtnClick = onBackBtnClick,
-                onMenuClick = onMenuClick
-            )
+            TopBar(
+                text = "${roomPostDetail.areaText} $lastRegion",
+                onBackBtnClick = onBackBtnClick
+            ) { modifier ->
+                if (roomPostDetail.userId != currentUserId) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.menu),
+                        contentDescription = "menu",
+                        modifier = modifier
+                            .padding(end = 20.dp)
+                            .clip(CircleShape)
+                            .clickable { onMenuClick() },
+                        tint = Black
+                    )
+                }
+            }
         },
         bottomBar = {
             BottomBar(
@@ -213,6 +233,19 @@ private fun DetailPostContent(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
+            Box(
+                modifier = Modifier.fillMaxWidth().zIndex(1f)
+            ) {
+                if (isMenuExpanded) {
+                    CustomMenu(
+                        expanded = isMenuExpanded,
+                        onDismissRequest = onScreenClick,
+                        menuItems = menuItems,
+                        modifier = Modifier.align(Alignment.TopEnd)
+                    )
+                }
+            }
+
             Column(
                 modifier = Modifier.verticalScroll(scrollState)
             ) {
@@ -260,42 +293,34 @@ private fun DetailPostContent(
                 }
             }
 
-            Icon(
-                painter = painterResource(id = if (roomPostDetail.isBookmarked) R.drawable.like else R.drawable.unlike),
-                contentDescription = "favorite",
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(top = 10.dp, end = 10.dp)
-                    .size(32.dp)
-                    .clip(CircleShape)
-                    .clickable { onToggleLike() },
-                tint = if (roomPostDetail.isBookmarked) Purple else White
-            )
-        }
-    }
-
-    Box(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        if (isMenuExpanded) {
-            MenuDropdownMenu(
-                modifier = Modifier.align(Alignment.TopEnd),
-                onReportClick = onReportClick
-            )
+            if (roomPostDetail.userId != currentUserId) {
+                Icon(
+                    painter = painterResource(id = if (roomPostDetail.isBookmarked) R.drawable.like else R.drawable.unlike),
+                    contentDescription = "favorite",
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(top = 10.dp, end = 10.dp)
+                        .size(32.dp)
+                        .clip(CircleShape)
+                        .clickable { onToggleLike() },
+                    tint = if (roomPostDetail.isBookmarked) Purple else White
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun MenuDropdownMenu(
+private fun DropdownMenu(
     modifier: Modifier,
     onReportClick: () -> Unit
 ) {
     Surface(
         modifier = modifier
-            .padding(top = 10.dp, end = 10.dp)
+            .padding(top = 4.dp, end = 10.dp)
             .shadow(
-                elevation = 4.dp,
+                elevation = 3.dp,
+                shape = RoundedCornerShape(6.dp),
                 spotColor = Gray_A5A5A5,
                 ambientColor = Gray_CBCBCB
             ),
@@ -315,52 +340,6 @@ private fun MenuDropdownMenu(
                 textAlign = TextAlign.Center
             )
         }
-    }
-}
-
-@Composable
-private fun DetailPostTopBar(
-    roomPostDetail: RoomPostDetailDataModel,
-    lastRegion: String,
-    onBackBtnClick: () -> Unit,
-    onMenuClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .background(White)
-            .fillMaxWidth()
-            .height(48.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            painter = painterResource(id = R.drawable.back),
-            contentDescription = "back",
-            modifier = Modifier
-                .padding(start = 20.dp)
-                .clip(CircleShape)
-                .clickable { onBackBtnClick() },
-            tint = Black
-        )
-
-        GuideText(
-            color = Black,
-            text = "${roomPostDetail.areaText} $lastRegion",
-            fontWeight = FontWeight.Bold,
-            fontSize = 14.sp,
-            lineHeight = 14.sp,
-            textAlign = TextAlign.Center
-        )
-
-        Icon(
-            painter = painterResource(id = R.drawable.menu),
-            contentDescription = "menu",
-            modifier = Modifier
-                .padding(end = 20.dp)
-                .clip(CircleShape)
-                .clickable { onMenuClick() },
-            tint = Black
-        )
     }
 }
 
@@ -661,7 +640,7 @@ fun getRelativeTime(dateTimeString: String): String {
 }
 
 fun getRelativeMoney(money: Int): Int {
-    return if (money >=10000) money / 10000
+    return if (money >= 10000) money / 10000
     else money
 }
 

@@ -24,12 +24,11 @@ class SearchRoomViewModel @Inject constructor(
     fun accessRoomWithInviteCode(inviteCode: String) {
         isLoading()
         viewModelScope.launch {
-            accessRoomWithInviteCodeUseCase(inviteCode).collect {
-                it.onSuccess { success ->
-                    if (success) success() else error()
-                }.onFailure {
-                    error()
-                }
+            val result = accessRoomWithInviteCodeUseCase(inviteCode)
+            result.onSuccess { success ->
+                if (success) success() else error()
+            }.onFailure {
+                error()
             }
         }
     }

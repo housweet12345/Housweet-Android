@@ -3,11 +3,13 @@ package com.housweet.presentation.ui.mypage
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,11 +19,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Divider
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,7 +37,6 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -52,7 +53,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -64,9 +64,10 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.housweet.domain.model.RoomPost
 import com.housweet.domain.repository.RoomPostingRepository
-import com.housweet.presentation.R
 import com.housweet.presentation.model.RegisterModel
+import com.housweet.presentation.ui.common.TopBar
 import com.housweet.presentation.ui.navigation.Route
+import com.housweet.presentation.ui.theme.Gray_CBCBCB
 import com.housweet.presentation.viewmodel.roomposting.RoomPostingViewModel
 import kotlinx.coroutines.launch
 
@@ -125,21 +126,9 @@ fun MyPostedRoomScreen(
     Scaffold(
         containerColor = Color.White,
         topBar = {
-            CenterAlignedTopAppBar(
-                windowInsets = WindowInsets(top = 0.dp, bottom = 0.dp),
-                title = { Text(text = "올린 방 관리", fontSize = 14.sp) },
-                navigationIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.back_black),
-                        contentDescription = "뒤로가기",
-                        modifier = Modifier
-                            .padding(start = 16.dp)
-                            .clickable { navController.popBackStack() }
-                    )
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color.White
-                )
+            TopBar(
+                text = "내가 올린 방 관리",
+                onBackBtnClick = { navController.popBackStack() }
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -235,12 +224,12 @@ fun MyPostedRoomScreen(
             ModalBottomSheet(
                 onDismissRequest = { showSheet = false },
                 sheetState = sheetState,
-                containerColor = Color(0xFFF8F8F8)
+                containerColor = Color.White
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 10.dp)
+                        .padding(bottom = 10.dp)
                 ) {
                     if (selectedPost?.isHidden == false) {
                         Box(
@@ -266,7 +255,7 @@ fun MyPostedRoomScreen(
                                 }
                                 .padding(vertical = 10.dp),
                             contentAlignment = Alignment.Center
-                        ) { Text("게시글 숨기기", fontSize = 14.sp) }
+                        ) { Text("게시글 숨기기", fontSize = 14.sp, modifier = Modifier.padding(vertical = 10.dp)) }
                     } else {
                         Box(
                             modifier = Modifier
@@ -283,7 +272,7 @@ fun MyPostedRoomScreen(
                                 }
                                 .padding(vertical = 10.dp),
                             contentAlignment = Alignment.Center
-                        ) { Text("게시글 수정", fontSize = 14.sp) }
+                        ) { Text("게시글 수정", fontSize = 14.sp, modifier = Modifier.padding(vertical = 10.dp)) }
                     }
 
                     Box(
@@ -306,7 +295,7 @@ fun MyPostedRoomScreen(
                             .padding(vertical = 10.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("게시글 삭제", fontSize = 14.sp, color = Color.Red)
+                        Text("게시글 삭제", fontSize = 14.sp, color = Color.Red, modifier = Modifier.padding(vertical = 10.dp))
                     }
                 }
             }
@@ -322,101 +311,121 @@ fun RoomItem(
     onUnhideClick: () -> Unit
 ) {
     Column(
-        Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
+        Modifier.fillMaxWidth()
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                Modifier
-                    .size(80.dp)
-                    .clip(RoundedCornerShape(6.dp))
-                    .background(Color.LightGray)
-            ) {
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(roomPost.imageUri)           // ✅ 서버에서 내려오는 image_uri
-                        .crossfade(true)                   // 페이드 효과
-                        .build(),
-                    contentDescription = "방 이미지",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop      // 이미지 꽉 차게
-                )
-            }
-            Spacer(Modifier.width(12.dp))
-
-            Column(Modifier.weight(1f)) {
-                Text(roomPost.title, fontSize = 12.sp)
-                Row(verticalAlignment = Alignment.CenterVertically){
-                    Text("보증금 ${roomPost.deposit}", fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                    Spacer(Modifier.width(6.dp))
-                    Text("월세 ${roomPost.rent}", fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                }
-                Row(verticalAlignment = Alignment.CenterVertically){
-                    Text(roomPost.areaText.toString(), fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                    Spacer(Modifier.width(6.dp))
-                    Text(roomPost.ageRangeAndGender, fontSize = 10.sp, color = Color.Gray)
-                }
-            }
-        }
-
-        Spacer(Modifier.height(8.dp))
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp), // 높이를 명확히 줘야 가운데 정렬이 잘 적용돼요
-            contentAlignment = Alignment.Center
+        Column(
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
         ) {
-            Row (
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.align(Alignment.Center)
-            ){
-                if (!roomPost.isHidden) {
-                    Button(
-                        onClick = onEditClick,
-                        modifier = Modifier.width(250.dp).height(36.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF7F7F7)),
-                        shape = RoundedCornerShape(6.dp)
-                    ) {
-                        Text("글 수정하기", color = Color.Black, fontSize = 12.sp)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    Modifier
+                        .size(80.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(Color.LightGray)
+                ) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(roomPost.imageUri)           // ✅ 서버에서 내려오는 image_uri
+                            .crossfade(true)                   // 페이드 효과
+                            .build(),
+                        contentDescription = "방 이미지",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop      // 이미지 꽉 차게
+                    )
+                }
+                Spacer(Modifier.width(12.dp))
+
+                Column(Modifier.weight(1f)) {
+                    Text(roomPost.title, fontSize = 12.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            "보증금 ${roomPost.deposit}",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(Modifier.width(6.dp))
+                        Text("월세 ${roomPost.rent}", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
-                } else {
-                    Button(
-                        onClick = onUnhideClick,
-                        modifier = Modifier.width(250.dp).height(36.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF7F7F7)),
-                        shape = RoundedCornerShape(6.dp)
-                    ) {
-                        Text("숨김 해제", color = Color.Black, fontSize = 12.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            roomPost.areaText.toString(),
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(roomPost.ageRangeAndGender, fontSize = 10.sp, color = Color.Gray)
                     }
                 }
+            }
 
-                Spacer(modifier = Modifier.width(18.dp))
+            Spacer(Modifier.height(12.dp))
 
-                Box(
-                    modifier = Modifier
-                        .width(60.dp)
-                        .height(36.dp)
-                        .clip(RoundedCornerShape(6.dp)) // ✅ radius 설정
-                        .background(Color(0xFFF7F7F7)),  // ✅ 배경색
-                    contentAlignment = Alignment.Center) {
-                    IconButton(
-                        onClick = onMenuClick,
-                        modifier = Modifier.fillMaxSize(),
-                        colors = IconButtonDefaults.iconButtonColors(
-                            containerColor = Color.Transparent // ✅ 배경 투명으로
-                        )
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    if (!roomPost.isHidden) {
+                        Button(
+                            onClick = onEditClick,
+                            modifier = Modifier
+                                .weight(4.5f)
+                                .height(36.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF7F7F7)),
+                            shape = RoundedCornerShape(6.dp),
+                            contentPadding = PaddingValues(0.dp)
+                        ) {
+                            Text("글 수정하기", color = Color.Black, fontSize = 12.sp)
+                        }
+                    } else {
+                        Button(
+                            onClick = onUnhideClick,
+                            modifier = Modifier.width(250.dp).height(36.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF7F7F7)),
+                            shape = RoundedCornerShape(6.dp)
+                        ) {
+                            Text("숨김 해제", color = Color.Black, fontSize = 12.sp)
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.width(18.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(36.dp)
+                            .clip(RoundedCornerShape(6.dp)) // ✅ radius 설정
+                            .background(Color(0xFFF7F7F7)),  // ✅ 배경색
+                        contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.MoreHoriz,
-                            contentDescription = "More",
-                            modifier = Modifier.size(12.dp) // ← 아이콘 크기 조절
-                        )
+                        IconButton(
+                            onClick = onMenuClick,
+                            modifier = Modifier.fillMaxSize(),
+                            colors = IconButtonDefaults.iconButtonColors(
+                                containerColor = Color.Transparent // ✅ 배경 투명으로
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.MoreHoriz,
+                                contentDescription = "More",
+                                modifier = Modifier.size(12.dp) // ← 아이콘 크기 조절
+                            )
+                        }
                     }
                 }
             }
         }
+
+        Divider(
+            thickness = 0.5.dp,
+            color = Gray_CBCBCB
+        )
     }
 }
 

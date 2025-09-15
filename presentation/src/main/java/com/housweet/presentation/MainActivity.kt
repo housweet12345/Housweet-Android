@@ -38,7 +38,7 @@ import androidx.navigation.navArgument
 import androidx.navigation.toRoute
 import com.housweet.domain.event.AuthEvent
 import com.housweet.domain.event.AuthEventBus
-import com.housweet.domain.model.Coordinate
+import com.housweet.domain.model.community.Coordinate
 import com.housweet.presentation.model.RegisterModel
 import com.housweet.presentation.ui.chat.ChatScreen
 import com.housweet.presentation.ui.chatlist.ChatListScreen

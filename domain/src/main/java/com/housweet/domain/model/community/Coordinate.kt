@@ -1,4 +1,4 @@
-package com.housweet.domain.model
+package com.housweet.domain.model.community
 
 import kotlinx.serialization.Serializable
 

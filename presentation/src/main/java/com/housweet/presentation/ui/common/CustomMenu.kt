@@ -11,14 +11,21 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.housweet.presentation.ui.theme.Black
+import com.housweet.presentation.ui.theme.Gray_A5A5A5
+import com.housweet.presentation.ui.theme.Gray_CBCBCB
+import com.housweet.presentation.ui.theme.White
 
 data class MenuItem(
     val text: String,
@@ -41,30 +48,37 @@ fun CustomMenu(
                 }
         )
 
-        Card(
+        Surface(
             modifier = modifier
-                .width(160.dp),
-            shape = RoundedCornerShape(12.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White)
+                .padding(top = 4.dp, end = 10.dp)
+                .shadow(
+                    elevation = 4.dp,
+                    shape = RoundedCornerShape(6.dp),
+                    spotColor = Gray_A5A5A5,
+                    ambientColor = Gray_CBCBCB
+                ),
+            shape = RoundedCornerShape(6.dp),
+            color = White
         ) {
-            Column(
-                modifier = Modifier.padding(vertical = 8.dp)
-            ) {
+            Column {
                 menuItems.forEach { item ->
-                    Text(
-                        text = item.text,
-                        fontSize = 14.sp,
-                        color = Color.Black,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                item.onClick()
-                                onDismissRequest()
-                            }
-                            .padding(horizontal = 16.dp, vertical = 12.dp)
-                    )
+                    Box(modifier = Modifier
+                        .clickable {
+                            item.onClick()
+                            onDismissRequest()
+                        }
+                    ) {
+                        GuideText(
+                            modifier = Modifier
+                                .padding(start = 16.dp, end = 90.dp, top = 12.dp, bottom = 12.dp),
+                            color = Black,
+                            text = item.text,
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 12.sp,
+                            lineHeight = 12.sp,
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
             }
         }

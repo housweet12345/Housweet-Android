@@ -28,44 +28,41 @@ class LoginViewModel @Inject constructor(
 
     fun login(socialId: String, accessToken: String, email: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            loginWithKakaoUseCase(
+            val result = loginWithKakaoUseCase(
                 socialId = socialId,
                 accessToken = accessToken,
                 email = email
-            ).collect {
-                it.onSuccess { isTermsOfServiceAgreed ->
-                    isSetProfile(isTermsOfServiceAgreed)
-                }
-                it.onFailure {
-                    loginFail()
-                }
+            )
+            result.onSuccess { isTermsOfServiceAgreed ->
+                isSetProfile(isTermsOfServiceAgreed)
+            }
+            result.onFailure {
+                loginFail()
             }
         }
     }
 
     private suspend fun isSetProfile(isTermsOfServiceAgreed: Boolean) {
-        isSetProfileUseCase().collect {
-            it.onSuccess { isSetProfile ->
-                isBelongToRoom(isSetProfile, isTermsOfServiceAgreed)
-            }
+        val result = isSetProfileUseCase()
+        result.onSuccess { isSetProfile ->
+            isBelongToRoom(isSetProfile, isTermsOfServiceAgreed)
+        }
 
-            it.onFailure { e ->
-                e.printStackTrace()
-                loginFail()
-            }
+        result.onFailure { e ->
+            e.printStackTrace()
+            loginFail()
         }
     }
 
     private suspend fun isBelongToRoom(isSetProfile: Boolean, isTermsOfServiceAgreed: Boolean) {
-        isBelongToRoomUseCase().collect {
-            it.onSuccess { isBelongToRoom ->
-                loginSuccess(isTermsOfServiceAgreed, isSetProfile, isBelongToRoom)
-            }
+        val result = isBelongToRoomUseCase()
+        result.onSuccess { isBelongToRoom ->
+            loginSuccess(isTermsOfServiceAgreed, isSetProfile, isBelongToRoom)
+        }
 
-            it.onFailure { e ->
-                e.printStackTrace()
-                loginFail()
-            }
+        result.onFailure { e ->
+            e.printStackTrace()
+            loginFail()
         }
     }
 

@@ -5,13 +5,11 @@ import com.housweet.data.response.toRoomPostDetailDataModel
 import com.housweet.data.response.toNearByPostCountDataModel
 import com.housweet.data.response.toDomain
 import com.housweet.data.response.toRoomPostsByLocationDataModel
-import com.housweet.domain.model.RoomPostDetailDataModel
-import com.housweet.domain.model.NearByPostCountDataModel
+import com.housweet.domain.model.community.RoomPostDetailDataModel
+import com.housweet.domain.model.community.NearByPostCountDataModel
 import com.housweet.domain.model.BookmarkItem
-import com.housweet.domain.model.RoomPostsByLocationDataModel
+import com.housweet.domain.model.community.RoomPostsByLocationDataModel
 import com.housweet.domain.repository.CommunityRepository
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -23,21 +21,21 @@ class CommunityRepositoryImpl @Inject constructor(
         latitude: Double,
         longitude: Double,
         filteringDistance: Int
-    ): Flow<Result<List<NearByPostCountDataModel>>> = flow {
-        try {
+    ): Result<List<NearByPostCountDataModel>> {
+        return try {
             val response = communityRemoteDataSource.getNearbyPostCount(latitude, longitude, filteringDistance)
-            emit(Result.success(response.toNearByPostCountDataModel()))
+            Result.success(response.toNearByPostCountDataModel())
         } catch (e: Exception) {
-            emit(Result.failure(e))
+            Result.failure(e)
         }
     }
 
-    override suspend fun getRoomPostsByLocation(searchWord: String): Flow<Result<List<RoomPostsByLocationDataModel>>> = flow {
-        try {
+    override suspend fun getRoomPostsByLocation(searchWord: String): Result<List<RoomPostsByLocationDataModel>> {
+        return try {
             val response = communityRemoteDataSource.getRoomPostsByLocation(searchWord)
-            emit(Result.success(response.toRoomPostsByLocationDataModel()))
+            Result.success(response.toRoomPostsByLocationDataModel())
         } catch (e: Exception) {
-            emit(Result.failure(e))
+            Result.failure(e)
         }
     }
 
@@ -46,39 +44,40 @@ class CommunityRepositoryImpl @Inject constructor(
         res.data.map { it.toDomain() }
     }
 
-    override suspend fun clickBookMark(roomPostingId: Int): Flow<Result<Boolean>> = flow {
-        try {
+    override suspend fun clickBookMark(roomPostingId: Int): Result<Boolean> {
+        return try {
             val response = communityRemoteDataSource.clickBookMark(roomPostingId)
-            emit(Result.success(response))
+            Result.success(response)
         } catch (e: Exception) {
-            emit(Result.failure(e))
+            Result.failure(e)
         }
     }
 
-    override suspend fun unClickBookMark(roomPostingId: Int): Flow<Result<Boolean>> = flow {
-        try {
+    override suspend fun unClickBookMark(roomPostingId: Int): Result<Boolean> {
+        return try {
             val response = communityRemoteDataSource.unClickBookMark(roomPostingId)
-            emit(Result.success(response))
+            Result.success(response)
         } catch (e: Exception) {
-            emit(Result.failure(e))
+            Result.failure(e)
         }
     }
 
-    override suspend fun getRoomPostDetail(roomPostingId: Int): Flow<Result<RoomPostDetailDataModel>> = flow {
-        try {
+    override suspend fun getRoomPostDetail(roomPostingId: Int): Result<RoomPostDetailDataModel> {
+        return try {
             val response = communityRemoteDataSource.getRoomPostDetail(roomPostingId)
-            emit(Result.success(response.toRoomPostDetailDataModel()))
+            Result.success(response.toRoomPostDetailDataModel())
         } catch (e: Exception) {
             e.printStackTrace()
+            Result.failure(e)
         }
     }
 
-    override suspend fun reportRoomPost(roomPostingId: Int): Flow<Result<Boolean>> = flow {
-        try {
+    override suspend fun reportRoomPost(roomPostingId: Int): Result<Boolean> {
+        return try {
             val response = communityRemoteDataSource.reportRoomPost(roomPostingId)
-            emit(Result.success(response))
+            Result.success(response)
         } catch (e: Exception) {
-            emit(Result.failure(e))
+            Result.failure(e)
         }
     }
 }

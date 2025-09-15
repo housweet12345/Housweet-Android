@@ -1,7 +1,6 @@
 package com.housweet.domain.usecase.community
 
-import com.housweet.domain.model.NearByPostCountDataModel
-import kotlinx.coroutines.flow.Flow
+import com.housweet.domain.model.community.NearByPostCountDataModel
 
 fun interface GetNearbyPostCountUseCase :
-    suspend (Double, Double, Int) -> Flow<Result<List<NearByPostCountDataModel>>>
+    suspend (Double, Double, Int) -> Result<List<NearByPostCountDataModel>>

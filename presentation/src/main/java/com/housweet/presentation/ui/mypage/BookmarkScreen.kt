@@ -29,6 +29,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.housweet.presentation.ui.common.LoadingScreen
+import com.housweet.presentation.ui.common.TopBar
+import com.housweet.presentation.ui.theme.Gray_CBCBCB
 import com.housweet.presentation.viewmodel.mypage.BookmarkViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -66,48 +69,33 @@ private fun BookmarkContent(
             .fillMaxSize()
             .background(Color.White)
     ) {
-        CenterAlignedTopAppBar(
-            windowInsets = WindowInsets(
-                top = 0.dp,
-                bottom = 0.dp
-            ),
-            title = {
-                androidx.compose.material.Text(
-                    text = "북마크",
-                    fontSize = 14.sp
-                )
-            },
-            navigationIcon = {
-                Icon(
-                    painter = painterResource(id = R.drawable.back_black),
-                    contentDescription = "뒤로가기",
-                    modifier = Modifier
-                        .padding(start = 16.dp)
-                        .clickable { onBack() }
-                )
-            },
-            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                containerColor = Color.White
-            )
+        TopBar(
+            text = "북마크",
+            onBackBtnClick = onBack
         )
 
         if (isLoading) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
+            LoadingScreen()
         } else {
             Column(
                 modifier = Modifier
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
                 bookmarks.forEach { item ->
-                    BookmarkCard(
-                        item = item,
-                        onClick = { onItemClick(item) },
-                        onBookmarkToggle = { onToggleBookmark(item) }
+                    Box(
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
+                    ) {
+                        BookmarkCard(
+                            item = item,
+                            onClick = { onItemClick(item) },
+                            onBookmarkToggle = { onToggleBookmark(item) }
+                        )
+                    }
+
+                    Divider(
+                        thickness = 0.5.dp,
+                        color = Gray_CBCBCB
                     )
-                    Divider(modifier = Modifier.padding(vertical = 8.dp))
                 }
             }
         }

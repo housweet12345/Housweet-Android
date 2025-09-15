@@ -3,7 +3,7 @@ package com.housweet.presentation.ui.communityPage.searchRegionScreen
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.housweet.domain.model.Coordinate
+import com.housweet.domain.model.community.Coordinate
 import com.naver.maps.geometry.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext

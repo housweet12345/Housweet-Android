@@ -49,13 +49,12 @@ class BookmarkViewModel @Inject constructor(
         _bookmarks.value = current
 
         viewModelScope.launch {
-            unClickBookMarkUseCase(item.id).collect { r ->
-                r.onFailure {
-                    // 롤백
-                    val rollback = _bookmarks.value.toMutableList()
-                    rollback.add(idx, removed)
-                    _bookmarks.value = rollback
-                }
+            val result = unClickBookMarkUseCase(item.id)
+            result.onFailure {
+                // 롤백
+                val rollback = _bookmarks.value.toMutableList()
+                rollback.add(idx, removed)
+                _bookmarks.value = rollback
             }
         }
     }

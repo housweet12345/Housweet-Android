@@ -6,6 +6,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,15 +16,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -241,10 +245,47 @@ fun BackOnPressed() {
             (context as Activity).finish() // 앱 종료
         } else {
             // 특정한 시간 이상으로 차이가 난다면 토스트로 한 번 더 버튼을 누르라고 알림
-            Toast.makeText(context, "한 번 더 누르면 앱이 종료됩니다.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "빠르게 두 번 누르면 앱이 종료됩니다.", Toast.LENGTH_SHORT).show()
         }
         // 뒤로가기 버튼을 눌렀던 시간을 저장
         backPressedTime = System.currentTimeMillis()
+    }
+}
+
+@Composable
+fun TopBar(
+    text: String,
+    onBackBtnClick: () -> Unit,
+    content: @Composable (modifier: Modifier) -> Unit = { }
+) {
+    Box(
+        modifier = Modifier
+            .background(White)
+            .fillMaxWidth()
+            .height(48.dp)
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.back),
+            contentDescription = "back",
+            modifier = Modifier
+                .padding(start = 20.dp)
+                .align(Alignment.CenterStart)
+                .clip(CircleShape)
+                .clickable { onBackBtnClick() },
+            tint = Black
+        )
+
+        GuideText(
+            modifier = Modifier.align(Alignment.Center),
+            color = Black,
+            text = text,
+            fontWeight = FontWeight.Bold,
+            fontSize = 14.sp,
+            lineHeight = 14.sp,
+            textAlign = TextAlign.Center
+        )
+
+        content(Modifier.align(Alignment.CenterEnd))
     }
 }
 

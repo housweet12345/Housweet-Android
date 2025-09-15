@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -36,8 +35,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -46,6 +43,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -54,8 +52,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.housweet.presentation.R
@@ -65,8 +63,8 @@ import com.housweet.presentation.ui.home.state.NoticeItem
 import com.housweet.presentation.ui.home.state.RoommateInfo
 import com.housweet.presentation.ui.home.state.TodoInfo
 import com.housweet.presentation.ui.navigation.BottomNavigation
-import com.housweet.presentation.ui.theme.ColorGroup
 import com.housweet.presentation.ui.profile.component.ProfileImage
+import com.housweet.presentation.ui.theme.ColorGroup
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -91,45 +89,18 @@ fun HomeScreen(
             contentPadding = PaddingValues(start = 4.dp, end = 4.dp, bottom = 150.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-        // 상단 바 (오른쪽 3개 아이콘)
-        item {
-            TopAppBar(
-                windowInsets = WindowInsets(
-                    top = 0.dp,
-                    bottom = 0.dp
-                ),
-                title = { },
-                actions = {
-                    Row {
-                        IconButton(onClick = onChatClick) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_navigate_chat),
-                                contentDescription = "채팅"
-                            )
-                        }
-                    }
-                    IconButton(onClick = onNotificationClick) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_navigate_notification),
-                            contentDescription = "알림"
-                        )
-                    }
-                    IconButton(onClick = onMyPageClick) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_navigate_profile),
-                            contentDescription = "프로필"
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White
+            // 상단 바 (오른쪽 3개 아이콘)
+            item {
+                HomeTopBar(
+                    onChatBtnClick = onChatClick,
+                    onAlarmBtnClick = onNotificationClick,
+                    onMyPageBtnClick = onMyPageClick
                 )
-            )
-        }
+            }
 
             // 방 제목 섹션
             item {
-                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                Column(modifier = Modifier.padding(horizontal = 16.dp).padding(top = 30.dp)) {
                     RoomTitleSection(homeInfo.roomName, homeInfo.daysTogether)
                     Spacer(modifier = Modifier.height(20.dp))
                 }
@@ -156,7 +127,7 @@ fun HomeScreen(
                 }
             }
         }
-        
+
         // 바텀 네비게이션 (고정)
         Box(
             modifier = Modifier.align(Alignment.BottomCenter)
@@ -165,6 +136,58 @@ fun HomeScreen(
                 navController = navController
             )
         }
+    }
+}
+
+@Composable
+private fun HomeTopBar(
+    onChatBtnClick: () -> Unit,
+    onAlarmBtnClick: () -> Unit,
+    onMyPageBtnClick: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .padding(top = 12.dp, end = 20.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.Start),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Spacer(modifier = Modifier.weight(1f))
+
+        Icon(
+            painter = painterResource(id = R.drawable.chat),
+            contentDescription = "chat",
+            modifier = Modifier
+                .size(30.dp)
+                .padding(1.dp)
+                .clip(CircleShape)
+                .clickable {
+                    onChatBtnClick()
+                },
+        )
+
+        Icon(
+            painter = painterResource(id = R.drawable.alarm),
+            contentDescription = "alarm",
+            modifier = Modifier
+                .size(30.dp)
+                .padding(1.dp)
+                .clip(CircleShape)
+                .clickable {
+                    onAlarmBtnClick()
+                }
+        )
+
+        Icon(
+            painter = painterResource(id = R.drawable.mypage),
+            contentDescription = "mypage",
+            modifier = Modifier
+                .size(30.dp)
+                .padding(1.dp)
+                .clip(CircleShape)
+                .clickable {
+                    onMyPageBtnClick()
+                }
+        )
     }
 }
 
@@ -184,11 +207,12 @@ fun RoomTitleSection(
             color = Color.Black
         )
         
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(12.dp))
         
         Text(
-            text = "+${daysLiving}일째 함께 하는 중!",
-            fontSize = 16.sp,
+            text = "+${daysLiving.toString().padStart(2, '0')}일째 함께 하는 중!",
+            fontSize = 13.sp,
+            fontWeight = FontWeight.ExtraBold,
             color = ColorGroup.Primary
         )
     }

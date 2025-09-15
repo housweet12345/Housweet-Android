@@ -71,7 +71,7 @@ private fun AccessRoomContent(
         .fillMaxSize()
         .background(White)
     ) {
-        Setting(
+        AccessRoomTopBar(
             onChatBtnClick = onChatBtnClick,
             onAlarmBtnClick = onAlarmBtnClick,
             onMyPageBtnClick = onMyPageBtnClick
@@ -114,7 +114,7 @@ private fun AccessRoomContent(
 }
 
 @Composable
-private fun Setting(
+private fun AccessRoomTopBar(
     onChatBtnClick: () -> Unit,
     onAlarmBtnClick: () -> Unit,
     onMyPageBtnClick: () -> Unit,
@@ -131,7 +131,7 @@ private fun Setting(
             painter = painterResource(id = R.drawable.chat),
             contentDescription = "chat",
             modifier = Modifier
-                .size(24.dp)
+                .size(30.dp)
                 .padding(1.dp)
                 .clip(CircleShape)
                 .clickable {
@@ -143,7 +143,7 @@ private fun Setting(
             painter = painterResource(id = R.drawable.alarm),
             contentDescription = "alarm",
             modifier = Modifier
-                .size(24.dp)
+                .size(30.dp)
                 .padding(1.dp)
                 .clip(CircleShape)
                 .clickable {
@@ -155,7 +155,7 @@ private fun Setting(
             painter = painterResource(id = R.drawable.mypage),
             contentDescription = "mypage",
             modifier = Modifier
-                .size(24.dp)
+                .size(30.dp)
                 .padding(1.dp)
                 .clip(CircleShape)
                 .clickable {
