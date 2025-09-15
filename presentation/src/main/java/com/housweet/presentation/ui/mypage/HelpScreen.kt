@@ -51,6 +51,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.common.TopBar
+import com.housweet.presentation.ui.navigation.NavigationManager
 import com.housweet.presentation.ui.theme.Black
 import com.housweet.presentation.ui.theme.Gray_CBCBCB
 import com.housweet.presentation.ui.theme.White_F8F8F8
@@ -59,7 +60,7 @@ private data class Faq(val q: String, val a: String)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HelpScreen(navController: NavController) {
+fun HelpScreen(navigationManager: NavigationManager) {
     val categories = listOf("하우스메이트 찾기", "마이 하우스", "기타")
 
     val faqData: List<List<Faq>> = listOf(
@@ -123,7 +124,7 @@ fun HelpScreen(navController: NavController) {
     Scaffold(
         containerColor = Color.White,
         topBar = {
-            TopBar(text = "도움말", onBackBtnClick = { navController.popBackStack() }
+            TopBar(text = "도움말", onBackBtnClick = { navigationManager.popBackStack() }
             )
         }
     ) { paddingValues ->
@@ -316,6 +317,6 @@ private fun ContactDialog(onDismiss: () -> Unit) {
 fun HelpScreenPreview() {
     val navController = rememberNavController()
     HelpScreen(
-        navController = navController
+        navigationManager = NavigationManager(navController)
     )
 }

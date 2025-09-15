@@ -1,5 +1,6 @@
 package com.housweet.data.repository
 
+import android.util.Log
 import com.housweet.data.datasource.RoomRemoteDataSource
 import com.housweet.data.local.AuthLocalDataSource
 import javax.inject.Inject
@@ -10,8 +11,13 @@ class RoomRepository @Inject constructor(
     private val authLocalDataSource: AuthLocalDataSource
 ) {
     suspend fun getMyRoomId(): Int {
-        val token = authLocalDataSource.getAuthToken()
-            ?: throw IllegalStateException("AccessToken 없음")
-        return remoteDataSource.getMyRoomInfo(token.accessToken).id
+        try {
+            val token = authLocalDataSource.getAuthToken()
+                ?: throw IllegalStateException("AccessToken 없음")
+            return remoteDataSource.getMyRoomInfo(token.accessToken).id
+        } catch (e: Exception) {
+            if (e.message.toString().contains("Room not found")) return -1
+            else throw e
+        }
     }
 }

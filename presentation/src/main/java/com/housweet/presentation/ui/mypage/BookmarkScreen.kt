@@ -31,13 +31,14 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.housweet.presentation.ui.common.LoadingScreen
 import com.housweet.presentation.ui.common.TopBar
+import com.housweet.presentation.ui.navigation.NavigationManager
 import com.housweet.presentation.ui.theme.Gray_CBCBCB
 import com.housweet.presentation.viewmodel.mypage.BookmarkViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookmarkScreen(
-    navController: NavController,
+    navigationManager: NavigationManager,
     viewModel: BookmarkViewModel = hiltViewModel(),
     onItemClick: (BookmarkUiItem) -> Unit = {}
 ) {
@@ -49,7 +50,7 @@ fun BookmarkScreen(
     BookmarkContent(
         bookmarks = bookmarks,
         isLoading = isLoading,
-        onBack = { navController.popBackStack() },
+        onBack = { navigationManager.popBackStack() },
         onItemClick = onItemClick,
         onToggleBookmark = { viewModel.toggleBookmark(it) }
     )

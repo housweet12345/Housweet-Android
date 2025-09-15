@@ -53,6 +53,7 @@ import com.housweet.presentation.R
 import com.housweet.presentation.ui.common.CustomMenu
 import com.housweet.presentation.ui.common.MenuItem
 import com.housweet.presentation.ui.common.TopBar
+import com.housweet.presentation.ui.navigation.NavigationManager
 import com.housweet.presentation.ui.theme.Black
 import com.housweet.presentation.viewmodel.chatlist.ChatListViewModel
 import kotlinx.coroutines.delay
@@ -61,7 +62,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun ChatScreen(
     chatName: String,
-    navController: NavController,
+    navigationManager: NavigationManager,
     senderId: Int,
     receiverId: Int,
     roomId: Int
@@ -113,7 +114,7 @@ fun ChatScreen(
         topBar = {
             TopBar(
                 text = chatName,
-                onBackBtnClick = { navController.popBackStack() }
+                onBackBtnClick = { navigationManager.popBackStack() }
             ) { modifier ->
                 Icon(
                     painter = painterResource(id = R.drawable.menu),
@@ -173,7 +174,7 @@ fun ChatScreen(
                 chatItems = chatItems,
                 modifier = Modifier.fillMaxSize(),
                 listState = listState,
-                navController = navController,
+                navigationManager = navigationManager,
                 chatName = "채팅 미리보기"
             )
 
@@ -187,7 +188,7 @@ fun ChatScreen(
                         viewModel.deleteChatRoom(roomId) { ok, err ->
                             if (ok) {
                                 // 스낵바/토스트 노출 후 리스트로 이동
-                                navController.popBackStack()
+                                navigationManager.popBackStack()
                             } else {
                                 // 에러 메시지 노출
                                 Log.e("Chat", "삭제 실패: $err")
@@ -208,7 +209,7 @@ fun ChatScreen(
                         viewModel.reportChatRoom(roomId) { ok, err ->
                             if (ok) {
                                 viewModel.refreshChatUsers(senderId = senderId)         // ✅ 신고 후 새로고침
-                                navController.popBackStack()
+                                navigationManager.popBackStack()
                             } else {
                                 Log.e("Chat", "신고 실패: $err")
                             }
@@ -226,7 +227,7 @@ fun ChatScreenContent(
     chatItems: List<ChatItem>,
     modifier: Modifier = Modifier,
     listState: LazyListState,
-    navController: NavController,
+    navigationManager: NavigationManager,
     chatName: String
 ) {
     LazyColumn(
@@ -359,7 +360,7 @@ fun ChatScreenPreview() {
         ChatScreenContent(
             chatName = "채팅 미리보기",
             chatItems = chatItems,
-            navController = navController,
+            navigationManager = NavigationManager(navController),
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),

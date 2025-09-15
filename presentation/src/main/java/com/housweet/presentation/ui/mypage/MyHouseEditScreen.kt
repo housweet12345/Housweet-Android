@@ -45,6 +45,7 @@ import androidx.navigation.NavController
 import com.housweet.presentation.R
 import com.housweet.presentation.ui.common.TopBar
 import com.housweet.presentation.ui.navigation.BottomNavItem
+import com.housweet.presentation.ui.navigation.NavigationManager
 import com.housweet.presentation.viewmodel.mypage.MyHouseEditEffect
 import com.housweet.presentation.viewmodel.mypage.MyHouseEditViewModel
 import kotlinx.coroutines.launch
@@ -52,6 +53,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyHouseEditScreen(
+    navigationManager: NavigationManager,
     navController: NavController,
     houseName: String,
     startDate: String,
@@ -87,14 +89,14 @@ fun MyHouseEditScreen(
 
                     val popped = navController.popBackStack()
                     if (!popped) {
-                        navController.navigate("myhousedetail") {
+                        navigationManager.navigateTo("myhousedetail") {
                             launchSingleTop = true
                             restoreState = false
                         }
                     }
                 }
                 is MyHouseEditEffect.Deleted -> {
-                    navController.navigate("mypage?afterDelete=true") {
+                    navigationManager.navigateTo("mypage?afterDelete=true") {
                         popUpTo(BottomNavItem.Home.route) { inclusive = true }
                         launchSingleTop = true
                         restoreState = false
@@ -107,7 +109,7 @@ fun MyHouseEditScreen(
     BackHandler {
         val popped = navController.popBackStack()
         if (!popped) {
-            navController.navigate("myhousedetail") {
+            navigationManager.navigateTo("myhousedetail") {
                 launchSingleTop = true
                 restoreState = false
             }

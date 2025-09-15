@@ -27,7 +27,8 @@ class MyHouseViewModel @Inject constructor(
                 else MyHouseUiState.Success(house)
             }
             .onFailure { e ->
-                _state.value = MyHouseUiState.Error(e.message ?: "불러오기 실패")
+                if (e.message?.contains("Room not found") == true) _state.value = MyHouseUiState.Empty
+                else _state.value = MyHouseUiState.Error(e.message ?: "불러오기 실패")
             }
     }
 

@@ -41,8 +41,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import com.housweet.presentation.model.RegisterModel
 import com.housweet.presentation.ui.common.TopBarWithBackButton
+import com.housweet.presentation.ui.theme.Gray_A5A5A5
 import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModelBase
 
 @Composable
@@ -93,6 +95,18 @@ fun HouseRegisterScreen4(
         derivedStateOf {
             sections.all { (title, _) -> selectedBySection[title]?.isNotEmpty() == true }
         }
+    }
+
+    var isAbleToTouchScreen by remember { mutableStateOf(true) }
+
+    if (!isAbleToTouchScreen) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Gray_A5A5A5.copy(alpha = 0.375f))
+                .clickable(enabled = false) { }
+                .zIndex(Float.MAX_VALUE)
+        )
     }
 
     Scaffold (
@@ -190,6 +204,8 @@ fun HouseRegisterScreen4(
                 Button(
                     enabled = isStep4Valid,
                     onClick = {
+                        isAbleToTouchScreen = false
+
                         val missing = firstMissingSectionOrNull()
                         if (missing != null) {
                             missingSectionName = missing
@@ -210,6 +226,7 @@ fun HouseRegisterScreen4(
                             onCompleteClick()
                         }
                         val onErrorWrapped: (Throwable) -> Unit = { e ->
+                            isAbleToTouchScreen = true
                             Log.e("HouseRegister4", "❌ submit 실패: ${e.message}", e)
                             // 모드별 안내문구
                             resultMessage = if (mode == RegisterModel.EDIT) "방 수정에 실패했습니다" else "방 생성에 실패했습니다"

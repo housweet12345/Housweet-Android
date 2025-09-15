@@ -23,15 +23,16 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.housweet.presentation.ui.common.TopBar
+import com.housweet.presentation.ui.navigation.NavigationManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TermsConditionsPolicies(
-    navController: NavController
+    navigationManager: NavigationManager
 ) {
     Scaffold (
         containerColor = Color.White,
-        topBar = { TopBar(text = "서비스 이용 약관", onBackBtnClick = { navController.popBackStack() }) }
+        topBar = { TopBar(text = "서비스 이용 약관", onBackBtnClick = { navigationManager.popBackStack() }) }
     ) { innerPadding ->
         val scrollState = rememberScrollState()
         val bodyStyle = androidx.compose.ui.text.TextStyle(
@@ -235,6 +236,6 @@ fun TermsConditionsPolicies(
 fun TermsConditionsPoliciesPreview() {
     val navController = rememberNavController()
     TermsConditionsPolicies(
-        navController = navController
+        navigationManager = NavigationManager(navController)
     )
 }
