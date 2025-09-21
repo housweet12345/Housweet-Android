@@ -6,8 +6,13 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     id("com.google.dagger.hilt.android")
     kotlin("kapt")
-    id("com.google.firebase.crashlytics")
-    id("com.google.gms.google-services")
+}
+
+// google-services.json이 있을 때만 Firebase 플러그인 적용
+val googleServicesFile = file("google-services.json")
+if (googleServicesFile.exists()) {
+    apply(plugin = "com.google.firebase.crashlytics")
+    apply(plugin = "com.google.gms.google-services")
 }
 
 val properties = Properties().apply {
@@ -21,8 +26,8 @@ val keystoreProps = Properties().apply {
     }
 }
 
-val kakaoApiKey = properties["kakaoLogin_api_key"] as? String ?: ""
-val naverClientId = properties["naver_client_id"] ?: ""
+val kakaoApiKey = (properties["kakaoLogin_api_key"] as? String ?: "").removeSurrounding("\"")
+val naverClientId = (properties["naver_client_id"] ?: "").toString().removeSurrounding("\"")
 
 android {
     namespace = "com.housweet.app"
@@ -37,8 +42,8 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "Naver_Client_ID", naverClientId.toString())
-        buildConfigField("String", "Kakao_API_KEY", kakaoApiKey)
+        buildConfigField("String", "Naver_Client_ID", "\"$naverClientId\"")
+        buildConfigField("String", "Kakao_API_KEY", "\"$kakaoApiKey\"")
 
         manifestPlaceholders.putAll(
             mapOf(
@@ -56,10 +61,17 @@ android {
     signingConfigs {
         create("release") {
             // keystore.properties를 기준으로 설정
-            storeFile = file(keystoreProps["storeFile"] as String)
-            storePassword = keystoreProps["storePassword"] as String
-            keyAlias = keystoreProps["keyAlias"] as String
-            keyPassword = keystoreProps["keyPassword"] as String
+            val storeFilePath = keystoreProps["storeFile"] as? String
+            val storePass = keystoreProps["storePassword"] as? String
+            val alias = keystoreProps["keyAlias"] as? String
+            val keyPass = keystoreProps["keyPassword"] as? String
+            
+            if (storeFilePath != null && storePass != null && alias != null && keyPass != null) {
+                storeFile = file(storeFilePath)
+                storePassword = storePass
+                keyAlias = alias
+                keyPassword = keyPass
+            }
         }
     }
 
@@ -96,10 +108,12 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.storage)
 
-    //Firebase
-    implementation(platform("com.google.firebase:firebase-bom:34.2.0"))
-    implementation("com.google.firebase:firebase-analytics")
-    implementation("com.google.firebase:firebase-crashlytics-ndk")
+    //Firebase (google-services.json이 있을 때만)
+    if (googleServicesFile.exists()) {
+        implementation(platform("com.google.firebase:firebase-bom:34.2.0"))
+        implementation("com.google.firebase:firebase-analytics")
+        implementation("com.google.firebase:firebase-crashlytics-ndk")
+    }
 
     //Hilt
     implementation("com.google.dagger:hilt-android:2.55")

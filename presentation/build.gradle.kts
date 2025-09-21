@@ -31,7 +31,7 @@ android {
             useSupportLibrary = true
         }
 
-        manifestPlaceholders["Kakao_Redirect_URI"] = kakaoRedirectUri as String
+        manifestPlaceholders["Kakao_Redirect_URI"] = kakaoRedirectUri as? String ?: ""
     }
 
     buildTypes {
