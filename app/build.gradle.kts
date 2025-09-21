@@ -26,8 +26,8 @@ val keystoreProps = Properties().apply {
     }
 }
 
-val kakaoApiKey = properties["kakaoLogin_api_key"] as? String ?: ""
-val naverClientId = properties["naver_client_id"] ?: ""
+val kakaoApiKey = (properties["kakaoLogin_api_key"] as? String ?: "").removeSurrounding("\"")
+val naverClientId = (properties["naver_client_id"] ?: "").toString().removeSurrounding("\"")
 
 android {
     namespace = "com.housweet.app"
