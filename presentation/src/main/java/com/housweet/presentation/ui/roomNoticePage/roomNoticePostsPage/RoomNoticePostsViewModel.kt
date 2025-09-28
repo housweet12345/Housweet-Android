@@ -8,9 +8,12 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import javax.inject.Inject
 
 @HiltViewModel
-class RoomNoticePostsViewModel: ViewModel() {
+class RoomNoticePostsViewModel @Inject constructor(
+
+): ViewModel() {
     private val _uiState = MutableStateFlow<RoomNoticePostsStates>(RoomNoticePostsStates.Idle)
     val uiState: StateFlow<RoomNoticePostsStates> = _uiState.asStateFlow()
 

@@ -711,6 +711,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                     }
+
                     composable(BottomNavItem.FinanceLedger.route) {
                         //가계부 화면
                         Column(modifier = Modifier.fillMaxSize()) {
@@ -722,8 +723,19 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                     }
+
                     composable(BottomNavItem.Notice.route) {
-                        NoticePostsScreen(
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            ComingSoonScreen(
+                                modifier = Modifier.weight(1f)
+                            )
+                            BottomNavigation(
+                                navController = navController
+                            )
+                        }
+
+                        // 방의 공지사항 및 규칙 백엔드 연동 후 변경.
+                        /* NoticePostsScreen(
                             modifier = Modifier,
                             navController = navController,
                             onNoticeClick = {
@@ -735,7 +747,7 @@ class MainActivity : ComponentActivity() {
                             onWriteRuleClick = {
                                 navigationManager.navigateTo(Route.RoomNoticePageRoute.WriteRuleOfRoom)
                             }
-                        )
+                        ) */
                     }
 
                     composable<Route.RoomNoticePageRoute.DetailPostOfRoomNotice> {
