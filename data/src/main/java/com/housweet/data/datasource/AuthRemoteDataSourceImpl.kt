@@ -1,6 +1,7 @@
 package com.housweet.data.datasource
 
 import com.housweet.data.BuildConfig
+import com.housweet.data.manager.BaseUrlManager
 import com.housweet.data.network.KtorService
 import com.housweet.data.request.AgreeTermsOfServiceRequest
 import com.housweet.data.response.IsTermsOfServiceAgreedResponse
@@ -21,7 +22,8 @@ import javax.inject.Singleton
 
 @Singleton
 class AuthRemoteDataSourceImpl @Inject constructor(
-    private val ktorService: KtorService
+    private val ktorService: KtorService,
+    private val baseUrlManager: BaseUrlManager
 ): AuthRemoteDataSource {
     companion object {
         private const val BASE_URL = BuildConfig.BASE_URL
@@ -36,7 +38,8 @@ class AuthRemoteDataSourceImpl @Inject constructor(
         accessToken: String,
         email: String
     ): HttpResponse {
-        val response = httpClient.post("$BASE_URL/auth/login") {
+        val currentBaseUrl = baseUrlManager.getBaseUrl()
+        val response = httpClient.post("$currentBaseUrl/auth/login") {
             contentType(ContentType.Application.Json)
             setBody(
                 KakaoLoginRequest(
@@ -53,14 +56,16 @@ class AuthRemoteDataSourceImpl @Inject constructor(
     }
 
     override suspend fun refreshAccessToken(refreshToken: String): RefreshResponse {
-        return httpClientForRefresh.post("$BASE_URL/auth/token/refresh") {
+        val currentBaseUrl = baseUrlManager.getBaseUrl()
+        return httpClientForRefresh.post("$currentBaseUrl/auth/token/refresh") {
             contentType(ContentType.Application.Json)
             setBody(RefreshTokenRequest(refreshToken = refreshToken))
         }.body()
     }
 
     override suspend fun agreeTermsOfService(): Boolean {
-        val response = httpClient.patch("$BASE_URL/user/settings/me/") {
+        val currentBaseUrl = baseUrlManager.getBaseUrl()
+        val response = httpClient.patch("$currentBaseUrl/user/settings/me/") {
             contentType(ContentType.Application.Json)
             setBody(
                 AgreeTermsOfServiceRequest(
@@ -73,23 +78,27 @@ class AuthRemoteDataSourceImpl @Inject constructor(
     }
 
     override suspend fun isTermsOfServiceAgreed(): IsTermsOfServiceAgreedResponse {
-        return httpClient.patch("$BASE_URL/user/settings/me/") {
+        val currentBaseUrl = baseUrlManager.getBaseUrl()
+        return httpClient.patch("$currentBaseUrl/user/settings/me/") {
             contentType(ContentType.Application.Json)
         }.body()
     }
 
     override suspend fun isSetProfile(userId: Int): Boolean {
-        val response = httpClient.get("${BuildConfig.USER_BASE_URL}/profile/$userId/$userId")
+        val currentUserBaseUrl = baseUrlManager.getUserBaseUrl()
+        val response = httpClient.get("$currentUserBaseUrl/profile/$userId/$userId")
         return !response.body<String>().contains("\"year_of_birth\": 0")
     }
 
     override suspend fun isBelongToRoom(): Boolean {
-        val response = httpClient.get("$BASE_URL/room/rooms/me/")
+        val currentBaseUrl = baseUrlManager.getBaseUrl()
+        val response = httpClient.get("$currentBaseUrl/room/rooms/me/")
         return response.status.value == 200
     }
 
     override suspend fun deleteAccount(): Boolean {
-        val response = httpClient.post("$BASE_URL/auth/withdraw")
+        val currentBaseUrl = baseUrlManager.getBaseUrl()
+        val response = httpClient.post("$currentBaseUrl/auth/withdraw")
         val isSuccess = response.status.value == 200 || response.status.value == 204
         recreateHttpClient()
 

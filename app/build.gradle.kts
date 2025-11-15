@@ -119,6 +119,9 @@ dependencies {
     implementation("com.google.dagger:hilt-android:2.55")
     kapt("com.google.dagger:hilt-android-compiler:2.55")
 
+    //DataStore
+    implementation(libs.androidx.datastore.preferences)
+
     //ktor
     implementation(libs.ktor.client.okhttp)
 

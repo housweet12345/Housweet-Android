@@ -1,6 +1,7 @@
 package com.housweet.presentation.ui.startPage.splashPage
 sealed interface SplashState {
     data object Idle : SplashState
+    data object ShowDebugConfig : SplashState
 }
 
 sealed interface SplashEvent {

@@ -1,11 +1,15 @@
 package com.housweet.app.di
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
 import com.housweet.data.api.ReportApi
 import com.housweet.data.datasource.ImageUploadRemoteDataSourceImpl
 import com.housweet.data.local.AuthLocalDataSource
 import com.housweet.data.local.AuthLocalDataSourceImpl
 import com.housweet.data.local.RoomLocalDataSourceImpl
+import com.housweet.data.manager.BaseUrlManager
 import com.housweet.data.datasource.AccessRoomRemoteDataSource
 import com.housweet.data.datasource.AccessRoomRemoteDataSourceImpl
 import com.housweet.data.datasource.AppSettingRemoteDataSource
@@ -54,7 +58,11 @@ import com.housweet.domain.repository.HouseRegisterRepository
 import com.housweet.domain.repository.ImageUploadRepository
 import com.housweet.domain.repository.NotificationRepository
 import com.housweet.data.repository.NotificationRepositoryImpl
+import com.housweet.data.usecase.GetDebugConfigUseCaseImpl
 import com.housweet.data.usecase.GetMyRoomIdUseCaseImpl
+import com.housweet.data.usecase.SetDebugConfigUseCaseImpl
+import com.housweet.domain.usecase.debug.GetDebugConfigUseCase
+import com.housweet.domain.usecase.debug.SetDebugConfigUseCase
 import com.housweet.domain.repository.MyHouseRepository
 import com.housweet.domain.repository.NoticeRepository
 import com.housweet.domain.repository.ReportRepository
@@ -231,6 +239,18 @@ abstract class Module {
         impl: GetMyRoomIdUseCaseImpl
     ): GetMyRoomIdUseCase
 
+    @Binds
+    @Singleton
+    abstract fun bindGetDebugConfigUseCase(
+        impl: GetDebugConfigUseCaseImpl
+    ): GetDebugConfigUseCase
+
+    @Binds
+    @Singleton
+    abstract fun bindSetDebugConfigUseCase(
+        impl: SetDebugConfigUseCaseImpl
+    ): SetDebugConfigUseCase
+
     companion object {
         @Provides
         @Singleton
@@ -242,9 +262,18 @@ abstract class Module {
         @Singleton
         fun provideKtorClient(
             authLocalDataSource: AuthLocalDataSource,
-            authEventBus: AuthEventBus
+            authEventBus: AuthEventBus,
+            baseUrlManager: BaseUrlManager
         ): KtorService {
-            return KtorService(authLocalDataSource, authEventBus)
+            return KtorService(authLocalDataSource, authEventBus, baseUrlManager)
+        }
+
+        private val Context.debugConfigDataStore: DataStore<Preferences> by preferencesDataStore(name = "debug_config")
+
+        @Provides
+        @Singleton
+        fun provideDebugConfigDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
+            return context.debugConfigDataStore
         }
 
         @Provides

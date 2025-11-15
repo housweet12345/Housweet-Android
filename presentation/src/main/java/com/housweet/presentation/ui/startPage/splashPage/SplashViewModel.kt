@@ -2,6 +2,7 @@ package com.housweet.presentation.ui.startPage.splashPage
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.housweet.domain.usecase.debug.GetDebugConfigUseCase
 import com.housweet.domain.usecase.start.CheckLoginUseCase
 import com.housweet.domain.usecase.start.IsBelongToRoomUseCase
 import com.housweet.domain.usecase.start.IsSetProfileUseCase
@@ -20,30 +21,37 @@ class SplashViewModel @Inject constructor(
     private val checkLoginUseCase: CheckLoginUseCase,
     private val isTermsOfServiceAgreedUseCase: IsTermsOfServiceAgreedUseCase,
     private val isSetProfileUseCase: IsSetProfileUseCase,
-    private val isBelongToRoomUseCase: IsBelongToRoomUseCase
+    private val isBelongToRoomUseCase: IsBelongToRoomUseCase,
+    private val getDebugConfigUseCase: GetDebugConfigUseCase
 ): ViewModel() {
-    private val _uiState = MutableStateFlow<SplashState>(SplashState.Idle)
+    private val _uiState = MutableStateFlow<SplashState>(
+        if (getDebugConfigUseCase.isDebugMode()) SplashState.ShowDebugConfig else SplashState.Idle
+    )
     val uiState = _uiState.asStateFlow()
 
     private val _event = MutableSharedFlow<SplashEvent>()
     val event = _event.asSharedFlow()
 
-    init {
-        checkLogin()
-    }
-
     fun checkLogin() {
         viewModelScope.launch {
-            delay(1500)
-            val result = checkLoginUseCase()
-            result.onSuccess { isAutoLogin ->
-                if (isAutoLogin) isTermsOfServiceAgreed()
-                else _event.emit(SplashEvent.IsNotAutoLogin)
-            }
-            result.onFailure { e ->
-                e.printStackTrace()
-                _event.emit(SplashEvent.Error)
-            }
+            checkLoginInternal()
+        }
+    }
+
+    fun onDebugConfigShown() {
+        _uiState.value = SplashState.Idle
+    }
+
+    private suspend fun checkLoginInternal() {
+        delay(1500)
+        val result = checkLoginUseCase()
+        result.onSuccess { isAutoLogin ->
+            if (isAutoLogin) isTermsOfServiceAgreed()
+            else _event.emit(SplashEvent.IsNotAutoLogin)
+        }
+        result.onFailure { e ->
+            e.printStackTrace()
+            _event.emit(SplashEvent.Error)
         }
     }
 

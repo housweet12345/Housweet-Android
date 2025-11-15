@@ -1,6 +1,9 @@
 package com.housweet.presentation.ui.startPage.splashPage
 
 import android.annotation.SuppressLint
+import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,6 +19,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,6 +35,7 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.housweet.presentation.ui.common.GuideText
+import com.housweet.presentation.ui.debug.DebugConfigActivity
 import com.housweet.presentation.ui.theme.Purple_4B3AAC
 import com.housweet.presentation.ui.theme.White
 
@@ -43,6 +48,28 @@ fun SplashScreen(
     val uiState: SplashState by splashViewModel.uiState.collectAsStateWithLifecycle()
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val snackBarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
+
+    val debugConfigLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) {
+        // DebugConfigActivity에서 돌아왔을 때 로그인 체크 시작
+        splashViewModel.checkLogin()
+    }
+
+    // 초기 상태 체크 - 한 번만 실행
+    LaunchedEffect(Unit) {
+        when (uiState) {
+            is SplashState.ShowDebugConfig -> {
+                splashViewModel.onDebugConfigShown()
+                val intent = Intent(context, DebugConfigActivity::class.java)
+                debugConfigLauncher.launch(intent)
+            }
+            is SplashState.Idle -> {
+                splashViewModel.checkLogin()
+            }
+        }
+    }
 
     LaunchedEffect(Unit) {
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -80,10 +107,10 @@ fun SplashScreen(
     }
 
     when (uiState) {
-        SplashState.Idle -> {
+        SplashState.Idle, SplashState.ShowDebugConfig -> {
             SplashContent(
                 modifier = modifier,
-                snackBarHostState = snackBarHostState,
+                snackBarHostState = snackBarHostState
             )
         }
     }
@@ -110,7 +137,8 @@ private fun SplashContent(
             LottieAnimation(
                 composition = composition,
                 progress = { progress },
-                modifier = Modifier.size(40.dp)
+                modifier = Modifier
+                    .size(40.dp)
             )
 
             Spacer(modifier = Modifier.height(10.dp))

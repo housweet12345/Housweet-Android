@@ -3,6 +3,7 @@ package com.housweet.data.network
 import android.util.Log
 import com.housweet.data.BuildConfig
 import com.housweet.data.local.AuthLocalDataSource
+import com.housweet.data.manager.BaseUrlManager
 import com.housweet.data.request.RefreshTokenRequest
 import com.housweet.data.response.RefreshResponse
 import com.housweet.domain.event.AuthEvent
@@ -37,7 +38,8 @@ import javax.inject.Singleton
 @Singleton
 class KtorService @Inject constructor(
     private val authLocalDataSource: AuthLocalDataSource,
-    private val authEventBus: AuthEventBus
+    private val authEventBus: AuthEventBus,
+    private val baseUrlManager: BaseUrlManager
 ) {
     companion object {
         private const val BASE_URL = BuildConfig.BASE_URL
@@ -189,10 +191,11 @@ class KtorService @Inject constructor(
         Log.d(TAG, "Token expired, refreshing with refresh token")
 
         val refreshClient = createHttpClientForRefresh()
+        val currentBaseUrl = runBlocking { baseUrlManager.getBaseUrl() }
 
         val refreshResponse = runBlocking {
             refreshClient.use { client ->
-                client.post("$BASE_URL/auth/token/refresh") {
+                client.post("$currentBaseUrl/auth/token/refresh") {
                     contentType(ContentType.Application.Json)
                     setBody(RefreshTokenRequest(refreshToken = refreshToken))
                 }

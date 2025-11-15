@@ -3,7 +3,6 @@ package com.housweet.presentation
 import android.content.Intent
 import android.os.Bundle
 import android.util.Base64
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -15,7 +14,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -56,6 +54,7 @@ import com.housweet.presentation.ui.communityPage.mapScreen.MapScreen
 import com.housweet.presentation.ui.communityPage.postScreen.detailPostScreen.DetailPostScreen
 import com.housweet.presentation.ui.communityPage.postScreen.postsScreen.PostsScreen
 import com.housweet.presentation.ui.communityPage.searchRegionScreen.SearchRegionScreen
+import com.housweet.presentation.ui.debug.DebugConfigActivity
 import com.housweet.presentation.ui.home.route.HomeRoute
 import com.housweet.presentation.ui.mypage.AppNotificationSettingsScreen
 import com.housweet.presentation.ui.mypage.BookmarkScreen
@@ -97,8 +96,6 @@ import com.housweet.presentation.viewmodel.chatlist.ChatListViewModel
 import com.housweet.presentation.viewmodel.registerhouse.HouseRegisterViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.reflect.typeOf
@@ -304,48 +301,52 @@ class MainActivity : ComponentActivity() {
                     composable<Route.StartPageRoute.Splash> {
                         SplashScreen(
                             modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
-                        ) { isAutoLogin, isAgreeTermsOfService, isSetProfile, isBelongToRoom ->
-                            when {
-                                !isAutoLogin -> {
-                                    navigationManager.navigateOneWay(
-                                        Route.StartPageRoute.Splash,
-                                        Route.StartPageRoute.LoginRoute.Login
-                                    )
-                                }
-
-                                isAgreeTermsOfService -> {
-                                    if (!isSetProfile) {
+                            onNextScreen = { isAutoLogin, isAgreeTermsOfService, isSetProfile, isBelongToRoom ->
+                                when {
+                                    !isAutoLogin -> {
                                         navigationManager.navigateOneWay(
                                             Route.StartPageRoute.Splash,
-                                            "profile/edit?fromTerms=true"
+                                            Route.StartPageRoute.LoginRoute.Login
                                         )
-
-                                        return@SplashScreen
                                     }
 
-                                    if (!isBelongToRoom) {
+                                    isAgreeTermsOfService -> {
+                                        if (!isSetProfile) {
+                                            navigationManager.navigateOneWay(
+                                                Route.StartPageRoute.Splash,
+                                                "profile/edit?fromTerms=true"
+                                            )
+
+                                            return@SplashScreen
+                                        }
+
+                                        if (!isBelongToRoom) {
+                                            navigationManager.navigateOneWay(
+                                                Route.StartPageRoute.Splash,
+                                                Route.StartPageRoute.AccessRoomRoute.AccessRoom()
+                                            )
+
+                                            return@SplashScreen
+                                        }
+
                                         navigationManager.navigateOneWay(
                                             Route.StartPageRoute.Splash,
-                                            Route.StartPageRoute.AccessRoomRoute.AccessRoom()
+                                            BottomNavItem.Home.route
                                         )
-
-                                        return@SplashScreen
                                     }
 
-                                    navigationManager.navigateOneWay(
-                                        Route.StartPageRoute.Splash,
-                                        BottomNavItem.Home.route
-                                    )
-                                }
-
-                                else -> {
-                                    navigationManager.navigateOneWay(
-                                        Route.StartPageRoute.Splash,
-                                        Route.StartPageRoute.LoginRoute.WelCome(isSetProfile, isBelongToRoom)
-                                    )
+                                    else -> {
+                                        navigationManager.navigateOneWay(
+                                            Route.StartPageRoute.Splash,
+                                            Route.StartPageRoute.LoginRoute.WelCome(
+                                                isSetProfile,
+                                                isBelongToRoom
+                                            )
+                                        )
+                                    }
                                 }
                             }
-                        }
+                        )
 
                         // ✅ 임시: 앱 진입 시 바로 AccessRoom으로 (테스트용)
 //                        SplashScreen(modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),)
