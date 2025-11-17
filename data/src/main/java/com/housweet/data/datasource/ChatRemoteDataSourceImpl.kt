@@ -1,6 +1,7 @@
 package com.housweet.data.datasource
 
 import android.util.Log
+import com.housweet.data.BuildConfig
 import com.housweet.data.response.ChatUserResponse
 import com.housweet.data.response.ChatUsersEnvelope
 import com.housweet.data.response.CreateChatRoomResponse
@@ -32,7 +33,7 @@ class ChatRemoteDataSourceImpl @Inject constructor(
     private val authedClient: HttpClient
 ) : ChatRemoteDataSource {
 
-    private val base = "http://54.180.30.121:8000"
+    private val base = BuildConfig.CHAT_BASE_URL
     private val TAG = "KtorClient"
 
     // ✅ 토큰 플러그인 없는 전용 HttpClient

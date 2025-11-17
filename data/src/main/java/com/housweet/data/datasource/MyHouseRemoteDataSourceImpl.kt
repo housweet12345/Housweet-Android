@@ -1,6 +1,7 @@
 package com.housweet.data.datasource
 
 import android.util.Log
+import com.housweet.data.BuildConfig
 import com.housweet.data.network.KtorService
 import com.housweet.data.response.MyHouseResponse
 import com.housweet.data.response.UpdateMyHouseNameRequest
@@ -26,7 +27,7 @@ class MyHouseRemoteDataSourceImpl @Inject constructor(
     private val client: HttpClient
         get() = ktorService.getHttpClient()
 
-    private val base = "http://43.200.10.89"
+    private val base = BuildConfig.MY_HOUSE_BASE_URL
 
     override suspend fun getMyHouse(): MyHouseResponse? {
         val res: HttpResponse = client.get("$base/room/rooms/me")
