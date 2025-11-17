@@ -1,6 +1,7 @@
 package com.housweet.data.datasource
 
 import com.housweet.data.BuildConfig
+import com.housweet.data.constants.ApiEndpoints
 import com.housweet.data.network.KtorService
 import com.housweet.data.response.NoticeResponse
 import io.ktor.client.HttpClient
@@ -33,12 +34,12 @@ class NoticeRemoteDataSourceImpl @Inject constructor(
     }
 
     override suspend fun getNotices(): List<NoticeResponse> {
-        val res: HttpResponse = client.get("$base/communications/notices/")
+        val res: HttpResponse = client.get("$base/${ApiEndpoints.Communications.NOTICES}")
         return res.requireJsonOrThrow("getNotices")
     }
 
     override suspend fun getNotice(id: Int): NoticeResponse {
-        val res: HttpResponse = client.get("$base/communications/notices/$id/")
+        val res: HttpResponse = client.get("$base/${ApiEndpoints.Communications.noticeById(id)}")
         return res.requireJsonOrThrow("getNotice($id)")
     }
 }

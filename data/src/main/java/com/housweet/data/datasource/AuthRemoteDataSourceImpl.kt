@@ -1,6 +1,7 @@
 package com.housweet.data.datasource
 
 import com.housweet.data.BuildConfig
+import com.housweet.data.constants.ApiEndpoints
 import com.housweet.data.network.KtorService
 import com.housweet.data.request.AgreeTermsOfServiceRequest
 import com.housweet.data.response.IsTermsOfServiceAgreedResponse
@@ -36,7 +37,7 @@ class AuthRemoteDataSourceImpl @Inject constructor(
         accessToken: String,
         email: String
     ): HttpResponse {
-        val response = httpClient.post("$BASE_URL/auth/login") {
+        val response = httpClient.post("$BASE_URL/${ApiEndpoints.Auth.LOGIN}") {
             contentType(ContentType.Application.Json)
             setBody(
                 KakaoLoginRequest(
@@ -53,14 +54,14 @@ class AuthRemoteDataSourceImpl @Inject constructor(
     }
 
     override suspend fun refreshAccessToken(refreshToken: String): RefreshResponse {
-        return httpClientForRefresh.post("$BASE_URL/auth/token/refresh") {
+        return httpClientForRefresh.post("$BASE_URL/${ApiEndpoints.Auth.TOKEN_REFRESH}") {
             contentType(ContentType.Application.Json)
             setBody(RefreshTokenRequest(refreshToken = refreshToken))
         }.body()
     }
 
     override suspend fun agreeTermsOfService(): Boolean {
-        val response = httpClient.patch("$BASE_URL/user/settings/me/") {
+        val response = httpClient.patch("$BASE_URL/${ApiEndpoints.User.SETTINGS_ME}") {
             contentType(ContentType.Application.Json)
             setBody(
                 AgreeTermsOfServiceRequest(
@@ -73,23 +74,23 @@ class AuthRemoteDataSourceImpl @Inject constructor(
     }
 
     override suspend fun isTermsOfServiceAgreed(): IsTermsOfServiceAgreedResponse {
-        return httpClient.patch("$BASE_URL/user/settings/me/") {
+        return httpClient.patch("$BASE_URL/${ApiEndpoints.User.SETTINGS_ME}") {
             contentType(ContentType.Application.Json)
         }.body()
     }
 
     override suspend fun isSetProfile(userId: Int): Boolean {
-        val response = httpClient.get("${BuildConfig.USER_BASE_URL}/profile/$userId/$userId")
+        val response = httpClient.get("${BuildConfig.USER_BASE_URL}/${ApiEndpoints.User.profileById(userId)}")
         return !response.body<String>().contains("\"year_of_birth\": 0")
     }
 
     override suspend fun isBelongToRoom(): Boolean {
-        val response = httpClient.get("$BASE_URL/room/rooms/me/")
+        val response = httpClient.get("$BASE_URL/${ApiEndpoints.Room.ROOMS_ME}")
         return response.status.value == 200
     }
 
     override suspend fun deleteAccount(): Boolean {
-        val response = httpClient.post("$BASE_URL/auth/withdraw")
+        val response = httpClient.post("$BASE_URL/${ApiEndpoints.Auth.WITHDRAW}")
         val isSuccess = response.status.value == 200 || response.status.value == 204
         recreateHttpClient()
 

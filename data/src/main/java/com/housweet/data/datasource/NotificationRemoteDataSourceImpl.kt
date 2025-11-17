@@ -1,6 +1,7 @@
 package com.housweet.data.datasource
 
 import com.housweet.data.BuildConfig
+import com.housweet.data.constants.ApiEndpoints
 import com.housweet.data.network.KtorService
 import com.housweet.data.response.NotificationResponse
 import io.ktor.client.HttpClient
@@ -18,6 +19,6 @@ class NotificationRemoteDataSourceImpl @Inject constructor(
     private val baseUrl = BuildConfig.BASE_URL
 
     override suspend fun getNotifications(): List<NotificationResponse> {
-        return client.get("$baseUrl/communications/notifications/").body()
+        return client.get("$baseUrl/${ApiEndpoints.Communications.NOTIFICATIONS}").body()
     }
 }

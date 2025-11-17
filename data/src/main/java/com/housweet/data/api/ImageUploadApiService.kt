@@ -1,5 +1,6 @@
 package com.housweet.data.api
 
+import com.housweet.data.constants.ApiEndpoints
 import okhttp3.MultipartBody
 import retrofit2.http.Multipart
 import retrofit2.http.POST
@@ -16,3 +17,6 @@ interface ImageUploadApiService {
         @Part image: MultipartBody.Part
     ): ImageUploadResponse
 }
+
+// Note: Retrofit 어노테이션은 컴파일 타임 상수만 허용하므로,
+// ApiEndpoints.Image.UPLOAD를 직접 사용할 수 없습니다.

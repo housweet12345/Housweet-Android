@@ -2,6 +2,7 @@ package com.housweet.data.datasource
 
 import android.util.Log
 import com.housweet.data.BuildConfig
+import com.housweet.data.constants.ApiEndpoints
 import com.housweet.data.network.KtorService
 import com.housweet.data.request.AppSettingUpdateRequest
 import com.housweet.data.response.AppSettingResponse
@@ -22,7 +23,7 @@ class AppSettingRemoteDataSourceImpl @Inject constructor(
     private val baseUrl = BuildConfig.BASE_URL
 
     override suspend fun getAppSettings(): AppSettingResponse {
-        return client.get("$baseUrl/user/app-settings/").body()
+        return client.get("$baseUrl/${ApiEndpoints.User.APP_SETTINGS}").body()
     }
 
     override suspend fun updateAppSetting(settingId: Int, isEnabled: Boolean): AppSettingItemResponse {
@@ -31,7 +32,7 @@ class AppSettingRemoteDataSourceImpl @Inject constructor(
         val requestBody = AppSettingUpdateRequest(is_enabled = isEnabled)
         Log.d("AppSettingRemote", "요청 바디: $requestBody")
 
-        return client.patch("$baseUrl/user/app-settings/$settingId/") {
+        return client.patch("$baseUrl/${ApiEndpoints.User.appSettingById(settingId)}") {
             setBody(requestBody)
         }.body()
     }

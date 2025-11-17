@@ -1,6 +1,7 @@
 package com.housweet.data.datasource
 
 import com.housweet.data.BuildConfig
+import com.housweet.data.constants.ApiEndpoints
 import com.housweet.data.network.KtorService
 import com.housweet.data.response.BookmarkedPostingListResponse
 import com.housweet.data.response.GetNearbyPostCountResponseListDto
@@ -52,7 +53,7 @@ class CommunityRemoteDataSourceImpl @Inject constructor(
         longitude: Double,
         filteringDistance: Int
     ): GetNearbyPostCountResponseListDto {
-        val res: HttpResponse = httpClient.get("$BASE_URL/room/region/near/") {
+        val res: HttpResponse = httpClient.get("$BASE_URL/${ApiEndpoints.Room.REGION_NEAR}") {
             parameter("latitude", latitude)
             parameter("longitude", longitude)
             parameter("filtering_distance", filteringDistance)
@@ -62,35 +63,35 @@ class CommunityRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun getRoomPostsByLocation(searchWord: String): GetRoomPostsByLocationResponseList {
         // Ktor가 query 인코딩을 처리하므로 그대로 전달
-        val res: HttpResponse = httpClient.get("$BASE_URL/room/room-postings/") {
+        val res: HttpResponse = httpClient.get("$BASE_URL/${ApiEndpoints.Room.ROOM_POSTINGS}") {
             parameter("search_word", searchWord)
         }
         return res.requireJsonOrThrow("getRoomPostsByLocation")
     }
 
     override suspend fun getBookmarkedPostings(): BookmarkedPostingListResponse {
-        val res: HttpResponse = httpClient.get("$BASE_URL/room/room-postings/bookmarked-postings/")
+        val res: HttpResponse = httpClient.get("$BASE_URL/${ApiEndpoints.Room.BOOKMARKED_POSTINGS}")
         return res.requireJsonOrThrow("getBookmarkedPostings")
     }
 
     override suspend fun clickBookMark(roomPostingId: Int): Boolean {
-        val res: HttpResponse = httpClient.post("$BASE_URL/room/room-postings/$roomPostingId/bookmark/")
+        val res: HttpResponse = httpClient.post("$BASE_URL/${ApiEndpoints.Room.bookmarkByPostingId(roomPostingId)}")
         // 서버에 따라 200/201/204 다양—전부 성공으로 인정
         return res.status in setOf(HttpStatusCode.OK, HttpStatusCode.Created, HttpStatusCode.NoContent)
     }
 
     override suspend fun unClickBookMark(roomPostingId: Int): Boolean {
-        val res: HttpResponse = httpClient.delete("$BASE_URL/room/room-postings/$roomPostingId/bookmark/")
+        val res: HttpResponse = httpClient.delete("$BASE_URL/${ApiEndpoints.Room.bookmarkByPostingId(roomPostingId)}")
         return res.status in setOf(HttpStatusCode.OK, HttpStatusCode.NoContent)
     }
 
     override suspend fun getRoomPostDetail(roomPostingId: Int): GetRoomPostDetailResponse {
-        val res: HttpResponse = httpClient.get("$BASE_URL/room/room-postings/$roomPostingId/")
+        val res: HttpResponse = httpClient.get("$BASE_URL/${ApiEndpoints.Room.postingById(roomPostingId)}")
         return res.requireJsonOrThrow("getRoomPostDetail")
     }
 
     override suspend fun reportRoomPost(roomPostingId: Int): Boolean {
-        val res: HttpResponse = httpClient.post("$BASE_URL/report/") {
+        val res: HttpResponse = httpClient.post("$BASE_URL/${ApiEndpoints.Report.REPORT}") {
             contentType(ContentType.Application.Json)
             setBody(ReportRoomPostRequest(type = "room_posting", id = roomPostingId))
         }

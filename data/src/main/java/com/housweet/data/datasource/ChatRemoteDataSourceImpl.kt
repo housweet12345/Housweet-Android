@@ -2,6 +2,7 @@ package com.housweet.data.datasource
 
 import android.util.Log
 import com.housweet.data.BuildConfig
+import com.housweet.data.constants.ApiEndpoints
 import com.housweet.data.response.ChatUserResponse
 import com.housweet.data.response.ChatUsersEnvelope
 import com.housweet.data.response.CreateChatRoomResponse
@@ -89,7 +90,7 @@ class ChatRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun getChatUsers(senderId: Int): List<ChatUserResponse> {
         return try {
-            val res: HttpResponse = noAuthClient.get("$base/chat/view-room/$senderId/")
+            val res: HttpResponse = noAuthClient.get("$base/${ApiEndpoints.Chat.viewRoomBySenderId(senderId)}")
             if (res.status.isSuccess()) {
                 res.safeBodyOrNull<ChatUsersEnvelope>()?.results ?: emptyList()
             } else {
@@ -104,7 +105,7 @@ class ChatRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun sendMessage(senderId: Int, receiverId: Int, message: String): Boolean {
         return try {
-            val res: HttpResponse = noAuthClient.post("$base/chat/send/$senderId/$receiverId/") {
+            val res: HttpResponse = noAuthClient.post("$base/${ApiEndpoints.Chat.send(senderId, receiverId)}") {
                 setBody(mapOf("message" to message))
             }
             when {
@@ -123,7 +124,7 @@ class ChatRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun getChatMessages(senderId: Int, receiverId: Int): List<ChatMessageResponse> {
         return try {
-            val res: HttpResponse = noAuthClient.get("$base/chat/$senderId/$receiverId/messages/")
+            val res: HttpResponse = noAuthClient.get("$base/${ApiEndpoints.Chat.messages(senderId, receiverId)}")
             if (res.status.isSuccess()) {
                 res.safeBodyOrNull<List<ChatMessageResponse>>() ?: emptyList()
             } else {
@@ -138,7 +139,7 @@ class ChatRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun deleteRoom(roomId: Int): Result<Unit> {
         return try {
-            val res: HttpResponse = noAuthClient.post("$base/chat/room/$roomId/delete/")
+            val res: HttpResponse = noAuthClient.post("$base/${ApiEndpoints.Chat.deleteRoom(roomId)}")
             if (res.status.isSuccess()) Result.success(Unit)
             else Result.failure(IllegalStateException("Delete failed (${res.status.value}) ${res.bodyAsText()}"))
         } catch (e: Exception) {
@@ -148,7 +149,7 @@ class ChatRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun reportRoom(roomId: Int): Result<Unit> {
         return try {
-            val res: HttpResponse = noAuthClient.post("$base/chat/block/$roomId/")
+            val res: HttpResponse = noAuthClient.post("$base/${ApiEndpoints.Chat.blockRoom(roomId)}")
             if (res.status.isSuccess()) Result.success(Unit)
             else Result.failure(IllegalStateException("Report failed (${res.status.value}) ${res.bodyAsText()}"))
         } catch (e: Exception) {
@@ -158,7 +159,7 @@ class ChatRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun createRoom(senderId: Int, receiverId: Int): Result<Int> {
         return try {
-            val res: HttpResponse = noAuthClient.post("$base/chat/create_room/$senderId/$receiverId/")
+            val res: HttpResponse = noAuthClient.post("$base/${ApiEndpoints.Chat.createRoom(senderId, receiverId)}")
             if (res.status.isSuccess()) {
                 val body: CreateChatRoomResponse? = res.safeBodyOrNull()
                 if (body?.created == true) Result.success(body.room_id)
