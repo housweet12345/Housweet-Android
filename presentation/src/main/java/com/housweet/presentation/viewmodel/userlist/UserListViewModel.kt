@@ -1,5 +1,6 @@
 package com.housweet.presentation.viewmodel.userlist
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.housweet.domain.usecase.auth.GetCurrentUserIdUseCase
@@ -29,7 +30,12 @@ class UserListViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            currentUserId = getCurrentUserIdUseCase() ?: -1
+            try {
+                currentUserId = getCurrentUserIdUseCase() ?: -1
+            } catch (e: Exception) {
+                Log.e("UserListViewModel", "Failed to get current user ID", e)
+                currentUserId = -1
+            }
         }
     }
 

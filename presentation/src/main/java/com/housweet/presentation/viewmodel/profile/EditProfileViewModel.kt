@@ -13,10 +13,12 @@ import com.housweet.presentation.ui.profile.state.ProfileInfoState
 import com.housweet.presentation.ui.profile.state.toProfileInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -63,10 +65,15 @@ class EditProfileViewModel @Inject constructor(
     fun onImageSelected(uri: Uri) {
         viewModelScope.launch {
             try {
-                val inputStream = context.contentResolver.openInputStream(uri)
-                val imageData = inputStream?.readBytes()
-                val mimeType = context.contentResolver.getType(uri)
-                
+                // I/O 작업은 Dispatchers.IO에서 실행
+                val (imageData, mimeType) = withContext(Dispatchers.IO) {
+                    val inputStream = context.contentResolver.openInputStream(uri)
+                    val data = inputStream?.readBytes()
+                    val mime = context.contentResolver.getType(uri)
+                    inputStream?.close()
+                    Pair(data, mime)
+                }
+
                 val currentTemp = _tempProfileData.value
                 _tempProfileData.value = currentTemp?.copy(
                     profileImageUri = uri,
@@ -81,8 +88,6 @@ class EditProfileViewModel @Inject constructor(
                     profileImageData = imageData,
                     profileImageMimeType = mimeType
                 )
-                
-                inputStream?.close()
             } catch (e: Exception) {
                 // 이미지 로드 실패 처리
                 _profileState.value = ProfileInfoState.Error("이미지 로드에 실패했습니다")
