@@ -44,6 +44,7 @@ android {
 
         buildConfigField("String", "Naver_Client_ID", "\"$naverClientId\"")
         buildConfigField("String", "Kakao_API_KEY", "\"$kakaoApiKey\"")
+        buildConfigField("Boolean", "USE_FAKE_REPOSITORY", "false")
 
         manifestPlaceholders.putAll(
             mapOf(

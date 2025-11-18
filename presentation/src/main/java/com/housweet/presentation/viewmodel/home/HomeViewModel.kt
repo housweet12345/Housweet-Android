@@ -70,23 +70,23 @@ class HomeViewModel @Inject constructor(
             try {
                 val currentState = _homeState.value
                 if (currentState is HomeState.Success) {
-                    val currentMemberId = currentState.homeInfo.members.find { it.isMe }?.id ?: throw Exception("기분 업데이트에 실패했습니다")
+                    val currentMemberId = currentState.homeInfo.members.find { it.isMe }?.id
+                        ?: throw Exception("기분 업데이트에 실패했습니다")
                     val feelingString = mapMoodTypeToString(moodType)
-                    
+
                     val result = updateMoodUseCase(currentMemberId, feelingString)
-                    result.onSuccess {
-                        // 기분 업데이트 성공 후 홈 데이터 새로고침 (Loading 없이)
-                        loadHomeData(showLoading = false)
-                    }.onFailure { error ->
-                        // 실패 시에도 홈 데이터를 새로고침하여 원래 상태로 복원 (Loading 없이)
-                        loadHomeData(showLoading = false)
+
+                    // 성공/실패 여부와 관계없이 홈 데이터 새로고침 (Loading 없이)
+                    loadHomeData(showLoading = false)
+
+                    result.onFailure { error ->
                         _homeState.value = HomeState.Error(
                             error.message ?: "기분 업데이트에 실패했습니다"
                         )
                     }
                 }
             } catch (e: Exception) {
-                // 예외 발생 시에도 홈 데이터를 새로고침하여 원래 상태로 복원 (Loading 없이)
+                // 예외 발생 시 홈 데이터를 새로고침하여 원래 상태로 복원 (Loading 없이)
                 loadHomeData(showLoading = false)
                 _homeState.value = HomeState.Error(
                     e.message ?: "기분 업데이트에 실패했습니다"

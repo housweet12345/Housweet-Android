@@ -1,5 +1,6 @@
 package com.housweet.app.di
 
+import com.housweet.app.BuildConfig
 import com.housweet.data.local.AuthLocalDataSource
 import com.housweet.data.network.KtorService
 import com.housweet.data.repository.FakeUserRepositoryImpl
@@ -53,8 +54,7 @@ object UseCaseModule {
         ktorService: KtorService,
         authLocalDataSource: AuthLocalDataSource,
     ): UserRepository {
-        val isFake = false
-        return if (isFake) {
+        return if (BuildConfig.USE_FAKE_REPOSITORY) {
             FakeUserRepositoryImpl()
         } else {
             UserRepositoryImpl(ktorService, authLocalDataSource)
