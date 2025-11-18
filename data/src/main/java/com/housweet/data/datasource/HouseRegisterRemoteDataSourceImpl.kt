@@ -20,18 +20,20 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class HouseRegisterRemoteDataSourceImpl @Inject constructor(
     private val ktorService: KtorService
 ) : HouseRegisterRemoteDataSource {
     private val client: HttpClient
         get() = ktorService.getHttpClient()
 
-    private val BASE_URL = BuildConfig.BASE_URL
+    private val baseUrl = BuildConfig.BASE_URL
 
     // 방 등록 (서버가 보디를 안 줘도 status만 체크하면 됨)
     override suspend fun registerHouse(body: RegisterHouseRequest) {
-        val res: HttpResponse = client.post("$BASE_URL/${ApiEndpoints.Room.ROOM_POSTINGS}") {
+        val res: HttpResponse = client.post("$baseUrl/${ApiEndpoints.Room.ROOM_POSTINGS}") {
             contentType(ContentType.Application.Json)
             setBody(body)
         }
@@ -44,7 +46,7 @@ class HouseRegisterRemoteDataSourceImpl @Inject constructor(
 
     // 방 공고 상세 조회
     override suspend fun getPostingDetail(id: Int): PostingDetailResponse {
-        val res: HttpResponse = client.get("$BASE_URL/${ApiEndpoints.Room.postingById(id)}")
+        val res: HttpResponse = client.get("$baseUrl/${ApiEndpoints.Room.postingById(id)}")
         return when (res.status) {
             HttpStatusCode.OK -> res.body()
             HttpStatusCode.NotFound -> {
@@ -61,7 +63,7 @@ class HouseRegisterRemoteDataSourceImpl @Inject constructor(
 
     // 올린 방 수정
     override suspend fun updateHouse(id: Int, body: UpdateHouseRequest) {
-        val res: HttpResponse = client.patch("$BASE_URL/${ApiEndpoints.Room.postingById(id)}") {
+        val res: HttpResponse = client.patch("$baseUrl/${ApiEndpoints.Room.postingById(id)}") {
             contentType(ContentType.Application.Json)
             setBody(body)
         }

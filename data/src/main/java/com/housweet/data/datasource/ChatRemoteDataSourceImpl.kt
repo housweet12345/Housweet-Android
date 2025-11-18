@@ -3,6 +3,7 @@ package com.housweet.data.datasource
 import android.util.Log
 import com.housweet.data.BuildConfig
 import com.housweet.data.constants.ApiEndpoints
+import com.housweet.data.constants.NetworkConfig
 import com.housweet.data.response.ChatUserResponse
 import com.housweet.data.response.ChatUsersEnvelope
 import com.housweet.data.response.CreateChatRoomResponse
@@ -25,24 +26,34 @@ import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import okhttp3.ConnectionPool
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class ChatRemoteDataSourceImpl @Inject constructor(
     // 주입되는 authed client는 다른 용처가 있을 수 있으니 유지 (미사용 경고만 납니다)
     @Suppress("unused")
     private val authedClient: HttpClient
 ) : ChatRemoteDataSource {
 
-    private val base = BuildConfig.CHAT_BASE_URL
-    private val TAG = "KtorClient"
+    private val baseUrl = BuildConfig.CHAT_BASE_URL
+
+    companion object {
+        private const val TAG = "KtorClient"
+    }
 
     // ✅ 토큰 플러그인 없는 전용 HttpClient
-    private val noAuthClient: HttpClient by lazy {
+    private val client: HttpClient by lazy {
         HttpClient(OkHttp) {
             engine {
                 config {
-                    connectionPool(ConnectionPool(5, 5, TimeUnit.MINUTES))
+                    connectionPool(
+                        ConnectionPool(
+                            NetworkConfig.ConnectionPool.MAX_IDLE_CONNECTIONS,
+                            NetworkConfig.ConnectionPool.KEEP_ALIVE_DURATION_MINUTES,
+                            NetworkConfig.ConnectionPool.KEEP_ALIVE_TIME_UNIT
+                        )
+                    )
                     followRedirects(true)
                 }
             }
@@ -55,9 +66,9 @@ class ChatRemoteDataSourceImpl @Inject constructor(
                 )
             }
             install(HttpTimeout) {
-                connectTimeoutMillis = 15_000
-                requestTimeoutMillis = 60_000
-                socketTimeoutMillis = 45_000
+                connectTimeoutMillis = NetworkConfig.ChatTimeout.CONNECTION_MILLIS
+                requestTimeoutMillis = NetworkConfig.ChatTimeout.REQUEST_MILLIS
+                socketTimeoutMillis = NetworkConfig.ChatTimeout.SOCKET_MILLIS
             }
             // ⚠️ java.util.logging.Logger 와 충돌 방지: fully-qualified 사용
             install(io.ktor.client.plugins.logging.Logging) {
@@ -90,7 +101,7 @@ class ChatRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun getChatUsers(senderId: Int): List<ChatUserResponse> {
         return try {
-            val res: HttpResponse = noAuthClient.get("$base/${ApiEndpoints.Chat.viewRoomBySenderId(senderId)}")
+            val res: HttpResponse = client.get("$baseUrlUrl/${ApiEndpoints.Chat.viewRoomBySenderId(senderId)}")
             if (res.status.isSuccess()) {
                 res.safeBodyOrNull<ChatUsersEnvelope>()?.results ?: emptyList()
             } else {
@@ -105,7 +116,7 @@ class ChatRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun sendMessage(senderId: Int, receiverId: Int, message: String): Boolean {
         return try {
-            val res: HttpResponse = noAuthClient.post("$base/${ApiEndpoints.Chat.send(senderId, receiverId)}") {
+            val res: HttpResponse = client.post("$baseUrl/${ApiEndpoints.Chat.send(senderId, receiverId)}") {
                 setBody(mapOf("message" to message))
             }
             when {
@@ -124,7 +135,7 @@ class ChatRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun getChatMessages(senderId: Int, receiverId: Int): List<ChatMessageResponse> {
         return try {
-            val res: HttpResponse = noAuthClient.get("$base/${ApiEndpoints.Chat.messages(senderId, receiverId)}")
+            val res: HttpResponse = client.get("$baseUrl/${ApiEndpoints.Chat.messages(senderId, receiverId)}")
             if (res.status.isSuccess()) {
                 res.safeBodyOrNull<List<ChatMessageResponse>>() ?: emptyList()
             } else {
@@ -139,7 +150,7 @@ class ChatRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun deleteRoom(roomId: Int): Result<Unit> {
         return try {
-            val res: HttpResponse = noAuthClient.post("$base/${ApiEndpoints.Chat.deleteRoom(roomId)}")
+            val res: HttpResponse = client.post("$baseUrl/${ApiEndpoints.Chat.deleteRoom(roomId)}")
             if (res.status.isSuccess()) Result.success(Unit)
             else Result.failure(IllegalStateException("Delete failed (${res.status.value}) ${res.bodyAsText()}"))
         } catch (e: Exception) {
@@ -149,7 +160,7 @@ class ChatRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun reportRoom(roomId: Int): Result<Unit> {
         return try {
-            val res: HttpResponse = noAuthClient.post("$base/${ApiEndpoints.Chat.blockRoom(roomId)}")
+            val res: HttpResponse = client.post("$baseUrl/${ApiEndpoints.Chat.blockRoom(roomId)}")
             if (res.status.isSuccess()) Result.success(Unit)
             else Result.failure(IllegalStateException("Report failed (${res.status.value}) ${res.bodyAsText()}"))
         } catch (e: Exception) {
@@ -159,7 +170,7 @@ class ChatRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun createRoom(senderId: Int, receiverId: Int): Result<Int> {
         return try {
-            val res: HttpResponse = noAuthClient.post("$base/${ApiEndpoints.Chat.createRoom(senderId, receiverId)}")
+            val res: HttpResponse = client.post("$baseUrl/${ApiEndpoints.Chat.createRoom(senderId, receiverId)}")
             if (res.status.isSuccess()) {
                 val body: CreateChatRoomResponse? = res.safeBodyOrNull()
                 if (body?.created == true) Result.success(body.room_id)

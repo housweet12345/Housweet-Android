@@ -2,6 +2,7 @@ package com.housweet.data.network
 
 import android.util.Log
 import com.housweet.data.BuildConfig
+import com.housweet.data.constants.NetworkConfig
 import com.housweet.data.local.AuthLocalDataSource
 import com.housweet.data.request.RefreshTokenRequest
 import com.housweet.data.response.RefreshResponse
@@ -42,12 +43,6 @@ class KtorService @Inject constructor(
     companion object {
         private const val BASE_URL = BuildConfig.BASE_URL
         private const val TAG = "KtorClient"
-
-        private const val CONNECTION_TIMEOUT_SECONDS = 10L
-        private const val TIMEOUT_SECONDS = 30L
-
-        private const val MAX_IDLE_CONNECTIONS = 5
-        private const val KEEP_ALIVE_DURATION = 5L
     }
 
     private val json = Json {
@@ -83,15 +78,15 @@ class KtorService @Inject constructor(
 
                     connectionPool(
                         ConnectionPool(
-                            MAX_IDLE_CONNECTIONS,
-                            KEEP_ALIVE_DURATION,
-                            TimeUnit.MINUTES
+                            NetworkConfig.ConnectionPool.MAX_IDLE_CONNECTIONS,
+                            NetworkConfig.ConnectionPool.KEEP_ALIVE_DURATION_MINUTES,
+                            NetworkConfig.ConnectionPool.KEEP_ALIVE_TIME_UNIT
                         )
                     )
 
-                    connectTimeout(CONNECTION_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                    readTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                    writeTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                    connectTimeout(NetworkConfig.Timeout.CONNECTION_SECONDS, TimeUnit.SECONDS)
+                    readTimeout(NetworkConfig.Timeout.READ_WRITE_SECONDS, TimeUnit.SECONDS)
+                    writeTimeout(NetworkConfig.Timeout.READ_WRITE_SECONDS, TimeUnit.SECONDS)
 
                     followRedirects(true)
                     retryOnConnectionFailure(true)
@@ -105,9 +100,9 @@ class KtorService @Inject constructor(
             }
 
             install(HttpTimeout) {
-                connectTimeoutMillis = CONNECTION_TIMEOUT_SECONDS * 1500
-                requestTimeoutMillis = TIMEOUT_SECONDS * 2000
-                socketTimeoutMillis = TIMEOUT_SECONDS * 1500
+                connectTimeoutMillis = NetworkConfig.Timeout.CONNECTION_MILLIS
+                requestTimeoutMillis = NetworkConfig.Timeout.REQUEST_MILLIS
+                socketTimeoutMillis = NetworkConfig.Timeout.SOCKET_MILLIS
             }
 
             install(Logging) {

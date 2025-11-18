@@ -6,6 +6,7 @@ import com.housweet.data.network.KtorService
 import com.housweet.data.request.AgreeTermsOfServiceRequest
 import com.housweet.data.response.IsTermsOfServiceAgreedResponse
 import com.housweet.data.request.KakaoLoginRequest
+import com.housweet.data.response.ProfileResponse
 import com.housweet.data.response.RefreshResponse
 import com.housweet.data.request.RefreshTokenRequest
 import io.ktor.client.HttpClient
@@ -16,6 +17,7 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -24,20 +26,18 @@ import javax.inject.Singleton
 class AuthRemoteDataSourceImpl @Inject constructor(
     private val ktorService: KtorService
 ): AuthRemoteDataSource {
-    companion object {
-        private const val BASE_URL = BuildConfig.BASE_URL
-    }
+    private val baseUrl = BuildConfig.BASE_URL
 
-    private val httpClient: HttpClient
+    private val client: HttpClient
         get() = ktorService.getHttpClient()
-    private val httpClientForRefresh by lazy { ktorService.createHttpClientForRefresh() }
+    private val clientForRefresh by lazy { ktorService.createHttpClientForRefresh() }
 
     override suspend fun loginWithKakao(
         socialId: String,
         accessToken: String,
         email: String
     ): HttpResponse {
-        val response = httpClient.post("$BASE_URL/${ApiEndpoints.Auth.LOGIN}") {
+        val response = client.post("$baseUrl/${ApiEndpoints.Auth.LOGIN}") {
             contentType(ContentType.Application.Json)
             setBody(
                 KakaoLoginRequest(
@@ -54,14 +54,14 @@ class AuthRemoteDataSourceImpl @Inject constructor(
     }
 
     override suspend fun refreshAccessToken(refreshToken: String): RefreshResponse {
-        return httpClientForRefresh.post("$BASE_URL/${ApiEndpoints.Auth.TOKEN_REFRESH}") {
+        return clientForRefresh.post("$baseUrl/${ApiEndpoints.Auth.TOKEN_REFRESH}") {
             contentType(ContentType.Application.Json)
             setBody(RefreshTokenRequest(refreshToken = refreshToken))
         }.body()
     }
 
     override suspend fun agreeTermsOfService(): Boolean {
-        val response = httpClient.patch("$BASE_URL/${ApiEndpoints.User.SETTINGS_ME}") {
+        val response = client.patch("$baseUrl/${ApiEndpoints.User.SETTINGS_ME}") {
             contentType(ContentType.Application.Json)
             setBody(
                 AgreeTermsOfServiceRequest(
@@ -70,28 +70,29 @@ class AuthRemoteDataSourceImpl @Inject constructor(
             )
         }
 
-        return response.status.value == 200
+        return response.status == HttpStatusCode.OK
     }
 
     override suspend fun isTermsOfServiceAgreed(): IsTermsOfServiceAgreedResponse {
-        return httpClient.patch("$BASE_URL/${ApiEndpoints.User.SETTINGS_ME}") {
+        return client.patch("$baseUrl/${ApiEndpoints.User.SETTINGS_ME}") {
             contentType(ContentType.Application.Json)
         }.body()
     }
 
     override suspend fun isSetProfile(userId: Int): Boolean {
-        val response = httpClient.get("${BuildConfig.USER_BASE_URL}/${ApiEndpoints.User.profileById(userId)}")
-        return !response.body<String>().contains("\"year_of_birth\": 0")
+        val response = client.get("${BuildConfig.USER_BASE_URL}/${ApiEndpoints.User.profileById(userId)}")
+        val profile = response.body<ProfileResponse>()
+        return profile.yearOfBirth != 0
     }
 
     override suspend fun isBelongToRoom(): Boolean {
-        val response = httpClient.get("$BASE_URL/${ApiEndpoints.Room.ROOMS_ME}")
-        return response.status.value == 200
+        val response = client.get("$baseUrl/${ApiEndpoints.Room.ROOMS_ME}")
+        return response.status == HttpStatusCode.OK
     }
 
     override suspend fun deleteAccount(): Boolean {
-        val response = httpClient.post("$BASE_URL/${ApiEndpoints.Auth.WITHDRAW}")
-        val isSuccess = response.status.value == 200 || response.status.value == 204
+        val response = client.post("$baseUrl/${ApiEndpoints.Auth.WITHDRAW}")
+        val isSuccess = response.status in setOf(HttpStatusCode.OK, HttpStatusCode.NoContent)
         recreateHttpClient()
 
         return isSuccess

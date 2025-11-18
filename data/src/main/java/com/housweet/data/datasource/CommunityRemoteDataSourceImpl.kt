@@ -3,11 +3,12 @@ package com.housweet.data.datasource
 import com.housweet.data.BuildConfig
 import com.housweet.data.constants.ApiEndpoints
 import com.housweet.data.network.KtorService
+import com.housweet.data.request.ReportRoomPostRequest
 import com.housweet.data.response.BookmarkedPostingListResponse
 import com.housweet.data.response.GetNearbyPostCountResponseListDto
 import com.housweet.data.response.GetRoomPostDetailResponse
 import com.housweet.data.response.GetRoomPostsByLocationResponseList
-import com.housweet.data.request.ReportRoomPostRequest
+import com.housweet.data.utils.requireJsonOrThrow
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ResponseException
@@ -30,30 +31,20 @@ class CommunityRemoteDataSourceImpl @Inject constructor(
     private val ktorService: KtorService
 ): CommunityRemoteDataSource {
     companion object {
-        private const val BASE_URL = BuildConfig.BASE_URL
         private const val TAG = "CommunityRemote"
     }
 
-    private val httpClient: HttpClient
+    private val client: HttpClient
         get() = ktorService.getHttpClient()
 
-    // 공통: 성공 코드 확인 후 JSON 파싱. 파싱 실패도 보기 좋게 에러 메시지 포함.
-    private suspend inline fun <reified T> HttpResponse.requireJsonOrThrow(endpoint: String): T {
-        if (!status.isSuccess()) {
-            throw ResponseException(this, "$endpoint failed: $status ${runCatching { bodyAsText() }.getOrNull()}")
-        }
-        return runCatching { body<T>() }.getOrElse { ex ->
-            val raw = runCatching { bodyAsText() }.getOrNull()
-            throw ResponseException(this, "$endpoint parse error: ${ex.message}\nraw=$raw")
-        }
-    }
+    private val baseUrl = BuildConfig.BASE_URL
 
     override suspend fun getNearbyPostCount(
         latitude: Double,
         longitude: Double,
         filteringDistance: Int
     ): GetNearbyPostCountResponseListDto {
-        val res: HttpResponse = httpClient.get("$BASE_URL/${ApiEndpoints.Room.REGION_NEAR}") {
+        val res: HttpResponse = client.get("$baseUrl/${ApiEndpoints.Room.REGION_NEAR}") {
             parameter("latitude", latitude)
             parameter("longitude", longitude)
             parameter("filtering_distance", filteringDistance)
@@ -63,35 +54,35 @@ class CommunityRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun getRoomPostsByLocation(searchWord: String): GetRoomPostsByLocationResponseList {
         // Ktor가 query 인코딩을 처리하므로 그대로 전달
-        val res: HttpResponse = httpClient.get("$BASE_URL/${ApiEndpoints.Room.ROOM_POSTINGS}") {
+        val res: HttpResponse = client.get("$baseUrl/${ApiEndpoints.Room.ROOM_POSTINGS}") {
             parameter("search_word", searchWord)
         }
         return res.requireJsonOrThrow("getRoomPostsByLocation")
     }
 
     override suspend fun getBookmarkedPostings(): BookmarkedPostingListResponse {
-        val res: HttpResponse = httpClient.get("$BASE_URL/${ApiEndpoints.Room.BOOKMARKED_POSTINGS}")
+        val res: HttpResponse = client.get("$baseUrl/${ApiEndpoints.Room.BOOKMARKED_POSTINGS}")
         return res.requireJsonOrThrow("getBookmarkedPostings")
     }
 
     override suspend fun clickBookMark(roomPostingId: Int): Boolean {
-        val res: HttpResponse = httpClient.post("$BASE_URL/${ApiEndpoints.Room.bookmarkByPostingId(roomPostingId)}")
+        val res: HttpResponse = client.post("$baseUrl/${ApiEndpoints.Room.bookmarkByPostingId(roomPostingId)}")
         // 서버에 따라 200/201/204 다양—전부 성공으로 인정
         return res.status in setOf(HttpStatusCode.OK, HttpStatusCode.Created, HttpStatusCode.NoContent)
     }
 
     override suspend fun unClickBookMark(roomPostingId: Int): Boolean {
-        val res: HttpResponse = httpClient.delete("$BASE_URL/${ApiEndpoints.Room.bookmarkByPostingId(roomPostingId)}")
+        val res: HttpResponse = client.delete("$baseUrl/${ApiEndpoints.Room.bookmarkByPostingId(roomPostingId)}")
         return res.status in setOf(HttpStatusCode.OK, HttpStatusCode.NoContent)
     }
 
     override suspend fun getRoomPostDetail(roomPostingId: Int): GetRoomPostDetailResponse {
-        val res: HttpResponse = httpClient.get("$BASE_URL/${ApiEndpoints.Room.postingById(roomPostingId)}")
+        val res: HttpResponse = client.get("$baseUrl/${ApiEndpoints.Room.postingById(roomPostingId)}")
         return res.requireJsonOrThrow("getRoomPostDetail")
     }
 
     override suspend fun reportRoomPost(roomPostingId: Int): Boolean {
-        val res: HttpResponse = httpClient.post("$BASE_URL/${ApiEndpoints.Report.REPORT}") {
+        val res: HttpResponse = client.post("$baseUrl/${ApiEndpoints.Report.REPORT}") {
             contentType(ContentType.Application.Json)
             setBody(ReportRoomPostRequest(type = "room_posting", id = roomPostingId))
         }

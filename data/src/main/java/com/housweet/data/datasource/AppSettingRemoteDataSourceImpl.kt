@@ -13,7 +13,9 @@ import io.ktor.client.request.get
 import io.ktor.client.request.patch
 import io.ktor.client.request.setBody
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class AppSettingRemoteDataSourceImpl @Inject constructor(
     private val ktorService: KtorService
 ) : AppSettingRemoteDataSource {
