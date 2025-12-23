@@ -1,6 +1,7 @@
 package com.housweet.data.datasource
 
 import android.util.Log
+import com.housweet.data.manager.BaseUrlManager
 import com.housweet.data.response.ChatUserResponse
 import com.housweet.data.response.ChatUsersEnvelope
 import com.housweet.data.response.CreateChatRoomResponse
@@ -29,10 +30,10 @@ import javax.inject.Inject
 class ChatRemoteDataSourceImpl @Inject constructor(
     // 주입되는 authed client는 다른 용처가 있을 수 있으니 유지 (미사용 경고만 납니다)
     @Suppress("unused")
-    private val authedClient: HttpClient
+    private val authedClient: HttpClient,
+    private val baseUrlManager: BaseUrlManager
 ) : ChatRemoteDataSource {
 
-    private val base = "http://54.180.30.121:8000"
     private val TAG = "KtorClient"
 
     // ✅ 토큰 플러그인 없는 전용 HttpClient
@@ -88,7 +89,8 @@ class ChatRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun getChatUsers(senderId: Int): List<ChatUserResponse> {
         return try {
-            val res: HttpResponse = noAuthClient.get("$base/chat/view-room/$senderId/")
+            val currentBaseUrl = baseUrlManager.getBaseUrl()
+            val res: HttpResponse = noAuthClient.get("$currentBaseUrl/chat/view-room/$senderId/")
             if (res.status.isSuccess()) {
                 res.safeBodyOrNull<ChatUsersEnvelope>()?.results ?: emptyList()
             } else {
@@ -103,7 +105,8 @@ class ChatRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun sendMessage(senderId: Int, receiverId: Int, message: String): Boolean {
         return try {
-            val res: HttpResponse = noAuthClient.post("$base/chat/send/$senderId/$receiverId/") {
+            val currentBaseUrl = baseUrlManager.getBaseUrl()
+            val res: HttpResponse = noAuthClient.post("$currentBaseUrl/chat/send/$senderId/$receiverId/") {
                 setBody(mapOf("message" to message))
             }
             when {
@@ -122,7 +125,8 @@ class ChatRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun getChatMessages(senderId: Int, receiverId: Int): List<ChatMessageResponse> {
         return try {
-            val res: HttpResponse = noAuthClient.get("$base/chat/$senderId/$receiverId/messages/")
+            val currentBaseUrl = baseUrlManager.getBaseUrl()
+            val res: HttpResponse = noAuthClient.get("$currentBaseUrl/chat/$senderId/$receiverId/messages/")
             if (res.status.isSuccess()) {
                 res.safeBodyOrNull<List<ChatMessageResponse>>() ?: emptyList()
             } else {
@@ -137,7 +141,8 @@ class ChatRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun deleteRoom(roomId: Int): Result<Unit> {
         return try {
-            val res: HttpResponse = noAuthClient.post("$base/chat/room/$roomId/delete/")
+            val currentBaseUrl = baseUrlManager.getBaseUrl()
+            val res: HttpResponse = noAuthClient.post("$currentBaseUrl/chat/room/$roomId/delete/")
             if (res.status.isSuccess()) Result.success(Unit)
             else Result.failure(IllegalStateException("Delete failed (${res.status.value}) ${res.bodyAsText()}"))
         } catch (e: Exception) {
@@ -147,7 +152,8 @@ class ChatRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun reportRoom(roomId: Int): Result<Unit> {
         return try {
-            val res: HttpResponse = noAuthClient.post("$base/chat/block/$roomId/")
+            val currentBaseUrl = baseUrlManager.getBaseUrl()
+            val res: HttpResponse = noAuthClient.post("$currentBaseUrl/chat/block/$roomId/")
             if (res.status.isSuccess()) Result.success(Unit)
             else Result.failure(IllegalStateException("Report failed (${res.status.value}) ${res.bodyAsText()}"))
         } catch (e: Exception) {
@@ -157,7 +163,8 @@ class ChatRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun createRoom(senderId: Int, receiverId: Int): Result<Int> {
         return try {
-            val res: HttpResponse = noAuthClient.post("$base/chat/create_room/$senderId/$receiverId/")
+            val currentBaseUrl = baseUrlManager.getBaseUrl()
+            val res: HttpResponse = noAuthClient.post("$currentBaseUrl/chat/create_room/$senderId/$receiverId/")
             if (res.status.isSuccess()) {
                 val body: CreateChatRoomResponse? = res.safeBodyOrNull()
                 if (body?.created == true) Result.success(body.room_id)

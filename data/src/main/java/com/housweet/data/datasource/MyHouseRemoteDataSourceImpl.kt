@@ -1,6 +1,7 @@
 package com.housweet.data.datasource
 
 import android.util.Log
+import com.housweet.data.manager.BaseUrlManager
 import com.housweet.data.network.KtorService
 import com.housweet.data.response.MyHouseResponse
 import com.housweet.data.response.UpdateMyHouseNameRequest
@@ -21,15 +22,15 @@ import io.ktor.http.isSuccess
 import javax.inject.Inject
 
 class MyHouseRemoteDataSourceImpl @Inject constructor(
-    private val ktorService: KtorService
+    private val ktorService: KtorService,
+    private val baseUrlManager: BaseUrlManager
 ) : MyHouseRemoteDataSource {
     private val client: HttpClient
         get() = ktorService.getHttpClient()
 
-    private val base = "http://43.200.10.89"
-
     override suspend fun getMyHouse(): MyHouseResponse? {
-        val res: HttpResponse = client.get("$base/room/rooms/me")
+        val currentBaseUrl = baseUrlManager.getBaseUrl()
+        val res: HttpResponse = client.get("$currentBaseUrl/room/rooms/me")
         return when (res.status) {
             HttpStatusCode.OK -> res.body<MyHouseResponse>()
             HttpStatusCode.NotFound -> null                        // 빈 상태
@@ -38,8 +39,9 @@ class MyHouseRemoteDataSourceImpl @Inject constructor(
     }
 
     override suspend fun updateMyHouseName(roomId: Int, name: String): MyHouseResponse {
-        Log.d("MyHouseRemote", "PATCH $base/room/rooms/$roomId/, name=$name")
-        val res = client.patch("$base/room/rooms/$roomId/") {
+        val currentBaseUrl = baseUrlManager.getBaseUrl()
+        Log.d("MyHouseRemote", "PATCH $currentBaseUrl/room/rooms/$roomId/, name=$name")
+        val res = client.patch("$currentBaseUrl/room/rooms/$roomId/") {
             contentType(ContentType.Application.Json)
             setBody(UpdateMyHouseNameRequest(name))
         }
@@ -49,7 +51,8 @@ class MyHouseRemoteDataSourceImpl @Inject constructor(
     }
 
     override suspend fun refreshInviteCode(): MyHouseResponse {
-        val res = client.post("$base/room/rooms/new_invite_code/") {
+        val currentBaseUrl = baseUrlManager.getBaseUrl()
+        val res = client.post("$currentBaseUrl/room/rooms/new_invite_code/") {
             contentType(ContentType.Application.Json)
         }
         if (res.status.isSuccess()) return res.body()
@@ -59,7 +62,8 @@ class MyHouseRemoteDataSourceImpl @Inject constructor(
 
     // 👇 하우스 삭제 (DELETE /room/rooms/{room_id}/  → 204)
     override suspend fun deleteMyHouse(roomId: Int) {
-        val res = client.delete("$base/room/rooms/$roomId/") // ← ← 꼭 슬래시!
+        val currentBaseUrl = baseUrlManager.getBaseUrl()
+        val res = client.delete("$currentBaseUrl/room/rooms/$roomId/") // ← ← 꼭 슬래시!
         if (!res.status.isSuccess()) {
             throw IllegalStateException("Delete failed: ${res.status.value} ${res.bodyAsText()}")
         }

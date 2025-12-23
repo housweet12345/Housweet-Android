@@ -1,6 +1,6 @@
 package com.housweet.data.datasource
 
-import com.housweet.data.BuildConfig
+import com.housweet.data.manager.BaseUrlManager
 import com.housweet.data.network.KtorService
 import com.housweet.data.request.AccessRoomRequest
 import com.housweet.data.request.CreateRoomRequest
@@ -14,17 +14,15 @@ import javax.inject.Singleton
 
 @Singleton
 class AccessRoomRemoteDataSourceImpl @Inject constructor(
-    private val ktorService: KtorService
+    private val ktorService: KtorService,
+    private val baseUrlManager: BaseUrlManager
 ) : AccessRoomRemoteDataSource {
-    companion object {
-        private const val BASE_URL = BuildConfig.BASE_URL
-    }
-
     private val httpClient: HttpClient
         get() = ktorService.getHttpClient()
 
     override suspend fun createRoom(name: String): Boolean {
-        val response = httpClient.post("$BASE_URL/room/rooms/") {
+        val currentBaseUrl = baseUrlManager.getBaseUrl()
+        val response = httpClient.post("$currentBaseUrl/room/rooms/") {
             contentType(ContentType.Application.Json)
             setBody(CreateRoomRequest(name))
         }
@@ -33,7 +31,8 @@ class AccessRoomRemoteDataSourceImpl @Inject constructor(
     }
 
     override suspend fun accessRoomWithInviteCode(inviteCode: String): Boolean {
-        val response = httpClient.post("$BASE_URL/room/rooms/invite/") {
+        val currentBaseUrl = baseUrlManager.getBaseUrl()
+        val response = httpClient.post("$currentBaseUrl/room/rooms/invite/") {
             contentType(ContentType.Application.Json)
             setBody(AccessRoomRequest(inviteCode))
         }

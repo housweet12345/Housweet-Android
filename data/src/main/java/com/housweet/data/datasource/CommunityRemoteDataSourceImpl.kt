@@ -1,6 +1,7 @@
 package com.housweet.data.datasource
 
 import com.housweet.data.BuildConfig
+import com.housweet.data.manager.BaseUrlManager
 import com.housweet.data.network.KtorService
 import com.housweet.data.response.BookmarkedPostingListResponse
 import com.housweet.data.response.GetNearbyPostCountResponseListDto
@@ -26,10 +27,10 @@ import javax.inject.Singleton
 
 @Singleton
 class CommunityRemoteDataSourceImpl @Inject constructor(
-    private val ktorService: KtorService
+    private val ktorService: KtorService,
+    private val baseUrlManager: BaseUrlManager
 ): CommunityRemoteDataSource {
     companion object {
-        private const val BASE_URL = BuildConfig.BASE_URL
         private const val TAG = "CommunityRemote"
     }
 
@@ -52,7 +53,8 @@ class CommunityRemoteDataSourceImpl @Inject constructor(
         longitude: Double,
         filteringDistance: Int
     ): GetNearbyPostCountResponseListDto {
-        val res: HttpResponse = httpClient.get("$BASE_URL/room/region/near/") {
+        val currentBaseUrl = baseUrlManager.getBaseUrl()
+        val res: HttpResponse = httpClient.get("$currentBaseUrl/room/region/near/") {
             parameter("latitude", latitude)
             parameter("longitude", longitude)
             parameter("filtering_distance", filteringDistance)
@@ -62,35 +64,41 @@ class CommunityRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun getRoomPostsByLocation(searchWord: String): GetRoomPostsByLocationResponseList {
         // Ktor가 query 인코딩을 처리하므로 그대로 전달
-        val res: HttpResponse = httpClient.get("$BASE_URL/room/room-postings/") {
+        val currentBaseUrl = baseUrlManager.getBaseUrl()
+        val res: HttpResponse = httpClient.get("$currentBaseUrl/room/room-postings/") {
             parameter("search_word", searchWord)
         }
         return res.requireJsonOrThrow("getRoomPostsByLocation")
     }
 
     override suspend fun getBookmarkedPostings(): BookmarkedPostingListResponse {
-        val res: HttpResponse = httpClient.get("$BASE_URL/room/room-postings/bookmarked-postings/")
+        val currentBaseUrl = baseUrlManager.getBaseUrl()
+        val res: HttpResponse = httpClient.get("$currentBaseUrl/room/room-postings/bookmarked-postings/")
         return res.requireJsonOrThrow("getBookmarkedPostings")
     }
 
     override suspend fun clickBookMark(roomPostingId: Int): Boolean {
-        val res: HttpResponse = httpClient.post("$BASE_URL/room/room-postings/$roomPostingId/bookmark/")
+        val currentBaseUrl = baseUrlManager.getBaseUrl()
+        val res: HttpResponse = httpClient.post("$currentBaseUrl/room/room-postings/$roomPostingId/bookmark/")
         // 서버에 따라 200/201/204 다양—전부 성공으로 인정
         return res.status in setOf(HttpStatusCode.OK, HttpStatusCode.Created, HttpStatusCode.NoContent)
     }
 
     override suspend fun unClickBookMark(roomPostingId: Int): Boolean {
-        val res: HttpResponse = httpClient.delete("$BASE_URL/room/room-postings/$roomPostingId/bookmark/")
+        val currentBaseUrl = baseUrlManager.getBaseUrl()
+        val res: HttpResponse = httpClient.delete("$currentBaseUrl/room/room-postings/$roomPostingId/bookmark/")
         return res.status in setOf(HttpStatusCode.OK, HttpStatusCode.NoContent)
     }
 
     override suspend fun getRoomPostDetail(roomPostingId: Int): GetRoomPostDetailResponse {
-        val res: HttpResponse = httpClient.get("$BASE_URL/room/room-postings/$roomPostingId/")
+        val currentBaseUrl = baseUrlManager.getBaseUrl()
+        val res: HttpResponse = httpClient.get("$currentBaseUrl/room/room-postings/$roomPostingId/")
         return res.requireJsonOrThrow("getRoomPostDetail")
     }
 
     override suspend fun reportRoomPost(roomPostingId: Int): Boolean {
-        val res: HttpResponse = httpClient.post("$BASE_URL/report/") {
+        val currentBaseUrl = baseUrlManager.getBaseUrl()
+        val res: HttpResponse = httpClient.post("$currentBaseUrl/report/") {
             contentType(ContentType.Application.Json)
             setBody(ReportRoomPostRequest(type = "room_posting", id = roomPostingId))
         }

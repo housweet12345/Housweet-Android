@@ -286,12 +286,6 @@ abstract class Module {
 
         @Provides
         @Singleton
-        fun provideReportApi(ktorService: KtorService): ReportApi {
-            return ReportApi(ktorService)
-        }
-
-        @Provides
-        @Singleton
         fun provideCryptoManager(): CryptoManager {
             return CryptoManager()
         }
